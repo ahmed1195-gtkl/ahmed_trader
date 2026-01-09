@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const MarketData = () => {
+  const { t } = useTranslation();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);
@@ -33,7 +35,7 @@ const MarketData = () => {
       <div className="container mx-auto px-4 flex items-center gap-8">
         <div className="flex items-center gap-2 text-yellow-500 shrink-0">
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          <span className="text-[10px] font-black uppercase tracking-widest">Live Market</span>
+          <span className="text-[10px] font-black uppercase tracking-widest">{t('market.live')}</span>
         </div>
         
         <div className="flex gap-12 animate-marquee whitespace-nowrap">
@@ -51,7 +53,7 @@ const MarketData = () => {
 
         {lastUpdated && (
           <div className="ml-auto text-[10px] font-bold text-gray-500 uppercase tracking-widest hidden md:block">
-            Updated: {lastUpdated}
+            {t('market.updated')}: {lastUpdated}
           </div>
         )}
       </div>

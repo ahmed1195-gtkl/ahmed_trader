@@ -8,9 +8,11 @@ const resources = {
       // Header
       "language": "Language",
       "nav.home": "Home",
+      "nav.news": "News",
       "nav.login": "Login",
       "nav.logout": "Logout",
       "nav.settings": "Settings",
+      "nav.account": "Account",
 
       // Hero Section
       "hero.title": "Master Trading with Our Free Course",
@@ -63,6 +65,7 @@ const resources = {
       "auth.strength.weak": "Weak",
       "auth.strength.medium": "Medium",
       "auth.strength.strong": "Strong",
+      "auth.or": "Or",
 
       // Onboarding Questions
       "onboarding.title": "Tell us about your experience",
@@ -85,6 +88,18 @@ const resources = {
       "settings.enable": "Enable",
       "settings.disable": "Disable",
 
+      // News
+      "news.liveIntelligence": "Live Intelligence",
+      "news.titlePart1": "Market",
+      "news.titlePart2": "News",
+      "news.error": "Unable to load news at the moment.",
+      "news.tryAgain": "Try Again",
+      "news.readMore": "Read More",
+
+      // Market Data
+      "market.live": "Live Market",
+      "market.updated": "Updated",
+
       // Footer
       "footer.rights": "All rights reserved",
       "footer.team": "Powered by our expert team"
@@ -95,9 +110,11 @@ const resources = {
       // Header
       "language": "اللغة",
       "nav.home": "الرئيسية",
+      "nav.news": "الأخبار",
       "nav.login": "تسجيل الدخول",
       "nav.logout": "تسجيل الخروج",
       "nav.settings": "الإعدادات",
+      "nav.account": "الحساب",
 
       // Hero Section
       "hero.title": "أتقن التداول مع كورس مجاني",
@@ -150,6 +167,7 @@ const resources = {
       "auth.strength.weak": "ضعيفة",
       "auth.strength.medium": "متوسطة",
       "auth.strength.strong": "قوية",
+      "auth.or": "أو",
 
       // Onboarding Questions
       "onboarding.title": "أخبرنا عن خبرتك",
@@ -172,6 +190,18 @@ const resources = {
       "settings.enable": "تفعيل",
       "settings.disable": "تعطيل",
 
+      // News
+      "news.liveIntelligence": "ذكاء مباشر",
+      "news.titlePart1": "أخبار",
+      "news.titlePart2": "السوق",
+      "news.error": "تعذر تحميل الأخبار في الوقت الحالي.",
+      "news.tryAgain": "حاول مرة أخرى",
+      "news.readMore": "اقرأ المزيد",
+
+      // Market Data
+      "market.live": "السوق المباشر",
+      "market.updated": "تم التحديث",
+
       // Footer
       "footer.rights": "جميع الحقوق محفوظة",
       "footer.team": "مدعوم من فريقنا الخبير"
@@ -182,9 +212,11 @@ const resources = {
       // Header
       "language": "Langue",
       "nav.home": "Accueil",
+      "nav.news": "Actualités",
       "nav.login": "Connexion",
       "nav.logout": "Déconnexion",
       "nav.settings": "Paramètres",
+      "nav.account": "Compte",
 
       // Hero Section
       "hero.title": "Maîtrisez le trading avec notre cours gratuit",
@@ -237,6 +269,7 @@ const resources = {
       "auth.strength.weak": "Faible",
       "auth.strength.medium": "Moyenne",
       "auth.strength.strong": "Forte",
+      "auth.or": "Ou",
 
       // Onboarding Questions
       "onboarding.title": "Parlez-nous de votre expérience",
@@ -258,6 +291,18 @@ const resources = {
       "settings.2fa.description": "Ajoutez une couche de sécurité supplémentaire à votre compte.",
       "settings.enable": "Activer",
       "settings.disable": "Désactiver",
+
+      // News
+      "news.liveIntelligence": "Intelligence en direct",
+      "news.titlePart1": "Marché",
+      "news.titlePart2": "Actualités",
+      "news.error": "Impossible de charger les actualités pour le moment.",
+      "news.tryAgain": "Réessayer",
+      "news.readMore": "Lire la suite",
+
+      // Market Data
+      "market.live": "Marché en direct",
+      "market.updated": "Mis à jour",
 
       // Footer
       "footer.rights": "Tous droits réservés",

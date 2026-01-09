@@ -16,7 +16,7 @@ const News = () => {
     setError(false);
     try {
       // Using a more stable proxy/API for financial news
-      const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.investing.com/rss/news_285.rss&api_key=00000000000000000000000000000000');
+      const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.investing.com/rss/news_285.rss');
       const data = await response.json();
       if (data.status === 'ok') {
         setNews(data.items.slice(0, 12)); // Limit to 12 items for performance
@@ -46,9 +46,9 @@ const News = () => {
             <div>
               <div className="flex items-center gap-2 text-yellow-500 mb-2">
                 <TrendingUp className="w-4 h-4" />
-                <span className="text-[10px] font-black uppercase tracking-[0.3em]">Live Intelligence</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.3em]">{t('news.liveIntelligence')}</span>
               </div>
-              <h1 className="text-4xl font-black text-white uppercase tracking-tighter">Market <span className="text-yellow-500">News</span></h1>
+              <h1 className="text-4xl font-black text-white uppercase tracking-tighter">{t('news.titlePart1')} <span className="text-yellow-500">{t('news.titlePart2')}</span></h1>
             </div>
             <button onClick={fetchNews} className="p-3 rounded-full bg-white/5 border border-white/10 text-white hover:bg-yellow-500 hover:text-black transition-all">
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -57,8 +57,8 @@ const News = () => {
 
           {error ? (
             <div className="text-center py-20 bg-white/5 rounded-3xl border border-white/10">
-              <p className="text-gray-400 font-bold mb-4">Unable to load news at the moment.</p>
-              <button onClick={fetchNews} className="text-yellow-500 font-black uppercase text-xs tracking-widest underline">Try Again</button>
+              <p className="text-gray-400 font-bold mb-4">{t('news.error')}</p>
+              <button onClick={fetchNews} className="text-yellow-500 font-black uppercase text-xs tracking-widest underline">{t('news.tryAgain')}</button>
             </div>
           ) : loading ? (
             <div className="grid md:grid-cols-2 gap-6">
@@ -100,7 +100,7 @@ const News = () => {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-white transition-colors"
                   >
-                    Read More <ExternalLink className="w-3 h-3" />
+                    {t('news.readMore')} <ExternalLink className="w-3 h-3" />
                   </a>
                 </motion.div>
               ))}
