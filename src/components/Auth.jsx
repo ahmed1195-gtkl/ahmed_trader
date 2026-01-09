@@ -122,12 +122,7 @@ const Auth = () => {
     try {
       if (isLogin) {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        if (!userCredential.user.emailVerified) {
-          setError(t('auth.emailVerificationSent'));
-          await sendEmailVerification(userCredential.user);
-          setLoading(false);
-          return;
-        }
+        // Allow login directly without checking emailVerified as per user request
         await checkUserOnboarding(userCredential.user);
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
