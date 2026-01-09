@@ -12,6 +12,8 @@ import Onboarding from './components/Onboarding';
 import Settings from './components/Settings';
 import MarketData from './components/MarketData';
 import News from './components/News';
+import PrivacyPolicy from './components/PrivacyPolicy';
+import CookieConsent from './components/CookieConsent';
 import './App.css';
 
 function MainLayout() {
@@ -57,8 +59,10 @@ function App() {
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/news" element={<News />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
           </Routes>
         </div>
+        <CookieConsent />
       </div>
     </Router>
   );

@@ -102,7 +102,51 @@ const resources = {
 
       // Footer
       "footer.rights": "All rights reserved",
-      "footer.team": "Powered by our expert team"
+      "footer.team": "Powered by our expert team",
+      "footer.privacy": "Privacy Policy",
+      "footer.terms": "Terms of Service",
+      "footer.contact": "Contact",
+
+      // Cookies
+      "cookies.title": "We value your privacy",
+      "cookies.description": "We use cookies to enhance your browsing experience and analyze our traffic. By clicking \"Accept\", you consent to our use of cookies.",
+      "cookies.accept": "Accept",
+      "cookies.decline": "Decline",
+
+      // Privacy Policy
+      "privacy.title": "Privacy Policy",
+      "privacy.lastUpdated": "Last Updated: January 9, 2026",
+      "privacy.intro": "We respect your privacy and are committed to protecting your personal information. This policy explains how we collect, use, and protect data when you register for our services and use the site.",
+      "privacy.collection.title": "Information We Collect",
+      "privacy.collection.desc": "We may collect the following information when you register or use the site:",
+      "privacy.collection.item1": "Full Name",
+      "privacy.collection.item2": "Email Address",
+      "privacy.collection.item3": "Encrypted password using Firebase Auth or similar technologies",
+      "privacy.collection.item4": "Country",
+      "privacy.collection.item5": "Experience level or educational/professional background",
+      "privacy.collection.item6": "Any other information you voluntarily provide when contacting us",
+      "privacy.usage.title": "How We Use Information",
+      "privacy.usage.desc": "The data we collect is used for the following purposes:",
+      "privacy.usage.item1": "Registering and managing your account",
+      "privacy.usage.item2": "Sending important emails and notifications",
+      "privacy.usage.item3": "Assessing your experience level to provide suitable content",
+      "privacy.usage.item4": "Improving services and user experience",
+      "privacy.sharing.title": "Information Sharing",
+      "privacy.sharing.desc": "We do not share your personal data with any third party without your consent unless legally required. We use external services like Firebase for data storage and email delivery, and these services do not use your data for purposes outside the site.",
+      "privacy.protection.title": "Data Protection",
+      "privacy.protection.item1": "Passwords are stored encrypted and cannot be accessed directly",
+      "privacy.protection.item2": "Databases are protected to prevent unauthorized access",
+      "privacy.protection.item3": "The site uses HTTPS connection to secure all exchanged data",
+      "privacy.rights.title": "User Rights",
+      "privacy.rights.desc": "You have the right to:",
+      "privacy.rights.item1": "Access your personal data",
+      "privacy.rights.item2": "Modify your data",
+      "privacy.rights.item3": "Request deletion of your account and data",
+      "privacy.contact": "For any inquiry or request, you can contact us via email: mchokri100@gmail.com",
+      "privacy.cookies.title": "Cookies",
+      "privacy.cookies.desc": "We may use cookies to improve user experience and analyze performance. They are not used to collect sensitive personal data.",
+      "privacy.updates.title": "Updates to Privacy Policy",
+      "privacy.updates.desc": "We may update the privacy policy from time to time. Any changes will be posted on this page with an updated modification date."
     }
   },
   ar: {
@@ -204,7 +248,51 @@ const resources = {
 
       // Footer
       "footer.rights": "جميع الحقوق محفوظة",
-      "footer.team": "مدعوم من فريقنا الخبير"
+      "footer.team": "مدعوم من فريقنا الخبير",
+      "footer.privacy": "سياسة الخصوصية",
+      "footer.terms": "شروط الخدمة",
+      "footer.contact": "اتصل بنا",
+
+      // Cookies
+      "cookies.title": "نحن نحترم خصوصيتك",
+      "cookies.description": "نحن نستخدم ملفات تعريف الارتباط لتحسين تجربة التصفح الخاصة بك وتحليل حركة المرور لدينا. بالنقر فوق \"قبول\"، فإنك توافق على استخدامنا لملفات تعريف الارتباط.",
+      "cookies.accept": "قبول",
+      "cookies.decline": "رفض",
+
+      // Privacy Policy
+      "privacy.title": "سياسة الخصوصية",
+      "privacy.lastUpdated": "آخر تحديث: 9 يناير 2026",
+      "privacy.intro": "نحن نحترم خصوصيتك ونلتزم بحماية معلوماتك الشخصية. تشرح هذه السياسة كيف نقوم بجمع واستخدام وحماية البيانات عند التسجيل في خدماتنا واستخدام الموقع.",
+      "privacy.collection.title": "المعلومات التي نجمعها",
+      "privacy.collection.desc": "قد نقوم بجمع المعلومات التالية عند التسجيل أو استخدام الموقع:",
+      "privacy.collection.item1": "الاسم الكامل",
+      "privacy.collection.item2": "البريد الإلكتروني",
+      "privacy.collection.item3": "كلمة المرور مشفرة باستخدام Firebase Auth أو تقنيات مشابهة",
+      "privacy.collection.item4": "البلد",
+      "privacy.collection.item5": "مستوى الخبرة أو الخلفية التعليمية أو العملية",
+      "privacy.collection.item6": "أي معلومات أخرى تقدمها طواعية عند التواصل معنا",
+      "privacy.usage.title": "كيفية استخدام المعلومات",
+      "privacy.usage.desc": "تستخدم البيانات التي نجمعها للأغراض التالية:",
+      "privacy.usage.item1": "تسجيل وإدارة حسابك",
+      "privacy.usage.item2": "إرسال رسائل بريدية وإشعارات مهمة",
+      "privacy.usage.item3": "تقييم مستوى خبرتك لتقديم محتوى مناسب لك",
+      "privacy.usage.item4": "تحسين الخدمات وتجربة المستخدم",
+      "privacy.sharing.title": "مشاركة المعلومات",
+      "privacy.sharing.desc": "لا نشارك بياناتك الشخصية مع أي طرف ثالث دون موافقتك إلا إذا كان ذلك مطلوباً قانونياً. نستخدم خدمات خارجية مثل Firebase لتخزين البيانات وإرسال البريد الإلكتروني وهذه الخدمات لا تستخدم بياناتك لأغراض أخرى خارج الموقع.",
+      "privacy.protection.title": "حماية البيانات",
+      "privacy.protection.item1": "كلمات المرور يتم تخزينها مشفرة ولا يمكن الوصول إليها بشكل مباشر",
+      "privacy.protection.item2": "قواعد البيانات محمية لمنع الوصول غير المصرح به",
+      "privacy.protection.item3": "الموقع يستخدم اتصال HTTPS لتأمين جميع البيانات المتبادلة",
+      "privacy.rights.title": "حقوق المستخدمين",
+      "privacy.rights.desc": "لديك الحق في:",
+      "privacy.rights.item1": "الوصول إلى بياناتك الشخصية",
+      "privacy.rights.item2": "تعديل بياناتك",
+      "privacy.rights.item3": "طلب حذف حسابك وبياناتك",
+      "privacy.contact": "لأي استفسار أو طلب يمكن التواصل عبر البريد: mchokri100@gmail.com",
+      "privacy.cookies.title": "ملفات تعريف الارتباط",
+      "privacy.cookies.desc": "قد نستخدم ملفات تعريف الارتباط لتحسين تجربة المستخدم وتحليل الأداء ولا يتم استخدامها لجمع بيانات شخصية حساسة.",
+      "privacy.updates.title": "التحديثات على سياسة الخصوصية",
+      "privacy.updates.desc": "قد نقوم بتحديث سياسة الخصوصية من وقت لآخر. سيتم نشر أي تغييرات على هذه الصفحة مع تحديث تاريخ التعديل."
     }
   },
   fr: {
@@ -306,7 +394,51 @@ const resources = {
 
       // Footer
       "footer.rights": "Tous droits réservés",
-      "footer.team": "Propulsé par notre équipe d'experts"
+      "footer.team": "Propulsé par notre équipe d'experts",
+      "footer.privacy": "Politique de confidentialité",
+      "footer.terms": "Conditions d'utilisation",
+      "footer.contact": "Contact",
+
+      // Cookies
+      "cookies.title": "Nous respectons votre vie privée",
+      "cookies.description": "Nous utilisons des cookies pour améliorer votre expérience de navigation et analyser notre trafic. En cliquant sur \"Accepter\", vous consentez à notre utilisation des cookies.",
+      "cookies.accept": "Accepter",
+      "cookies.decline": "Refuser",
+
+      // Privacy Policy
+      "privacy.title": "Politique de confidentialité",
+      "privacy.lastUpdated": "Dernière mise à jour : 9 janvier 2026",
+      "privacy.intro": "Nous respectons votre vie privée et nous nous engageons à protéger vos informations personnelles. Cette politique explique comment nous collectons, utilisons et protégeons les données lors de votre inscription à nos services et de l'utilisation du site.",
+      "privacy.collection.title": "Informations que nous collectons",
+      "privacy.collection.desc": "Nous pouvons collecter les informations suivantes lors de votre inscription ou de l'utilisation du site :",
+      "privacy.collection.item1": "Nom complet",
+      "privacy.collection.item2": "Adresse e-mail",
+      "privacy.collection.item3": "Mot de passe crypté via Firebase Auth ou technologies similaires",
+      "privacy.collection.item4": "Pays",
+      "privacy.collection.item5": "Niveau d'expérience ou parcours éducatif/professionnel",
+      "privacy.collection.item6": "Toute autre information que vous fournissez volontairement en nous contactant",
+      "privacy.usage.title": "Comment nous utilisons les informations",
+      "privacy.usage.desc": "Les données que nous collectons sont utilisées aux fins suivantes :",
+      "privacy.usage.item1": "Enregistrement et gestion de votre compte",
+      "privacy.usage.item2": "Envoi d'e-mails et de notifications importants",
+      "privacy.usage.item3": "Évaluation de votre niveau d'expérience pour fournir un contenu adapté",
+      "privacy.usage.item4": "Amélioration des services et de l'expérience utilisateur",
+      "privacy.sharing.title": "Partage d'informations",
+      "privacy.sharing.desc": "Nous ne partageons pas vos données personnelles avec des tiers sans votre consentement, sauf si la loi l'exige. Nous utilisons des services externes comme Firebase pour le stockage des données et l'envoi d'e-mails, et ces services n'utilisent pas vos données à des fins extérieures au site.",
+      "privacy.protection.title": "Protection des données",
+      "privacy.protection.item1": "Les mots de passe sont stockés cryptés et ne sont pas accessibles directement",
+      "privacy.protection.item2": "Les bases de données sont protégées pour empêcher tout accès non autorisé",
+      "privacy.protection.item3": "Le site utilise une connexion HTTPS pour sécuriser toutes les données échangées",
+      "privacy.rights.title": "Droits des utilisateurs",
+      "privacy.rights.desc": "Vous avez le droit de :",
+      "privacy.rights.item1": "Accéder à vos données personnelles",
+      "privacy.rights.item2": "Modifier vos données",
+      "privacy.rights.item3": "Demander la suppression de votre compte et de vos données",
+      "privacy.contact": "Pour toute demande ou question, vous pouvez nous contacter par e-mail : mchokri100@gmail.com",
+      "privacy.cookies.title": "Cookies",
+      "privacy.cookies.desc": "Nous pouvons utiliser des cookies pour améliorer l'expérience utilisateur et analyser les performances. Ils ne sont pas utilisés pour collecter des données personnelles sensibles.",
+      "privacy.updates.title": "Mises à jour de la politique de confidentialité",
+      "privacy.updates.desc": "Nous pouvons mettre à jour la politique de confidentialité de temps à autre. Tout changement sera publié sur cette page avec une date de modification mise à jour."
     }
   }
 };
