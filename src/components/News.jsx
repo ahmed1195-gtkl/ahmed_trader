@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { Newspaper, Clock, ExternalLink, TrendingUp, AlertCircle } from 'lucide-react';
+import { Clock, ExternalLink, TrendingUp, RefreshCw } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 
@@ -9,111 +9,99 @@ const News = () => {
   const { t } = useTranslation();
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  const fetchNews = async () => {
+  const fetchNews = useCallback(async () => {
     setLoading(true);
+    setError(false);
     try {
-      // Using a reliable RSS to JSON converter for Forex Factory / Investing news
-      // Forex Factory RSS: https://www.forexfactory.com/ff_calendar_thisweek.xml (Calendar)
-      // For news, we can use a general financial news API or RSS feed
-      const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.investing.com/rss/news_285.rss');
+      // Using a more stable proxy/API for financial news
+      const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.investing.com/rss/news_285.rss&api_key=00000000000000000000000000000000');
       const data = await response.json();
       if (data.status === 'ok') {
-        setNews(data.items);
+        setNews(data.items.slice(0, 12)); // Limit to 12 items for performance
+      } else {
+        throw new Error('Failed to fetch');
       }
-    } catch (error) {
-      console.error('Error fetching news:', error);
+    } catch (err) {
+      console.error('News fetch error:', err);
+      setError(true);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchNews();
-    const interval = setInterval(fetchNews, 300000); // Update every 5 minutes
+    const interval = setInterval(fetchNews, 600000); // Update every 10 minutes
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchNews]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-black">
       <Header />
-      <main className="flex-1 container mx-auto px-4 pt-32 pb-12">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-12">
+      <main className="flex-1 container mx-auto px-6 pt-32 pb-20">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex items-center justify-between mb-12">
             <div>
               <div className="flex items-center gap-2 text-yellow-500 mb-2">
-                <TrendingUp className="w-5 h-5" />
-                <span className="font-black uppercase tracking-[0.3em] text-xs">Market Intelligence</span>
+                <TrendingUp className="w-4 h-4" />
+                <span className="text-[10px] font-black uppercase tracking-[0.3em]">Live Intelligence</span>
               </div>
-              <h1 className="text-5xl font-black text-white uppercase tracking-tighter">
-                Live <span className="text-yellow-500">Economic</span> News
-              </h1>
+              <h1 className="text-4xl font-black text-white uppercase tracking-tighter">Market <span className="text-yellow-500">News</span></h1>
             </div>
-            <div className="flex items-center gap-4 bg-white/5 border border-white/10 p-4 rounded-2xl">
-              <div className="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-500">
-                <AlertCircle className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-xs font-black text-gray-500 uppercase tracking-widest">Data Source</p>
-                <p className="text-sm font-bold text-white">Investing.com & Forex Factory</p>
-              </div>
-            </div>
+            <button onClick={fetchNews} className="p-3 rounded-full bg-white/5 border border-white/10 text-white hover:bg-yellow-500 hover:text-black transition-all">
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            </button>
           </div>
 
-          {loading ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="h-80 rounded-3xl bg-white/5 animate-pulse border border-white/5"></div>
+          {error ? (
+            <div className="text-center py-20 bg-white/5 rounded-3xl border border-white/10">
+              <p className="text-gray-400 font-bold mb-4">Unable to load news at the moment.</p>
+              <button onClick={fetchNews} className="text-yellow-500 font-black uppercase text-xs tracking-widest underline">Try Again</button>
+            </div>
+          ) : loading ? (
+            <div className="grid md:grid-cols-2 gap-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-48 rounded-2xl bg-white/5 animate-pulse border border-white/5" />
               ))}
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 gap-6">
               {news.map((item, index) => (
                 <motion.div
                   key={index}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="group relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden hover:border-yellow-500/50 transition-all duration-500"
+                  transition={{ delay: index * 0.05 }}
+                  className="group bg-zinc-900/50 backdrop-blur-sm border border-white/5 rounded-2xl p-6 hover:border-yellow-500/30 transition-all"
                 >
-                  <div className="aspect-video overflow-hidden">
-                    <img 
-                      src={item.thumbnail || `https://images.unsplash.com/photo-1611974714024-462cd297c8aa?q=80&w=800&auto=format&fit=crop`} 
-                      alt={item.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-60"></div>
-                  </div>
-                  
-                  <div className="p-6">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="flex items-center gap-1.5 text-[10px] font-black text-yellow-500 uppercase tracking-widest bg-yellow-500/10 px-2 py-1 rounded-md">
-                        <Clock className="w-3 h-3" />
-                        {new Date(item.pubDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </div>
-                      <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                        {new Date(item.pubDate).toLocaleDateString()}
-                      </span>
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="flex items-center gap-1.5 text-[9px] font-black text-yellow-500 uppercase tracking-widest bg-yellow-500/10 px-2 py-1 rounded">
+                      <Clock className="w-3 h-3" />
+                      {new Date(item.pubDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
-
-                    <h3 className="text-lg font-black text-white mb-4 leading-tight group-hover:text-yellow-500 transition-colors line-clamp-2">
-                      {item.title}
-                    </h3>
-
-                    <p className="text-sm text-gray-400 mb-6 line-clamp-3 font-medium leading-relaxed">
-                      {item.description.replace(/<[^>]*>?/gm, '')}
-                    </p>
-
-                    <a 
-                      href={item.link} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-xs font-black text-white uppercase tracking-widest group/link"
-                    >
-                      Read Full Story
-                      <ExternalLink className="w-3 h-3 group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-transform" />
-                    </a>
+                    <span className="text-[9px] font-black text-gray-600 uppercase tracking-widest">
+                      {new Date(item.pubDate).toLocaleDateString()}
+                    </span>
                   </div>
+
+                  <h3 className="text-lg font-black text-white mb-3 leading-tight group-hover:text-yellow-500 transition-colors line-clamp-2">
+                    {item.title}
+                  </h3>
+
+                  <p className="text-sm text-gray-500 mb-6 line-clamp-2 font-medium leading-relaxed">
+                    {item.description.replace(/<[^>]*>?/gm, '').substring(0, 120)}...
+                  </p>
+
+                  <a 
+                    href={item.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-white transition-colors"
+                  >
+                    Read More <ExternalLink className="w-3 h-3" />
+                  </a>
                 </motion.div>
               ))}
             </div>

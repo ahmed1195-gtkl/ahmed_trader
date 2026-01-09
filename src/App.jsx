@@ -50,19 +50,18 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen relative">
-        {/* Background Image */}
+        {/* Background Image - Optimized */}
         <div 
-          className="fixed inset-0 z-0 bg-black"
+          className="fixed inset-0 z-0 bg-black pointer-events-none"
           style={{
             backgroundImage: `url(${backgroundImage})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
-            filter: 'blur(2px)',
-            willChange: 'transform', // Optimization for mobile
-            transform: 'translateZ(0)', // Force GPU acceleration
+            opacity: 0.4, // Reduced opacity for better readability and performance
           }}
         />
+        <div className="fixed inset-0 z-0 bg-gradient-to-b from-black via-transparent to-black pointer-events-none" />
         
         {/* Content */}
         <div className="relative z-10">

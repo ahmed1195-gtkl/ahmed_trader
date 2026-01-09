@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-black text-white antialiased;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  /* Optimize all animations and transitions */
+  * {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+}
+
+/* Performance optimizations for mobile */
+@media (max-width: 768px) {
+  .fixed-bg {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+  
+  * {
+    transition-duration: 200ms !important; /* Faster transitions on mobile */
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #000;
+}
+::-webkit-scrollbar-thumb {
+  background: #ca8a04;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #eab308;
+}
