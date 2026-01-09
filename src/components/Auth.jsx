@@ -53,6 +53,7 @@ const Auth = () => {
 
   const translateError = (err) => {
     const code = err.code;
+    console.error("Auth Error Code:", code);
     switch (code) {
       case 'auth/weak-password': return t('auth.weakPassword');
       case 'auth/invalid-email': return t('auth.invalidEmail');
@@ -63,32 +64,22 @@ const Auth = () => {
       case 'auth/too-many-requests': return t('auth.tooManyRequests');
       case 'auth/network-request-failed': return t('auth.networkError');
       case 'auth/popup-closed-by-user': return t('auth.googleError');
-      default: return err.message || t('auth.error');
+      default: return t('auth.error');
     }
   };
 
   const checkUserOnboarding = async (user) => {
-    console.log("Checking onboarding for user:", user.uid);
     try {
       const docRef = doc(db, "users", user.uid);
       const docSnap = await getDoc(docRef);
-      console.log("Firestore doc exists:", docSnap.exists());
-      if (docSnap.exists()) {
-        console.log("User data:", docSnap.data());
-        if (docSnap.data().onboardingCompleted) {
-          console.log("Onboarding completed, navigating to home");
-          navigate('/');
-        } else {
-          console.log("Onboarding NOT completed, navigating to onboarding");
-          navigate('/onboarding');
-        }
+      if (docSnap.exists() && docSnap.data().onboardingCompleted) {
+        navigate('/');
       } else {
-        console.log("No user doc found, navigating to onboarding");
         navigate('/onboarding');
       }
     } catch (err) {
-      console.error("Error checking onboarding:", err);
-      // If Firestore fails, we still want to let the user in
+      console.error("Firestore Error:", err);
+      // Fallback: if firestore fails, just go to home to not block the user
       navigate('/');
     }
   };
@@ -106,7 +97,6 @@ const Auth = () => {
         return;
       }
       try {
-        // Use custom action code settings to redirect to our site's reset page
         const actionCodeSettings = {
           url: window.location.origin + '/reset-password',
           handleCodeInApp: true,
@@ -122,30 +112,19 @@ const Auth = () => {
       return;
     }
 
-    if (!isLogin) {
-      if (!fullName || !phone || !country) {
-        setError(t('auth.error'));
-        setLoading(false);
-        return;
-      }
-      if (passwordStrength < 2) {
-        setError(t('auth.weakPassword'));
-        setLoading(false);
-        return;
-      }
-    }
-
     try {
       if (isLogin) {
-        console.log("Attempting login for:", email);
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        console.log("Login successful, checking onboarding for:", userCredential.user.uid);
         await checkUserOnboarding(userCredential.user);
       } else {
+        if (!fullName || !phone || !country) {
+          setError(t('auth.error'));
+          setLoading(false);
+          return;
+        }
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(userCredential.user, { displayName: fullName });
         
-        // Create initial user doc in Firestore
         await setDoc(doc(db, "users", userCredential.user.uid), {
           fullName,
           email,
@@ -172,8 +151,6 @@ const Auth = () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
-      
-      // Check if user exists in Firestore, if not create basic profile
       const docRef = doc(db, "users", user.uid);
       const docSnap = await getDoc(docRef);
       
@@ -185,7 +162,6 @@ const Auth = () => {
           onboardingCompleted: false
         });
       }
-      
       await checkUserOnboarding(user);
     } catch (err) {
       setError(translateError(err));
@@ -212,7 +188,6 @@ const Auth = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
         <Card className="bg-black/60 backdrop-blur-2xl border-yellow-500/30 text-white shadow-2xl overflow-hidden">
