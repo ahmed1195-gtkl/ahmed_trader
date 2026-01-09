@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { auth, db } from '../lib/firebase';
+import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
@@ -11,6 +14,8 @@ import { Input } from './ui/input';
 const Onboarding = () => {
   const { t } = useTranslation();
   const [step, setStep] = useState(1);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [answers, setAnswers] = useState({
     level: '',
     tradedBefore: '',
@@ -18,12 +23,42 @@ const Onboarding = () => {
   });
   const navigate = useNavigate();
 
-  const handleNext = () => {
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        // Check if already completed
+        const docRef = doc(db, "users", currentUser.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists() && docSnap.data().onboardingCompleted) {
+          navigate('/');
+        }
+      } else {
+        navigate('/auth');
+      }
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, [navigate]);
+
+  const handleNext = async () => {
     if (step < 3) {
       setStep(step + 1);
     } else {
-      // Save answers logic here if needed
-      navigate('/');
+      if (!user) return;
+      try {
+        const userRef = doc(db, "users", user.uid);
+        await updateDoc(userRef, {
+          ...answers,
+          onboardingCompleted: true,
+          updatedAt: new Date().toISOString()
+        });
+        navigate('/');
+      } catch (err) {
+        console.error("Error saving onboarding data:", err);
+        // Fallback to home even if firestore fails to not block user
+        navigate('/');
+      }
     }
   };
 
@@ -33,6 +68,8 @@ const Onboarding = () => {
     if (step === 3) return !answers.brokers;
     return false;
   };
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-black text-yellow-500">Loading...</div>;
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12">

@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { auth, googleProvider } from '../lib/firebase';
+import { auth, googleProvider, db } from '../lib/firebase';
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
@@ -10,6 +10,7 @@ import {
   updateProfile,
   sendPasswordResetEmail
 } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -50,19 +51,34 @@ const Auth = () => {
     }
   }, [password, isLogin]);
 
-  const translateError = (errorCode) => {
-    switch (errorCode) {
+  const translateError = (err) => {
+    const code = err.code;
+    switch (code) {
       case 'auth/weak-password': return t('auth.weakPassword');
       case 'auth/invalid-email': return t('auth.invalidEmail');
       case 'auth/email-already-in-use': return t('auth.emailInUse');
       case 'auth/wrong-password': return t('auth.wrongPassword');
       case 'auth/user-not-found': return t('auth.userNotFound');
+      case 'auth/invalid-credential': return t('auth.wrongPassword');
       case 'auth/too-many-requests': return t('auth.tooManyRequests');
       case 'auth/network-request-failed': return t('auth.networkError');
-      case 'auth/invalid-credential': return t('auth.wrongPassword');
-      case 'auth/operation-not-allowed': return "Authentication method not enabled.";
-      case 'auth/popup-closed-by-user': return "Login popup closed before completion.";
+      case 'auth/popup-closed-by-user': return t('auth.googleError');
       default: return err.message || t('auth.error');
+    }
+  };
+
+  const checkUserOnboarding = async (user) => {
+    try {
+      const docRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists() && docSnap.data().onboardingCompleted) {
+        navigate('/');
+      } else {
+        navigate('/onboarding');
+      }
+    } catch (err) {
+      console.error("Error checking onboarding:", err);
+      navigate('/onboarding');
     }
   };
 
@@ -73,12 +89,17 @@ const Auth = () => {
     setLoading(true);
 
     if (isForgotPassword) {
+      if (!email) {
+        setError(t('auth.invalidEmail'));
+        setLoading(false);
+        return;
+      }
       try {
         await sendPasswordResetEmail(auth, email);
         setMessage(t('auth.resetEmailSent'));
         setTimeout(() => setIsForgotPassword(false), 3000);
       } catch (err) {
-        setError(translateError(err.code));
+        setError(translateError(err));
       } finally {
         setLoading(false);
       }
@@ -101,22 +122,32 @@ const Auth = () => {
     try {
       if (isLogin) {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        // If user is logged in, redirect to onboarding or home
-        navigate('/onboarding');
+        if (!userCredential.user.emailVerified) {
+          setError(t('auth.emailVerificationSent'));
+          await sendEmailVerification(userCredential.user);
+          setLoading(false);
+          return;
+        }
+        await checkUserOnboarding(userCredential.user);
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(userCredential.user, { displayName: fullName });
-        // Optional: Send verification but don't block access immediately for better UX
-        try {
-          await sendEmailVerification(userCredential.user);
-        } catch (vErr) {
-          console.error("Verification email failed", vErr);
-        }
-        setMessage(t('auth.createAccount') + " " + t('auth.welcome'));
-        setTimeout(() => navigate('/onboarding'), 1500);
+        
+        // Create initial user doc in Firestore
+        await setDoc(doc(db, "users", userCredential.user.uid), {
+          fullName,
+          email,
+          phone,
+          country,
+          createdAt: new Date().toISOString(),
+          onboardingCompleted: false
+        });
+
+        await sendEmailVerification(userCredential.user);
+        setMessage(t('auth.emailVerificationSent'));
+        setIsLogin(true);
       }
     } catch (err) {
-      console.error("Auth Error:", err.code, err.message);
       setError(translateError(err));
     } finally {
       setLoading(false);
@@ -125,11 +156,29 @@ const Auth = () => {
 
   const handleGoogleLogin = async () => {
     setError('');
+    setLoading(true);
     try {
-      await signInWithPopup(auth, googleProvider);
-      navigate('/onboarding');
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      
+      // Check if user exists in Firestore, if not create basic profile
+      const docRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+      
+      if (!docSnap.exists()) {
+        await setDoc(docRef, {
+          fullName: user.displayName,
+          email: user.email,
+          createdAt: new Date().toISOString(),
+          onboardingCompleted: false
+        });
+      }
+      
+      await checkUserOnboarding(user);
     } catch (err) {
-      setError(translateError(err.code));
+      setError(translateError(err));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -257,7 +306,12 @@ const Auth = () => {
                   <div className="relative flex justify-center text-xs uppercase"><span className="bg-black/40 px-4 text-gray-500 font-bold">{t('auth.or')}</span></div>
                 </div>
 
-                <Button variant="outline" onClick={handleGoogleLogin} className="w-full h-11 border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold transition-all">
+                <Button 
+                  variant="outline" 
+                  onClick={handleGoogleLogin} 
+                  disabled={loading}
+                  className="w-full h-11 border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold transition-all"
+                >
                   <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -269,19 +323,25 @@ const Auth = () => {
               </>
             )}
           </CardContent>
-          <CardFooter className="flex flex-wrap items-center justify-center gap-2 pb-8">
-            {isForgotPassword ? (
-              <button onClick={() => setIsForgotPassword(false)} className="text-sm font-black text-yellow-500 hover:text-yellow-400 underline-offset-4 hover:underline uppercase tracking-wider">
-                {t('auth.login')}
-              </button>
-            ) : (
-              <>
-                <div className="text-sm text-gray-400 font-medium">{isLogin ? t('auth.noAccount') : t('auth.hasAccount')}</div>
-                <button onClick={() => { setIsLogin(!isLogin); setError(''); setMessage(''); }} className="text-sm font-black text-yellow-500 hover:text-yellow-400 underline-offset-4 hover:underline uppercase tracking-wider">
-                  {isLogin ? t('auth.signup') : t('auth.login')}
-                </button>
-              </>
-            )}
+          <CardFooter className="flex flex-wrap justify-center gap-2 pb-8">
+            <p className="text-sm text-gray-400">
+              {isForgotPassword ? "" : (isLogin ? t('auth.noAccount') : t('auth.hasAccount'))}
+            </p>
+            <button 
+              onClick={() => {
+                if (isForgotPassword) {
+                  setIsForgotPassword(false);
+                  setIsLogin(true);
+                } else {
+                  setIsLogin(!isLogin);
+                }
+                setError('');
+                setMessage('');
+              }} 
+              className="text-sm text-yellow-500 font-bold hover:underline"
+            >
+              {isForgotPassword ? t('auth.login') : (isLogin ? t('auth.signup') : t('auth.login'))}
+            </button>
           </CardFooter>
         </Card>
       </motion.div>

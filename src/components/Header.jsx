@@ -5,7 +5,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { auth } from '../lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { Button } from './ui/button';
-import { Globe, User, LogOut, Settings, Menu, X, LogIn, ChevronDown } from 'lucide-react';
+import { Globe, User, LogOut, Settings, Menu, X, LogIn, ChevronDown, Send, Instagram, Video } from 'lucide-react';
 import siteLogo from '../assets/site_logo.jpg';
 
 const Header = () => {
@@ -15,6 +15,7 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isUserOpen, setIsUserOpen] = useState(false);
+  const [isChannelsOpen, setIsChannelsOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -22,6 +23,12 @@ const Header = () => {
     { code: 'en', name: 'EN', flag: '🇺🇸' },
     { code: 'ar', name: 'AR', flag: '🇸🇦' },
     { code: 'fr', name: 'FR', flag: '🇫🇷' }
+  ];
+
+  const socialChannels = [
+    { name: 'Telegram', icon: <Send className="w-4 h-4" />, url: 'https://t.me/ahmed_trader_123', color: 'hover:text-[#0088cc]' },
+    { name: 'Instagram', icon: <Instagram className="w-4 h-4" />, url: 'https://www.instagram.com/mohamed_chokry', color: 'hover:text-[#e1306c]' },
+    { name: 'TikTok', icon: <Video className="w-4 h-4" />, url: 'https://www.tiktok.com/@ahmed.trader123', color: 'hover:text-[#ff0050]' }
   ];
 
   const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
@@ -57,6 +64,43 @@ const Header = () => {
           <nav className="flex items-center gap-6">
             <Link to="/" className={`text-xs font-bold uppercase tracking-widest transition-colors ${location.pathname === '/' ? 'text-yellow-500' : 'text-gray-400 hover:text-white'}`}>{t('nav.home')}</Link>
             <Link to="/news" className={`text-xs font-bold uppercase tracking-widest transition-colors ${location.pathname === '/news' ? 'text-yellow-500' : 'text-gray-400 hover:text-white'}`}>{t('nav.news')}</Link>
+            
+            {user && (
+              <div className="relative">
+                <button 
+                  onMouseEnter={() => setIsChannelsOpen(true)}
+                  onMouseLeave={() => setIsChannelsOpen(false)}
+                  className="flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-yellow-500 transition-colors py-2"
+                >
+                  {t('nav.channels')}
+                  <ChevronDown className={`w-3 h-3 transition-transform ${isChannelsOpen ? 'rotate-180' : ''}`} />
+                </button>
+                <AnimatePresence>
+                  {isChannelsOpen && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }} 
+                      animate={{ opacity: 1, y: 0 }} 
+                      exit={{ opacity: 0, y: 10 }}
+                      onMouseEnter={() => setIsChannelsOpen(true)}
+                      onMouseLeave={() => setIsChannelsOpen(false)}
+                      className="absolute top-full left-0 bg-zinc-900 border border-white/10 rounded-xl overflow-hidden shadow-2xl min-w-[180px] py-2"
+                    >
+                      {socialChannels.map((channel) => (
+                        <a 
+                          key={channel.name} 
+                          href={channel.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className={`w-full px-4 py-3 text-xs font-bold text-white hover:bg-white/5 transition-colors flex items-center gap-3 ${channel.color}`}
+                        >
+                          {channel.icon} {channel.name}
+                        </a>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
           </nav>
 
           <div className="flex items-center gap-4">
@@ -119,6 +163,21 @@ const Header = () => {
             <div className="p-6 flex flex-col gap-6">
               <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="text-xl font-black text-white uppercase tracking-tight">{t('nav.home')}</Link>
               <Link to="/news" onClick={() => setIsMobileMenuOpen(false)} className="text-xl font-black text-white uppercase tracking-tight">{t('nav.news')}</Link>
+              
+              {user && (
+                <div className="flex flex-col gap-4">
+                  <span className="text-xs font-bold text-yellow-500 uppercase tracking-widest">{t('nav.channels')}</span>
+                  <div className="grid grid-cols-3 gap-2">
+                    {socialChannels.map((channel) => (
+                      <a key={channel.name} href={channel.url} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 p-3 bg-white/5 rounded-xl border border-white/10 text-white">
+                        {channel.icon}
+                        <span className="text-[10px] font-bold">{channel.name}</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="h-[1px] bg-white/5" />
               <div className="flex gap-4">
                 {languages.map((lang) => (
