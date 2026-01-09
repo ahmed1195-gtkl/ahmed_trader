@@ -1,13 +1,30 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Benefits from './components/Benefits';
 import Coach from './components/Coach';
 import Brokers from './components/Brokers';
 import Footer from './components/Footer';
+import Auth from './components/Auth';
 import backgroundImage from './assets/background.jpg';
 import './App.css';
+
+function MainLayout() {
+  return (
+    <>
+      <Header />
+      <main>
+        <Hero />
+        <Benefits />
+        <Coach />
+        <Brokers />
+      </main>
+      <Footer />
+    </>
+  );
+}
 
 function App() {
   const { i18n } = useTranslation();
@@ -24,31 +41,29 @@ function App() {
   }, [i18n.language]);
 
   return (
-    <div className="min-h-screen relative">
-      {/* Background Image */}
-      <div 
-        className="fixed inset-0 z-0"
-        style={{
-          backgroundImage: `url(${backgroundImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          filter: 'blur(2px)',
-        }}
-      />
-      
-      {/* Content */}
-      <div className="relative z-10">
-        <Header />
-        <main>
-          <Hero />
-          <Benefits />
-          <Coach />
-          <Brokers />
-        </main>
-        <Footer />
+    <Router>
+      <div className="min-h-screen relative">
+        {/* Background Image */}
+        <div 
+          className="fixed inset-0 z-0"
+          style={{
+            backgroundImage: `url(${backgroundImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            filter: 'blur(2px)',
+          }}
+        />
+        
+        {/* Content */}
+        <div className="relative z-10">
+          <Routes>
+            <Route path="/" element={<MainLayout />} />
+            <Route path="/auth" element={<Auth />} />
+          </Routes>
+        </div>
       </div>
-    </div>
+    </Router>
   );
 }
 

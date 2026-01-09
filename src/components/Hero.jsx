@@ -1,9 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button.jsx';
+import { useNavigate } from 'react-router-dom';
 
 const Hero = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   return (
     <section className="min-h-screen flex items-center justify-center relative overflow-hidden">
@@ -48,6 +50,7 @@ const Hero = () => {
           >
             <Button 
               size="lg"
+              onClick={() => navigate('/auth')}
               className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-bold text-lg px-8 py-4 rounded-xl shadow-2xl hover:shadow-yellow-500/25 transition-all duration-300 hover:scale-105 border-0"
             >
               {t('hero.cta')}
@@ -88,4 +91,3 @@ const Hero = () => {
 };
 
 export default Hero;
-

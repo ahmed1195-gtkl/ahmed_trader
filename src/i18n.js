@@ -7,6 +7,8 @@ const resources = {
     translation: {
       // Header
       "language": "Language",
+      "nav.home": "Home",
+      "nav.login": "Login",
 
       // Hero Section
       "hero.title": "Master Trading with Our Free Course",
@@ -30,6 +32,18 @@ const resources = {
       "brokers.register": "Register Now",
       "brokers.details": "View Details",
 
+      // Auth
+      "auth.login": "Login",
+      "auth.signup": "Sign Up",
+      "auth.email": "Email Address",
+      "auth.password": "Password",
+      "auth.google": "Continue with Google",
+      "auth.noAccount": "Don't have an account?",
+      "auth.hasAccount": "Already have an account?",
+      "auth.welcome": "Welcome Back",
+      "auth.createAccount": "Create Your Account",
+      "auth.error": "Authentication Error",
+
       // Footer
       "footer.rights": "All rights reserved",
       "footer.team": "Powered by our expert team"
@@ -39,6 +53,8 @@ const resources = {
     translation: {
       // Header
       "language": "اللغة",
+      "nav.home": "الرئيسية",
+      "nav.login": "تسجيل الدخول",
 
       // Hero Section
       "hero.title": "أتقن التداول مع كورس مجاني",
@@ -62,6 +78,18 @@ const resources = {
       "brokers.register": "سجل الآن",
       "brokers.details": "عرض التفاصيل",
 
+      // Auth
+      "auth.login": "تسجيل الدخول",
+      "auth.signup": "إنشاء حساب",
+      "auth.email": "البريد الإلكتروني",
+      "auth.password": "كلمة المرور",
+      "auth.google": "المتابعة باستخدام جوجل",
+      "auth.noAccount": "ليس لديك حساب؟",
+      "auth.hasAccount": "لديك حساب بالفعل؟",
+      "auth.welcome": "مرحباً بعودتك",
+      "auth.createAccount": "أنشئ حسابك الخاص",
+      "auth.error": "خطأ في المصادقة",
+
       // Footer
       "footer.rights": "جميع الحقوق محفوظة",
       "footer.team": "مدعوم من فريقنا الخبير"
@@ -71,6 +99,8 @@ const resources = {
     translation: {
       // Header
       "language": "Langue",
+      "nav.home": "Accueil",
+      "nav.login": "Connexion",
 
       // Hero Section
       "hero.title": "Maîtrisez le trading avec notre cours gratuit",
@@ -94,15 +124,28 @@ const resources = {
       "brokers.register": "S'inscrire maintenant",
       "brokers.details": "Voir les détails",
 
+      // Auth
+      "auth.login": "Connexion",
+      "auth.signup": "S'inscrire",
+      "auth.email": "Adresse e-mail",
+      "auth.password": "Mot de passe",
+      "auth.google": "Continuer avec Google",
+      "auth.noAccount": "Vous n'avez pas de compte ?",
+      "auth.hasAccount": "Vous avez déjà un compte ?",
+      "auth.welcome": "Bon retour",
+      "auth.createAccount": "Créez votre compte",
+      "auth.error": "Erreur d'authentification",
+
       // Footer
       "footer.rights": "Tous droits réservés",
       "footer.team": "Propulsé par notre équipe d'experts"
     }
   }
 };
+
 i18n
-  .use(LanguageDetector)            // يكتشف لغة المستخدم
-  .use(initReactI18next)            // يربط i18next مع React
+  .use(LanguageDetector)
+  .use(initReactI18next)
   .init({
     resources,
     fallbackLng: 'en',
@@ -115,4 +158,3 @@ i18n
   });
 
 export default i18n;
-
