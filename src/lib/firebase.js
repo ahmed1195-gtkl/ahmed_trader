@@ -1,26 +1,21 @@
-import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-// For demo purposes, using a mock configuration
-// In production, you would use your actual Firebase config
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "demo-api-key",
-  authDomain: "trading-course-demo.firebaseapp.com",
-  projectId: "trading-course-demo",
-  storageBucket: "trading-course-demo.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:demo123456789"
+  apiKey: "AIzaSyBdqIi8pFctBGGT5z5wkBJ_ZzBAcf72BVI",
+  authDomain: "ahmed-trader.firebaseapp.com",
+  projectId: "ahmed-trader",
+  storageBucket: "ahmed-trader.firebasestorage.app",
+  messagingSenderId: "840597313148",
+  appId: "1:840597313148:web:2cca5b22ff097937fb9bf9",
+  measurementId: "G-HKBBRXN3PR"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// Initialize Firestore
-export const db = getFirestore(app);
-
-// Initialize Auth
-export const auth = getAuth(app);
-export const googleProvider = new GoogleAuthProvider();
-
-export default app;
+const analytics = getAnalytics(app);
