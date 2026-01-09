@@ -13,6 +13,7 @@ import Settings from './components/Settings';
 import MarketData from './components/MarketData';
 import News from './components/News';
 import PrivacyPolicy from './components/PrivacyPolicy';
+import ResetPassword from './components/ResetPassword';
 import CookieConsent from './components/CookieConsent';
 import './App.css';
 
@@ -60,6 +61,7 @@ function App() {
             <Route path="/settings" element={<Settings />} />
             <Route path="/news" element={<News />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
           </Routes>
         </div>
         <CookieConsent />

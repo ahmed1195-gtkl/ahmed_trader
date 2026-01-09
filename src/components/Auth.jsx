@@ -95,7 +95,12 @@ const Auth = () => {
         return;
       }
       try {
-        await sendPasswordResetEmail(auth, email);
+        // Use custom action code settings to redirect to our site's reset page
+        const actionCodeSettings = {
+          url: window.location.origin + '/reset-password',
+          handleCodeInApp: true,
+        };
+        await sendPasswordResetEmail(auth, email, actionCodeSettings);
         setMessage(t('auth.resetEmailSent'));
         setTimeout(() => setIsForgotPassword(false), 3000);
       } catch (err) {
