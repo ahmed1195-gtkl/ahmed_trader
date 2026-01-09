@@ -44,12 +44,12 @@ const Header = () => {
   };
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-black/80 backdrop-blur-md border-b border-white/5 py-3' : 'bg-transparent py-6'}`}>
-      <div className="container mx-auto px-6 flex items-center justify-between">
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-black/90 backdrop-blur-lg border-b border-white/10 py-3' : 'bg-transparent py-4 md:py-6'}`}>
+      <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
         {/* Simple Professional Logo */}
-        <Link to="/" className="flex items-center gap-3 group">
-          <img src={siteLogo} alt="Logo" className="w-9 h-9 rounded-full border border-yellow-500/50 group-hover:scale-105 transition-transform" />
-          <span className="text-white font-black text-lg tracking-tight uppercase">Ahmed <span className="text-yellow-500">Trader</span></span>
+        <Link to="/" className="flex items-center gap-2 md:gap-3 group">
+          <img src={siteLogo} alt="Logo" className="w-8 h-8 md:w-9 md:h-9 rounded-full border border-yellow-500/50 group-hover:scale-105 transition-transform" />
+          <span className="text-white font-black text-base md:text-lg tracking-tight uppercase">Ahmed <span className="text-yellow-500">Trader</span></span>
         </Link>
 
         {/* Desktop Menu */}

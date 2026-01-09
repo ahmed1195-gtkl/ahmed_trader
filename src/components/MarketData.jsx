@@ -31,14 +31,14 @@ const MarketData = () => {
   }, []);
 
   return (
-    <div className="w-full bg-black/40 backdrop-blur-xl border-y border-yellow-500/20 py-4 overflow-hidden">
-      <div className="container mx-auto px-4 flex items-center gap-8">
+    <div className="w-full bg-black/60 backdrop-blur-xl border-y border-yellow-500/20 py-3 md:py-4 overflow-hidden">
+      <div className="container mx-auto px-4 flex items-center gap-4 md:gap-8">
         <div className="flex items-center gap-2 text-yellow-500 shrink-0">
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           <span className="text-[10px] font-black uppercase tracking-widest">{t('market.live')}</span>
         </div>
         
-        <div className="flex gap-12 animate-marquee whitespace-nowrap">
+        <div className="flex gap-8 md:gap-12 animate-marquee whitespace-nowrap">
           {data.map((coin) => (
             <div key={coin.id} className="flex items-center gap-3">
               <span className="text-sm font-black text-white uppercase">{coin.symbol}</span>

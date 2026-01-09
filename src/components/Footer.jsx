@@ -6,7 +6,7 @@ const Footer = () => {
   const { t } = useTranslation();
 
   return (
-    <footer className="relative py-12 border-t border-white/10">
+    <footer className="relative py-8 md:py-12 border-t border-white/10">
       {/* Background overlay */}
       <div className="absolute inset-0 bg-black/60"></div>
       
@@ -25,7 +25,7 @@ const Footer = () => {
               alt="Team Logo" 
               className="h-12 w-12 rounded-lg object-cover"
             />
-            <span className="text-white font-bold text-xl">Valcons Trading Team</span>
+            <span className="text-white font-bold text-lg md:text-xl">Valcons Trading Team</span>
           </div>
 
           {/* Team Description */}
@@ -42,7 +42,7 @@ const Footer = () => {
               © 2025 AI Trader Course. {t('footer.rights')}.
             </p>
             
-            <div className="flex items-center space-x-6 rtl:space-x-reverse">
+            <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6 rtl:space-x-reverse">
               <a href="#" className="text-gray-400 hover:text-yellow-400 transition-colors duration-300 text-sm">
                 Privacy Policy
               </a>

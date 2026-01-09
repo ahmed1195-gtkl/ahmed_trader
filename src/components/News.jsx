@@ -40,7 +40,7 @@ const News = () => {
   return (
     <div className="min-h-screen flex flex-col bg-black">
       <Header />
-      <main className="flex-1 container mx-auto px-6 pt-32 pb-20">
+      <main className="flex-1 container mx-auto px-4 md:px-6 pt-24 md:pt-32 pb-12 md:pb-20">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center justify-between mb-12">
             <div>
@@ -48,7 +48,7 @@ const News = () => {
                 <TrendingUp className="w-4 h-4" />
                 <span className="text-[10px] font-black uppercase tracking-[0.3em]">{t('news.liveIntelligence')}</span>
               </div>
-              <h1 className="text-4xl font-black text-white uppercase tracking-tighter">{t('news.titlePart1')} <span className="text-yellow-500">{t('news.titlePart2')}</span></h1>
+              <h1 className="text-2xl md:text-4xl font-black text-white uppercase tracking-tighter">{t('news.titlePart1')} <span className="text-yellow-500">{t('news.titlePart2')}</span></h1>
             </div>
             <button onClick={fetchNews} className="p-3 rounded-full bg-white/5 border border-white/10 text-white hover:bg-yellow-500 hover:text-black transition-all">
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -74,7 +74,7 @@ const News = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="group bg-zinc-900/50 backdrop-blur-sm border border-white/5 rounded-2xl p-6 hover:border-yellow-500/30 transition-all"
+                  className="group bg-zinc-900/50 backdrop-blur-sm border border-white/5 rounded-xl md:rounded-2xl p-5 md:p-6 hover:border-yellow-500/30 transition-all"
                 >
                   <div className="flex items-center gap-4 mb-4">
                     <div className="flex items-center gap-1.5 text-[9px] font-black text-yellow-500 uppercase tracking-widest bg-yellow-500/10 px-2 py-1 rounded">

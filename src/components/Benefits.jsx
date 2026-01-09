@@ -46,7 +46,7 @@ const Benefits = () => {
   };
 
   return (
-    <section className="py-20 relative">
+    <section className="py-12 md:py-20 relative">
       {/* Background overlay */}
       <div className="absolute inset-0 bg-black/30"></div>
       
@@ -58,7 +58,7 @@ const Benefits = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-4 px-4">
             {t('benefits.title')}
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-yellow-400 to-yellow-600 mx-auto rounded-full"></div>
@@ -79,7 +79,7 @@ const Benefits = () => {
                 variants={itemVariants}
                 className="group"
               >
-                <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 text-center hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-yellow-500/10">
+                <div className="bg-white/5 md:bg-white/10 backdrop-blur-md border border-white/10 md:border-white/20 rounded-2xl p-6 md:p-8 text-center hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-yellow-500/10">
                   <div className="mb-6 flex justify-center">
                     <div className="w-16 h-16 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                       <IconComponent className="h-8 w-8 text-black" />

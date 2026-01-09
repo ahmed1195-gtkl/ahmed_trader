@@ -32,7 +32,7 @@ const Brokers = () => {
   };
 
   return (
-    <section className="py-20 relative">
+    <section className="py-12 md:py-20 relative">
       {/* Background overlay */}
       <div className="absolute inset-0 bg-black/50"></div>
       
@@ -44,10 +44,10 @@ const Brokers = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-4 px-4">
             {t('brokers.title')}
           </h2>
-          <p className="text-xl text-gray-300 mb-6">
+          <p className="text-lg md:text-xl text-gray-300 mb-6 px-4">
             {t('brokers.subtitle')}
           </p>
           <div className="w-24 h-1 bg-gradient-to-r from-yellow-400 to-yellow-600 mx-auto rounded-full"></div>
@@ -89,7 +89,7 @@ const Brokers = () => {
               variants={itemVariants}
               className="group"
             >
-              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-yellow-500/10">
+              <div className="bg-white/5 md:bg-white/10 backdrop-blur-md border border-white/10 md:border-white/20 rounded-2xl md:rounded-3xl p-5 md:p-8 hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-yellow-500/10">
                 {/* Broker Header */}
                 <div className="flex items-center space-x-4 rtl:space-x-reverse mb-6">
                   <img 
@@ -98,7 +98,7 @@ const Brokers = () => {
                     className=" rounded-x1 object-cover"
                   />
                   <div>
-                    <h3 className="text-2xl md:text-3xl font-bold text-white group-hover:text-yellow-400 transition-colors duration-300">
+                    <h3 className="text-xl md:text-3xl font-bold text-white group-hover:text-yellow-400 transition-colors duration-300">
                       {broker.name}
                     </h3>
                     <p className="text-gray-300 mt-2">
