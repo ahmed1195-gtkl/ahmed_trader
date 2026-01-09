@@ -68,17 +68,28 @@ const Auth = () => {
   };
 
   const checkUserOnboarding = async (user) => {
+    console.log("Checking onboarding for user:", user.uid);
     try {
       const docRef = doc(db, "users", user.uid);
       const docSnap = await getDoc(docRef);
-      if (docSnap.exists() && docSnap.data().onboardingCompleted) {
-        navigate('/');
+      console.log("Firestore doc exists:", docSnap.exists());
+      if (docSnap.exists()) {
+        console.log("User data:", docSnap.data());
+        if (docSnap.data().onboardingCompleted) {
+          console.log("Onboarding completed, navigating to home");
+          navigate('/');
+        } else {
+          console.log("Onboarding NOT completed, navigating to onboarding");
+          navigate('/onboarding');
+        }
       } else {
+        console.log("No user doc found, navigating to onboarding");
         navigate('/onboarding');
       }
     } catch (err) {
       console.error("Error checking onboarding:", err);
-      navigate('/onboarding');
+      // If Firestore fails, we still want to let the user in
+      navigate('/');
     }
   };
 
@@ -126,8 +137,9 @@ const Auth = () => {
 
     try {
       if (isLogin) {
+        console.log("Attempting login for:", email);
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        // Allow login directly without checking emailVerified as per user request
+        console.log("Login successful, checking onboarding for:", userCredential.user.uid);
         await checkUserOnboarding(userCredential.user);
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
