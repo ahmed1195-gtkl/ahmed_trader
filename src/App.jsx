@@ -8,6 +8,9 @@ import Coach from './components/Coach';
 import Brokers from './components/Brokers';
 import Footer from './components/Footer';
 import Auth from './components/Auth';
+import Onboarding from './components/Onboarding';
+import Settings from './components/Settings';
+import MarketData from './components/MarketData';
 import backgroundImage from './assets/background.jpg';
 import './App.css';
 
@@ -15,6 +18,9 @@ function MainLayout() {
   return (
     <>
       <Header />
+      <div className="pt-20">
+        <MarketData />
+      </div>
       <main>
         <Hero />
         <Benefits />
@@ -60,6 +66,8 @@ function App() {
           <Routes>
             <Route path="/" element={<MainLayout />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/settings" element={<Settings />} />
           </Routes>
         </div>
       </div>

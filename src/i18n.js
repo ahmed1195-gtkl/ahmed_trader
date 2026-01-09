@@ -9,6 +9,8 @@ const resources = {
       "language": "Language",
       "nav.home": "Home",
       "nav.login": "Login",
+      "nav.logout": "Logout",
+      "nav.settings": "Settings",
 
       // Hero Section
       "hero.title": "Master Trading with Our Free Course",
@@ -54,6 +56,34 @@ const resources = {
       "auth.userNotFound": "No user found with this email.",
       "auth.tooManyRequests": "Too many attempts. Please try again later.",
       "auth.networkError": "Network error. Please check your connection.",
+      "auth.forgotPassword": "Forgot Password?",
+      "auth.resetPassword": "Reset Password",
+      "auth.resetEmailSent": "Password reset email sent. Please check your inbox.",
+      "auth.passwordStrength": "Password Strength",
+      "auth.strength.weak": "Weak",
+      "auth.strength.medium": "Medium",
+      "auth.strength.strong": "Strong",
+
+      // Onboarding Questions
+      "onboarding.title": "Tell us about your experience",
+      "onboarding.level": "What is your trading level?",
+      "onboarding.level.beginner": "Beginner",
+      "onboarding.level.intermediate": "Intermediate",
+      "onboarding.level.professional": "Professional",
+      "onboarding.tradedBefore": "Have you traded before?",
+      "onboarding.yes": "Yes",
+      "onboarding.no": "No",
+      "onboarding.brokers": "Which brokers have you worked with?",
+      "onboarding.next": "Next",
+      "onboarding.finish": "Finish",
+
+      // Settings
+      "settings.title": "Settings",
+      "settings.security": "Security",
+      "settings.2fa": "Two-Factor Authentication (2FA)",
+      "settings.2fa.description": "Add an extra layer of security to your account.",
+      "settings.enable": "Enable",
+      "settings.disable": "Disable",
 
       // Footer
       "footer.rights": "All rights reserved",
@@ -66,6 +96,8 @@ const resources = {
       "language": "اللغة",
       "nav.home": "الرئيسية",
       "nav.login": "تسجيل الدخول",
+      "nav.logout": "تسجيل الخروج",
+      "nav.settings": "الإعدادات",
 
       // Hero Section
       "hero.title": "أتقن التداول مع كورس مجاني",
@@ -111,6 +143,34 @@ const resources = {
       "auth.userNotFound": "لا يوجد مستخدم بهذا البريد الإلكتروني.",
       "auth.tooManyRequests": "محاولات كثيرة جداً. يرجى المحاولة لاحقاً.",
       "auth.networkError": "خطأ في الشبكة. يرجى التحقق من اتصالك.",
+      "auth.forgotPassword": "نسيت كلمة المرور؟",
+      "auth.resetPassword": "إعادة تعيين كلمة المرور",
+      "auth.resetEmailSent": "تم إرسال بريد إعادة تعيين كلمة المرور. يرجى التحقق من بريدك.",
+      "auth.passwordStrength": "قوة كلمة المرور",
+      "auth.strength.weak": "ضعيفة",
+      "auth.strength.medium": "متوسطة",
+      "auth.strength.strong": "قوية",
+
+      // Onboarding Questions
+      "onboarding.title": "أخبرنا عن خبرتك",
+      "onboarding.level": "ما هو مستواك في التداول؟",
+      "onboarding.level.beginner": "مبتدئ",
+      "onboarding.level.intermediate": "متوسط",
+      "onboarding.level.professional": "محترف",
+      "onboarding.tradedBefore": "هل تداولت من قبل؟",
+      "onboarding.yes": "نعم",
+      "onboarding.no": "لا",
+      "onboarding.brokers": "ما هي البروكرات التي تعاملت معها؟",
+      "onboarding.next": "التالي",
+      "onboarding.finish": "إنهاء",
+
+      // Settings
+      "settings.title": "الإعدادات",
+      "settings.security": "الأمان",
+      "settings.2fa": "المصادقة الثنائية (2FA)",
+      "settings.2fa.description": "أضف طبقة أمان إضافية لحسابك.",
+      "settings.enable": "تفعيل",
+      "settings.disable": "تعطيل",
 
       // Footer
       "footer.rights": "جميع الحقوق محفوظة",
@@ -123,6 +183,8 @@ const resources = {
       "language": "Langue",
       "nav.home": "Accueil",
       "nav.login": "Connexion",
+      "nav.logout": "Déconnexion",
+      "nav.settings": "Paramètres",
 
       // Hero Section
       "hero.title": "Maîtrisez le trading avec notre cours gratuit",
@@ -168,6 +230,34 @@ const resources = {
       "auth.userNotFound": "Aucun utilisateur trouvé avec cet e-mail.",
       "auth.tooManyRequests": "Trop de tentatives. Veuillez réessayer plus tard.",
       "auth.networkError": "Erreur réseau. Veuillez vérifier votre connexion.",
+      "auth.forgotPassword": "Mot de passe oublié ?",
+      "auth.resetPassword": "Réinitialiser le mot de passe",
+      "auth.resetEmailSent": "E-mail de réinitialisation envoyé. Veuillez vérifier votre boîte de réception.",
+      "auth.passwordStrength": "Force du mot de passe",
+      "auth.strength.weak": "Faible",
+      "auth.strength.medium": "Moyenne",
+      "auth.strength.strong": "Forte",
+
+      // Onboarding Questions
+      "onboarding.title": "Parlez-nous de votre expérience",
+      "onboarding.level": "Quel est votre niveau de trading ?",
+      "onboarding.level.beginner": "Débutant",
+      "onboarding.level.intermediate": "Intermédiaire",
+      "onboarding.level.professional": "Professionnel",
+      "onboarding.tradedBefore": "Avez-vous déjà tradé ?",
+      "onboarding.yes": "Oui",
+      "onboarding.no": "Non",
+      "onboarding.brokers": "Avec quels courtiers avez-vous travaillé ?",
+      "onboarding.next": "Suivant",
+      "onboarding.finish": "Terminer",
+
+      // Settings
+      "settings.title": "Paramètres",
+      "settings.security": "Sécurité",
+      "settings.2fa": "Authentification à deux facteurs (2FA)",
+      "settings.2fa.description": "Ajoutez une couche de sécurité supplémentaire à votre compte.",
+      "settings.enable": "Activer",
+      "settings.disable": "Désactiver",
 
       // Footer
       "footer.rights": "Tous droits réservés",
