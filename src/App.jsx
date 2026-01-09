@@ -12,7 +12,6 @@ import Onboarding from './components/Onboarding';
 import Settings from './components/Settings';
 import MarketData from './components/MarketData';
 import News from './components/News';
-import backgroundImage from './assets/background.jpg';
 import './App.css';
 
 function MainLayout() {
@@ -49,20 +48,7 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen relative">
-        {/* Background Image - Optimized */}
-        <div 
-          className="fixed inset-0 z-0 bg-black pointer-events-none"
-          style={{
-            backgroundImage: `url(${backgroundImage})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            opacity: 0.4, // Reduced opacity for better readability and performance
-          }}
-        />
-        <div className="fixed inset-0 z-0 bg-gradient-to-b from-black via-transparent to-black pointer-events-none" />
-        
+      <div className="min-h-screen relative bg-black">
         {/* Content */}
         <div className="relative z-10">
           <Routes>

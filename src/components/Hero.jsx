@@ -9,8 +9,7 @@ const Hero = () => {
 
   return (
     <section className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      {/* Background overlay */}
-      <div className="absolute inset-0 bg-black/50 z-10"></div>
+      {/* Background overlay - Removed for solid black background */}
       
       {/* Content */}
       <div className="relative z-20 container mx-auto px-4 text-center">
