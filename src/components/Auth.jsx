@@ -59,7 +59,10 @@ const Auth = () => {
       case 'auth/user-not-found': return t('auth.userNotFound');
       case 'auth/too-many-requests': return t('auth.tooManyRequests');
       case 'auth/network-request-failed': return t('auth.networkError');
-      default: return t('auth.error');
+      case 'auth/invalid-credential': return t('auth.wrongPassword');
+      case 'auth/operation-not-allowed': return "Authentication method not enabled.";
+      case 'auth/popup-closed-by-user': return "Login popup closed before completion.";
+      default: return err.message || t('auth.error');
     }
   };
 
@@ -98,22 +101,23 @@ const Auth = () => {
     try {
       if (isLogin) {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        if (!userCredential.user.emailVerified) {
-          setError(t('auth.verifyEmail'));
-          await sendEmailVerification(userCredential.user);
-          setLoading(false);
-          return;
-        }
+        // If user is logged in, redirect to onboarding or home
         navigate('/onboarding');
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(userCredential.user, { displayName: fullName });
-        await sendEmailVerification(userCredential.user);
-        setMessage(t('auth.verifyEmail'));
-        setIsLogin(true);
+        // Optional: Send verification but don't block access immediately for better UX
+        try {
+          await sendEmailVerification(userCredential.user);
+        } catch (vErr) {
+          console.error("Verification email failed", vErr);
+        }
+        setMessage(t('auth.createAccount') + " " + t('auth.welcome'));
+        setTimeout(() => navigate('/onboarding'), 1500);
       }
     } catch (err) {
-      setError(translateError(err.code));
+      console.error("Auth Error:", err.code, err.message);
+      setError(translateError(err));
     } finally {
       setLoading(false);
     }
