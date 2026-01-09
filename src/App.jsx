@@ -1,6 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { auth, db } from './lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Benefits from './components/Benefits';
@@ -37,9 +40,33 @@ function MainLayout() {
 
 function App() {
   const { i18n } = useTranslation();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [onboardingCompleted, setOnboardingCompleted] = useState(false);
 
   useEffect(() => {
-    // Set initial direction based on language
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        try {
+          const docRef = doc(db, "users", currentUser.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists() && docSnap.data().onboardingCompleted) {
+            setOnboardingCompleted(true);
+          } else {
+            setOnboardingCompleted(false);
+          }
+        } catch (err) {
+          console.error("Error fetching user data:", err);
+        }
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
     if (i18n.language === 'ar') {
       document.documentElement.dir = 'rtl';
       document.documentElement.lang = 'ar';
@@ -49,19 +76,23 @@ function App() {
     }
   }, [i18n.language]);
 
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center bg-black text-yellow-500">Loading...</div>;
+  }
+
   return (
     <Router>
       <div className="min-h-screen relative bg-black">
-        {/* Content */}
         <div className="relative z-10">
           <Routes>
             <Route path="/" element={<MainLayout />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/settings" element={<Settings />} />
+            <Route path="/auth" element={user ? <Navigate to={onboardingCompleted ? "/" : "/onboarding"} /> : <Auth />} />
+            <Route path="/onboarding" element={user ? (onboardingCompleted ? <Navigate to="/" /> : <Onboarding />) : <Navigate to="/auth" />} />
+            <Route path="/settings" element={user ? <Settings /> : <Navigate to="/auth" />} />
             <Route path="/news" element={<News />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>
         <CookieConsent />
