@@ -11,6 +11,7 @@ import Auth from './components/Auth';
 import Onboarding from './components/Onboarding';
 import Settings from './components/Settings';
 import MarketData from './components/MarketData';
+import News from './components/News';
 import backgroundImage from './assets/background.jpg';
 import './App.css';
 
@@ -51,13 +52,15 @@ function App() {
       <div className="min-h-screen relative">
         {/* Background Image */}
         <div 
-          className="fixed inset-0 z-0"
+          className="fixed inset-0 z-0 bg-black"
           style={{
             backgroundImage: `url(${backgroundImage})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
             filter: 'blur(2px)',
+            willChange: 'transform', // Optimization for mobile
+            transform: 'translateZ(0)', // Force GPU acceleration
           }}
         />
         
@@ -68,6 +71,7 @@ function App() {
             <Route path="/auth" element={<Auth />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/news" element={<News />} />
           </Routes>
         </div>
       </div>
