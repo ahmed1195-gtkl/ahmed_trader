@@ -1,38 +1,106 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { auth, googleProvider } from '../lib/firebase';
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
-  signInWithPopup 
+  signInWithPopup,
+  sendEmailVerification,
+  updateProfile
 } from 'firebase/auth';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { useNavigate } from 'react-router-dom';
 
 const Auth = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [country, setCountry] = useState('');
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
+
+  // List of countries (simplified for example, but covers major ones)
+  const countries = useMemo(() => [
+    { code: 'DZ', name: 'Algeria' },
+    { code: 'EG', name: 'Egypt' },
+    { code: 'MA', name: 'Morocco' },
+    { code: 'SA', name: 'Saudi Arabia' },
+    { code: 'AE', name: 'United Arab Emirates' },
+    { code: 'TN', name: 'Tunisia' },
+    { code: 'LY', name: 'Libya' },
+    { code: 'IQ', name: 'Iraq' },
+    { code: 'JO', name: 'Jordan' },
+    { code: 'KW', name: 'Kuwait' },
+    { code: 'LB', name: 'Lebanon' },
+    { code: 'OM', name: 'Oman' },
+    { code: 'QA', name: 'Qatar' },
+    { code: 'SY', name: 'Syria' },
+    { code: 'YE', name: 'Yemen' },
+    { code: 'PS', name: 'Palestine' },
+    { code: 'FR', name: 'France' },
+    { code: 'US', name: 'United States' },
+    { code: 'GB', name: 'United Kingdom' },
+    { code: 'TR', name: 'Turkey' },
+  ], []);
+
+  const translateError = (errorCode) => {
+    switch (errorCode) {
+      case 'auth/weak-password': return t('auth.weakPassword');
+      case 'auth/invalid-email': return t('auth.invalidEmail');
+      case 'auth/email-already-in-use': return t('auth.emailInUse');
+      case 'auth/wrong-password': return t('auth.wrongPassword');
+      case 'auth/user-not-found': return t('auth.userNotFound');
+      case 'auth/too-many-requests': return t('auth.tooManyRequests');
+      case 'auth/network-request-failed': return t('auth.networkError');
+      default: return t('auth.error');
+    }
+  };
+
+  const validatePassword = (pass) => {
+    const regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+    return regex.test(pass);
+  };
 
   const handleEmailAuth = async (e) => {
     e.preventDefault();
     setError('');
+    setMessage('');
+
+    if (!isLogin && !validatePassword(password)) {
+      setError(t('auth.weakPassword'));
+      return;
+    }
+
     try {
       if (isLogin) {
-        await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        if (!userCredential.user.emailVerified) {
+          setError(t('auth.verifyEmail'));
+          await sendEmailVerification(userCredential.user);
+          return;
+        }
+        navigate('/');
       } else {
-        await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(userCredential.user, {
+          displayName: fullName
+        });
+        // Here you could also save phone and country to Firestore
+        await sendEmailVerification(userCredential.user);
+        setMessage(t('auth.verifyEmail'));
+        setIsLogin(true);
       }
-      navigate('/');
     } catch (err) {
-      setError(err.message);
+      setError(translateError(err.code));
     }
   };
 
@@ -42,7 +110,7 @@ const Auth = () => {
       await signInWithPopup(auth, googleProvider);
       navigate('/');
     } catch (err) {
-      setError(err.message);
+      setError(translateError(err.code));
     }
   };
 
@@ -64,6 +132,47 @@ const Auth = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
+            {!isLogin && (
+              <>
+                <div className="grid gap-2">
+                  <Label htmlFor="fullName">{t('auth.fullName')}</Label>
+                  <Input 
+                    id="fullName" 
+                    type="text" 
+                    placeholder="John Doe" 
+                    className="bg-white/5 border-white/10 text-white"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="phone">{t('auth.phone')}</Label>
+                  <Input 
+                    id="phone" 
+                    type="tel" 
+                    placeholder="+123456789" 
+                    className="bg-white/5 border-white/10 text-white"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="country">{t('auth.country')}</Label>
+                  <Select onValueChange={setCountry} value={country}>
+                    <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                      <SelectValue placeholder={t('auth.country')} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-zinc-900 border-white/10 text-white">
+                      {countries.map((c) => (
+                        <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
             <div className="grid gap-2">
               <Label htmlFor="email">{t('auth.email')}</Label>
               <Input 
@@ -73,6 +182,7 @@ const Auth = () => {
                 className="bg-white/5 border-white/10 text-white placeholder:text-gray-500"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
             <div className="grid gap-2">
@@ -83,9 +193,11 @@ const Auth = () => {
                 className="bg-white/5 border-white/10 text-white"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </div>
-            {error && <p className="text-red-500 text-sm">{error}</p>}
+            {error && <p className="text-red-500 text-sm font-medium">{error}</p>}
+            {message && <p className="text-green-500 text-sm font-medium">{message}</p>}
             <Button 
               onClick={handleEmailAuth}
               className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-bold"
@@ -106,22 +218,10 @@ const Auth = () => {
               className="w-full border-white/10 bg-white/5 hover:bg-white/10 text-white"
             >
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
-                <path
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  fill="#4285F4"
-                />
-                <path
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  fill="#34A853"
-                />
-                <path
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                  fill="#FBBC05"
-                />
-                <path
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                  fill="#EA4335"
-                />
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
               </svg>
               {t('auth.google')}
             </Button>
@@ -131,7 +231,11 @@ const Auth = () => {
               {isLogin ? t('auth.noAccount') : t('auth.hasAccount')}
             </div>
             <button
-              onClick={() => setIsLogin(!isLogin)}
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setError('');
+                setMessage('');
+              }}
               className="text-sm font-bold text-yellow-500 hover:text-yellow-400 underline-offset-4 hover:underline"
             >
               {isLogin ? t('auth.signup') : t('auth.login')}
