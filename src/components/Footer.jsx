@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import teamLogo from '../assets/team_logo.png';
 
 const Footer = () => {
@@ -43,14 +44,14 @@ const Footer = () => {
             </p>
             
             <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6 rtl:space-x-reverse">
+              <Link to="/privacy" className="text-gray-400 hover:text-yellow-400 transition-colors duration-300 text-sm">
+                {t('footer.privacy')}
+              </Link>
               <a href="#" className="text-gray-400 hover:text-yellow-400 transition-colors duration-300 text-sm">
-                Privacy Policy
+                {t('footer.terms')}
               </a>
               <a href="#" className="text-gray-400 hover:text-yellow-400 transition-colors duration-300 text-sm">
-                Terms of Service
-              </a>
-              <a href="#" className="text-gray-400 hover:text-yellow-400 transition-colors duration-300 text-sm">
-                Contact
+                {t('footer.contact')}
               </a>
             </div>
           </div>
@@ -61,4 +62,3 @@ const Footer = () => {
 };
 
 export default Footer;
-

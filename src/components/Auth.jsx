@@ -1,15 +1,17 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { auth, googleProvider } from '../lib/firebase';
+import { auth, googleProvider, db } from '../lib/firebase';
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signInWithPopup,
+  signInWithRedirect,
   sendEmailVerification,
   updateProfile,
   sendPasswordResetEmail
 } from 'firebase/auth';
+import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -50,17 +52,69 @@ const Auth = () => {
     }
   }, [password, isLogin]);
 
-  const translateError = (errorCode) => {
-    switch (errorCode) {
+  const translateError = (err) => {
+    const code = err.code;
+    const message = err.message;
+    console.error("Auth Error Details:", { code, message });
+    
+    // Check for specific Firebase configuration errors
+    if (code === 'auth/operation-not-allowed') {
+      return "Authentication method not enabled in Firebase Console. Please enable Email/Password and Google.";
+    }
+    if (code === 'auth/unauthorized-domain') {
+      return "This domain is not authorized in Firebase Console. Please add it to the authorized domains list.";
+    }
+
+    switch (code) {
       case 'auth/weak-password': return t('auth.weakPassword');
       case 'auth/invalid-email': return t('auth.invalidEmail');
       case 'auth/email-already-in-use': return t('auth.emailInUse');
       case 'auth/wrong-password': return t('auth.wrongPassword');
       case 'auth/user-not-found': return t('auth.userNotFound');
+      case 'auth/invalid-credential': return t('auth.wrongPassword');
       case 'auth/too-many-requests': return t('auth.tooManyRequests');
       case 'auth/network-request-failed': return t('auth.networkError');
+      case 'auth/googleError': return t('auth.googleError');
+      case 'auth/user-disabled': return t('auth.accountSuspended');
       default: return t('auth.error');
     }
+  };
+
+  const checkUserOnboarding = async (user) => {
+    try {
+      const docRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists() && docSnap.data().isSuspended) {
+        await auth.signOut();
+        setError(t('auth.accountSuspended'));
+        return;
+      }
+
+      if (docSnap.exists() && docSnap.data().onboardingCompleted) {
+        navigate('/');
+      } else {
+        navigate('/onboarding');
+      }
+    } catch (err) {
+      console.error("Firestore Error:", err);
+      // Fallback: if firestore fails, just go to home to not block the user
+      navigate('/');
+    }
+  };
+
+  const generateUniqueNumericUID = async () => {
+    let isUnique = false;
+    let newUID = '';
+    while (!isUnique) {
+      newUID = Math.floor(100000 + Math.random() * 900000).toString();
+      const q = query(collection(db, "users"), where("numericUID", "==", newUID));
+      const querySnapshot = await getDocs(q);
+      if (querySnapshot.empty) {
+        isUnique = true;
+      }
+    }
+    return newUID;
   };
 
   const handleEmailAuth = async (e) => {
@@ -70,50 +124,66 @@ const Auth = () => {
     setLoading(true);
 
     if (isForgotPassword) {
+      if (!email) {
+        setError(t('auth.invalidEmail'));
+        setLoading(false);
+        return;
+      }
       try {
-        await sendPasswordResetEmail(auth, email);
+        // Explicitly set the continue URL to our reset-password page
+        const actionCodeSettings = {
+          url: `${window.location.origin}/reset-password`,
+          handleCodeInApp: true,
+        };
+        await sendPasswordResetEmail(auth, email, actionCodeSettings);
         setMessage(t('auth.resetEmailSent'));
-        setTimeout(() => setIsForgotPassword(false), 3000);
+        // Don't switch back immediately so user can read the message
       } catch (err) {
-        setError(translateError(err.code));
+        console.error("Reset Password Error:", err);
+        setError(translateError(err));
       } finally {
         setLoading(false);
       }
       return;
     }
 
-    if (!isLogin) {
-      if (!fullName || !phone || !country) {
-        setError(t('auth.error'));
-        setLoading(false);
-        return;
-      }
-      if (passwordStrength < 2) {
-        setError(t('auth.weakPassword'));
-        setLoading(false);
-        return;
-      }
-    }
-
     try {
       if (isLogin) {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        if (!userCredential.user.emailVerified) {
-          setError(t('auth.verifyEmail'));
-          await sendEmailVerification(userCredential.user);
+        await checkUserOnboarding(userCredential.user);
+      } else {
+        if (!fullName || !phone || !country) {
+          setError(t('auth.error'));
           setLoading(false);
           return;
         }
-        navigate('/onboarding');
-      } else {
+        // Check if user exists in Firestore and is suspended
+        // Note: In a real scenario, we'd check a 'suspended' flag in Firestore
+        // because Firebase Auth 'createUser' will fail if the email exists in Auth,
+        // but if the user was deleted from Auth but kept in Firestore as 'suspended',
+        // we can block them here.
+        
+        const numericUID = await generateUniqueNumericUID();
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(userCredential.user, { displayName: fullName });
+        
+        await setDoc(doc(db, "users", userCredential.user.uid), {
+          fullName,
+          email,
+          phone,
+          country,
+          numericUID,
+          createdAt: new Date().toISOString(),
+          onboardingCompleted: false,
+          isSuspended: false
+        });
+
         await sendEmailVerification(userCredential.user);
-        setMessage(t('auth.verifyEmail'));
+        setMessage(t('auth.emailVerificationSent'));
         setIsLogin(true);
       }
     } catch (err) {
-      setError(translateError(err.code));
+      setError(translateError(err));
     } finally {
       setLoading(false);
     }
@@ -121,11 +191,36 @@ const Auth = () => {
 
   const handleGoogleLogin = async () => {
     setError('');
+    setLoading(true);
     try {
-      await signInWithPopup(auth, googleProvider);
-      navigate('/onboarding');
+      // Try popup first, if it fails or is blocked, we can handle it
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      const docRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+      
+      if (!docSnap.exists()) {
+        const numericUID = await generateUniqueNumericUID();
+        await setDoc(docRef, {
+          fullName: user.displayName,
+          email: user.email,
+          numericUID,
+          createdAt: new Date().toISOString(),
+          onboardingCompleted: false,
+          isSuspended: false
+        });
+      }
+      await checkUserOnboarding(user);
     } catch (err) {
-      setError(translateError(err.code));
+      console.error("Google Login Error:", err);
+      if (err.code === 'auth/popup-blocked') {
+        // Fallback to redirect if popup is blocked
+        await signInWithRedirect(auth, googleProvider);
+      } else {
+        setError(translateError(err));
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -147,7 +242,6 @@ const Auth = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
         <Card className="bg-black/60 backdrop-blur-2xl border-yellow-500/30 text-white shadow-2xl overflow-hidden">
@@ -253,7 +347,12 @@ const Auth = () => {
                   <div className="relative flex justify-center text-xs uppercase"><span className="bg-black/40 px-4 text-gray-500 font-bold">{t('auth.or')}</span></div>
                 </div>
 
-                <Button variant="outline" onClick={handleGoogleLogin} className="w-full h-11 border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold transition-all">
+                <Button 
+                  variant="outline" 
+                  onClick={handleGoogleLogin} 
+                  disabled={loading}
+                  className="w-full h-11 border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold transition-all"
+                >
                   <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -265,19 +364,25 @@ const Auth = () => {
               </>
             )}
           </CardContent>
-          <CardFooter className="flex flex-wrap items-center justify-center gap-2 pb-8">
-            {isForgotPassword ? (
-              <button onClick={() => setIsForgotPassword(false)} className="text-sm font-black text-yellow-500 hover:text-yellow-400 underline-offset-4 hover:underline uppercase tracking-wider">
-                {t('auth.login')}
-              </button>
-            ) : (
-              <>
-                <div className="text-sm text-gray-400 font-medium">{isLogin ? t('auth.noAccount') : t('auth.hasAccount')}</div>
-                <button onClick={() => { setIsLogin(!isLogin); setError(''); setMessage(''); }} className="text-sm font-black text-yellow-500 hover:text-yellow-400 underline-offset-4 hover:underline uppercase tracking-wider">
-                  {isLogin ? t('auth.signup') : t('auth.login')}
-                </button>
-              </>
-            )}
+          <CardFooter className="flex flex-wrap justify-center gap-2 pb-8">
+            <p className="text-sm text-gray-400">
+              {isForgotPassword ? "" : (isLogin ? t('auth.noAccount') : t('auth.hasAccount'))}
+            </p>
+            <button 
+              onClick={() => {
+                if (isForgotPassword) {
+                  setIsForgotPassword(false);
+                  setIsLogin(true);
+                } else {
+                  setIsLogin(!isLogin);
+                }
+                setError('');
+                setMessage('');
+              }} 
+              className="text-sm text-yellow-500 font-bold hover:underline"
+            >
+              {isForgotPassword ? t('auth.login') : (isLogin ? t('auth.signup') : t('auth.login'))}
+            </button>
           </CardFooter>
         </Card>
       </motion.div>

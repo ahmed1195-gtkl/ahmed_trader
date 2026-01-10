@@ -1,16 +1,25 @@
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button.jsx';
 import { useNavigate } from 'react-router-dom';
+import { auth } from '../lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const Hero = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
   return (
     <section className="min-h-[90vh] md:min-h-screen flex items-center justify-center relative overflow-hidden py-20 md:py-0">
-      {/* Background overlay - Removed for solid black background */}
-      
       {/* Content */}
       <div className="relative z-20 container mx-auto px-4 text-center">
         <motion.div
@@ -41,20 +50,22 @@ const Hero = () => {
             {t('hero.description')}
           </motion.p>
 
-          {/* CTA Button */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-          >
-            <Button 
-              size="lg"
-              onClick={() => navigate('/auth')}
-              className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-bold text-lg px-8 py-4 rounded-xl shadow-2xl hover:shadow-yellow-500/25 transition-all duration-300 hover:scale-105 border-0"
+          {/* CTA Button - Only show if user is NOT logged in */}
+          {!user && (
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
             >
-              {t('hero.cta')}
-            </Button>
-          </motion.div>
+              <Button 
+                size="lg"
+                onClick={() => navigate('/auth')}
+                className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-bold text-lg px-8 py-4 rounded-xl shadow-2xl hover:shadow-yellow-500/25 transition-all duration-300 hover:scale-105 border-0"
+              >
+                {t('hero.cta')}
+              </Button>
+            </motion.div>
+          )}
 
           {/* Floating elements */}
           <motion.div
