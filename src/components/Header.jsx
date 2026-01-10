@@ -10,7 +10,8 @@ import siteLogo from '../assets/site_logo.jpg';
 
 const Header = () => {
   const { t, i18n } = useTranslation();
-  const [user, setUser] = useState(null);
+	  const [user, setUser] = useState(null);
+	  const [isAdmin, setIsAdmin] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
@@ -34,7 +35,15 @@ const Header = () => {
   const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => setUser(currentUser));
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        const adminEmails = ['mchokri100@gmail.com', 'ahmed1195@gmail.com', 'admin@ahmedtrader.com'];
+        setIsAdmin(adminEmails.includes(currentUser.email?.toLowerCase()));
+      } else {
+        setIsAdmin(false);
+      }
+    });
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
@@ -132,8 +141,14 @@ const Header = () => {
                 <AnimatePresence>
                   {isUserOpen && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute top-full mt-2 right-0 bg-zinc-900 border border-white/10 rounded-xl overflow-hidden shadow-2xl min-w-[160px]">
-                      {(user?.email === 'mchokri100@gmail.com' || user?.email === 'ahmed1195@gmail.com') && (
-                        <button onClick={() => { navigate('/admin'); setIsUserOpen(false); }} className="w-full px-4 py-3 text-xs font-bold text-yellow-500 hover:bg-white/5 transition-colors flex items-center gap-3 border-b border-white/5">
+	                      {isAdmin && (
+                        <button 
+                          onClick={() => { 
+                            setIsUserOpen(false);
+                            navigate('/admin'); 
+                          }} 
+                          className="w-full px-4 py-3 text-xs font-bold text-yellow-500 hover:bg-white/5 transition-colors flex items-center gap-3 border-b border-white/5"
+                        >
                           <LayoutDashboard className="w-3 h-3" /> Admin Dashboard
                         </button>
                       )}
@@ -193,8 +208,14 @@ const Header = () => {
               </div>
               {user ? (
                 <div className="flex flex-col gap-4">
-                  {(user?.email === 'mchokri100@gmail.com' || user?.email === 'ahmed1195@gmail.com') && (
-                    <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="bg-yellow-500 text-black py-4 rounded-xl font-black text-xs uppercase text-center">Admin Dashboard</Link>
+	                  {isAdmin && (
+                    <Link 
+                      to="/admin" 
+                      onClick={() => setIsMobileMenuOpen(false)} 
+                      className="bg-yellow-500 text-black py-4 rounded-xl font-black text-xs uppercase text-center"
+                    >
+                      Admin Dashboard
+                    </Link>
                   )}
                   <div className="grid grid-cols-2 gap-4">
                     <Link to="/settings" onClick={() => setIsMobileMenuOpen(false)} className="bg-white/5 text-white py-4 rounded-xl font-black text-xs uppercase text-center border border-white/10">{t('nav.settings')}</Link>
