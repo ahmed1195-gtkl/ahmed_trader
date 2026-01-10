@@ -102,7 +102,17 @@ const resources = {
 
       // Footer
       "footer.rights": "All rights reserved",
-      "footer.team": "Powered by our expert team"
+      "footer.team": "Powered by our expert team",
+
+      // Feed / Admin Features
+      "feed.title": "Community Feed",
+      "feed.upload": "Upload Post",
+      "feed.placeholder": "What's on your mind?",
+      "feed.like": "Like",
+      "feed.comment": "Comment",
+      "feed.post": "Post",
+      "feed.noPosts": "No posts yet.",
+      "feed.adminOnly": "Admin Only Feature"
     }
   },
   ar: {
@@ -204,7 +214,17 @@ const resources = {
 
       // Footer
       "footer.rights": "جميع الحقوق محفوظة",
-      "footer.team": "مدعوم من فريقنا الخبير"
+      "footer.team": "مدعوم من فريقنا الخبير",
+
+      // Feed / Admin Features
+      "feed.title": "آخر التحديثات",
+      "feed.upload": "رفع منشور",
+      "feed.placeholder": "بماذا تفكر؟",
+      "feed.like": "إعجاب",
+      "feed.comment": "تعليق",
+      "feed.post": "نشر",
+      "feed.noPosts": "لا توجد منشورات بعد.",
+      "feed.adminOnly": "خاصية للمسؤول فقط"
     }
   },
   fr: {
@@ -306,7 +326,17 @@ const resources = {
 
       // Footer
       "footer.rights": "Tous droits réservés",
-      "footer.team": "Propulsé par notre équipe d'experts"
+      "footer.team": "Propulsé par notre équipe d'experts",
+
+      // Feed / Admin Features
+      "feed.title": "Fil d'actualité",
+      "feed.upload": "Télécharger un post",
+      "feed.placeholder": "À quoi pensez-vous ?",
+      "feed.like": "J'aime",
+      "feed.comment": "Commenter",
+      "feed.post": "Publier",
+      "feed.noPosts": "Aucun post pour le moment.",
+      "feed.adminOnly": "Fonctionnalité réservée à l'administrateur"
     }
   }
 };

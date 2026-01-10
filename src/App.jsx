@@ -12,6 +12,7 @@ import Onboarding from './components/Onboarding';
 import Settings from './components/Settings';
 import MarketData from './components/MarketData';
 import News from './components/News';
+import Feed from './components/Feed';
 import './App.css';
 
 function MainLayout() {
@@ -23,6 +24,7 @@ function MainLayout() {
       </div>
       <main>
         <Hero />
+        <Feed />
         <Benefits />
         <Coach />
         <Brokers />

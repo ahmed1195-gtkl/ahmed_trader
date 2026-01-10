@@ -16,7 +16,8 @@ const News = () => {
     setError(false);
     try {
       // Using a more stable proxy/API for financial news
-      const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.investing.com/rss/news_285.rss');
+      // Using a more reliable financial news source and ensuring no API key issues
+      const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.investing.com/rss/news_25.rss');
       const data = await response.json();
       if (data.status === 'ok') {
         setNews(data.items.slice(0, 12)); // Limit to 12 items for performance
