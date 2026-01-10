@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { Clock, ExternalLink, TrendingUp, RefreshCw, AlertCircle, Newspaper, MessageCircle, X } from 'lucide-react';
+import { Clock, ExternalLink, TrendingUp, RefreshCw, AlertCircle, Newspaper, MessageCircle, X, User } from 'lucide-react';
+import { db } from '../lib/firebase';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import Header from './Header';
 import Footer from './Footer';
 import Comments from './Comments';
@@ -17,18 +19,27 @@ const News = () => {
     setLoading(true);
     setError(false);
     try {
-      // Using AllOrigins proxy to bypass CORS issues for RSS feeds
+      // 1. Fetch Admin Posts from Firestore
+      const adminPostsSnap = await getDocs(query(collection(db, 'admin_posts'), orderBy('createdAt', 'desc')));
+      const adminPosts = adminPostsSnap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        isAdminPost: true,
+        pubDate: doc.data().createdAt?.toDate().toISOString() || new Date().toISOString(),
+        thumbnail: doc.data().image
+      }));
+
+      // 2. Fetch RSS News
       const rssUrl = encodeURIComponent('https://www.investing.com/rss/news_285.rss');
       const response = await fetch(`https://api.allorigins.win/get?url=${rssUrl}`);
       const data = await response.json();
       
+      let rssItems = [];
       if (data.contents) {
-        // Parse XML string to JSON
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(data.contents, "text/xml");
-        const items = Array.from(xmlDoc.querySelectorAll("item")).map(item => {
+        rssItems = Array.from(xmlDoc.querySelectorAll("item")).map(item => {
           const link = item.querySelector("link")?.textContent;
-          // Create a simple ID from the link to use for comments
           const id = btoa(link).substring(0, 20);
           return {
             id,
@@ -36,14 +47,18 @@ const News = () => {
             link: link,
             description: item.querySelector("description")?.textContent,
             pubDate: item.querySelector("pubDate")?.textContent,
-            thumbnail: item.querySelector("enclosure")?.getAttribute("url") || item.querySelector("media\\:content, content")?.getAttribute("url")
+            thumbnail: item.querySelector("enclosure")?.getAttribute("url") || item.querySelector("media\\:content, content")?.getAttribute("url"),
+            isAdminPost: false
           };
         });
-        
-        setNews(items.slice(0, 12));
-      } else {
-        throw new Error('Empty contents');
       }
+      
+      // Combine and sort by date
+      const combined = [...adminPosts, ...rssItems].sort((a, b) => 
+        new Date(b.pubDate) - new Date(a.pubDate)
+      );
+      
+      setNews(combined.slice(0, 20));
     } catch (err) {
       console.error('News fetch error:', err);
       setError(true);
@@ -117,11 +132,19 @@ const News = () => {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-transparent opacity-60" />
-                    <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-lg border border-white/10">
-                      <Clock className="w-3 h-3 text-yellow-500" />
-                      <span className="text-[9px] font-black text-white uppercase tracking-widest">
-                        {new Date(item.pubDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
+                    <div className="absolute top-4 left-4 flex flex-col gap-2">
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-lg border border-white/10">
+                        <Clock className="w-3 h-3 text-yellow-500" />
+                        <span className="text-[9px] font-black text-white uppercase tracking-widest">
+                          {new Date(item.pubDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      {item.isAdminPost && (
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-yellow-500 rounded-lg border border-yellow-600 shadow-lg">
+                          <User className="w-3 h-3 text-black" />
+                          <span className="text-[9px] font-black text-black uppercase tracking-widest">Admin Post</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -131,7 +154,7 @@ const News = () => {
                     </h3>
 
                     <p className="text-sm text-gray-500 mb-8 line-clamp-3 font-medium leading-relaxed flex-1">
-                      {item.description?.replace(/<[^>]*>?/gm, '').substring(0, 150)}...
+                      {item.isAdminPost ? item.content : item.description?.replace(/<[^>]*>?/gm, '').substring(0, 150) + '...'}
                     </p>
 
                     <div className="pt-6 border-t border-white/5 flex items-center justify-between">
@@ -198,18 +221,20 @@ const News = () => {
                     <h2 className="text-3xl font-black text-white mb-6 leading-tight">
                       {selectedPost.title}
                     </h2>
-                    <p className="text-gray-400 leading-relaxed mb-8">
-                      {selectedPost.description?.replace(/<[^>]*>?/gm, '')}
+                    <p className="text-gray-400 leading-relaxed mb-8 whitespace-pre-wrap">
+                      {selectedPost.isAdminPost ? selectedPost.content : selectedPost.description?.replace(/<[^>]*>?/gm, '')}
                     </p>
-                    <a 
-                      href={selectedPost.link} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-3 px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-black uppercase tracking-widest hover:bg-yellow-500 hover:text-black transition-all"
-                    >
-                      {t('news.readFullArticle', 'Read Full Article')}
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
+                    {!selectedPost.isAdminPost && (
+                      <a 
+                        href={selectedPost.link} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-3 px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-black uppercase tracking-widest hover:bg-yellow-500 hover:text-black transition-all"
+                      >
+                        {t('news.readFullArticle', 'Read Full Article')}
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    )}
                   </div>
 
                   <Comments postId={selectedPost.id} />

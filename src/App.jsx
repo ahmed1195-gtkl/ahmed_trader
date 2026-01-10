@@ -16,6 +16,7 @@ import Onboarding from './components/Onboarding';
 import Settings from './components/Settings';
 import MarketData from './components/MarketData';
 import News from './components/News';
+import AdminDashboard from './components/AdminDashboard';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import ResetPassword from './components/ResetPassword';
 import CookieConsent from './components/CookieConsent';
@@ -70,6 +71,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [onboardingCompleted, setOnboardingCompleted] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     // Set a maximum timeout for loading to prevent infinite loading screen
@@ -88,10 +90,13 @@ function App() {
           const fetchUserData = async () => {
             const docRef = doc(db, "users", currentUser.uid);
             const docSnap = await getDoc(docRef);
-            if (docSnap.exists() && docSnap.data().onboardingCompleted) {
-              setOnboardingCompleted(true);
+            if (docSnap.exists()) {
+              const userData = docSnap.data();
+              setOnboardingCompleted(userData.onboardingCompleted);
+              setIsAdmin(currentUser.email === 'mchokri100@gmail.com');
             } else {
               setOnboardingCompleted(false);
+              setIsAdmin(currentUser.email === 'mchokri100@gmail.com');
             }
           };
 
@@ -145,6 +150,7 @@ function App() {
                   <Route path="/onboarding" element={user ? (onboardingCompleted ? <Navigate to="/" /> : <Onboarding />) : <Navigate to="/auth" />} />
                   <Route path="/settings" element={user ? <Settings /> : <Navigate to="/auth" />} />
                   <Route path="/news" element={<News />} />
+                  <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/" />} />
             <Route path="/reset-password" element={<ResetPassword />} />
                   <Route path="/privacy" element={<PrivacyPolicy />} />
                   <Route path="*" element={<Navigate to="/" />} />
