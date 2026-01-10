@@ -11,7 +11,7 @@ import {
   updateProfile,
   sendPasswordResetEmail
 } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -103,6 +103,20 @@ const Auth = () => {
     }
   };
 
+  const generateUniqueNumericUID = async () => {
+    let isUnique = false;
+    let newUID = '';
+    while (!isUnique) {
+      newUID = Math.floor(100000 + Math.random() * 900000).toString();
+      const q = query(collection(db, "users"), where("numericUID", "==", newUID));
+      const querySnapshot = await getDocs(q);
+      if (querySnapshot.empty) {
+        isUnique = true;
+      }
+    }
+    return newUID;
+  };
+
   const handleEmailAuth = async (e) => {
     e.preventDefault();
     setError('');
@@ -149,6 +163,7 @@ const Auth = () => {
         // but if the user was deleted from Auth but kept in Firestore as 'suspended',
         // we can block them here.
         
+        const numericUID = await generateUniqueNumericUID();
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(userCredential.user, { displayName: fullName });
         
@@ -157,6 +172,7 @@ const Auth = () => {
           email,
           phone,
           country,
+          numericUID,
           createdAt: new Date().toISOString(),
           onboardingCompleted: false,
           isSuspended: false
@@ -184,11 +200,14 @@ const Auth = () => {
       const docSnap = await getDoc(docRef);
       
       if (!docSnap.exists()) {
+        const numericUID = await generateUniqueNumericUID();
         await setDoc(docRef, {
           fullName: user.displayName,
           email: user.email,
+          numericUID,
           createdAt: new Date().toISOString(),
-          onboardingCompleted: false
+          onboardingCompleted: false,
+          isSuspended: false
         });
       }
       await checkUserOnboarding(user);

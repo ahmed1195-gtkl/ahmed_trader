@@ -1,15 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { Clock, ExternalLink, TrendingUp, RefreshCw, AlertCircle, Newspaper } from 'lucide-react';
+import { Clock, ExternalLink, TrendingUp, RefreshCw, AlertCircle, Newspaper, MessageCircle, X } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
+import Comments from './Comments';
 
 const News = () => {
   const { t } = useTranslation();
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [selectedPost, setSelectedPost] = useState(null);
 
   const fetchNews = useCallback(async () => {
     setLoading(true);
@@ -24,13 +26,19 @@ const News = () => {
         // Parse XML string to JSON
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(data.contents, "text/xml");
-        const items = Array.from(xmlDoc.querySelectorAll("item")).map(item => ({
-          title: item.querySelector("title")?.textContent,
-          link: item.querySelector("link")?.textContent,
-          description: item.querySelector("description")?.textContent,
-          pubDate: item.querySelector("pubDate")?.textContent,
-          thumbnail: item.querySelector("enclosure")?.getAttribute("url") || item.querySelector("media\\:content, content")?.getAttribute("url")
-        }));
+        const items = Array.from(xmlDoc.querySelectorAll("item")).map(item => {
+          const link = item.querySelector("link")?.textContent;
+          // Create a simple ID from the link to use for comments
+          const id = btoa(link).substring(0, 20);
+          return {
+            id,
+            title: item.querySelector("title")?.textContent,
+            link: link,
+            description: item.querySelector("description")?.textContent,
+            pubDate: item.querySelector("pubDate")?.textContent,
+            thumbnail: item.querySelector("enclosure")?.getAttribute("url") || item.querySelector("media\\:content, content")?.getAttribute("url")
+          };
+        });
         
         setNews(items.slice(0, 12));
       } else {
@@ -130,15 +138,24 @@ const News = () => {
                       <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">
                         {new Date(item.pubDate).toLocaleDateString()}
                       </span>
-                      <a 
-                        href={item.link} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-[10px] font-black text-yellow-500 uppercase tracking-widest hover:text-yellow-400 transition-colors group/link"
-                      >
-                        {t('news.readMore')}
-                        <ExternalLink className="w-3 h-3 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
-                      </a>
+                      <div className="flex items-center gap-4">
+                        <button 
+                          onClick={() => setSelectedPost(item)}
+                          className="flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest hover:text-yellow-500 transition-colors"
+                        >
+                          <MessageCircle className="w-3 h-3" />
+                          {t('news.comments', 'Comments')}
+                        </button>
+                        <a 
+                          href={item.link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-[10px] font-black text-yellow-500 uppercase tracking-widest hover:text-yellow-400 transition-colors group/link"
+                        >
+                          {t('news.readMore')}
+                          <ExternalLink className="w-3 h-3 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
+                        </a>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -146,6 +163,61 @@ const News = () => {
             </div>
           )}
         </div>
+
+        <AnimatePresence>
+          {selectedPost && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setSelectedPost(null)}
+                className="absolute inset-0 bg-black/90 backdrop-blur-sm"
+              />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="relative w-full max-w-3xl max-h-[90vh] bg-zinc-900 border border-white/10 rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl"
+              >
+                <button 
+                  onClick={() => setSelectedPost(null)}
+                  className="absolute top-6 right-6 z-10 w-10 h-10 rounded-full bg-black/50 border border-white/10 flex items-center justify-center text-white hover:bg-yellow-500 hover:text-black transition-all"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+
+                <div className="overflow-y-auto p-8 md:p-12">
+                  <div className="mb-8">
+                    <div className="flex items-center gap-2 text-yellow-500 mb-4">
+                      <Clock className="w-4 h-4" />
+                      <span className="text-[10px] font-black uppercase tracking-widest">
+                        {new Date(selectedPost.pubDate).toLocaleString()}
+                      </span>
+                    </div>
+                    <h2 className="text-3xl font-black text-white mb-6 leading-tight">
+                      {selectedPost.title}
+                    </h2>
+                    <p className="text-gray-400 leading-relaxed mb-8">
+                      {selectedPost.description?.replace(/<[^>]*>?/gm, '')}
+                    </p>
+                    <a 
+                      href={selectedPost.link} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-3 px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-black uppercase tracking-widest hover:bg-yellow-500 hover:text-black transition-all"
+                    >
+                      {t('news.readFullArticle', 'Read Full Article')}
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  </div>
+
+                  <Comments postId={selectedPost.id} />
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </main>
       <Footer />
     </div>
