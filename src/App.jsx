@@ -145,8 +145,8 @@ function App() {
                   <Route path="/onboarding" element={user ? (onboardingCompleted ? <Navigate to="/" /> : <Onboarding />) : <Navigate to="/auth" />} />
                   <Route path="/settings" element={user ? <Settings /> : <Navigate to="/auth" />} />
                   <Route path="/news" element={<News />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
                   <Route path="/privacy" element={<PrivacyPolicy />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
                   <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
               </div>

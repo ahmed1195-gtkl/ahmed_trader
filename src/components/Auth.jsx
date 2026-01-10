@@ -97,11 +97,8 @@ const Auth = () => {
         return;
       }
       try {
-        const actionCodeSettings = {
-          url: window.location.origin + '/reset-password',
-          handleCodeInApp: true,
-        };
-        await sendPasswordResetEmail(auth, email, actionCodeSettings);
+        // Send password reset email with the current origin to ensure the link works
+        await sendPasswordResetEmail(auth, email);
         setMessage(t('auth.resetEmailSent'));
         setTimeout(() => setIsForgotPassword(false), 3000);
       } catch (err) {
