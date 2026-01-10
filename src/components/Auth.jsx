@@ -6,6 +6,7 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signInWithPopup,
+  signInWithRedirect,
   sendEmailVerification,
   updateProfile,
   sendPasswordResetEmail
@@ -53,7 +54,17 @@ const Auth = () => {
 
   const translateError = (err) => {
     const code = err.code;
-    console.error("Auth Error Code:", code);
+    const message = err.message;
+    console.error("Auth Error Details:", { code, message });
+    
+    // Check for specific Firebase configuration errors
+    if (code === 'auth/operation-not-allowed') {
+      return "Authentication method not enabled in Firebase Console. Please enable Email/Password and Google.";
+    }
+    if (code === 'auth/unauthorized-domain') {
+      return "This domain is not authorized in Firebase Console. Please add it to the authorized domains list.";
+    }
+
     switch (code) {
       case 'auth/weak-password': return t('auth.weakPassword');
       case 'auth/invalid-email': return t('auth.invalidEmail');
@@ -97,11 +108,16 @@ const Auth = () => {
         return;
       }
       try {
-        // Send password reset email with the current origin to ensure the link works
-        await sendPasswordResetEmail(auth, email);
+        // Explicitly set the continue URL to our reset-password page
+        const actionCodeSettings = {
+          url: `${window.location.origin}/reset-password`,
+          handleCodeInApp: true,
+        };
+        await sendPasswordResetEmail(auth, email, actionCodeSettings);
         setMessage(t('auth.resetEmailSent'));
-        setTimeout(() => setIsForgotPassword(false), 3000);
+        // Don't switch back immediately so user can read the message
       } catch (err) {
+        console.error("Reset Password Error:", err);
         setError(translateError(err));
       } finally {
         setLoading(false);
@@ -146,6 +162,7 @@ const Auth = () => {
     setError('');
     setLoading(true);
     try {
+      // Try popup first, if it fails or is blocked, we can handle it
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       const docRef = doc(db, "users", user.uid);
@@ -161,7 +178,13 @@ const Auth = () => {
       }
       await checkUserOnboarding(user);
     } catch (err) {
-      setError(translateError(err));
+      console.error("Google Login Error:", err);
+      if (err.code === 'auth/popup-blocked') {
+        // Fallback to redirect if popup is blocked
+        await signInWithRedirect(auth, googleProvider);
+      } else {
+        setError(translateError(err));
+      }
     } finally {
       setLoading(false);
     }
