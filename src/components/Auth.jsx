@@ -74,7 +74,8 @@ const Auth = () => {
       case 'auth/invalid-credential': return t('auth.wrongPassword');
       case 'auth/too-many-requests': return t('auth.tooManyRequests');
       case 'auth/network-request-failed': return t('auth.networkError');
-      case 'auth/popup-closed-by-user': return t('auth.googleError');
+      case 'auth/googleError': return t('auth.googleError');
+      case 'auth/user-disabled': return t('auth.accountSuspended');
       default: return t('auth.error');
     }
   };
@@ -83,6 +84,13 @@ const Auth = () => {
     try {
       const docRef = doc(db, "users", user.uid);
       const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists() && docSnap.data().isSuspended) {
+        await auth.signOut();
+        setError(t('auth.accountSuspended'));
+        return;
+      }
+
       if (docSnap.exists() && docSnap.data().onboardingCompleted) {
         navigate('/');
       } else {
@@ -135,6 +143,12 @@ const Auth = () => {
           setLoading(false);
           return;
         }
+        // Check if user exists in Firestore and is suspended
+        // Note: In a real scenario, we'd check a 'suspended' flag in Firestore
+        // because Firebase Auth 'createUser' will fail if the email exists in Auth,
+        // but if the user was deleted from Auth but kept in Firestore as 'suspended',
+        // we can block them here.
+        
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(userCredential.user, { displayName: fullName });
         
@@ -144,7 +158,8 @@ const Auth = () => {
           phone,
           country,
           createdAt: new Date().toISOString(),
-          onboardingCompleted: false
+          onboardingCompleted: false,
+          isSuspended: false
         });
 
         await sendEmailVerification(userCredential.user);
