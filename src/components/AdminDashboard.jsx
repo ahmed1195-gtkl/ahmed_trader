@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { db, auth } from '../lib/firebase';
+import { db, auth, storage } from '../lib/firebase';
 import { 
   collection, 
   getDocs, 
@@ -11,6 +11,7 @@ import {
   orderBy, 
   serverTimestamp 
 } from 'firebase/firestore';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { useTranslation } from 'react-i18next';
 import { 
   Users, 
@@ -48,6 +49,10 @@ const AdminDashboard = () => {
   const [postTitle, setPostTitle] = useState('');
   const [postContent, setPostContent] = useState('');
   const [postImage, setPostImage] = useState('');
+  const [mediaFile, setMediaFile] = useState(null);
+  const [mediaType, setMediaType] = useState('image'); // image, audio, video
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // User Detail State
   const [selectedUser, setSelectedUser] = useState(null);
@@ -86,11 +91,36 @@ const AdminDashboard = () => {
 
   const handleSavePost = async (e) => {
     e.preventDefault();
+    setUploading(true);
     try {
+      let finalMediaUrl = postImage;
+      let finalMediaType = mediaType;
+
+      if (mediaFile) {
+        const storageRef = ref(storage, `admin_posts/${Date.now()}_${mediaFile.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, mediaFile);
+
+        finalMediaUrl = await new Promise((resolve, reject) => {
+          uploadTask.on('state_changed', 
+            (snapshot) => {
+              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              setUploadProgress(progress);
+            }, 
+            (error) => reject(error), 
+            () => {
+              getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                resolve(downloadURL);
+              });
+            }
+          );
+        });
+      }
+
       const postData = {
         title: postTitle,
         content: postContent,
-        image: postImage || 'https://images.unsplash.com/photo-1611974714024-462cd297c8aa?q=80&w=800',
+        image: finalMediaUrl || 'https://images.unsplash.com/photo-1611974714024-462cd297c8aa?q=80&w=800',
+        mediaType: finalMediaType,
         updatedAt: serverTimestamp()
       };
 
@@ -109,9 +139,14 @@ const AdminDashboard = () => {
       setPostTitle('');
       setPostContent('');
       setPostImage('');
+      setMediaFile(null);
+      setUploadProgress(0);
       fetchData();
     } catch (error) {
       console.error("Error saving post:", error);
+      alert("Error saving post: " + error.message);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -236,8 +271,14 @@ const AdminDashboard = () => {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {posts.map(post => (
                 <div key={post.id} className="bg-zinc-900/40 border border-white/5 rounded-[2rem] overflow-hidden flex flex-col">
-                  <div className="aspect-video relative">
-                    <img src={post.image} alt="" className="w-full h-full object-cover" />
+                  <div className="aspect-video relative bg-black flex items-center justify-center">
+                    {post.mediaType === 'video' ? (
+                      <video src={post.image} controls className="w-full h-full object-contain" />
+                    ) : post.mediaType === 'audio' ? (
+                      <audio src={post.image} controls className="w-full px-4" />
+                    ) : (
+                      <img src={post.image} alt="" className="w-full h-full object-cover" />
+                    )}
                   </div>
                   <div className="p-8 flex-1 flex flex-col">
                     <h3 className="text-xl font-black text-white mb-4 line-clamp-2">{post.title}</h3>
@@ -286,10 +327,38 @@ const AdminDashboard = () => {
                   <label className="text-[10px] font-black uppercase tracking-widest text-yellow-500">Title</label>
                   <Input value={postTitle} onChange={(e) => setPostTitle(e.target.value)} className="bg-white/5 border-white/10" required />
                 </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-yellow-500">Media Type</label>
+                    <select 
+                      value={mediaType} 
+                      onChange={(e) => setMediaType(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-md h-10 px-3 text-sm outline-none focus:ring-2 focus:ring-yellow-500"
+                    >
+                      <option value="image" className="bg-zinc-900">Image</option>
+                      <option value="audio" className="bg-zinc-900">Audio</option>
+                      <option value="video" className="bg-zinc-900">Video</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-yellow-500">Upload File</label>
+                    <Input 
+                      type="file" 
+                      accept={mediaType === 'image' ? 'image/*' : mediaType === 'audio' ? 'audio/*' : 'video/*'}
+                      onChange={(e) => setMediaFile(e.target.files[0])}
+                      className="bg-white/5 border-white/10 text-xs"
+                    />
+                  </div>
+                </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-yellow-500">Image URL</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-yellow-500">Or Media URL</label>
                   <Input value={postImage} onChange={(e) => setPostImage(e.target.value)} placeholder="https://..." className="bg-white/5 border-white/10" />
                 </div>
+                {uploading && (
+                  <div className="w-full bg-white/5 rounded-full h-2 overflow-hidden">
+                    <div className="bg-yellow-500 h-full transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+                  </div>
+                )}
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-yellow-500">Content</label>
                   <Textarea value={postContent} onChange={(e) => setPostContent(e.target.value)} className="bg-white/5 border-white/10 min-h-[200px]" required />

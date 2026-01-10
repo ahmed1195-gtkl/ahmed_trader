@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { auth, db } from '../lib/firebase';
+import { auth, db, storage } from '../lib/firebase';
 import { 
   collection, 
   addDoc, 
@@ -17,13 +17,17 @@ import {
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
-import { Heart, MessageCircle, Plus, Image as ImageIcon, Send, X, ShieldCheck } from 'lucide-react';
+import { Heart, MessageCircle, Plus, Image as ImageIcon, Send, X, ShieldCheck, Music, Video } from 'lucide-react';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
 const Feed = () => {
   const { t } = useTranslation();
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [mediaFile, setMediaFile] = useState(null);
+  const [mediaType, setMediaType] = useState('image'); // image, audio, video
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [showUpload, setShowUpload] = useState(false);
   const [loading, setLoading] = useState(false);
   const [commentText, setCommentText] = useState({});
@@ -52,13 +56,36 @@ const Feed = () => {
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!isAdmin || (!newPost && !imageUrl)) return;
+    if (!isAdmin || (!newPost && !imageUrl && !mediaFile)) return;
 
     setLoading(true);
     try {
+      let finalMediaUrl = imageUrl;
+      
+      if (mediaFile) {
+        const storageRef = ref(storage, `posts/${Date.now()}_${mediaFile.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, mediaFile);
+
+        finalMediaUrl = await new Promise((resolve, reject) => {
+          uploadTask.on('state_changed', 
+            (snapshot) => {
+              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              setUploadProgress(progress);
+            }, 
+            (error) => reject(error), 
+            () => {
+              getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                resolve(downloadURL);
+              });
+            }
+          );
+        });
+      }
+
       await addDoc(collection(db, 'posts'), {
         text: newPost,
-        image: imageUrl,
+        image: finalMediaUrl,
+        mediaType: mediaType,
         author: user.displayName || 'Admin',
         authorId: user.uid,
         createdAt: serverTimestamp(),
@@ -67,9 +94,12 @@ const Feed = () => {
       });
       setNewPost('');
       setImageUrl('');
+      setMediaFile(null);
+      setUploadProgress(0);
       setShowUpload(false);
     } catch (error) {
       console.error("Error adding post: ", error);
+      alert("Error adding post: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -147,16 +177,42 @@ const Feed = () => {
                     value={newPost}
                     onChange={(e) => setNewPost(e.target.value)}
                   />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 h-12">
+                      <select 
+                        value={mediaType} 
+                        onChange={(e) => setMediaType(e.target.value)}
+                        className="bg-transparent border-none outline-none text-white flex-1 text-sm"
+                      >
+                        <option value="image" className="bg-zinc-900">Image</option>
+                        <option value="audio" className="bg-zinc-900">Audio</option>
+                        <option value="video" className="bg-zinc-900">Video</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 h-12 overflow-hidden">
+                      <input 
+                        type="file" 
+                        accept={mediaType === 'image' ? 'image/*' : mediaType === 'audio' ? 'audio/*' : 'video/*'}
+                        onChange={(e) => setMediaFile(e.target.files[0])}
+                        className="bg-transparent border-none outline-none text-white flex-1 text-[10px]"
+                      />
+                    </div>
+                  </div>
                   <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 h-12">
                     <ImageIcon className="w-5 h-5 text-gray-500" />
                     <input 
                       type="text" 
-                      placeholder="Image URL (e.g. https://...)" 
+                      placeholder="Or Media URL (e.g. https://...)" 
                       className="bg-transparent border-none outline-none text-white flex-1 text-sm"
                       value={imageUrl}
                       onChange={(e) => setImageUrl(e.target.value)}
                     />
                   </div>
+                  {loading && uploadProgress > 0 && (
+                    <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
+                      <div className="bg-yellow-500 h-full transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+                    </div>
+                  )}
                 </CardContent>
                 <CardFooter className="justify-end">
                   <Button 
@@ -187,8 +243,19 @@ const Feed = () => {
               >
                 <Card className="bg-zinc-900/30 border-white/5 backdrop-blur-sm overflow-hidden hover:border-white/10 transition-all">
                   {post.image && (
-                    <div className="aspect-video w-full overflow-hidden">
-                      <img src={post.image} alt="Post" className="w-full h-full object-cover" />
+                    <div className="w-full overflow-hidden bg-black">
+                      {post.mediaType === 'video' ? (
+                        <video src={post.image} controls className="w-full aspect-video" />
+                      ) : post.mediaType === 'audio' ? (
+                        <div className="p-6 bg-zinc-800/50 flex items-center gap-4">
+                          <Music className="w-8 h-8 text-yellow-500 shrink-0" />
+                          <audio src={post.image} controls className="w-full" />
+                        </div>
+                      ) : (
+                        <div className="aspect-video w-full">
+                          <img src={post.image} alt="Post" className="w-full h-full object-cover" />
+                        </div>
+                      )}
                     </div>
                   )}
                   <CardContent className="pt-6">
