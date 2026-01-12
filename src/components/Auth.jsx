@@ -33,6 +33,8 @@ const Auth = () => {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
+  const [show2FA, setShow2FA] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
   const navigate = useNavigate();
 
   const selectedCountry = useMemo(() => {
@@ -150,7 +152,19 @@ const Auth = () => {
     try {
       if (isLogin) {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        await checkUserOnboarding(userCredential.user);
+        const user = userCredential.user;
+        
+        // Check for 2FA
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists() && docSnap.data().twoFactorEnabled) {
+          setShow2FA(true);
+          await auth.signOut();
+          setLoading(false);
+          return;
+        }
+        
+        await checkUserOnboarding(user);
       } else {
         if (!fullName || !phone || !country) {
           setError(t('auth.error'));
@@ -237,6 +251,17 @@ const Auth = () => {
     return t('auth.strength.strong');
   };
 
+  const handleVerify2FA = async (e) => {
+    e.preventDefault();
+    if (verificationCode === '123456') {
+      // In a real app, you'd use a custom token or MFA provider
+      // For this UI demo, we'll just proceed to home
+      navigate('/');
+    } else {
+      setError('Invalid verification code. Use 123456 for demo.');
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12">
       <motion.div
@@ -255,7 +280,49 @@ const Auth = () => {
           </CardHeader>
           <CardContent className="grid gap-5">
             <AnimatePresence mode="wait">
-              {!isLogin && !isForgotPassword && (
+              {show2FA ? (
+                <motion.form
+                  key="2fa-form"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  onSubmit={handleVerify2FA}
+                  className="space-y-6"
+                >
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Shield className="w-8 h-8 text-yellow-500" />
+                    </div>
+                    <h3 className="text-xl font-black uppercase text-white">Security Check</h3>
+                    <p className="text-xs text-gray-500 mt-2">Enter the 6-digit code sent to your device.</p>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label className="text-yellow-500/80 font-bold text-xs uppercase tracking-widest">Verification Code</Label>
+                    <Input 
+                      type="text" 
+                      placeholder="123456" 
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value)}
+                      className="text-center text-2xl tracking-[0.5em] font-black bg-white/5 border-white/10 focus:border-yellow-500/50 h-16 text-white"
+                      maxLength={6}
+                      required
+                    />
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 bg-yellow-500 hover:bg-yellow-600 text-black font-black uppercase tracking-widest"
+                  >
+                    Verify & Login
+                  </Button>
+                  <button 
+                    type="button" 
+                    onClick={() => setShow2FA(false)}
+                    className="w-full text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-white"
+                  >
+                    Back to Login
+                  </button>
+                </motion.form>
+              ) : !isLogin && !isForgotPassword && (
                 <motion.div
                   key="signup-fields"
                   initial={{ opacity: 0, height: 0 }}

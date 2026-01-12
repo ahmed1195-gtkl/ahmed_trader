@@ -63,9 +63,14 @@ const AdminDashboard = () => {
       const usersList = usersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setUsers(usersList);
 
-      const postsSnap = await getDocs(query(collection(db, 'admin_posts'), orderBy('createdAt', 'desc')));
-      const postsList = postsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setPosts(postsList);
+      // Fetch both admin and user posts
+      const adminPostsSnap = await getDocs(query(collection(db, 'admin_posts'), orderBy('createdAt', 'desc')));
+      const userPostsSnap = await getDocs(query(collection(db, 'posts'), orderBy('createdAt', 'desc')));
+      
+      const adminPostsList = adminPostsSnap.docs.map(doc => ({ id: doc.id, ...doc.data(), isAdminPost: true }));
+      const userPostsList = userPostsSnap.docs.map(doc => ({ id: doc.id, ...doc.data(), isAdminPost: false }));
+      
+      setPosts([...adminPostsList, ...userPostsList]);
     } catch (error) {
       console.error("Error fetching admin data:", error);
     } finally {
@@ -73,12 +78,15 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleToggleUserStatus = async (userId, currentStatus) => {
+  const handleToggleUserStatus = async (userId, currentStatus, type = 'permanent') => {
     try {
-      await updateDoc(doc(db, 'users', userId), {
-        isSuspended: !currentStatus
-      });
-      setUsers(users.map(u => u.id === userId ? { ...u, isSuspended: !currentStatus } : u));
+      const suspensionData = {
+        isSuspended: !currentStatus,
+        suspensionType: !currentStatus ? type : null,
+        suspendedAt: !currentStatus ? serverTimestamp() : null
+      };
+      await updateDoc(doc(db, 'users', userId), suspensionData);
+      setUsers(users.map(u => u.id === userId ? { ...u, ...suspensionData } : u));
     } catch (error) {
       console.error("Error updating user status:", error);
     }
@@ -115,10 +123,11 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleDeletePost = async (postId) => {
+  const handleDeletePost = async (postId, isAdminPost) => {
     if (window.confirm('Are you sure you want to delete this post?')) {
       try {
-        await deleteDoc(doc(db, 'admin_posts', postId));
+        const collectionName = isAdminPost ? 'admin_posts' : 'posts';
+        await deleteDoc(doc(db, collectionName, postId));
         setPosts(posts.filter(p => p.id !== postId));
       } catch (error) {
         console.error("Error deleting post:", error);
@@ -203,14 +212,35 @@ const AdminDashboard = () => {
                     >
                       <Eye className="w-4 h-4 mr-2" /> Details
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => handleToggleUserStatus(user.id, user.isSuspended)}
-                      className={user.isSuspended ? "border-green-500/20 bg-green-500/10 text-green-500 hover:bg-green-500/20" : "border-red-500/20 bg-red-500/10 text-red-500 hover:bg-red-500/20"}
-                    >
-                      {user.isSuspended ? <><UserCheck className="w-4 h-4 mr-2" /> Activate</> : <><UserX className="w-4 h-4 mr-2" /> Suspend</>}
-                    </Button>
+                    {user.isSuspended ? (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleToggleUserStatus(user.id, user.isSuspended)}
+                        className="border-green-500/20 bg-green-500/10 text-green-500 hover:bg-green-500/20"
+                      >
+                        <UserCheck className="w-4 h-4 mr-2" /> Activate
+                      </Button>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleToggleUserStatus(user.id, user.isSuspended, 'temporary')}
+                          className="border-orange-500/20 bg-orange-500/10 text-orange-500 hover:bg-orange-500/20"
+                        >
+                          Temp
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleToggleUserStatus(user.id, user.isSuspended, 'permanent')}
+                          className="border-red-500/20 bg-red-500/10 text-red-500 hover:bg-red-500/20"
+                        >
+                          Perm
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               ))}
@@ -260,7 +290,7 @@ const AdminDashboard = () => {
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        onClick={() => handleDeletePost(post.id)}
+                        onClick={() => handleDeletePost(post.id, post.isAdminPost)}
                         className="text-red-500 hover:text-red-400 hover:bg-red-500/10"
                       >
                         <Trash2 className="w-4 h-4 mr-2" /> Delete

@@ -16,6 +16,8 @@ import { MessageSquare, Send, User } from 'lucide-react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { motion, AnimatePresence } from 'framer-motion';
+import { filterContent } from '../lib/bad_words';
+import { AlertTriangle } from 'lucide-react';
 
 const Comments = ({ postId }) => {
   const { t } = useTranslation();
@@ -23,6 +25,7 @@ const Comments = ({ postId }) => {
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged((currentUser) => {
@@ -53,6 +56,16 @@ const Comments = ({ postId }) => {
     e.preventDefault();
     if (!newComment.trim() || !user) return;
 
+    const { filteredText, hasBadWord } = filterContent(newComment);
+    
+    if (hasBadWord) {
+      setNotification({
+        type: 'warning',
+        message: 'Your comment contains inappropriate language and has been filtered.'
+      });
+      setTimeout(() => setNotification(null), 5000);
+    }
+
     setLoading(true);
     try {
       const userDoc = await getDoc(doc(db, 'users', user.uid));
@@ -63,7 +76,7 @@ const Comments = ({ postId }) => {
         userId: user.uid,
         userName: userData.fullName || user.displayName || 'User',
         userNumericUID: userData.numericUID || 'N/A',
-        text: newComment,
+        text: filteredText,
         createdAt: serverTimestamp()
       });
       setNewComment('');
@@ -76,6 +89,19 @@ const Comments = ({ postId }) => {
 
   return (
     <div className="mt-8 pt-8 border-t border-white/5">
+      <AnimatePresence>
+        {notification && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-xl flex items-center gap-3 text-yellow-500 mb-6"
+          >
+            <AlertTriangle className="w-5 h-5" />
+            <p className="text-xs font-bold uppercase tracking-widest">{notification.message}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="flex items-center gap-2 mb-6 text-yellow-500">
         <MessageSquare className="w-4 h-4" />
         <span className="text-[10px] font-black uppercase tracking-widest">

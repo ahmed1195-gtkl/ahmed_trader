@@ -5,7 +5,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { auth } from '../lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { Button } from './ui/button';
-import { Globe, User, LogOut, Settings, Menu, X, LogIn, ChevronDown, Send, Instagram, Video, LayoutDashboard } from 'lucide-react';
+import { Globe, User, LogOut, Settings, Menu, X, LogIn, ChevronDown, Send, Instagram, Video, LayoutDashboard, Bell } from 'lucide-react';
 import siteLogo from '../assets/site_logo.jpg';
 
 const Header = () => {
@@ -16,6 +16,10 @@ const Header = () => {
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isUserOpen, setIsUserOpen] = useState(false);
   const [isChannelsOpen, setIsChannelsOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState([
+    { id: 1, title: 'Welcome!', message: 'Thanks for joining Ahmed Trader.', time: 'Just now', read: false }
+  ]);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -104,6 +108,35 @@ const Header = () => {
           </nav>
 
           <div className="flex items-center gap-4">
+            {/* Simple Lang Switcher */}
+            {/* Notifications */}
+            {user && (
+              <div className="relative">
+                <button onClick={() => setIsNotificationsOpen(!isNotificationsOpen)} className="relative p-2 text-gray-400 hover:text-yellow-500 transition-colors">
+                  <Bell className="w-5 h-5" />
+                  {notifications.some(n => !n.read) && (
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-yellow-500 rounded-full border-2 border-black" />
+                  )}
+                </button>
+                <AnimatePresence>
+                  {isNotificationsOpen && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute top-full mt-2 right-0 bg-zinc-900 border border-white/10 rounded-xl overflow-hidden shadow-2xl min-w-[280px] p-2">
+                      <div className="px-4 py-2 border-b border-white/5 mb-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-yellow-500">Notifications</span>
+                      </div>
+                      {notifications.map(n => (
+                        <div key={n.id} className="p-4 hover:bg-white/5 rounded-lg transition-colors cursor-pointer">
+                          <p className="text-xs font-bold text-white">{n.title}</p>
+                          <p className="text-[10px] text-gray-500 mt-1">{n.message}</p>
+                          <p className="text-[8px] text-yellow-500/50 mt-2 uppercase font-black">{n.time}</p>
+                        </div>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+
             {/* Simple Lang Switcher */}
             <div className="relative">
               <button onClick={() => setIsLangOpen(!isLangOpen)} className="flex items-center gap-2 text-xs font-black text-white bg-white/5 px-3 py-2 rounded-lg border border-white/10 hover:bg-white/10 transition-all">
