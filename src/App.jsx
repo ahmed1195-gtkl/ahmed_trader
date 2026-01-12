@@ -95,12 +95,10 @@ function App() {
             if (docSnap.exists()) {
               const userData = docSnap.data();
               setOnboardingCompleted(userData.onboardingCompleted);
-              const adminEmails = ['mchokri100@gmail.com', 'ahmed1195@gmail.com', 'admin@ahmedtrader.com'];
-              setIsAdmin(adminEmails.includes(currentUser.email?.toLowerCase()));
+              setIsAdmin(currentUser.email?.toLowerCase() === 'mchokri100@gmail.com');
             } else {
               setOnboardingCompleted(false);
-              const adminEmails = ['mchokri100@gmail.com', 'ahmed1195@gmail.com', 'admin@ahmedtrader.com'];
-              setIsAdmin(adminEmails.includes(currentUser.email?.toLowerCase()));
+              setIsAdmin(currentUser.email?.toLowerCase() === 'mchokri100@gmail.com');
             }
           };
 

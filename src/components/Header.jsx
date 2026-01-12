@@ -36,8 +36,7 @@ const Header = () => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        const adminEmails = ['mchokri100@gmail.com', 'ahmed1195@gmail.com', 'admin@ahmedtrader.com'];
-        setIsAdmin(adminEmails.includes(currentUser.email?.toLowerCase()));
+        setIsAdmin(currentUser.email?.toLowerCase() === 'mchokri100@gmail.com');
       } else {
         setIsAdmin(false);
       }
