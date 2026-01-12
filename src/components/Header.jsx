@@ -209,13 +209,15 @@ const Header = () => {
               {user ? (
                 <div className="flex flex-col gap-4">
 	                  {isAdmin && (
-                    <Link 
-                      to="/admin" 
-                      onClick={() => setIsMobileMenuOpen(false)} 
-                      className="bg-yellow-500 text-black py-4 rounded-xl font-black text-xs uppercase text-center"
+                    <button 
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        navigate('/admin');
+                      }} 
+                      className="w-full bg-yellow-500 text-black py-4 rounded-xl font-black text-xs uppercase text-center active:scale-95 transition-transform"
                     >
                       Admin Dashboard
-                    </Link>
+                    </button>
                   )}
                   <div className="grid grid-cols-2 gap-4">
                     <Link to="/settings" onClick={() => setIsMobileMenuOpen(false)} className="bg-white/5 text-white py-4 rounded-xl font-black text-xs uppercase text-center border border-white/10">{t('nav.settings')}</Link>
