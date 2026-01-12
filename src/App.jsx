@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { auth, db } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
@@ -16,6 +16,7 @@ import Onboarding from './components/Onboarding';
 import Settings from './components/Settings';
 import MarketData from './components/MarketData';
 import News from './components/News';
+import Feed from './components/Feed';
 import AdminDashboard from './components/AdminDashboard';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import ResetPassword from './components/ResetPassword';
@@ -31,6 +32,7 @@ function MainLayout() {
       </div>
       <main>
         <Hero />
+        <Feed />
         <Benefits />
         <Coach />
         <Brokers />
@@ -93,10 +95,10 @@ function App() {
             if (docSnap.exists()) {
               const userData = docSnap.data();
               setOnboardingCompleted(userData.onboardingCompleted);
-              setIsAdmin(currentUser.email === 'mchokri100@gmail.com');
+              setIsAdmin(currentUser.email?.toLowerCase() === 'mchokri100@gmail.com');
             } else {
               setOnboardingCompleted(false);
-              setIsAdmin(currentUser.email === 'mchokri100@gmail.com');
+              setIsAdmin(currentUser.email?.toLowerCase() === 'mchokri100@gmail.com');
             }
           };
 
@@ -151,7 +153,7 @@ function App() {
                   <Route path="/settings" element={user ? <Settings /> : <Navigate to="/auth" />} />
                   <Route path="/news" element={<News />} />
                   <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/" />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
                   <Route path="/privacy" element={<PrivacyPolicy />} />
                   <Route path="*" element={<Navigate to="/" />} />
                 </Routes>

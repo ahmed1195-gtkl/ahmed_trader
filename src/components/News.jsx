@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { Clock, ExternalLink, TrendingUp, RefreshCw, AlertCircle, Newspaper, MessageCircle, X, User } from 'lucide-react';
+import { Clock, ExternalLink, TrendingUp, RefreshCw, AlertCircle, MessageCircle, X, User } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import Header from './Header';
@@ -19,38 +19,36 @@ const News = () => {
     setLoading(true);
     setError(false);
     try {
-      // 1. Fetch Admin Posts from Firestore
-      const adminPostsSnap = await getDocs(query(collection(db, 'admin_posts'), orderBy('createdAt', 'desc')));
-      const adminPosts = adminPostsSnap.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        isAdminPost: true,
-        pubDate: doc.data().createdAt?.toDate().toISOString() || new Date().toISOString(),
-        thumbnail: doc.data().image
-      }));
+      // 1. Fetch Admin Posts from Firestore (if exists)
+      let adminPosts = [];
+      try {
+        const adminPostsSnap = await getDocs(query(collection(db, 'admin_posts'), orderBy('createdAt', 'desc')));
+        adminPosts = adminPostsSnap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          isAdminPost: true,
+          pubDate: doc.data().createdAt?.toDate().toISOString() || new Date().toISOString(),
+          thumbnail: doc.data().image
+        }));
+      } catch (e) {
+        console.warn("Admin posts collection not found or inaccessible", e);
+      }
 
       // 2. Fetch RSS News
-      const rssUrl = encodeURIComponent('https://www.investing.com/rss/news_285.rss');
-      const response = await fetch(`https://api.allorigins.win/get?url=${rssUrl}`);
+      const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.investing.com/rss/news_25.rss');
       const data = await response.json();
       
       let rssItems = [];
-      if (data.contents) {
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(data.contents, "text/xml");
-        rssItems = Array.from(xmlDoc.querySelectorAll("item")).map(item => {
-          const link = item.querySelector("link")?.textContent;
-          const id = btoa(link).substring(0, 20);
-          return {
-            id,
-            title: item.querySelector("title")?.textContent,
-            link: link,
-            description: item.querySelector("description")?.textContent,
-            pubDate: item.querySelector("pubDate")?.textContent,
-            thumbnail: item.querySelector("enclosure")?.getAttribute("url") || item.querySelector("media\\:content, content")?.getAttribute("url"),
-            isAdminPost: false
-          };
-        });
+      if (data.status === 'ok') {
+        rssItems = data.items.map(item => ({
+          id: btoa(item.link).substring(0, 20),
+          title: item.title,
+          link: item.link,
+          description: item.description,
+          pubDate: item.pubDate,
+          thumbnail: item.thumbnail || item.enclosure?.link,
+          isAdminPost: false
+        }));
       }
       
       // Combine and sort by date
@@ -76,15 +74,15 @@ const News = () => {
   return (
     <div className="min-h-screen flex flex-col bg-black">
       <Header />
-      <main className="flex-1 container mx-auto px-6 pt-32 pb-20">
+      <main className="flex-1 container mx-auto px-4 md:px-6 pt-24 md:pt-32 pb-12 md:pb-20">
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-16">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-yellow-500">
                 <TrendingUp className="w-4 h-4" />
                 <span className="text-[10px] font-black uppercase tracking-[0.4em]">{t('news.liveIntelligence')}</span>
               </div>
-              <h1 className="text-5xl md:text-6xl font-black text-white uppercase tracking-tighter leading-none">
+              <h1 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none">
                 {t('news.titlePart1')} <span className="text-yellow-500">{t('news.titlePart2')}</span>
               </h1>
             </div>
@@ -126,11 +124,21 @@ const News = () => {
                   className="group bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-[2rem] overflow-hidden hover:border-yellow-500/30 transition-all duration-500 flex flex-col"
                 >
                   <div className="aspect-[16/10] overflow-hidden relative">
-                    <img 
-                      src={item.thumbnail || `https://images.unsplash.com/photo-1611974714024-462cd297c8aa?q=80&w=800&auto=format&fit=crop`} 
-                      alt=""
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
+                    {item.mediaType === 'video' ? (
+                      <video src={item.thumbnail} className="w-full h-full object-cover" muted onMouseOver={e => e.target.play()} onMouseOut={e => e.target.pause()} />
+                    ) : item.mediaType === 'audio' ? (
+                      <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-yellow-500 flex items-center justify-center">
+                          <Clock className="w-6 h-6 text-black" />
+                        </div>
+                      </div>
+                    ) : (
+                      <img 
+                        src={item.thumbnail || `https://images.unsplash.com/photo-1611974714024-462cd297c8aa?q=80&w=800&auto=format&fit=crop`} 
+                        alt=""
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-transparent opacity-60" />
                     <div className="absolute top-4 left-4 flex flex-col gap-2">
                       <div className="flex items-center gap-2 px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-lg border border-white/10">
@@ -221,6 +229,21 @@ const News = () => {
                     <h2 className="text-3xl font-black text-white mb-6 leading-tight">
                       {selectedPost.title}
                     </h2>
+                    
+                    {selectedPost.isAdminPost && (
+                      <div className="mb-8 rounded-2xl overflow-hidden bg-black border border-white/5">
+                        {selectedPost.mediaType === 'video' ? (
+                          <video src={selectedPost.thumbnail} controls className="w-full aspect-video" />
+                        ) : selectedPost.mediaType === 'audio' ? (
+                          <div className="p-8 bg-zinc-800/50">
+                            <audio src={selectedPost.thumbnail} controls className="w-full" />
+                          </div>
+                        ) : (
+                          <img src={selectedPost.thumbnail} alt="" className="w-full object-cover" />
+                        )}
+                      </div>
+                    )}
+
                     <p className="text-gray-400 leading-relaxed mb-8 whitespace-pre-wrap">
                       {selectedPost.isAdminPost ? selectedPost.content : selectedPost.description?.replace(/<[^>]*>?/gm, '')}
                     </p>
