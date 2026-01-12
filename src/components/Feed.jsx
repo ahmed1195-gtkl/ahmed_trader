@@ -27,7 +27,7 @@ const Feed = () => {
   const [newPost, setNewPost] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [mediaFile, setMediaFile] = useState(null);
-  const [mediaType, setMediaType] = useState('image'); // image, audio, video
+  const [mediaType, setMediaType] = useState('image');
   const [uploadProgress, setUploadProgress] = useState(0);
   const [showUpload, setShowUpload] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -65,15 +65,15 @@ const Feed = () => {
     e.preventDefault();
     if (!user || (!newPost && !imageUrl && !mediaFile)) return;
 
-    // التحقق من الحظر
     if (userData?.isBanned) {
       alert("Your account is banned from posting.");
       return;
     }
 
     setLoading(true);
+    setUploadProgress(0);
     try {
-      let finalMediaUrl = imageUrl;
+      let finalMediaUrl = imageUrl || null;
       
       if (mediaFile) {
         const storageRef = ref(storage, `posts/${Date.now()}_${mediaFile.name}`);
@@ -97,8 +97,8 @@ const Feed = () => {
 
       await addDoc(collection(db, 'posts'), {
         text: newPost,
-        image: finalMediaUrl || null,
-        mediaType: mediaType,
+        image: finalMediaUrl,
+        mediaType: finalMediaUrl ? mediaType : 'text',
         author: userData?.fullName || user.displayName || 'User',
         authorId: user.uid,
         authorPhoto: userData?.photoURL || user.photoURL || null,
@@ -142,6 +142,8 @@ const Feed = () => {
     }
 
     const postRef = doc(db, 'posts', postId);
+    const text = commentText[postId];
+    setCommentText({ ...commentText, [postId]: '' });
 
     try {
       await updateDoc(postRef, {
@@ -149,13 +151,13 @@ const Feed = () => {
           userId: user.uid,
           userName: userData?.fullName || user.displayName || 'User',
           userPhoto: userData?.photoURL || user.photoURL || null,
-          text: commentText[postId],
+          text: text,
           createdAt: new Date().toISOString()
         })
       });
-      setCommentText({ ...commentText, [postId]: '' });
     } catch (error) {
       console.error("Error adding comment: ", error);
+      alert("Failed to add comment. Please try again.");
     }
   };
 
@@ -164,7 +166,7 @@ const Feed = () => {
       <div className="container mx-auto px-4 max-w-3xl">
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter">
-            {t('feed.title', 'Community Feed')}
+            Community <span className="text-yellow-500">Feed</span>
           </h2>
           
           {user && (
@@ -188,13 +190,13 @@ const Feed = () => {
               <Card className="bg-zinc-900/50 border-white/10 backdrop-blur-xl rounded-[2rem] overflow-hidden">
                 <CardHeader>
                   <CardTitle className="text-sm font-bold text-yellow-500 uppercase flex items-center gap-2">
-                    <Plus className="w-4 h-4" /> {t('feed.createPost', 'Create New Post')}
+                    <Plus className="w-4 h-4" /> Create New Post
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <textarea 
                     className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:border-yellow-500/50 outline-none min-h-[120px] transition-all resize-none"
-                    placeholder={t('feed.placeholder', "What's on your mind?")}
+                    placeholder="What's on your mind? (Image optional)"
                     value={newPost}
                     onChange={(e) => setNewPost(e.target.value)}
                   />
@@ -241,7 +243,7 @@ const Feed = () => {
                     disabled={loading || (!newPost && !imageUrl && !mediaFile)}
                     className="bg-yellow-500 hover:bg-yellow-600 text-black font-black uppercase tracking-widest px-10 h-12 rounded-xl transition-all"
                   >
-                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : t('feed.post', 'Post Now')}
+                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Post Now'}
                   </Button>
                 </CardFooter>
               </Card>
@@ -252,43 +254,26 @@ const Feed = () => {
         <div className="space-y-10">
           {posts.length === 0 ? (
             <div className="text-center py-20 bg-zinc-900/20 rounded-[3rem] border border-white/5">
-              <p className="text-gray-500 font-black uppercase tracking-[0.2em] text-xs">
-                {t('feed.noPosts', 'No posts yet. Be the first to share!')}
-              </p>
+              <p className="text-gray-500 font-black uppercase tracking-[0.2em] text-xs">No posts yet. Be the first to share!</p>
             </div>
           ) : (
             posts.map((post) => (
-              <motion.div
-                key={post.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-              >
+              <motion.div key={post.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
                 <Card className="bg-zinc-900/40 border-white/5 backdrop-blur-md overflow-hidden hover:border-yellow-500/20 transition-all duration-500 rounded-[2.5rem]">
                   <CardHeader className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center overflow-hidden">
-                          {post.authorPhoto ? (
-                            <img src={post.authorPhoto} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <User className="w-6 h-6 text-yellow-500" />
-                          )}
-                        </div>
-                        <div>
-                          <p className="text-white font-black text-sm uppercase tracking-tight">{post.author}</p>
-                          <p className="text-gray-500 text-[9px] font-black uppercase tracking-[0.2em]">
-                            {post.createdAt?.toDate().toLocaleDateString()}
-                          </p>
-                        </div>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center overflow-hidden">
+                        {post.authorPhoto ? <img src={post.authorPhoto} alt="" className="w-full h-full object-cover" /> : <User className="w-6 h-6 text-yellow-500" />}
+                      </div>
+                      <div>
+                        <p className="text-white font-black text-sm uppercase tracking-tight">{post.author}</p>
+                        <p className="text-gray-500 text-[9px] font-black uppercase tracking-[0.2em]">{post.createdAt?.toDate().toLocaleDateString()}</p>
                       </div>
                     </div>
                   </CardHeader>
                   
                   <CardContent className="px-6 pb-6">
-                    <p className="text-gray-300 leading-relaxed whitespace-pre-wrap mb-6 font-medium">
-                      {post.text}
-                    </p>
+                    <p className="text-gray-300 leading-relaxed whitespace-pre-wrap mb-6 font-medium">{post.text}</p>
                     {post.image && (
                       <div className="w-full rounded-3xl overflow-hidden bg-black border border-white/5">
                         {post.mediaType === 'video' ? (
@@ -307,12 +292,7 @@ const Feed = () => {
 
                   <CardFooter className="flex flex-col border-t border-white/5 p-6 bg-white/[0.01]">
                     <div className="flex items-center gap-8 w-full mb-6">
-                      <button 
-                        onClick={() => handleLike(post.id, post.likes || [])}
-                        className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-colors ${
-                          post.likes?.includes(user?.uid) ? 'text-red-500' : 'text-gray-500 hover:text-white'
-                        }`}
-                      >
+                      <button onClick={() => handleLike(post.id, post.likes || [])} className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-colors ${post.likes?.includes(user?.uid) ? 'text-red-500' : 'text-gray-500 hover:text-white'}`}>
                         <Heart className={`w-4 h-4 ${post.likes?.includes(user?.uid) ? 'fill-current' : ''}`} />
                         {post.likes?.length || 0} Likes
                       </button>
@@ -332,11 +312,7 @@ const Feed = () => {
                           onChange={(e) => setCommentText({ ...commentText, [post.id]: e.target.value })}
                           onKeyPress={(e) => e.key === 'Enter' && handleComment(post.id)}
                         />
-                        <Button 
-                          onClick={() => handleComment(post.id)}
-                          disabled={!commentText[post.id]}
-                          className="bg-yellow-500 hover:bg-yellow-600 text-black w-10 h-10 p-0 rounded-xl shrink-0"
-                        >
+                        <Button onClick={() => handleComment(post.id)} disabled={!commentText[post.id]} className="bg-yellow-500 hover:bg-yellow-600 text-black w-10 h-10 p-0 rounded-xl shrink-0">
                           <Send className="w-4 h-4" />
                         </Button>
                       </div>
@@ -344,14 +320,10 @@ const Feed = () => {
 
                     {post.comments?.length > 0 && (
                       <div className="mt-6 space-y-4 w-full">
-                        {post.comments.slice(0, 3).map((comment, idx) => (
+                        {post.comments.map((comment, idx) => (
                           <div key={idx} className="flex gap-3 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
                             <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden shrink-0">
-                              {comment.userPhoto ? (
-                                <img src={comment.userPhoto} alt="" className="w-full h-full object-cover" />
-                              ) : (
-                                <User className="w-4 h-4 text-gray-500" />
-                              )}
+                              {comment.userPhoto ? <img src={comment.userPhoto} alt="" className="w-full h-full object-cover" /> : <User className="w-4 h-4 text-gray-500" />}
                             </div>
                             <div className="flex-1">
                               <p className="text-[10px] font-black text-white uppercase tracking-tight mb-0.5">{comment.userName}</p>

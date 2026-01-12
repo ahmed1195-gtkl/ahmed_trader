@@ -24,14 +24,20 @@ const Comments = ({ postId }) => {
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [notification, setNotification] = useState(null);
 
   useEffect(() => {
-    const unsubscribeAuth = auth.onAuthStateChanged((currentUser) => {
+    const unsubscribeAuth = auth.onAuthStateChanged(async (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists()) {
+          setUserData(userDoc.data());
+        }
+      }
     });
 
-    // جلب التعليقات مرتبة حسب الأحدث
     const q = query(
       collection(db, 'comments'),
       where('postId', '==', postId),
@@ -58,6 +64,11 @@ const Comments = ({ postId }) => {
     e.preventDefault();
     if (!newComment.trim() || !user) return;
 
+    if (userData?.isBanned) {
+      alert("Your account is banned from commenting.");
+      return;
+    }
+
     const { filteredText, hasBadWord } = filterContent(newComment);
     
     if (hasBadWord) {
@@ -70,17 +81,12 @@ const Comments = ({ postId }) => {
 
     setLoading(true);
     try {
-      // جلب بيانات المستخدم الإضافية من Firestore
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      const userData = userDoc.exists() ? userDoc.data() : {};
-
-      // إضافة التعليق إلى Firestore
       await addDoc(collection(db, 'comments'), {
         postId,
         userId: user.uid,
-        userName: userData.fullName || user.displayName || 'User',
-        userPhoto: userData.photoURL || user.photoURL || null,
-        userNumericUID: userData.numericUID || 'N/A',
+        userName: userData?.fullName || user.displayName || 'User',
+        userPhoto: userData?.photoURL || user.photoURL || null,
+        userNumericUID: userData?.numericUID || 'N/A',
         text: filteredText,
         createdAt: serverTimestamp()
       });

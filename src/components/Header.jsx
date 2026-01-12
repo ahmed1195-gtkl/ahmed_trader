@@ -35,25 +35,12 @@ const Header = () => {
       if (currentUser) {
         setIsAdmin(currentUser.email?.toLowerCase() === 'mchokri100@gmail.com' || currentUser.email?.toLowerCase() === 'ahmed1195@gmail.com');
         
-        // مراقبة بيانات المستخدم للتحذيرات والحظر
         const unsubscribeDoc = onSnapshot(doc(db, 'users', currentUser.uid), (docSnap) => {
           if (docSnap.exists()) {
             const data = docSnap.data();
             setUserData(data);
             if (data.warning && !data.warningRead) {
               setShowWarning(true);
-            }
-            // التحقق من الحظر التلقائي عند انتهاء المدة
-            if (data.isBanned && data.banUntil) {
-              const now = new Date();
-              const banEnd = new Date(data.banUntil);
-              if (now > banEnd) {
-                updateDoc(doc(db, 'users', currentUser.uid), {
-                  isBanned: false,
-                  banUntil: null,
-                  banType: null
-                });
-              }
             }
           }
         });
@@ -72,12 +59,6 @@ const Header = () => {
     };
   }, []);
 
-  const changeLanguage = (langCode) => {
-    i18n.changeLanguage(langCode);
-    document.documentElement.dir = langCode === 'ar' ? 'rtl' : 'ltr';
-    document.documentElement.lang = langCode;
-  };
-
   const handleAdminClick = (e) => {
     e.preventDefault();
     setIsSidebarOpen(false);
@@ -94,51 +75,43 @@ const Header = () => {
     }
   };
 
-  const sidebarVariants = {
-    closed: { x: i18n.language === 'ar' ? '100%' : '-100%', transition: { type: 'spring', stiffness: 300, damping: 30 } },
-    open: { x: 0, transition: { type: 'spring', stiffness: 300, damping: 30 } }
-  };
-
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-black/90 backdrop-blur-lg border-b border-white/10 py-3' : 'bg-transparent py-4 md:py-6'}`}>
-      <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <header className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 w-full ${isScrolled ? 'bg-black/95 backdrop-blur-md border-b border-white/10 py-2' : 'bg-black/50 backdrop-blur-sm py-4'}`}>
+      <div className="container mx-auto px-4 flex items-center justify-between max-w-full overflow-hidden">
+        <div className="flex items-center gap-3 shrink-0">
           <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-white hover:text-yellow-500 transition-colors">
             <Menu className="w-6 h-6" />
           </button>
-          <Link to="/" className="flex items-center gap-2 md:gap-3 group">
-            <img src={siteLogo} alt="Logo" className="w-8 h-8 md:w-9 md:h-9 rounded-full border border-yellow-500/50 group-hover:scale-105 transition-transform" />
-            <span className="text-white font-black text-base md:text-lg tracking-tight uppercase hidden sm:block">Ahmed <span className="text-yellow-500">Trader</span></span>
+          <Link to="/" className="flex items-center gap-2 group">
+            <img src={siteLogo} alt="Logo" className="w-8 h-8 rounded-full border border-yellow-500/50" />
+            <span className="text-white font-black text-sm tracking-tight uppercase hidden xs:block">Ahmed <span className="text-yellow-500">Trader</span></span>
           </Link>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
           {user && (
             <div className="relative">
               <button onClick={() => setIsNotificationsOpen(!isNotificationsOpen)} className="relative p-2 text-gray-400 hover:text-yellow-500 transition-colors">
                 <Bell className="w-5 h-5" />
-                {showWarning && (
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-black animate-pulse" />
-                )}
+                {showWarning && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-black animate-pulse" />}
               </button>
               <AnimatePresence>
                 {isNotificationsOpen && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute top-full mt-2 right-0 bg-zinc-900 border border-white/10 rounded-xl overflow-hidden shadow-2xl min-w-[280px] p-2">
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute top-full mt-2 right-0 bg-zinc-900 border border-white/10 rounded-xl overflow-hidden shadow-2xl min-w-[250px] p-2">
                     <div className="px-4 py-2 border-b border-white/5 mb-2">
                       <span className="text-[10px] font-black uppercase tracking-widest text-yellow-500">Notifications</span>
                     </div>
                     {userData?.warning ? (
-                      <div className={`p-4 rounded-lg transition-colors cursor-pointer ${userData.warningRead ? 'bg-white/5' : 'bg-red-500/10 border border-red-500/20'}`} onClick={markWarningAsRead}>
+                      <div className={`p-3 rounded-lg transition-colors cursor-pointer ${userData.warningRead ? 'bg-white/5' : 'bg-red-500/10 border border-red-500/20'}`} onClick={markWarningAsRead}>
                         <div className="flex items-center gap-2 mb-1">
                           <AlertTriangle className="w-3 h-3 text-red-500" />
-                          <p className="text-xs font-bold text-white">Account Warning</p>
+                          <p className="text-[10px] font-bold text-white">Warning</p>
                         </div>
-                        <p className="text-[10px] text-gray-400">{userData.warning}</p>
-                        <p className="text-[8px] text-yellow-500/50 mt-2 uppercase font-black">{userData.warningAt ? new Date(userData.warningAt).toLocaleDateString() : 'Recently'}</p>
+                        <p className="text-[10px] text-gray-400 line-clamp-2">{userData.warning}</p>
                       </div>
                     ) : (
-                      <div className="p-8 text-center">
-                        <p className="text-[10px] font-black text-gray-600 uppercase tracking-widest">No new notifications</p>
+                      <div className="p-4 text-center">
+                        <p className="text-[9px] font-black text-gray-600 uppercase tracking-widest">No notifications</p>
                       </div>
                     )}
                   </motion.div>
@@ -149,31 +122,31 @@ const Header = () => {
 
           {user ? (
             <div className="relative">
-              <button onClick={() => setIsUserOpen(!isUserOpen)} className="flex items-center gap-2 bg-yellow-500 text-black px-3 md:px-4 py-2 rounded-lg font-black text-xs uppercase tracking-widest hover:bg-yellow-400 transition-all">
+              <button onClick={() => setIsUserOpen(!isUserOpen)} className="flex items-center gap-2 bg-yellow-500 text-black px-3 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest hover:bg-yellow-400 transition-all">
                 <User className="w-3 h-3" />
                 <span className="hidden sm:inline">{userData?.fullName?.split(' ')[0] || user.displayName?.split(' ')[0] || 'User'}</span>
               </button>
               <AnimatePresence>
                 {isUserOpen && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute top-full mt-2 right-0 bg-zinc-900 border border-white/10 rounded-xl overflow-hidden shadow-2xl min-w-[180px]">
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute top-full mt-2 right-0 bg-zinc-900 border border-white/10 rounded-xl overflow-hidden shadow-2xl min-w-[160px]">
                     {isAdmin && (
-                      <button onClick={handleAdminClick} className="w-full px-4 py-3 text-xs font-bold text-yellow-500 hover:bg-white/5 transition-colors flex items-center gap-3 border-b border-white/5">
-                        <LayoutDashboard className="w-4 h-4" /> Admin Dashboard
+                      <button onClick={handleAdminClick} className="w-full px-4 py-3 text-[10px] font-bold text-yellow-500 hover:bg-white/5 transition-colors flex items-center gap-3 border-b border-white/5">
+                        <LayoutDashboard className="w-4 h-4" /> Admin
                       </button>
                     )}
-                    <button onClick={() => { navigate('/settings'); setIsUserOpen(false); }} className="w-full px-4 py-3 text-xs font-bold text-white hover:bg-white/5 transition-colors flex items-center gap-3 border-b border-white/5">
-                      <Settings className="w-4 h-4" /> {t('nav.settings', 'Settings')}
+                    <button onClick={() => { navigate('/settings'); setIsUserOpen(false); }} className="w-full px-4 py-3 text-[10px] font-bold text-white hover:bg-white/5 transition-colors flex items-center gap-3 border-b border-white/5">
+                      <Settings className="w-4 h-4" /> Settings
                     </button>
-                    <button onClick={() => signOut(auth)} className="w-full px-4 py-3 text-xs font-bold text-red-500 hover:bg-red-500 hover:text-white transition-colors flex items-center gap-3">
-                      <LogOut className="w-4 h-4" /> {t('nav.logout', 'Logout')}
+                    <button onClick={() => signOut(auth)} className="w-full px-4 py-3 text-[10px] font-bold text-red-500 hover:bg-red-500 hover:text-white transition-colors flex items-center gap-3">
+                      <LogOut className="w-4 h-4" /> Logout
                     </button>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
           ) : (
-            <Link to="/auth" className="bg-yellow-500 text-black px-4 md:px-6 py-2 rounded-lg font-black text-xs uppercase tracking-widest hover:bg-yellow-400 transition-all flex items-center gap-2">
-              <LogIn className="w-3 h-3" /> <span className="hidden xs:inline">{t('nav.login', 'Login')}</span>
+            <Link to="/auth" className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest hover:bg-yellow-400 transition-all flex items-center gap-2">
+              <LogIn className="w-3 h-3" /> <span>Login</span>
             </Link>
           )}
         </div>
@@ -183,8 +156,14 @@ const Header = () => {
       <AnimatePresence>
         {isSidebarOpen && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSidebarOpen(false)} className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60]" />
-            <motion.div variants={sidebarVariants} initial="closed" animate="open" exit="closed" className={`fixed top-0 ${i18n.language === 'ar' ? 'right-0' : 'left-0'} bottom-0 w-[280px] sm:w-[320px] bg-zinc-950 border-${i18n.language === 'ar' ? 'l' : 'r'} border-white/10 z-[70] shadow-2xl flex flex-col`}>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSidebarOpen(false)} className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[110]" />
+            <motion.div 
+              initial={{ x: i18n.language === 'ar' ? '100%' : '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: i18n.language === 'ar' ? '100%' : '-100%' }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className={`fixed top-0 ${i18n.language === 'ar' ? 'right-0' : 'left-0'} bottom-0 w-[280px] bg-zinc-950 border-${i18n.language === 'ar' ? 'l' : 'r'} border-white/10 z-[120] shadow-2xl flex flex-col`}
+            >
               <div className="p-6 border-b border-white/5 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <img src={siteLogo} alt="Logo" className="w-8 h-8 rounded-full border border-yellow-500/50" />
@@ -198,10 +177,10 @@ const Header = () => {
                 <div className="space-y-2">
                   <p className="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-4">Navigation</p>
                   <Link to="/" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-sm transition-all ${location.pathname === '/' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>
-                    <Home className="w-5 h-5" /> {t('nav.home', 'Home')}
+                    <Home className="w-5 h-5" /> Home
                   </Link>
                   <Link to="/news" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-sm transition-all ${location.pathname === '/news' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>
-                    <Newspaper className="w-5 h-5" /> {t('nav.news', 'News')}
+                    <Newspaper className="w-5 h-5" /> News
                   </Link>
                 </div>
                 <div className="space-y-2">
@@ -239,7 +218,7 @@ const Header = () => {
                   </div>
                 ) : (
                   <Link to="/auth" onClick={() => setIsSidebarOpen(false)} className="flex items-center justify-center gap-2 w-full py-4 rounded-xl bg-yellow-500 text-black font-black text-sm uppercase tracking-widest hover:bg-yellow-400 transition-all">
-                    <LogIn className="w-5 h-5" /> {t('nav.login', 'Login')}
+                    <LogIn className="w-5 h-5" /> Login
                   </Link>
                 )}
               </div>
