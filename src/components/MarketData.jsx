@@ -31,7 +31,7 @@ const MarketData = () => {
   }, []);
 
   return (
-    <div className="w-full bg-black/60 backdrop-blur-xl border-y border-yellow-500/20 py-3 md:py-4 overflow-hidden">
+    <div className="w-full bg-black/60 backdrop-blur-xl border-y border-yellow-500/20 py-3 md:py-4 overflow-hidden relative z-40">
       <div className="container mx-auto px-4 flex items-center gap-4 md:gap-8">
         <div className="flex items-center gap-2 text-yellow-500 shrink-0">
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
