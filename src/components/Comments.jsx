@@ -12,12 +12,11 @@ import {
   getDoc
 } from 'firebase/firestore';
 import { useTranslation } from 'react-i18next';
-import { MessageSquare, Send, User } from 'lucide-react';
+import { MessageSquare, Send, User, AlertTriangle, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { motion, AnimatePresence } from 'framer-motion';
 import { filterContent } from '../lib/bad_words';
-import { AlertTriangle } from 'lucide-react';
 
 const Comments = ({ postId }) => {
   const { t } = useTranslation();
@@ -32,6 +31,7 @@ const Comments = ({ postId }) => {
       setUser(currentUser);
     });
 
+    // جلب التعليقات مرتبة حسب الأحدث
     const q = query(
       collection(db, 'comments'),
       where('postId', '==', postId),
@@ -44,6 +44,8 @@ const Comments = ({ postId }) => {
         ...doc.data()
       }));
       setComments(commentsData);
+    }, (error) => {
+      console.error("Error fetching comments:", error);
     });
 
     return () => {
@@ -61,27 +63,36 @@ const Comments = ({ postId }) => {
     if (hasBadWord) {
       setNotification({
         type: 'warning',
-        message: 'Your comment contains inappropriate language and has been filtered.'
+        message: t('comments.badWordWarning', 'Your comment contains inappropriate language and has been filtered.')
       });
       setTimeout(() => setNotification(null), 5000);
     }
 
     setLoading(true);
     try {
+      // جلب بيانات المستخدم الإضافية من Firestore
       const userDoc = await getDoc(doc(db, 'users', user.uid));
       const userData = userDoc.exists() ? userDoc.data() : {};
 
+      // إضافة التعليق إلى Firestore
       await addDoc(collection(db, 'comments'), {
         postId,
         userId: user.uid,
         userName: userData.fullName || user.displayName || 'User',
+        userPhoto: userData.photoURL || user.photoURL || null,
         userNumericUID: userData.numericUID || 'N/A',
         text: filteredText,
         createdAt: serverTimestamp()
       });
+      
       setNewComment('');
     } catch (error) {
       console.error('Error adding comment:', error);
+      setNotification({
+        type: 'error',
+        message: t('comments.error', 'Failed to post comment. Please try again.')
+      });
+      setTimeout(() => setNotification(null), 5000);
     } finally {
       setLoading(false);
     }
@@ -95,13 +106,18 @@ const Comments = ({ postId }) => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-xl flex items-center gap-3 text-yellow-500 mb-6"
+            className={`p-4 rounded-xl flex items-center gap-3 mb-6 border ${
+              notification.type === 'warning' 
+                ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500' 
+                : 'bg-red-500/10 border-red-500/20 text-red-500'
+            }`}
           >
             <AlertTriangle className="w-5 h-5" />
             <p className="text-xs font-bold uppercase tracking-widest">{notification.message}</p>
           </motion.div>
         )}
       </AnimatePresence>
+
       <div className="flex items-center gap-2 mb-6 text-yellow-500">
         <MessageSquare className="w-4 h-4" />
         <span className="text-[10px] font-black uppercase tracking-widest">
@@ -115,21 +131,21 @@ const Comments = ({ postId }) => {
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder={t('comments.placeholder', 'Write a comment...')}
-            className="bg-white/5 border-white/10 focus:border-yellow-500/50 min-h-[100px] text-white"
+            className="bg-white/5 border-white/10 focus:border-yellow-500/50 min-h-[100px] text-white rounded-2xl"
           />
           <div className="flex justify-end">
             <Button 
               type="submit" 
               disabled={loading || !newComment.trim()}
-              className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-6"
+              className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-8 h-12 rounded-xl transition-all"
             >
-              {loading ? '...' : <><Send className="w-4 h-4 mr-2" /> {t('comments.send', 'Send')}</>}
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4 mr-2" /> {t('comments.send', 'Send')}</>}
             </Button>
           </div>
         </form>
       ) : (
-        <div className="p-4 bg-white/5 rounded-xl border border-white/10 text-center mb-8">
-          <p className="text-sm text-gray-400">
+        <div className="p-6 bg-white/5 rounded-2xl border border-white/10 text-center mb-8">
+          <p className="text-sm text-gray-400 font-medium">
             {t('comments.loginRequired', 'Please login to add a comment.')}
           </p>
         </div>
@@ -142,10 +158,14 @@ const Comments = ({ postId }) => {
               key={comment.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex gap-4"
+              className="flex gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5"
             >
-              <div className="w-10 h-10 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center shrink-0">
-                <User className="w-5 h-5 text-yellow-500" />
+              <div className="w-10 h-10 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center shrink-0 overflow-hidden">
+                {comment.userPhoto ? (
+                  <img src={comment.userPhoto} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-5 h-5 text-yellow-500" />
+                )}
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">
@@ -155,7 +175,7 @@ const Comments = ({ postId }) => {
                       ID: {comment.userNumericUID}
                     </span>
                   </div>
-                  <span className="text-[10px] text-gray-600">
+                  <span className="text-[10px] text-gray-600 font-medium">
                     {comment.createdAt?.toDate().toLocaleDateString()}
                   </span>
                 </div>
@@ -166,6 +186,11 @@ const Comments = ({ postId }) => {
             </motion.div>
           ))}
         </AnimatePresence>
+        {comments.length === 0 && !loading && (
+          <div className="text-center py-8">
+            <p className="text-xs text-gray-600 uppercase tracking-widest font-black">No comments yet. Be the first!</p>
+          </div>
+        )}
       </div>
     </div>
   );
