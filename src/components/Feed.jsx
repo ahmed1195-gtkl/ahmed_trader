@@ -12,12 +12,13 @@ import {
   updateDoc,
   doc,
   arrayUnion,
-  arrayRemove
+  arrayRemove,
+  getDoc
 } from 'firebase/firestore';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
-import { Heart, MessageCircle, Plus, Image as ImageIcon, Send, X, ShieldCheck, Music, Video } from 'lucide-react';
+import { Heart, MessageCircle, Plus, Image as ImageIcon, Send, X, ShieldCheck, Music, Video, Loader2, User } from 'lucide-react';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
 const Feed = () => {
@@ -32,12 +33,18 @@ const Feed = () => {
   const [loading, setLoading] = useState(false);
   const [commentText, setCommentText] = useState({});
   const [user, setUser] = useState(null);
-
-  // Admin check - You can change this to your specific admin email
-  const isAdmin = user?.email === 'ahmed1195@gmail.com' || user?.email === 'admin@ahmedtrader.com';
+  const [userData, setUserData] = useState(null);
 
   useEffect(() => {
-    const unsubscribeAuth = auth.onAuthStateChanged((u) => setUser(u));
+    const unsubscribeAuth = auth.onAuthStateChanged(async (u) => {
+      setUser(u);
+      if (u) {
+        const docSnap = await getDoc(doc(db, 'users', u.uid));
+        if (docSnap.exists()) {
+          setUserData(docSnap.data());
+        }
+      }
+    });
     
     const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
     const unsubscribePosts = onSnapshot(q, (snapshot) => {
@@ -56,7 +63,13 @@ const Feed = () => {
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!isAdmin || (!newPost && !imageUrl && !mediaFile)) return;
+    if (!user || (!newPost && !imageUrl && !mediaFile)) return;
+
+    // التحقق من الحظر
+    if (userData?.isBanned) {
+      alert("Your account is banned from posting.");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -84,14 +97,16 @@ const Feed = () => {
 
       await addDoc(collection(db, 'posts'), {
         text: newPost,
-        image: finalMediaUrl,
+        image: finalMediaUrl || null,
         mediaType: mediaType,
-        author: user.displayName || 'Admin',
+        author: userData?.fullName || user.displayName || 'User',
         authorId: user.uid,
+        authorPhoto: userData?.photoURL || user.photoURL || null,
         createdAt: serverTimestamp(),
         likes: [],
         comments: []
       });
+
       setNewPost('');
       setImageUrl('');
       setMediaFile(null);
@@ -121,13 +136,19 @@ const Feed = () => {
 
   const handleComment = async (postId) => {
     if (!user || !commentText[postId]) return;
+    if (userData?.isBanned) {
+      alert("Your account is banned from commenting.");
+      return;
+    }
+
     const postRef = doc(db, 'posts', postId);
 
     try {
       await updateDoc(postRef, {
         comments: arrayUnion({
           userId: user.uid,
-          userName: user.displayName || 'User',
+          userName: userData?.fullName || user.displayName || 'User',
+          userPhoto: userData?.photoURL || user.photoURL || null,
           text: commentText[postId],
           createdAt: new Date().toISOString()
         })
@@ -139,17 +160,17 @@ const Feed = () => {
   };
 
   return (
-    <section className="py-12 md:py-20 relative bg-black">
+    <section className="py-12 md:py-20 relative bg-black min-h-screen">
       <div className="container mx-auto px-4 max-w-3xl">
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter">
-            {t('feed.title')}
+            {t('feed.title', 'Community Feed')}
           </h2>
           
-          {isAdmin && (
+          {user && (
             <Button 
               onClick={() => setShowUpload(!showUpload)}
-              className="bg-yellow-500 hover:bg-yellow-600 text-black rounded-full w-12 h-12 p-0 shadow-lg shadow-yellow-500/20 transition-transform hover:scale-110"
+              className="bg-yellow-500 hover:bg-yellow-400 text-black rounded-full w-12 h-12 p-0 shadow-lg shadow-yellow-500/20 transition-transform hover:scale-110"
             >
               {showUpload ? <X /> : <Plus />}
             </Button>
@@ -157,23 +178,23 @@ const Feed = () => {
         </div>
 
         <AnimatePresence>
-          {showUpload && isAdmin && (
+          {showUpload && user && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               className="mb-10"
             >
-              <Card className="bg-zinc-900/50 border-yellow-500/30 backdrop-blur-xl">
+              <Card className="bg-zinc-900/50 border-white/10 backdrop-blur-xl rounded-[2rem] overflow-hidden">
                 <CardHeader>
                   <CardTitle className="text-sm font-bold text-yellow-500 uppercase flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4" /> {t('feed.upload')}
+                    <Plus className="w-4 h-4" /> {t('feed.createPost', 'Create New Post')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <textarea 
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:border-yellow-500/50 outline-none min-h-[100px] transition-all"
-                    placeholder={t('feed.placeholder')}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:border-yellow-500/50 outline-none min-h-[120px] transition-all resize-none"
+                    placeholder={t('feed.placeholder', "What's on your mind?")}
                     value={newPost}
                     onChange={(e) => setNewPost(e.target.value)}
                   />
@@ -182,7 +203,7 @@ const Feed = () => {
                       <select 
                         value={mediaType} 
                         onChange={(e) => setMediaType(e.target.value)}
-                        className="bg-transparent border-none outline-none text-white flex-1 text-sm"
+                        className="bg-transparent border-none outline-none text-white flex-1 text-xs font-bold uppercase tracking-widest"
                       >
                         <option value="image" className="bg-zinc-900">Image</option>
                         <option value="audio" className="bg-zinc-900">Audio</option>
@@ -194,16 +215,16 @@ const Feed = () => {
                         type="file" 
                         accept={mediaType === 'image' ? 'image/*' : mediaType === 'audio' ? 'audio/*' : 'video/*'}
                         onChange={(e) => setMediaFile(e.target.files[0])}
-                        className="bg-transparent border-none outline-none text-white flex-1 text-[10px]"
+                        className="bg-transparent border-none outline-none text-white flex-1 text-[10px] cursor-pointer"
                       />
                     </div>
                   </div>
                   <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 h-12">
-                    <ImageIcon className="w-5 h-5 text-gray-500" />
+                    <ImageIcon className="w-4 h-4 text-gray-500" />
                     <input 
                       type="text" 
-                      placeholder="Or Media URL (e.g. https://...)" 
-                      className="bg-transparent border-none outline-none text-white flex-1 text-sm"
+                      placeholder="Or Media URL (https://...)" 
+                      className="bg-transparent border-none outline-none text-white flex-1 text-xs"
                       value={imageUrl}
                       onChange={(e) => setImageUrl(e.target.value)}
                     />
@@ -214,13 +235,13 @@ const Feed = () => {
                     </div>
                   )}
                 </CardContent>
-                <CardFooter className="justify-end">
+                <CardFooter className="justify-end p-6 bg-white/[0.02]">
                   <Button 
                     onClick={handleUpload}
-                    disabled={loading || (!newPost && !imageUrl)}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-8"
+                    disabled={loading || (!newPost && !imageUrl && !mediaFile)}
+                    className="bg-yellow-500 hover:bg-yellow-600 text-black font-black uppercase tracking-widest px-10 h-12 rounded-xl transition-all"
                   >
-                    {loading ? "..." : t('feed.post')}
+                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : t('feed.post', 'Post Now')}
                   </Button>
                 </CardFooter>
               </Card>
@@ -228,10 +249,12 @@ const Feed = () => {
           )}
         </AnimatePresence>
 
-        <div className="space-y-8">
+        <div className="space-y-10">
           {posts.length === 0 ? (
-            <div className="text-center py-20 text-gray-500 font-medium">
-              {t('feed.noPosts')}
+            <div className="text-center py-20 bg-zinc-900/20 rounded-[3rem] border border-white/5">
+              <p className="text-gray-500 font-black uppercase tracking-[0.2em] text-xs">
+                {t('feed.noPosts', 'No posts yet. Be the first to share!')}
+              </p>
             </div>
           ) : (
             posts.map((post) => (
@@ -241,82 +264,101 @@ const Feed = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
-                <Card className="bg-zinc-900/30 border-white/5 backdrop-blur-sm overflow-hidden hover:border-white/10 transition-all">
-                  {post.image && (
-                    <div className="w-full overflow-hidden bg-black">
-                      {post.mediaType === 'video' ? (
-                        <video src={post.image} controls className="w-full aspect-video" />
-                      ) : post.mediaType === 'audio' ? (
-                        <div className="p-6 bg-zinc-800/50 flex items-center gap-4">
-                          <Music className="w-8 h-8 text-yellow-500 shrink-0" />
-                          <audio src={post.image} controls className="w-full" />
+                <Card className="bg-zinc-900/40 border-white/5 backdrop-blur-md overflow-hidden hover:border-yellow-500/20 transition-all duration-500 rounded-[2.5rem]">
+                  <CardHeader className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center overflow-hidden">
+                          {post.authorPhoto ? (
+                            <img src={post.authorPhoto} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <User className="w-6 h-6 text-yellow-500" />
+                          )}
                         </div>
-                      ) : (
-                        <div className="aspect-video w-full">
-                          <img src={post.image} alt="Post" className="w-full h-full object-cover" />
+                        <div>
+                          <p className="text-white font-black text-sm uppercase tracking-tight">{post.author}</p>
+                          <p className="text-gray-500 text-[9px] font-black uppercase tracking-[0.2em]">
+                            {post.createdAt?.toDate().toLocaleDateString()}
+                          </p>
                         </div>
-                      )}
-                    </div>
-                  )}
-                  <CardContent className="pt-6">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-500 font-bold">
-                        {post.author[0]}
-                      </div>
-                      <div>
-                        <p className="text-white font-bold text-sm">{post.author}</p>
-                        <p className="text-gray-500 text-[10px] uppercase tracking-widest">
-                          {post.createdAt?.toDate().toLocaleDateString()}
-                        </p>
                       </div>
                     </div>
-                    <p className="text-gray-200 leading-relaxed whitespace-pre-wrap">
+                  </CardHeader>
+                  
+                  <CardContent className="px-6 pb-6">
+                    <p className="text-gray-300 leading-relaxed whitespace-pre-wrap mb-6 font-medium">
                       {post.text}
                     </p>
+                    {post.image && (
+                      <div className="w-full rounded-3xl overflow-hidden bg-black border border-white/5">
+                        {post.mediaType === 'video' ? (
+                          <video src={post.image} controls className="w-full aspect-video" />
+                        ) : post.mediaType === 'audio' ? (
+                          <div className="p-6 bg-zinc-800/50 flex items-center gap-4">
+                            <Music className="w-8 h-8 text-yellow-500 shrink-0" />
+                            <audio src={post.image} controls className="w-full" />
+                          </div>
+                        ) : (
+                          <img src={post.image} alt="Post" className="w-full object-cover max-h-[500px]" />
+                        )}
+                      </div>
+                    )}
                   </CardContent>
-                  <CardFooter className="flex flex-col border-t border-white/5 pt-4">
-                    <div className="flex items-center gap-6 w-full mb-4">
+
+                  <CardFooter className="flex flex-col border-t border-white/5 p-6 bg-white/[0.01]">
+                    <div className="flex items-center gap-8 w-full mb-6">
                       <button 
                         onClick={() => handleLike(post.id, post.likes || [])}
-                        className={`flex items-center gap-2 text-sm font-bold transition-colors ${post.likes?.includes(user?.uid) ? 'text-red-500' : 'text-gray-500 hover:text-white'}`}
+                        className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-colors ${
+                          post.likes?.includes(user?.uid) ? 'text-red-500' : 'text-gray-500 hover:text-white'
+                        }`}
                       >
-                        <Heart className={`w-5 h-5 ${post.likes?.includes(user?.uid) ? 'fill-current' : ''}`} />
-                        {post.likes?.length || 0}
+                        <Heart className={`w-4 h-4 ${post.likes?.includes(user?.uid) ? 'fill-current' : ''}`} />
+                        {post.likes?.length || 0} Likes
                       </button>
-                      <div className="flex items-center gap-2 text-gray-500 text-sm font-bold">
-                        <MessageCircle className="w-5 h-5" />
-                        {post.comments?.length || 0}
+                      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500">
+                        <MessageCircle className="w-4 h-4" />
+                        {post.comments?.length || 0} Comments
                       </div>
                     </div>
 
-                    {/* Comments List */}
-                    {post.comments?.length > 0 && (
-                      <div className="w-full space-y-3 mb-4 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
-                        {post.comments.map((comment, idx) => (
-                          <div key={idx} className="bg-white/5 rounded-lg p-3">
-                            <p className="text-yellow-500/80 text-[10px] font-bold uppercase mb-1">{comment.userName}</p>
-                            <p className="text-gray-300 text-xs">{comment.text}</p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Add Comment */}
                     {user && (
-                      <div className="flex items-center gap-2 w-full">
-                        <Input 
-                          placeholder={t('feed.comment')}
-                          className="bg-white/5 border-white/10 h-10 text-sm"
+                      <div className="flex gap-3 w-full">
+                        <input 
+                          type="text"
+                          placeholder="Write a comment..."
+                          className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:border-yellow-500/50 outline-none transition-all"
                           value={commentText[post.id] || ''}
                           onChange={(e) => setCommentText({ ...commentText, [post.id]: e.target.value })}
                           onKeyPress={(e) => e.key === 'Enter' && handleComment(post.id)}
                         />
                         <Button 
                           onClick={() => handleComment(post.id)}
-                          className="bg-white/10 hover:bg-white/20 text-white h-10 w-10 p-0"
+                          disabled={!commentText[post.id]}
+                          className="bg-yellow-500 hover:bg-yellow-600 text-black w-10 h-10 p-0 rounded-xl shrink-0"
                         >
                           <Send className="w-4 h-4" />
                         </Button>
+                      </div>
+                    )}
+
+                    {post.comments?.length > 0 && (
+                      <div className="mt-6 space-y-4 w-full">
+                        {post.comments.slice(0, 3).map((comment, idx) => (
+                          <div key={idx} className="flex gap-3 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
+                            <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden shrink-0">
+                              {comment.userPhoto ? (
+                                <img src={comment.userPhoto} alt="" className="w-full h-full object-cover" />
+                              ) : (
+                                <User className="w-4 h-4 text-gray-500" />
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-[10px] font-black text-white uppercase tracking-tight mb-0.5">{comment.userName}</p>
+                              <p className="text-xs text-gray-400 leading-relaxed">{comment.text}</p>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </CardFooter>
