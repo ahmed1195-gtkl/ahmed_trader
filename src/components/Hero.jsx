@@ -180,6 +180,7 @@ const Hero = () => {
           </div>
         )}
       </AnimatePresence>
+    </section>
   );
 };
 
