@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { auth, db, storage } from '../lib/firebase';
+import { auth, db } from '../lib/firebase';
 import { 
   collection, 
   addDoc, 
@@ -16,19 +16,15 @@ import {
   getDoc
 } from 'firebase/firestore';
 import { Button } from './ui/button';
-import { Input } from './ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
-import { Heart, MessageCircle, Plus, Image as ImageIcon, Send, X, ShieldCheck, Music, Video, Loader2, User } from 'lucide-react';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { Heart, MessageCircle, Plus, Image as ImageIcon, Send, X, Music, Video, Loader2, User } from 'lucide-react';
 
 const Feed = () => {
   const { t } = useTranslation();
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState('');
   const [imageUrl, setImageUrl] = useState('');
-  const [mediaFile, setMediaFile] = useState(null);
   const [mediaType, setMediaType] = useState('image');
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [showUpload, setShowUpload] = useState(false);
   const [loading, setLoading] = useState(false);
   const [commentText, setCommentText] = useState({});
@@ -63,7 +59,7 @@ const Feed = () => {
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!user || (!newPost && !imageUrl && !mediaFile)) return;
+    if (!user || (!newPost && !imageUrl)) return;
 
     if (userData?.isBanned) {
       alert("Your account is banned from posting.");
@@ -71,34 +67,11 @@ const Feed = () => {
     }
 
     setLoading(true);
-    setUploadProgress(0);
     try {
-      let finalMediaUrl = imageUrl || null;
-      
-      if (mediaFile) {
-        const storageRef = ref(storage, `posts/${Date.now()}_${mediaFile.name}`);
-        const uploadTask = uploadBytesResumable(storageRef, mediaFile);
-
-        finalMediaUrl = await new Promise((resolve, reject) => {
-          uploadTask.on('state_changed', 
-            (snapshot) => {
-              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-              setUploadProgress(progress);
-            }, 
-            (error) => reject(error), 
-            () => {
-              getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                resolve(downloadURL);
-              });
-            }
-          );
-        });
-      }
-
       await addDoc(collection(db, 'posts'), {
         text: newPost,
-        image: finalMediaUrl,
-        mediaType: finalMediaUrl ? mediaType : 'text',
+        image: imageUrl || null,
+        mediaType: imageUrl ? mediaType : 'text',
         author: userData?.fullName || user.displayName || 'User',
         authorId: user.uid,
         authorPhoto: userData?.photoURL || user.photoURL || null,
@@ -109,8 +82,6 @@ const Feed = () => {
 
       setNewPost('');
       setImageUrl('');
-      setMediaFile(null);
-      setUploadProgress(0);
       setShowUpload(false);
     } catch (error) {
       console.error("Error adding post: ", error);
@@ -196,51 +167,36 @@ const Feed = () => {
                 <CardContent className="space-y-4">
                   <textarea 
                     className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:border-yellow-500/50 outline-none min-h-[120px] transition-all resize-none"
-                    placeholder="What's on your mind? (Image optional)"
+                    placeholder="What's on your mind? (Image URL optional)"
                     value={newPost}
                     onChange={(e) => setNewPost(e.target.value)}
                   />
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 h-12">
-                      <select 
-                        value={mediaType} 
-                        onChange={(e) => setMediaType(e.target.value)}
-                        className="bg-transparent border-none outline-none text-white flex-1 text-xs font-bold uppercase tracking-widest"
-                      >
-                        <option value="image" className="bg-zinc-900">Image</option>
-                        <option value="audio" className="bg-zinc-900">Audio</option>
-                        <option value="video" className="bg-zinc-900">Video</option>
-                      </select>
-                    </div>
-                    <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 h-12 overflow-hidden">
-                      <input 
-                        type="file" 
-                        accept={mediaType === 'image' ? 'image/*' : mediaType === 'audio' ? 'audio/*' : 'video/*'}
-                        onChange={(e) => setMediaFile(e.target.files[0])}
-                        className="bg-transparent border-none outline-none text-white flex-1 text-[10px] cursor-pointer"
-                      />
-                    </div>
+                  <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 h-12">
+                    <select 
+                      value={mediaType} 
+                      onChange={(e) => setMediaType(e.target.value)}
+                      className="bg-transparent border-none outline-none text-white flex-1 text-xs font-bold uppercase tracking-widest"
+                    >
+                      <option value="image" className="bg-zinc-900">Image URL</option>
+                      <option value="audio" className="bg-zinc-900">Audio URL</option>
+                      <option value="video" className="bg-zinc-900">Video URL</option>
+                    </select>
                   </div>
                   <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 h-12">
                     <ImageIcon className="w-4 h-4 text-gray-500" />
                     <input 
                       type="text" 
-                      placeholder="Or Media URL (https://...)" 
+                      placeholder="Paste Media URL (https://...)" 
                       className="bg-transparent border-none outline-none text-white flex-1 text-xs"
                       value={imageUrl}
                       onChange={(e) => setImageUrl(e.target.value)}
                     />
                   </div>
-                  {loading && uploadProgress > 0 && (
-                    <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
-                      <div className="bg-yellow-500 h-full transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
-                    </div>
-                  )}
                 </CardContent>
                 <CardFooter className="justify-end p-6 bg-white/[0.02]">
                   <Button 
                     onClick={handleUpload}
-                    disabled={loading || (!newPost && !imageUrl && !mediaFile)}
+                    disabled={loading || (!newPost && !imageUrl)}
                     className="bg-yellow-500 hover:bg-yellow-600 text-black font-black uppercase tracking-widest px-10 h-12 rounded-xl transition-all"
                   >
                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Post Now'}
@@ -261,13 +217,15 @@ const Feed = () => {
               <motion.div key={post.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
                 <Card className="bg-zinc-900/40 border-white/5 backdrop-blur-md overflow-hidden hover:border-yellow-500/20 transition-all duration-500 rounded-[2.5rem]">
                   <CardHeader className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center overflow-hidden">
-                        {post.authorPhoto ? <img src={post.authorPhoto} alt="" className="w-full h-full object-cover" /> : <User className="w-6 h-6 text-yellow-500" />}
-                      </div>
-                      <div>
-                        <p className="text-white font-black text-sm uppercase tracking-tight">{post.author}</p>
-                        <p className="text-gray-500 text-[9px] font-black uppercase tracking-[0.2em]">{post.createdAt?.toDate().toLocaleDateString()}</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center overflow-hidden">
+                          {post.authorPhoto ? <img src={post.authorPhoto} alt="" className="w-full h-full object-cover" /> : <User className="w-6 h-6 text-yellow-500" />}
+                        </div>
+                        <div>
+                          <p className="text-white font-black text-sm uppercase tracking-tight">{post.author}</p>
+                          <p className="text-gray-500 text-[9px] font-black uppercase tracking-[0.2em]">{post.createdAt?.toDate().toLocaleDateString()}</p>
+                        </div>
                       </div>
                     </div>
                   </CardHeader>

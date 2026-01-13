@@ -4,9 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, getDoc } from 'firebase/firestore';
 import { Button } from './ui/button';
-import { Globe, User, LogOut, Settings, Menu, X, LogIn, ChevronDown, Send, Instagram, Video, LayoutDashboard, Bell, AlertTriangle, Home, Newspaper } from 'lucide-react';
+import { User, LogOut, Settings, Menu, X, LogIn, Send, Instagram, Video, LayoutDashboard, Bell, AlertTriangle, Home, Newspaper } from 'lucide-react';
 import siteLogo from '../assets/site_logo.jpg';
 
 const Header = () => {
@@ -24,23 +24,29 @@ const Header = () => {
   const location = useLocation();
 
   const socialChannels = [
-    { name: 'Telegram', icon: <Send className="w-4 h-4" />, url: 'https://t.me/ahmed_trader_123', color: 'hover:text-[#0088cc]' },
-    { name: 'Instagram', icon: <Instagram className="w-4 h-4" />, url: 'https://www.instagram.com/mohamed_chokry', color: 'hover:text-[#e1306c]' },
-    { name: 'TikTok', icon: <Video className="w-4 h-4" />, url: 'https://www.tiktok.com/@ahmed.trader123', color: 'hover:text-[#ff0050]' }
+    { name: 'Telegram', icon: <Send className="w-4 h-4" />, url: 'https://t.me/ahmed_trader_123' },
+    { name: 'Instagram', icon: <Instagram className="w-4 h-4" />, url: 'https://www.instagram.com/mohamed_chokry' },
+    { name: 'TikTok', icon: <Video className="w-4 h-4" />, url: 'https://www.tiktok.com/@ahmed.trader123' }
   ];
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        setIsAdmin(currentUser.email?.toLowerCase() === 'mchokri100@gmail.com' || currentUser.email?.toLowerCase() === 'ahmed1195@gmail.com');
+        // التحقق من الأدمن
+        const adminEmails = ['mchokri100@gmail.com', 'ahmed1195@gmail.com'];
+        setIsAdmin(adminEmails.includes(currentUser.email?.toLowerCase()));
         
-        const unsubscribeDoc = onSnapshot(doc(db, 'users', currentUser.uid), (docSnap) => {
+        // جلب بيانات المستخدم
+        const userRef = doc(db, 'users', currentUser.uid);
+        const unsubscribeDoc = onSnapshot(userRef, (docSnap) => {
           if (docSnap.exists()) {
             const data = docSnap.data();
             setUserData(data);
             if (data.warning && !data.warningRead) {
               setShowWarning(true);
+            } else {
+              setShowWarning(false);
             }
           }
         });
@@ -48,6 +54,7 @@ const Header = () => {
       } else {
         setIsAdmin(false);
         setUserData(null);
+        setShowWarning(false);
       }
     });
 
@@ -77,7 +84,7 @@ const Header = () => {
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 w-full ${isScrolled ? 'bg-black/95 backdrop-blur-md border-b border-white/10 py-2' : 'bg-black/50 backdrop-blur-sm py-4'}`}>
-      <div className="container mx-auto px-4 flex items-center justify-between max-w-full overflow-hidden">
+      <div className="container mx-auto px-4 flex items-center justify-between max-w-full">
         <div className="flex items-center gap-3 shrink-0">
           <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-white hover:text-yellow-500 transition-colors">
             <Menu className="w-6 h-6" />
@@ -97,7 +104,7 @@ const Header = () => {
               </button>
               <AnimatePresence>
                 {isNotificationsOpen && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute top-full mt-2 right-0 bg-zinc-900 border border-white/10 rounded-xl overflow-hidden shadow-2xl min-w-[250px] p-2">
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute top-full mt-2 right-0 bg-zinc-900 border border-white/10 rounded-xl overflow-hidden shadow-2xl min-w-[250px] p-2 z-[110]">
                     <div className="px-4 py-2 border-b border-white/5 mb-2">
                       <span className="text-[10px] font-black uppercase tracking-widest text-yellow-500">Notifications</span>
                     </div>
@@ -128,10 +135,10 @@ const Header = () => {
               </button>
               <AnimatePresence>
                 {isUserOpen && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute top-full mt-2 right-0 bg-zinc-900 border border-white/10 rounded-xl overflow-hidden shadow-2xl min-w-[160px]">
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute top-full mt-2 right-0 bg-zinc-900 border border-white/10 rounded-xl overflow-hidden shadow-2xl min-w-[160px] z-[110]">
                     {isAdmin && (
                       <button onClick={handleAdminClick} className="w-full px-4 py-3 text-[10px] font-bold text-yellow-500 hover:bg-white/5 transition-colors flex items-center gap-3 border-b border-white/5">
-                        <LayoutDashboard className="w-4 h-4" /> Admin
+                        <LayoutDashboard className="w-4 h-4" /> Admin Panel
                       </button>
                     )}
                     <button onClick={() => { navigate('/settings'); setIsUserOpen(false); }} className="w-full px-4 py-3 text-[10px] font-bold text-white hover:bg-white/5 transition-colors flex items-center gap-3 border-b border-white/5">
@@ -156,13 +163,13 @@ const Header = () => {
       <AnimatePresence>
         {isSidebarOpen && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSidebarOpen(false)} className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[110]" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSidebarOpen(false)} className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[150]" />
             <motion.div 
               initial={{ x: i18n.language === 'ar' ? '100%' : '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: i18n.language === 'ar' ? '100%' : '-100%' }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className={`fixed top-0 ${i18n.language === 'ar' ? 'right-0' : 'left-0'} bottom-0 w-[280px] bg-zinc-950 border-${i18n.language === 'ar' ? 'l' : 'r'} border-white/10 z-[120] shadow-2xl flex flex-col`}
+              className={`fixed top-0 ${i18n.language === 'ar' ? 'right-0' : 'left-0'} bottom-0 w-[280px] bg-zinc-950 border-${i18n.language === 'ar' ? 'l' : 'r'} border-white/10 z-[160] shadow-2xl flex flex-col`}
             >
               <div className="p-6 border-b border-white/5 flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -182,6 +189,11 @@ const Header = () => {
                   <Link to="/news" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-sm transition-all ${location.pathname === '/news' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>
                     <Newspaper className="w-5 h-5" /> News
                   </Link>
+                  {isAdmin && (
+                    <Link to="/admin" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-sm transition-all ${location.pathname === '/admin' ? 'bg-yellow-500 text-black' : 'text-yellow-500 hover:bg-white/5'}`}>
+                      <LayoutDashboard className="w-5 h-5" /> Admin Panel
+                    </Link>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <p className="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-4">Social Channels</p>
