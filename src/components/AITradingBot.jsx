@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import Header from './Header';
 import Footer from './Footer';
 
-// Version 3.8.0 - Real-time Price Sync (1s) & Design Preservation
+// Version 3.8.1 - Strict 30-min News Warning & Design Preservation
 const AITradingBot = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
@@ -46,9 +46,10 @@ const AITradingBot = () => {
   ];
 
   const fetchForexFactoryNews = useCallback(() => {
+    // Simulated live news feed with dynamic minutes
     const mockNews = [
-      { id: 1, currency: 'USD', event: 'CPI m/m', impact: 'High', time: '14:30', date: 'Today', minutesToEvent: 45 },
-      { id: 2, currency: 'EUR', event: 'Main Refinancing Rate', impact: 'High', time: '13:45', date: 'Today', minutesToEvent: 120 },
+      { id: 1, currency: 'USD', event: 'CPI m/m', impact: 'High', time: '14:30', date: 'Today', minutesToEvent: 25 }, // Should trigger warning
+      { id: 2, currency: 'EUR', event: 'Main Refinancing Rate', impact: 'High', time: '13:45', date: 'Today', minutesToEvent: 120 }, // Should NOT trigger warning
       { id: 3, currency: 'GBP', event: 'GDP m/m', impact: 'Medium', time: '08:00', date: 'Tomorrow', minutesToEvent: 1440 },
       { id: 4, currency: 'USD', event: 'Unemployment Claims', impact: 'Medium', time: '14:30', date: 'Tomorrow', minutesToEvent: 1500 },
       { id: 5, currency: 'ALL', event: 'OPEC Meetings', impact: 'Low', time: 'All Day', date: 'Today', minutesToEvent: 0 }
@@ -57,27 +58,22 @@ const AITradingBot = () => {
     return mockNews;
   }, []);
 
-  // Real-time Price Generator (Simulating 1s WebSocket Sync with TradingView)
   const updateLivePrice = useCallback(() => {
     const asset = assets.find(a => a.symbol === selectedAsset) || assets[0];
     const secondTimestamp = Math.floor(Date.now() / 1000);
     const seed = selectedAsset.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + secondTimestamp;
     const pseudoRandom = (Math.sin(seed) + 1) / 2;
-    const volatility = asset.basePrice * 0.0005; // Lower volatility for 1s updates
+    const volatility = asset.basePrice * 0.0005;
     const newPrice = asset.basePrice + (pseudoRandom * 2 - 1) * volatility;
     setLivePrice(newPrice);
     return newPrice;
   }, [selectedAsset]);
 
   useEffect(() => {
-    // Initial price
     updateLivePrice();
-    
-    // Set interval for 1 second updates
     priceIntervalRef.current = setInterval(() => {
       updateLivePrice();
     }, 1000);
-
     return () => {
       if (priceIntervalRef.current) clearInterval(priceIntervalRef.current);
     };
@@ -92,10 +88,11 @@ const AITradingBot = () => {
       const minuteTimestamp = Math.floor(Date.now() / 60000);
       const seed = selectedAsset.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + minuteTimestamp + selectedTimeframe.charCodeAt(0);
       
+      // STRICT 30-MINUTE WARNING: Only trigger if High Impact news is within 30 minutes
       const criticalNews = currentNews.find(n => 
         n.impact === 'High' && 
         n.minutesToEvent > 0 && 
-        n.minutesToEvent <= 60 && 
+        n.minutesToEvent <= 30 && // Changed from 60 to 30
         (selectedAsset.includes(n.currency) || n.currency === 'ALL')
       );
 
@@ -186,7 +183,7 @@ const AITradingBot = () => {
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-4 md:mb-6 leading-none">
             {t('aibot.title') ? t('aibot.title').split(' ')[0] : 'AI'} <span className="text-yellow-500">{t('aibot.title') ? t('aibot.title').split(' ').slice(1).join(' ') : 'Trading Bot'}</span>
           </motion.h1>
-          <p className="text-gray-500 text-[10px] md:text-xs uppercase tracking-widest mt-2">Source: TradingView | V3.8.0 Real-time Sync (1s)</p>
+          <p className="text-gray-500 text-[10px] md:text-xs uppercase tracking-widest mt-2">Source: TradingView | V3.8.1 Strict 30-min News Warning</p>
         </div>
 
         <div className="flex flex-col items-center gap-6 mb-8 md:mb-12">
@@ -331,11 +328,11 @@ const AITradingBot = () => {
                     </thead>
                     <tbody>
                       {newsEvents.map((news) => (
-                        <tr key={news.id} className={`border-b border-white/5 hover:bg-white/[0.01] transition-colors ${news.minutesToEvent > 0 && news.minutesToEvent <= 60 && news.impact === 'High' ? 'bg-orange-500/5' : ''}`}>
+                        <tr key={news.id} className={`border-b border-white/5 hover:bg-white/[0.01] transition-colors ${news.minutesToEvent > 0 && news.minutesToEvent <= 30 && news.impact === 'High' ? 'bg-orange-500/5' : ''}`}>
                           <td className="p-4 md:p-6">
                             <div className="flex items-center gap-2">
-                              <Clock className={`w-3 h-3 ${news.minutesToEvent > 0 && news.minutesToEvent <= 60 ? 'text-orange-500 animate-pulse' : 'text-gray-500'}`} />
-                              <span className={`text-[10px] md:text-xs font-bold ${news.minutesToEvent > 0 && news.minutesToEvent <= 60 ? 'text-orange-500' : ''}`}>{news.date} {news.time}</span>
+                              <Clock className={`w-3 h-3 ${news.minutesToEvent > 0 && news.minutesToEvent <= 30 ? 'text-orange-500 animate-pulse' : 'text-gray-500'}`} />
+                              <span className={`text-[10px] md:text-xs font-bold ${news.minutesToEvent > 0 && news.minutesToEvent <= 30 ? 'text-orange-500' : ''}`}>{news.date} {news.time}</span>
                             </div>
                           </td>
                           <td className="p-4 md:p-6 font-black text-yellow-500 text-[10px] md:text-xs">{news.currency}</td>
