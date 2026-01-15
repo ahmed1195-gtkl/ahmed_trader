@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -7,9 +7,7 @@ import {
   ArrowRight, Loader2, RefreshCw, CheckCircle2,
   PieChart, Layers, Newspaper, Target, BrainCircuit
 } from 'lucide-react';
-import { 
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine 
-} from 'recharts';
+import { createChart } from 'lightweight-charts';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
 import Header from './Header';
@@ -21,6 +19,8 @@ const AITradingBot = () => {
   const [analysis, setAnalysis] = useState(null);
   const [selectedAsset, setSelectedAsset] = useState('BTC/USDT');
   const [timeframe, setTimeframe] = useState('1hr');
+  const chartContainerRef = useRef();
+  const chartRef = useRef();
 
   const assets = [
     'BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'BNB/USDT', 
@@ -28,89 +28,84 @@ const AITradingBot = () => {
     'MATIC/USDT', 'XAU/USD', 'EUR/USD', 'GBP/USD'
   ];
 
-  // توليد بيانات الشارت بشكل ذكي
-  const generateChartData = (recommendation, currentPrice) => {
-    const data = [];
-    let price = currentPrice * 0.98;
-    const points = 20;
+  // منطق التحليل الذكي بناءً على الأوزان المطلوبة
+  const calculateSmartAnalysis = (asset, tf) => {
+    // محاكاة مؤشرات فنية حقيقية
+    const indicators = {
+      ma: Math.random() > 0.4 ? 'bullish' : 'bearish', // 20%
+      rsi: Math.random() > 0.5 ? 'bullish' : 'bearish', // 20%
+      macd: Math.random() > 0.3 ? 'bullish' : 'bearish', // 20%
+      bollinger: Math.random() > 0.5 ? 'bullish' : 'bearish', // 15%
+      adx: Math.random() > 0.4 ? 'bullish' : 'bearish', // 10%
+      volume: Math.random() > 0.3 ? 'bullish' : 'bearish', // 10%
+      fibonacci: Math.random() > 0.5 ? 'bullish' : 'bearish', // 5%
+    };
+
+    let score = 0;
+    if (indicators.ma === 'bullish') score += 20;
+    if (indicators.rsi === 'bullish') score += 20;
+    if (indicators.macd === 'bullish') score += 20;
+    if (indicators.bollinger === 'bullish') score += 15;
+    if (indicators.adx === 'bullish') score += 10;
+    if (indicators.volume === 'bullish') score += 10;
+    if (indicators.fibonacci === 'bullish') score += 5;
+
+    // دمج الأخبار (+10% أو -10%)
+    const newsSentiment = Math.random() > 0.5 ? 'positive' : 'negative';
+    if (newsSentiment === 'positive') score += 10;
+    else score -= 10;
+
+    // دمج الإطارات الزمنية (+10% إذا كانت متوافقة)
+    const timeframeAlignment = Math.random() > 0.6;
+    if (timeframeAlignment) score += 10;
+
+    const finalProbability = Math.min(Math.max(score, 5), 99);
     
-    for (let i = 0; i < points; i++) {
-      const isPrediction = i > 14;
-      if (!isPrediction) {
-        price = price * (1 + (Math.random() * 0.01 - 0.004));
-      } else {
-        const trend = recommendation === 'Buy' ? 0.005 : recommendation === 'Sell' ? -0.005 : 0.001;
-        price = price * (1 + trend + (Math.random() * 0.002 - 0.001));
-      }
-      data.push({
-        time: i,
-        price: parseFloat(price.toFixed(2)),
-        isPrediction: isPrediction
+    let recommendation = 'Wait';
+    if (finalProbability > 60) recommendation = 'Buy';
+    else if (finalProbability < 40) recommendation = 'Sell';
+
+    // توليد بيانات الشارت (Candlesticks)
+    const candleData = [];
+    let lastClose = asset.includes('BTC') ? 45000 : asset.includes('ETH') ? 2400 : asset.includes('XAU') ? 2050 : 1.1;
+    const now = Math.floor(Date.now() / 1000);
+    
+    for (let i = 0; i < 100; i++) {
+      const open = lastClose;
+      const close = open + (Math.random() * 2 - 1) * (open * 0.01);
+      const high = Math.max(open, close) + Math.random() * (open * 0.005);
+      const low = Math.min(open, close) - Math.random() * (open * 0.005);
+      
+      candleData.push({
+        time: now - (100 - i) * 3600,
+        open, high, low, close
       });
+      lastClose = close;
     }
-    return data;
+
+    // مستويات التداول
+    const entry = lastClose;
+    const tp = recommendation === 'Buy' ? entry * 1.03 : recommendation === 'Sell' ? entry * 0.97 : entry;
+    const sl = recommendation === 'Buy' ? entry * 0.985 : recommendation === 'Sell' ? entry * 1.015 : entry;
+
+    return {
+      recommendation,
+      probability: finalProbability,
+      indicators,
+      sentiment: newsSentiment,
+      trend: finalProbability > 50 ? 'Upward' : 'Downward',
+      confidence: Math.floor(Math.random() * 15) + 80,
+      timestamp: new Date().toLocaleTimeString(),
+      candleData,
+      levels: { entry, tp, sl }
+    };
   };
 
   const runAnalysis = () => {
     setLoading(true);
-    
     setTimeout(() => {
-      const basePrice = selectedAsset.includes('BTC') ? 45000 : selectedAsset.includes('ETH') ? 2400 : selectedAsset.includes('XAU') ? 2050 : 1.1;
-      const currentPrice = basePrice + (Math.random() * basePrice * 0.02);
-      
-      const technicalIndicators = {
-        ma: Math.random() > 0.3 ? 'bullish' : 'bearish',
-        rsi: Math.random() > 0.4 ? 'bullish' : 'bearish',
-        macd: Math.random() > 0.35 ? 'bullish' : 'bearish',
-        bollinger: Math.random() > 0.45 ? 'bullish' : 'bearish',
-        adx: Math.random() > 0.4 ? 'bullish' : 'bearish',
-        volume: Math.random() > 0.3 ? 'bullish' : 'bearish',
-        fibonacci: Math.random() > 0.5 ? 'bullish' : 'bearish',
-      };
-
-      let score = 0;
-      Object.values(technicalIndicators).forEach(status => {
-        if (status === 'bullish') score += 12;
-      });
-
-      const newsSentiment = Math.random() > 0.5 ? 'positive' : 'negative';
-      score += newsSentiment === 'positive' ? 15 : -10;
-
-      const finalProbability = Math.min(Math.max(score, 15), 98);
-      
-      let recommendation = 'Wait';
-      if (finalProbability > 65) recommendation = 'Buy';
-      else if (finalProbability < 40) recommendation = 'Sell';
-
-      const chartData = generateChartData(recommendation, currentPrice);
-      
-      // حساب حدود الصفقة
-      const entry = currentPrice;
-      const tp = recommendation === 'Buy' ? entry * 1.05 : recommendation === 'Sell' ? entry * 0.95 : entry;
-      const sl = recommendation === 'Buy' ? entry * 0.97 : recommendation === 'Sell' ? entry * 1.03 : entry;
-
-      // التفسير الذكي
-      const smartReasoning = recommendation === 'Buy' 
-        ? "نلاحظ اختراقاً قوياً لمستويات المقاومة مع زخم شرائي مرتفع مدعوم بسيولة مؤسساتية. مؤشر RSI لا يزال في مناطق تسمح بالصعود، مما يعزز احتمالية استمرار الاتجاه الصاعد."
-        : recommendation === 'Sell'
-        ? "هناك تشبع شرائي واضح مع ظهور نماذج انعكاسية سلبية على الفريمات الكبيرة. تراجع أحجام التداول عند القمم يشير إلى ضعف المشترين وبداية سيطرة البائعين."
-        : "السوق حالياً في مرحلة تذبذب عرضي بانتظار أخبار اقتصادية مؤثرة. من الأفضل البقاء خارج السوق لتجنب التقلبات العشوائية والحفاظ على رأس المال.";
-
-      setAnalysis({
-        asset: selectedAsset,
-        timeframe: timeframe,
-        recommendation: recommendation,
-        probability: finalProbability,
-        sentiment: newsSentiment,
-        trend: finalProbability > 50 ? 'Upward' : 'Downward',
-        confidence: Math.floor(Math.random() * 15) + 80,
-        timestamp: new Date().toLocaleTimeString(),
-        indicators: technicalIndicators,
-        chartData: chartData,
-        reasoning: smartReasoning,
-        levels: { entry, tp, sl }
-      });
-      
+      const result = calculateSmartAnalysis(selectedAsset, timeframe);
+      setAnalysis(result);
       setLoading(false);
     }, 1500);
   };
@@ -118,6 +113,75 @@ const AITradingBot = () => {
   useEffect(() => {
     runAnalysis();
   }, [selectedAsset, timeframe]);
+
+  // إعداد شارت TradingView
+  useEffect(() => {
+    if (analysis && chartContainerRef.current) {
+      if (chartRef.current) {
+        chartRef.current.remove();
+      }
+
+      const chart = createChart(chartContainerRef.current, {
+        layout: {
+          backgroundColor: 'transparent',
+          textColor: '#a1a1aa',
+        },
+        grid: {
+          vertLines: { color: 'rgba(255, 255, 255, 0.05)' },
+          horzLines: { color: 'rgba(255, 255, 255, 0.05)' },
+        },
+        crosshair: {
+          mode: 0,
+        },
+        rightPriceScale: {
+          borderColor: 'rgba(255, 255, 255, 0.1)',
+        },
+        timeScale: {
+          borderColor: 'rgba(255, 255, 255, 0.1)',
+        },
+        width: chartContainerRef.current.clientWidth,
+        height: 300,
+      });
+
+      const candlestickSeries = chart.addCandlestickSeries({
+        upColor: '#22c55e',
+        downColor: '#ef4444',
+        borderVisible: false,
+        wickUpColor: '#22c55e',
+        wickDownColor: '#ef4444',
+      });
+
+      candlestickSeries.setData(analysis.candleData);
+
+      // إضافة خطوط المستويات
+      const priceLine = (price, color, title) => {
+        candlestickSeries.createPriceLine({
+          price: price,
+          color: color,
+          lineWidth: 2,
+          lineStyle: 2,
+          axisLabelVisible: true,
+          title: title,
+        });
+      };
+
+      priceLine(analysis.levels.entry, '#ffffff', 'ENTRY');
+      priceLine(analysis.levels.tp, '#22c55e', 'TP');
+      priceLine(analysis.levels.sl, '#ef4444', 'SL');
+
+      chartRef.current = chart;
+
+      const handleResize = () => {
+        chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+      };
+
+      window.addEventListener('resize', handleResize);
+      return () => {
+        window.removeEventListener('resize', handleResize);
+        chart.remove();
+      };
+    }
+  }, [analysis]);
 
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-yellow-500/30">
@@ -151,7 +215,7 @@ const AITradingBot = () => {
         </div>
 
         <div className="flex flex-wrap justify-center gap-4 mb-12">
-          <div className="flex flex-wrap justify-center bg-zinc-900/50 p-1 rounded-2xl border border-white/5 backdrop-blur-xl max-w-full overflow-hidden">
+          <div className="flex flex-wrap justify-center bg-zinc-900/50 p-1 rounded-2xl border border-white/5 backdrop-blur-xl">
             {assets.slice(0, 6).map((asset) => (
               <button
                 key={asset}
@@ -236,36 +300,9 @@ const AITradingBot = () => {
                       </div>
                     </div>
 
-                    {/* Chart Section */}
-                    <div className="h-[300px] w-full bg-black/20 rounded-3xl p-4 border border-white/5">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={analysis.chartData}>
-                          <defs>
-                            <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor={analysis.recommendation === 'Buy' ? '#22c55e' : analysis.recommendation === 'Sell' ? '#ef4444' : '#eab308'} stopOpacity={0.3}/>
-                              <stop offset="95%" stopColor={analysis.recommendation === 'Buy' ? '#22c55e' : analysis.recommendation === 'Sell' ? '#ef4444' : '#eab308'} stopOpacity={0}/>
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
-                          <XAxis dataKey="time" hide />
-                          <YAxis domain={['auto', 'auto']} hide />
-                          <Tooltip 
-                            contentStyle={{ backgroundColor: '#18181b', border: '1px solid #3f3f46', borderRadius: '12px', fontSize: '10px', fontWeight: 'bold' }}
-                            itemStyle={{ color: '#fff' }}
-                          />
-                          <Area 
-                            type="monotone" 
-                            dataKey="price" 
-                            stroke={analysis.recommendation === 'Buy' ? '#22c55e' : analysis.recommendation === 'Sell' ? '#ef4444' : '#eab308'} 
-                            strokeWidth={3}
-                            fillOpacity={1} 
-                            fill="url(#colorPrice)" 
-                          />
-                          <ReferenceLine y={analysis.levels.entry} stroke="#ffffff40" strokeDasharray="3 3" label={{ position: 'right', value: 'ENTRY', fill: '#fff', fontSize: 8, fontWeight: 'bold' }} />
-                          <ReferenceLine y={analysis.levels.tp} stroke="#22c55e80" strokeDasharray="3 3" label={{ position: 'right', value: 'TP', fill: '#22c55e', fontSize: 8, fontWeight: 'bold' }} />
-                          <ReferenceLine y={analysis.levels.sl} stroke="#ef444480" strokeDasharray="3 3" label={{ position: 'right', value: 'SL', fill: '#ef4444', fontSize: 8, fontWeight: 'bold' }} />
-                        </AreaChart>
-                      </ResponsiveContainer>
+                    {/* TradingView Style Chart */}
+                    <div className="w-full bg-black/40 rounded-3xl p-4 border border-white/5 overflow-hidden">
+                      <div ref={chartContainerRef} className="w-full" />
                     </div>
 
                     {/* Smart Reasoning */}
@@ -275,7 +312,11 @@ const AITradingBot = () => {
                         <h4 className="text-xs font-black uppercase tracking-widest text-yellow-500">{t('aibot.smartReasoning')}</h4>
                       </div>
                       <p className="text-sm text-gray-400 leading-relaxed font-medium">
-                        {analysis.reasoning}
+                        {analysis.recommendation === 'Buy' 
+                          ? "تم اكتشاف زخم شرائي قوي مع تقاطع المتوسطات المتحركة صعوداً. مؤشر RSI يشير إلى وجود مساحة إضافية للنمو قبل الوصول لمناطق التشبع، مما يعزز احتمالية نجاح الصفقة."
+                          : analysis.recommendation === 'Sell'
+                          ? "هناك ضغط بيعي واضح مع كسر مستويات دعم رئيسية. تراجع أحجام التداول عند محاولات الارتداد يؤكد سيطرة البائعين على الاتجاه الحالي."
+                          : "السوق حالياً في منطقة تذبذب ضيقة بانتظار محفزات اقتصادية. من الأفضل الانتظار لتجنب التقلبات العشوائية والحفاظ على رأس المال."}
                       </p>
                     </div>
 
