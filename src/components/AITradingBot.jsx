@@ -272,7 +272,7 @@ const AITradingBot = () => {
                     <div className="bg-yellow-500/5 border border-yellow-500/10 p-6 rounded-3xl">
                       <div className="flex items-center gap-3 mb-3">
                         <BrainCircuit className="w-5 h-5 text-yellow-500" />
-                        <h4 className="text-xs font-black uppercase tracking-widest text-yellow-500">لماذا هذا الاقتراح ذكي؟</h4>
+                        <h4 className="text-xs font-black uppercase tracking-widest text-yellow-500">{t('aibot.smartReasoning')}</h4>
                       </div>
                       <p className="text-sm text-gray-400 leading-relaxed font-medium">
                         {analysis.reasoning}
@@ -321,7 +321,7 @@ const AITradingBot = () => {
 
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white overflow-hidden rounded-[2.5rem]">
               <CardHeader className="p-8 border-b border-white/5">
-                <CardTitle className="text-xl font-black uppercase tracking-tight">حدود <span className="text-yellow-500">الصفقة</span></CardTitle>
+                <CardTitle className="text-xl font-black uppercase tracking-tight">{t('aibot.tradeLevels').split(' ')[0]} <span className="text-yellow-500">{t('aibot.tradeLevels').split(' ').slice(1).join(' ')}</span></CardTitle>
               </CardHeader>
               <CardContent className="p-8 space-y-4">
                 {analysis && (
