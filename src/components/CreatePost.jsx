@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { db, auth } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 import { useTranslation } from 'react-i18next';
-import { Plus, Image as ImageIcon, X, Send, Loader2 } from 'lucide-react';
+import { Plus, Image as ImageIcon, X, Send, Loader2, Upload } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
@@ -13,8 +13,24 @@ const CreatePost = ({ onPostCreated }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+  const [imagePreview, setImagePreview] = useState('');
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image size should be less than 5MB');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,14 +48,14 @@ const CreatePost = ({ onPostCreated }) => {
         userNumericUID: userData.numericUID || 'N/A',
         title,
         content,
-        imageUrl: imageUrl || 'https://images.unsplash.com/photo-1611974714024-462cd297c8aa?q=80&w=800',
+        imageUrl: imagePreview || 'https://images.unsplash.com/photo-1611974714024-462cd297c8aa?q=80&w=800',
         likes: [],
         createdAt: serverTimestamp()
       });
 
       setTitle('');
       setContent('');
-      setImageUrl('');
+      setImagePreview('');
       setIsOpen(false);
       if (onPostCreated) onPostCreated();
     } catch (error) {
@@ -74,7 +90,7 @@ const CreatePost = ({ onPostCreated }) => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg bg-zinc-900 border border-white/10 rounded-[2.5rem] p-8 shadow-2xl"
+              className="relative w-full max-w-lg bg-zinc-900 border border-white/10 rounded-[2.5rem] p-8 shadow-2xl max-h-[90vh] overflow-y-auto"
             >
               <div className="flex justify-between items-center mb-8">
                 <h2 className="text-2xl font-black uppercase tracking-tight text-white">
@@ -98,16 +114,32 @@ const CreatePost = ({ onPostCreated }) => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-yellow-500/70">Image URL</label>
-                  <div className="relative">
-                    <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                    <Input 
-                      value={imageUrl} 
-                      onChange={(e) => setImageUrl(e.target.value)} 
-                      placeholder="Paste image link here..."
-                      className="pl-12 bg-white/5 border-white/10 focus:border-yellow-500/50 h-12 text-white"
-                    />
+                  <label className="text-[10px] font-black uppercase tracking-widest text-yellow-500/70">Post Image</label>
+                  <div 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="relative w-full aspect-video bg-white/5 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-yellow-500/50 transition-all overflow-hidden group"
+                  >
+                    {imagePreview ? (
+                      <>
+                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                          <Upload className="w-8 h-8 text-white" />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <ImageIcon className="w-10 h-10 text-gray-500 mb-2" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Click to upload image</span>
+                      </>
+                    )}
                   </div>
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    onChange={handleFileChange} 
+                    accept="image/*" 
+                    className="hidden" 
+                  />
                 </div>
 
                 <div className="space-y-2">

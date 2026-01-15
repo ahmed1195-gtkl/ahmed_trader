@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { auth, db } from '../lib/firebase';
@@ -8,7 +8,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Switch } from './ui/switch';
-import { Shield, Lock, User, Camera, Save, Globe, Calendar, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Shield, Lock, User, Camera, Save, Globe, Calendar, CheckCircle2, AlertCircle, Loader2, Upload } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 
@@ -18,6 +18,7 @@ const Settings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const fileInputRef = useRef(null);
 
   const [profileData, setProfileData] = useState({
     fullName: '',
@@ -27,6 +28,22 @@ const Settings = () => {
     age: '',
     twoFactorEnabled: false
   });
+
+  const countries = [
+    "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
+    "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi",
+    "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic",
+    "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia",
+    "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
+    "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", "Jordan",
+    "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg",
+    "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar",
+    "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman",
+    "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda",
+    "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria",
+    "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan",
+    "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
+  ];
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -62,6 +79,21 @@ const Settings = () => {
     return () => unsubscribe();
   }, []);
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        setMessage({ type: 'error', text: 'Image size should be less than 2MB' });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileData({ ...profileData, photoURL: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSaveProfile = async (e) => {
     e.preventDefault();
     if (!user) return;
@@ -69,7 +101,6 @@ const Settings = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      // تحديث Firestore أولاً لأنه الأكثر أهمية للبيانات المخصصة
       const docRef = doc(db, "users", user.uid);
       const docSnap = await getDoc(docRef);
 
@@ -94,7 +125,6 @@ const Settings = () => {
         });
       }
 
-      // تحديث ملف Firebase Auth (اختياري ولكن مفيد)
       try {
         await updateProfile(user, {
           displayName: profileData.fullName,
@@ -140,7 +170,7 @@ const Settings = () => {
               )}
             </AnimatePresence>
           </div>
-		
+        
           <form onSubmit={handleSaveProfile} className="grid gap-8">
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white overflow-hidden rounded-[2rem]">
               <CardHeader className="border-b border-white/5 pb-8">
@@ -153,6 +183,20 @@ const Settings = () => {
                         <User className="w-10 h-10 text-yellow-500" />
                       )}
                     </div>
+                    <button 
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="absolute bottom-0 right-0 w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-black shadow-lg hover:bg-yellow-400 transition-all"
+                    >
+                      <Camera className="w-4 h-4" />
+                    </button>
+                    <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      onChange={handleFileChange} 
+                      accept="image/*" 
+                      className="hidden" 
+                    />
                   </div>
                   <div className="text-center md:text-left">
                     <CardTitle className="text-2xl font-black uppercase tracking-tight">{profileData.fullName || 'User'}</CardTitle>
@@ -170,15 +214,20 @@ const Settings = () => {
                     <label className="text-[10px] font-black uppercase tracking-widest text-yellow-500/70">Last Name</label>
                     <Input value={profileData.lastName} onChange={(e) => setProfileData({...profileData, lastName: e.target.value})} className="bg-white/5 border-white/10 focus:border-yellow-500/50 h-12 rounded-xl" />
                   </div>
-                  <div className="space-y-2 md:col-span-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-yellow-500/70">Photo URL</label>
-                    <Input value={profileData.photoURL} onChange={(e) => setProfileData({...profileData, photoURL: e.target.value})} placeholder="https://example.com/photo.jpg" className="bg-white/5 border-white/10 focus:border-yellow-500/50 h-12 rounded-xl" />
-                  </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-yellow-500/70">Country</label>
                     <div className="relative">
                       <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                      <Input value={profileData.country} onChange={(e) => setProfileData({...profileData, country: e.target.value})} className="pl-12 bg-white/5 border-white/10 focus:border-yellow-500/50 h-12 rounded-xl" />
+                      <select 
+                        value={profileData.country} 
+                        onChange={(e) => setProfileData({...profileData, country: e.target.value})}
+                        className="w-full pl-12 pr-4 bg-white/5 border border-white/10 focus:border-yellow-500/50 h-12 rounded-xl text-white appearance-none outline-none"
+                      >
+                        <option value="" className="bg-zinc-900">Select Country</option>
+                        {countries.map(country => (
+                          <option key={country} value={country} className="bg-zinc-900">{country}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -191,7 +240,7 @@ const Settings = () => {
                 </div>
               </CardContent>
             </Card>
-		
+        
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2rem]">
               <CardHeader>
                 <div className="flex items-center gap-2 text-yellow-500 mb-2">
@@ -216,7 +265,7 @@ const Settings = () => {
                 </div>
               </CardContent>
             </Card>
-		
+        
             <div className="flex justify-end">
               <Button type="submit" disabled={saving} className="w-full sm:w-auto bg-yellow-500 hover:bg-yellow-600 text-black font-black uppercase tracking-widest px-12 h-14 rounded-2xl shadow-lg shadow-yellow-500/20 transition-all active:scale-95">
                 {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-4 h-4 mr-2" /> Save Changes</>}
