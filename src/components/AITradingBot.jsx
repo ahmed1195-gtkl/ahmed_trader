@@ -46,13 +46,66 @@ const AITradingBot = () => {
   ];
 
   const fetchForexFactoryNews = useCallback(() => {
-    // Simulated live news feed with dynamic minutes
+    // Get user's local time and timezone
+    const userLocale = Intl.DateTimeFormat().resolvedOptions().locale;
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    
+    const formatLocalTime = (hours, minutes) => {
+      const date = new Date();
+      date.setHours(hours, minutes, 0, 0);
+      return date.toLocaleTimeString(userLocale, { hour: '2-digit', minute: '2-digit', hour12: true });
+    };
+
+    // Simulated live news feed synced with local device time
+    const now = new Date();
     const mockNews = [
-      { id: 1, currency: 'USD', event: 'CPI m/m', impact: 'High', time: '14:30', date: 'Today', minutesToEvent: 25 }, // Should trigger warning
-      { id: 2, currency: 'EUR', event: 'Main Refinancing Rate', impact: 'High', time: '13:45', date: 'Today', minutesToEvent: 120 }, // Should NOT trigger warning
-      { id: 3, currency: 'GBP', event: 'GDP m/m', impact: 'Medium', time: '08:00', date: 'Tomorrow', minutesToEvent: 1440 },
-      { id: 4, currency: 'USD', event: 'Unemployment Claims', impact: 'Medium', time: '14:30', date: 'Tomorrow', minutesToEvent: 1500 },
-      { id: 5, currency: 'ALL', event: 'OPEC Meetings', impact: 'Low', time: 'All Day', date: 'Today', minutesToEvent: 0 }
+      { 
+        id: 1, 
+        currency: 'USD', 
+        event: 'CPI m/m', 
+        impact: 'High', 
+        time: formatLocalTime(now.getHours(), now.getMinutes() + 25), 
+        date: 'Today', 
+        minutesToEvent: 25,
+        rawTime: new Date(now.getTime() + 25 * 60000)
+      },
+      { 
+        id: 2, 
+        currency: 'EUR', 
+        event: 'Main Refinancing Rate', 
+        impact: 'High', 
+        time: formatLocalTime(now.getHours() + 2, now.getMinutes()), 
+        date: 'Today', 
+        minutesToEvent: 120,
+        rawTime: new Date(now.getTime() + 120 * 60000)
+      },
+      { 
+        id: 3, 
+        currency: 'GBP', 
+        event: 'GDP m/m', 
+        impact: 'Medium', 
+        time: '08:00 AM', 
+        date: 'Tomorrow', 
+        minutesToEvent: 1440 
+      },
+      { 
+        id: 4, 
+        currency: 'USD', 
+        event: 'Unemployment Claims', 
+        impact: 'Medium', 
+        time: '02:30 PM', 
+        date: 'Tomorrow', 
+        minutesToEvent: 1500 
+      },
+      { 
+        id: 5, 
+        currency: 'ALL', 
+        event: 'OPEC Meetings', 
+        impact: 'Low', 
+        time: 'All Day', 
+        date: 'Today', 
+        minutesToEvent: 0 
+      }
     ];
     setNewsEvents(mockNews);
     return mockNews;
