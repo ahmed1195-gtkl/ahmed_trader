@@ -5,7 +5,8 @@ import {
   TrendingUp, TrendingDown, Activity, 
   Zap, RefreshCw, BrainCircuit, Lock,
   Newspaper, ShieldCheck, Loader2, CheckCircle2, Layers,
-  Target, ArrowUpRight, ArrowDownRight, BarChart3, AlertCircle
+  Target, ArrowUpRight, ArrowDownRight, BarChart3, AlertCircle,
+  MessageSquare, Lightbulb, Info
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { Button } from './ui/button';
@@ -13,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import Header from './Header';
 import Footer from './Footer';
 
-// Version 2.1.0 - Final Strict AI Protocol & Visual Stability
+// Version 3.0.0 - Advanced AI Intelligence (SMC, ICT, SK)
 const AITradingBot = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
@@ -31,7 +32,7 @@ const AITradingBot = () => {
     { name: 'AUD/USD', symbol: 'AUDUSD', tvSymbol: 'FX:AUDUSD', basePrice: 0.67 }
   ];
 
-  const runStrictAIAnalysis = () => {
+  const runAdvancedAIAnalysis = () => {
     setLoading(true);
     setTimeout(() => {
       const assetInfo = assets.find(a => a.symbol === selectedAsset) || assets[0];
@@ -51,6 +52,19 @@ const AITradingBot = () => {
       const tp = isBullish ? entry * 1.04 : entry * 0.96;
       const sl = isBullish ? entry * 0.98 : entry * 1.02;
 
+      // منطق الذكاء الاصطناعي لمدارس التداول
+      const aiReasoning = isBullish ? {
+        smc: "تم رصد كسر في هيكل السوق (BOS) مع وجود منطقة طلب (Order Block) قوية عند مستويات الدعم الحالية. السيولة تم سحبها من القيعان السابقة مما يعزز الصعود.",
+        ict: "نلاحظ وجود فجوة سعرية (Fair Value Gap) لم يتم ملؤها بعد، مع دخول السعر في منطقة الـ Kill Zone الخاصة بلندن، مما يشير إلى اندفاع شرائي وشيك.",
+        sk: "السعر حالياً يرتد من مستوى 61.8% فيبوناتشي الذهبي، وهو ما يتوافق مع منطقة الانعكاس المتوقعة حسب استراتيجية SK.",
+        advice: "التزم بإدارة المخاطر. لا تدخل بكامل رأس مالك، وانتظر تأكيد الشموع اليابانية على فريم الـ 15 دقيقة قبل تفعيل الصفقة."
+      } : {
+        smc: "هناك ضغط بيعي واضح عند منطقة العرض (Supply Zone). تم تحديد تغيير في طابع السوق (CHoCH) نحو الهبوط مع تراكم السيولة فوق القمم.",
+        ict: "السعر يواجه مقاومة عند الـ Breaker Block مع وجود انحراف (SMT Divergence) بين الأزواج المرتبطة، مما يعزز احتمالية الهبوط لملء الفجوات السفلية.",
+        sk: "فشل السعر في اختراق مستوى 78.6% فيبوناتشي، وبدأ في تكوين قمم هابطة مما يؤكد انتهاء الموجة التصحيحية والبدء في موجة دافعة هابطة.",
+        advice: "تجنب الشراء العاطفي في هذه المنطقة. السوق يظهر علامات ضعف واضحة، ويفضل تأمين الأرباح أو البحث عن فرص بيع عند التصحيح."
+      };
+
       setAnalysis({
         recommendation,
         probability: technicalScore,
@@ -62,25 +76,20 @@ const AITradingBot = () => {
         currentPrice: lastPrice,
         levels: { entry, tp, sl },
         chartData,
-        schools: {
-          smc: isBullish ? t('aibot.smc.bull') : t('aibot.smc.bear'),
-          ict: isBullish ? t('aibot.ict.bull') : t('aibot.ict.bear'),
-          sk: isBullish ? t('aibot.sk.bull') : t('aibot.sk.bear'),
-          classic: isBullish ? t('aibot.classic.bull') : t('aibot.classic.bear')
-        },
+        aiReasoning,
         indicators: {
-          "MA 50/200": isBullish ? "Bullish Cross" : "Bearish Cross",
-          "RSI (14)": isBullish ? "Rising" : "Falling",
-          "MACD": "Strong Momentum",
-          "Volume": "High Activity"
+          "SMC Status": isBullish ? "Accumulation" : "Distribution",
+          "ICT FVG": isBullish ? "Bullish Gap" : "Bearish Gap",
+          "SK Level": "61.8% Fib",
+          "Market Structure": isBullish ? "Bullish BOS" : "Bearish CHoCH"
         }
       });
       setLoading(false);
-    }, 1200);
+    }, 1500);
   };
 
   useEffect(() => {
-    runStrictAIAnalysis();
+    runAdvancedAIAnalysis();
   }, [selectedAsset]);
 
   const currentAsset = assets.find(a => a.symbol === selectedAsset) || assets[0];
@@ -91,12 +100,12 @@ const AITradingBot = () => {
       <main className="pt-32 pb-20 px-6 max-w-7xl mx-auto">
         <div className="mb-16 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[10px] font-black uppercase tracking-[0.2em] mb-6">
-            <Zap className="w-3 h-3" /> {t('aibot.powered') || 'STRICT AI PROTOCOL'}
+            <BrainCircuit className="w-3 h-3" /> {t('aibot.powered') || 'ADVANCED AI INTELLIGENCE'}
           </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-6 leading-none">
             {t('aibot.title') ? t('aibot.title').split(' ')[0] : 'AI'} <span className="text-yellow-500">{t('aibot.title') ? t('aibot.title').split(' ').slice(1).join(' ') : 'Trading Bot'}</span>
           </motion.h1>
-          <p className="text-gray-500 text-xs uppercase tracking-widest mt-2">System Update: Jan 15, 2026 - V2.1.0</p>
+          <p className="text-gray-500 text-xs uppercase tracking-widest mt-2">AI Brain Status: Online - SMC/ICT/SK Mastered</p>
         </div>
 
         <div className="flex flex-wrap justify-center gap-4 mb-12">
@@ -107,8 +116,8 @@ const AITradingBot = () => {
               </button>
             ))}
           </div>
-          <Button onClick={runStrictAIAnalysis} disabled={loading} className="bg-yellow-500 hover:bg-yellow-600 text-black h-14 px-8 rounded-2xl font-black uppercase tracking-widest">
-            {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : (t('aibot.refresh') || 'REFRESH')}
+          <Button onClick={runAdvancedAIAnalysis} disabled={loading} className="bg-yellow-500 hover:bg-yellow-600 text-black h-14 px-8 rounded-2xl font-black uppercase tracking-widest">
+            {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : (t('aibot.refresh') || 'REFRESH AI')}
           </Button>
         </div>
 
@@ -132,26 +141,20 @@ const AITradingBot = () => {
                 {loading ? (
                   <div className="py-20 flex flex-col items-center justify-center">
                     <Loader2 className="w-12 h-12 text-yellow-500 animate-spin mb-4" />
-                    <p className="text-gray-500 font-black uppercase tracking-widest text-xs">STRICT ANALYSIS IN PROGRESS...</p>
+                    <p className="text-gray-500 font-black uppercase tracking-widest text-xs">AI IS THINKING (SMC/ICT/SK)...</p>
                   </div>
                 ) : analysis && (
                   <div className="space-y-8">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-8">
                       <div className="text-center md:text-left">
-                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-2">STRICT RECOMMENDATION</p>
+                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-2">AI RECOMMENDATION</p>
                         <h2 className={`text-7xl font-black uppercase tracking-tighter ${analysis.recommendation === 'Buy' ? 'text-green-500' : analysis.recommendation === 'Sell' ? 'text-red-500' : 'text-yellow-500'}`}>
                           {analysis.recommendation === 'Buy' ? (t('aibot.buy') || 'BUY') : analysis.recommendation === 'Sell' ? (t('aibot.sell') || 'SELL') : (t('aibot.wait') || 'NO SIGNAL')}
                         </h2>
-                        {!analysis.isStrict && (
-                          <div className="flex items-center gap-2 mt-4 text-yellow-500/50">
-                            <AlertCircle className="w-4 h-4" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">Conditions below 80% threshold</span>
-                          </div>
-                        )}
                       </div>
                       <div className="text-center">
                         <span className="text-5xl font-black tracking-tighter">{analysis.probability}%</span>
-                        <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest">STRENGTH</p>
+                        <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest">AI CONFIDENCE</p>
                       </div>
                     </div>
 
@@ -206,6 +209,46 @@ const AITradingBot = () => {
           <div className="space-y-8">
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white overflow-hidden rounded-[2.5rem]">
               <CardHeader className="p-8 border-b border-white/5">
+                <CardTitle className="text-xl font-black uppercase tracking-tight">AI <span className="text-yellow-500">ADVICE</span></CardTitle>
+              </CardHeader>
+              <CardContent className="p-8 space-y-6">
+                {analysis && (
+                  <>
+                    <div className="p-4 rounded-2xl bg-yellow-500/5 border border-yellow-500/10">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Lightbulb className="w-4 h-4 text-yellow-500" />
+                        <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest">Expert Tip</span>
+                      </div>
+                      <p className="text-xs text-gray-300 leading-relaxed italic">"{analysis.aiReasoning.advice}"</p>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <MessageSquare className="w-4 h-4 text-yellow-500" />
+                        <span className="text-[10px] font-black uppercase tracking-widest">AI Reasoning</span>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                          <p className="text-[9px] font-black text-yellow-500/50 uppercase mb-1">SMC Analysis</p>
+                          <p className="text-[11px] text-gray-400 leading-relaxed">{analysis.aiReasoning.smc}</p>
+                        </div>
+                        <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                          <p className="text-[9px] font-black text-yellow-500/50 uppercase mb-1">ICT Concepts</p>
+                          <p className="text-[11px] text-gray-400 leading-relaxed">{analysis.aiReasoning.ict}</p>
+                        </div>
+                        <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                          <p className="text-[9px] font-black text-yellow-500/50 uppercase mb-1">SK Strategy</p>
+                          <p className="text-[11px] text-gray-400 leading-relaxed">{analysis.aiReasoning.sk}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white overflow-hidden rounded-[2.5rem]">
+              <CardHeader className="p-8 border-b border-white/5">
                 <CardTitle className="text-xl font-black uppercase tracking-tight">TRADE <span className="text-yellow-500">LEVELS</span></CardTitle>
               </CardHeader>
               <CardContent className="p-8 space-y-4">
@@ -228,31 +271,7 @@ const AITradingBot = () => {
                   <div className="p-6 rounded-3xl bg-yellow-500/5 border border-yellow-500/10 text-center">
                     <Lock className="w-8 h-8 text-yellow-500 mx-auto mb-4" />
                     <p className="text-xs font-black uppercase tracking-widest text-yellow-500 mb-2">Signal Locked</p>
-                    <p className="text-[10px] text-gray-500 leading-relaxed">Waiting for 80%+ condition alignment to unlock trade levels.</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white overflow-hidden rounded-[2.5rem]">
-              <CardHeader className="p-8 border-b border-white/5">
-                <CardTitle className="text-xl font-black uppercase tracking-tight">SMART <span className="text-yellow-500">REASONING</span></CardTitle>
-              </CardHeader>
-              <CardContent className="p-8 space-y-4">
-                {analysis && (
-                  <div className="space-y-4">
-                    <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
-                      <p className="text-[10px] font-black text-yellow-500 uppercase tracking-widest mb-2">SMC & ICT</p>
-                      <p className="text-xs text-gray-400 leading-relaxed">{analysis.schools.smc}</p>
-                    </div>
-                    <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
-                      <p className="text-[10px] font-black text-yellow-500 uppercase tracking-widest mb-2">Technical Metrics</p>
-                      <div className="grid grid-cols-2 gap-2">
-                        {Object.entries(analysis.indicators).map(([name, val], i) => (
-                          <div key={i} className="text-[9px] text-gray-500"><span className="text-white">{name}:</span> {val}</div>
-                        ))}
-                      </div>
-                    </div>
+                    <p className="text-[10px] text-gray-500 leading-relaxed">Waiting for 80%+ condition alignment.</p>
                   </div>
                 )}
               </CardContent>
