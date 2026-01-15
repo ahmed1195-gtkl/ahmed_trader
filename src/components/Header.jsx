@@ -177,7 +177,7 @@ const Header = () => {
                       initial={{ opacity: 0, y: 10 }} 
                       animate={{ opacity: 1, y: 0 }} 
                       exit={{ opacity: 0, y: 10 }} 
-                      className={`absolute top-full ${i18n.language === 'ar' ? 'left-0' : 'right-0'} mt-4 w-64 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-2 shadow-2xl z-[110]`}
+                      className={`absolute top-full right-[-50px] md:right-0 mt-4 w-64 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-2 shadow-2xl z-[110]`}
                     >
                       <div className="px-4 py-2 border-b border-white/5 mb-2">
                         <span className="text-[10px] font-black uppercase tracking-widest text-yellow-500">Notifications</span>
@@ -215,7 +215,7 @@ const Header = () => {
                     initial={{ opacity: 0, y: 10 }} 
                     animate={{ opacity: 1, y: 0 }} 
                     exit={{ opacity: 0, y: 10 }} 
-                    className={`absolute top-full ${i18n.language === 'ar' ? 'left-0' : 'right-0'} mt-4 w-40 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-2 shadow-2xl`}
+                    className={`absolute top-full right-0 mt-4 w-40 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-2 shadow-2xl`}
                   >
                     {languages.map((lang) => (
                       <button key={lang.code} onClick={() => changeLanguage(lang.code)} className={`flex items-center justify-between w-full px-4 py-3 rounded-lg transition-all ${i18n.language === lang.code ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>

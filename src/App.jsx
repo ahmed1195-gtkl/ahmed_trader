@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { auth, db } from './lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertTriangle, Lock } from 'lucide-react';
+import { AlertTriangle, Lock, LogOut } from 'lucide-react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Benefits from './components/Benefits';
@@ -97,6 +97,14 @@ function BannedScreen({ banData }) {
             </div>
           )}
         </div>
+        
+        <button 
+          onClick={() => signOut(auth)}
+          className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 font-black text-sm uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all mb-6"
+        >
+          <LogOut className="w-5 h-5" /> Logout & Switch Account
+        </button>
+
         <p className="text-xs text-gray-500 leading-relaxed">
           If you believe this is a mistake, please contact our support team via Telegram.
         </p>
