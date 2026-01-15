@@ -4,8 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   TrendingUp, TrendingDown, Activity, 
   Zap, RefreshCw, BrainCircuit, Lock,
-  Newspaper, ShieldCheck, Loader2, CheckCircle2, Layers
+  Newspaper, ShieldCheck, Loader2, CheckCircle2, Layers,
+  Target, ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
+import { createChart } from 'lightweight-charts';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import Header from './Header';
@@ -17,26 +19,45 @@ const AITradingBot = () => {
   const [analysis, setAnalysis] = useState(null);
   const [selectedAsset, setSelectedAsset] = useState('BINANCE:BTCUSDT');
   const [timeframe, setTimeframe] = useState('60');
-  const container = useRef();
+  const tvContainerRef = useRef();
+  const areaChartContainerRef = useRef();
+  const areaChartRef = useRef();
 
   const assets = [
-    { name: 'BTC/USDT', symbol: 'BINANCE:BTCUSDT' },
-    { name: 'ETH/USDT', symbol: 'BINANCE:ETHUSDT' },
-    { name: 'SOL/USDT', symbol: 'BINANCE:SOLUSDT' },
-    { name: 'XAU/USD', symbol: 'OANDA:XAUUSD' },
-    { name: 'EUR/USD', symbol: 'FX:EURUSD' },
-    { name: 'GBP/USD', symbol: 'FX:GBPUSD' },
-    { name: 'USD/JPY', symbol: 'FX:USDJPY' },
-    { name: 'AUD/USD', symbol: 'FX:AUDUSD' }
+    { name: 'BTC/USDT', symbol: 'BINANCE:BTCUSDT', basePrice: 45000 },
+    { name: 'ETH/USDT', symbol: 'BINANCE:ETHUSDT', basePrice: 2400 },
+    { name: 'SOL/USDT', symbol: 'BINANCE:SOLUSDT', basePrice: 95 },
+    { name: 'XAU/USD', symbol: 'OANDA:XAUUSD', basePrice: 2050 },
+    { name: 'EUR/USD', symbol: 'FX:EURUSD', basePrice: 1.09 },
+    { name: 'GBP/USD', symbol: 'FX:GBPUSD', basePrice: 1.27 },
+    { name: 'USD/JPY', symbol: 'FX:USDJPY', basePrice: 145 },
+    { name: 'AUD/USD', symbol: 'FX:AUDUSD', basePrice: 0.67 }
   ];
 
   const runAdvancedAIAnalysis = () => {
     setLoading(true);
     setTimeout(() => {
+      const assetInfo = assets.find(a => a.symbol === selectedAsset) || assets[0];
       const isBullish = Math.random() > 0.45;
       const prob = Math.floor(Math.random() * 25) + 70;
       const recommendation = isBullish ? 'Buy' : 'Sell';
       
+      // توليد بيانات الشارت الأول (Area Chart)
+      const candleData = [];
+      let lastClose = assetInfo.basePrice;
+      const now = Math.floor(Date.now() / 1000);
+      for (let i = 0; i < 100; i++) {
+        const time = now - (100 - i) * 3600;
+        const value = lastClose + (Math.random() * 2 - 1) * (lastClose * 0.005);
+        candleData.push({ time, value });
+        lastClose = value;
+      }
+
+      // حدود الصفقات
+      const entry = lastClose;
+      const tp = isBullish ? entry * 1.05 : entry * 0.95;
+      const sl = isBullish ? entry * 0.97 : entry * 1.03;
+
       setAnalysis({
         recommendation,
         probability: prob,
@@ -44,6 +65,9 @@ const AITradingBot = () => {
         sentiment: isBullish ? 'positive' : 'negative',
         confidence: Math.floor(Math.random() * 10) + 85,
         timestamp: new Date().toLocaleTimeString(),
+        currentPrice: lastClose,
+        levels: { entry, tp, sl },
+        candleData,
         schools: {
           smc: isBullish ? t('aibot.smc.bull') : t('aibot.smc.bear'),
           ict: isBullish ? t('aibot.ict.bull') : t('aibot.ict.bear'),
@@ -65,9 +89,44 @@ const AITradingBot = () => {
     runAdvancedAIAnalysis();
   }, [selectedAsset, timeframe]);
 
+  // إعداد الشارت الأول (Area Chart)
   useEffect(() => {
-    if (container.current) {
-      container.current.innerHTML = '';
+    if (analysis && areaChartContainerRef.current) {
+      if (areaChartRef.current) areaChartRef.current.remove();
+
+      const chart = createChart(areaChartContainerRef.current, {
+        layout: { backgroundColor: 'transparent', textColor: '#a1a1aa' },
+        grid: { vertLines: { visible: false }, horzLines: { color: 'rgba(255, 255, 255, 0.05)' } },
+        width: areaChartContainerRef.current.clientWidth,
+        height: 250,
+        handleScale: false,
+        handleScroll: false,
+      });
+
+      const areaSeries = chart.addAreaSeries({
+        lineColor: analysis.recommendation === 'Buy' ? '#22c55e' : analysis.recommendation === 'Sell' ? '#ef4444' : '#eab308',
+        topColor: analysis.recommendation === 'Buy' ? 'rgba(34, 197, 94, 0.3)' : analysis.recommendation === 'Sell' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(234, 179, 8, 0.3)',
+        bottomColor: 'rgba(0, 0, 0, 0)',
+        lineWidth: 3,
+      });
+
+      areaSeries.setData(analysis.candleData);
+      chart.timeScale().fitContent();
+      areaChartRef.current = chart;
+
+      const handleResize = () => chart.applyOptions({ width: areaChartContainerRef.current.clientWidth });
+      window.addEventListener('resize', handleResize);
+      return () => {
+        window.removeEventListener('resize', handleResize);
+        chart.remove();
+      };
+    }
+  }, [analysis]);
+
+  // إعداد شارت TradingView الرسمي
+  useEffect(() => {
+    if (tvContainerRef.current) {
+      tvContainerRef.current.innerHTML = '';
       const script = document.createElement("script");
       script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
       script.type = "text/javascript";
@@ -86,7 +145,7 @@ const AITradingBot = () => {
         "calendar": false,
         "support_host": "https://www.tradingview.com"
       });
-      container.current.appendChild(script);
+      tvContainerRef.current.appendChild(script);
     }
   }, [selectedAsset, timeframe]);
 
@@ -158,10 +217,18 @@ const AITradingBot = () => {
             <CardHeader className="p-8 border-b border-white/5">
               <div className="flex justify-between items-center">
                 <CardTitle className="text-2xl font-black uppercase tracking-tight">
-                  {t('aibot.verdict') ? t('aibot.verdict').split(' ')[0] : 'Market'} <span className="text-yellow-500">{t('aibot.verdict') ? t('aibot.verdict').split(' ').slice(1).join(' ') : 'Verdict'}</span>
+                  {t('aibot.verdict') ? t('aibot.verdict').split(' ')[0] : 'Market'} <span className="text-yellow-500">{t('aibot.verdict') ? t('aibot.verdict').split(' ').slice(1).join(' ')}</span>
                 </CardTitle>
-                <div className="flex items-center gap-2 text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                  <Activity className="w-4 h-4 text-yellow-500" /> {t('aibot.live')}
+                <div className="flex items-center gap-4">
+                  {analysis && (
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10">
+                      <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Price:</span>
+                      <span className="text-xs font-black text-yellow-500">{analysis.currentPrice.toFixed(selectedAsset.includes('USDT') ? 2 : 4)}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                    <Activity className="w-4 h-4 text-yellow-500" /> {t('aibot.live')}
+                  </div>
                 </div>
               </div>
             </CardHeader>
@@ -209,8 +276,22 @@ const AITradingBot = () => {
                       </div>
                     </div>
 
+                    {/* الشارت الأول (Area Chart) */}
+                    <div className="w-full bg-black/40 rounded-3xl p-4 border border-white/5 overflow-hidden">
+                      <div className="flex items-center gap-2 mb-4 px-2">
+                        <TrendingUp className="w-4 h-4 text-yellow-500" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">AI Prediction Chart</span>
+                      </div>
+                      <div ref={areaChartContainerRef} className="w-full" />
+                    </div>
+
+                    {/* شارت TradingView الرسمي */}
                     <div className="w-full h-[500px] bg-zinc-950 rounded-3xl overflow-hidden border border-white/5">
-                      <div ref={container} className="w-full h-full" />
+                      <div className="flex items-center gap-2 p-4 bg-zinc-900/50 border-b border-white/5">
+                        <BarChart3 className="w-4 h-4 text-yellow-500" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Official TradingView Terminal</span>
+                      </div>
+                      <div ref={tvContainerRef} className="w-full h-full" />
                     </div>
 
                     <div className="bg-yellow-500/5 border border-yellow-500/10 p-6 rounded-3xl">
@@ -283,17 +364,35 @@ const AITradingBot = () => {
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white overflow-hidden rounded-[2.5rem]">
               <CardHeader className="p-8 border-b border-white/5">
                 <CardTitle className="text-xl font-black uppercase tracking-tight">
-                  {t('aibot.tradeLevels') ? t('aibot.tradeLevels').split(' ')[0] : 'Trade'} <span className="text-yellow-500">{t('aibot.tradeLevels') ? t('aibot.tradeLevels').split(' ').slice(1).join(' ') : 'Levels'}</span>
+                  {t('aibot.tradeLevels') ? t('aibot.tradeLevels').split(' ')[0] : 'Trade'} <span className="text-yellow-500">{t('aibot.tradeLevels') ? t('aibot.tradeLevels').split(' ').slice(1).join(' ')}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-8 space-y-4">
-                <div className="p-6 rounded-3xl bg-yellow-500/5 border border-yellow-500/10 text-center">
-                  <Lock className="w-8 h-8 text-yellow-500 mx-auto mb-4" />
-                  <p className="text-xs font-black uppercase tracking-widest text-yellow-500 mb-2">تحليل المدارس المتقدمة</p>
-                  <p className="text-[10px] text-gray-500 leading-relaxed">
-                    يتم رسم مستويات الدخول والأهداف تلقائياً على الشارت التفاعلي أعلاه بناءً على استراتيجيات SMC و ICT.
-                  </p>
-                </div>
+                {analysis && (
+                  <>
+                    <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 flex justify-between items-center">
+                      <div>
+                        <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1">Entry Price</p>
+                        <p className="text-lg font-black text-white">{analysis.levels.entry.toFixed(selectedAsset.includes('USDT') ? 2 : 4)}</p>
+                      </div>
+                      <Target className="w-5 h-5 text-white/20" />
+                    </div>
+                    <div className="p-4 rounded-2xl bg-green-500/5 border border-green-500/10 flex justify-between items-center">
+                      <div>
+                        <p className="text-[8px] font-black text-green-500 uppercase tracking-widest mb-1">Take Profit</p>
+                        <p className="text-lg font-black text-green-500">{analysis.levels.tp.toFixed(selectedAsset.includes('USDT') ? 2 : 4)}</p>
+                      </div>
+                      <ArrowUpRight className="w-5 h-5 text-green-500/50" />
+                    </div>
+                    <div className="p-4 rounded-2xl bg-red-500/5 border border-red-500/10 flex justify-between items-center">
+                      <div>
+                        <p className="text-[8px] font-black text-red-500 uppercase tracking-widest mb-1">Stop Loss</p>
+                        <p className="text-lg font-black text-red-500">{analysis.levels.sl.toFixed(selectedAsset.includes('USDT') ? 2 : 4)}</p>
+                      </div>
+                      <ArrowDownRight className="w-5 h-5 text-red-500/50" />
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
           </div>
