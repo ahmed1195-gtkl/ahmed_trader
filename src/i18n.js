@@ -173,7 +173,15 @@ const resources = {
       "aibot.positive": "Positive",
       "aibot.negative": "Negative",
       "aibot.smartReasoning": "Why is this suggestion smart?",
-      "aibot.tradeLevels": "Trade Levels"
+      "aibot.tradeLevels": "Trade Levels",
+      "aibot.smc.bull": "Strong bullish Order Block identified at support levels with a bullish Break of Structure (BOS).",
+      "aibot.smc.bear": "Strong Supply zone detected with a negative Change of Character (CHoCH).",
+      "aibot.ict.bull": "Price is currently inside a Fair Value Gap (FVG) targeting Buy-side Liquidity.",
+      "aibot.ict.bear": "Price is filling a bearish FVG with Sell-side Liquidity as the primary target.",
+      "aibot.sk.bull": "Golden Fibonacci levels (61.8%) align perfectly with the expected reversal zone.",
+      "aibot.sk.bear": "Price rejected from the 78.6% Fibonacci extension, indicating a strong downward continuation.",
+      "aibot.classic.bull": "Breakout of a descending trendline with a successful retest.",
+      "aibot.classic.bear": "Double top pattern breakout with high selling momentum."
     }
   },
   ar: {
@@ -346,7 +354,15 @@ const resources = {
       "aibot.positive": "إيجابي",
       "aibot.negative": "سلبي",
       "aibot.smartReasoning": "لماذا هذا الاقتراح ذكي؟",
-      "aibot.tradeLevels": "حدود الصفقة"
+      "aibot.tradeLevels": "حدود الصفقة",
+      "aibot.smc.bull": "تم تحديد Order Block شرائي قوي عند مستويات الدعم مع كسر هيكل (BOS) صعودي.",
+      "aibot.smc.bear": "رصد منطقة Supply قوية مع ظهور Change of Character (CHoCH) سلبي.",
+      "aibot.ict.bull": "السعر حالياً داخل Fair Value Gap (FVG) مع استهداف سيولة الـ Buy-side Liquidity.",
+      "aibot.ict.bear": "السعر يقوم بملء فجوة FVG هابطة مع استهداف سيولة الـ Sell-side Liquidity.",
+      "aibot.sk.bull": "توافق مستويات فيبوناتشي الذهبية (61.8%) مع منطقة الانعكاس المتوقعة.",
+      "aibot.sk.bear": "رفض السعر من امتداد فيبوناتشي 78.6% مما يشير إلى استمرار الهبوط القوي.",
+      "aibot.classic.bull": "اختراق خط اتجاه هابط مع إعادة اختبار ناجحة.",
+      "aibot.classic.bear": "كسر نموذج القمة المزدوجة مع زخم بيعي مرتفع."
     }
   },
   fr: {
@@ -519,7 +535,15 @@ const resources = {
       "aibot.positive": "Positif",
       "aibot.negative": "Négatif",
       "aibot.smartReasoning": "Pourquoi cette suggestion est-elle intelligente ?",
-      "aibot.tradeLevels": "Niveaux de Trade"
+      "aibot.tradeLevels": "Niveaux de Trade",
+      "aibot.smc.bull": "Bloc d'ordre haussier fort identifié aux niveaux de support avec une cassure de structure (BOS) haussière.",
+      "aibot.smc.bear": "Zone d'offre forte détectée avec un changement de caractère (CHoCH) négatif.",
+      "aibot.ict.bull": "Le prix est actuellement à l'intérieur d'un Fair Value Gap (FVG) ciblant la liquidité côté achat.",
+      "aibot.ict.bear": "Le prix remplit un FVG baissier avec la liquidité côté vente comme cible principale.",
+      "aibot.sk.bull": "Les niveaux de Fibonacci dorés (61,8 %) s'alignent parfaitement avec la zone de retournement attendue.",
+      "aibot.sk.bear": "Prix rejeté de l'extension Fibonacci 78,6 %, indiquant une forte continuation à la baisse.",
+      "aibot.classic.bull": "Cassure d'une ligne de tendance descendante avec un retest réussi.",
+      "aibot.classic.bear": "Cassure d'une figure en double sommet avec un fort momentum vendeur."
     }
   }
 };

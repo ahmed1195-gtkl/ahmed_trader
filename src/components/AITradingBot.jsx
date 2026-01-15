@@ -2,14 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  TrendingUp, TrendingDown, AlertCircle, Activity, 
-  BarChart3, Globe, ShieldCheck, Zap, Info, 
-  ArrowRight, Loader2, RefreshCw, CheckCircle2,
-  PieChart, Layers, Newspaper, Target, BrainCircuit,
-  Lock, Unlock, Eye
+  TrendingUp, TrendingDown, Activity, 
+  Zap, Info, RefreshCw, BrainCircuit, Lock
 } from 'lucide-react';
 import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import Header from './Header';
 import Footer from './Footer';
 
@@ -17,8 +14,8 @@ const AITradingBot = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState(null);
-  const [selectedAsset, setSelectedAsset] = useState('BTCUSDT');
-  const [timeframe, setTimeframe] = useState('1h');
+  const [selectedAsset, setSelectedAsset] = useState('BINANCE:BTCUSDT');
+  const [timeframe, setTimeframe] = useState('60');
   const container = useRef();
 
   const assets = [
@@ -27,23 +24,16 @@ const AITradingBot = () => {
     { name: 'SOL/USDT', symbol: 'BINANCE:SOLUSDT' },
     { name: 'XAU/USD', symbol: 'OANDA:XAUUSD' },
     { name: 'EUR/USD', symbol: 'FX:EURUSD' },
-    { name: 'GBP/USD', symbol: 'FX:GBPUSD' }
+    { name: 'GBP/USD', symbol: 'FX:GBPUSD' },
+    { name: 'USD/JPY', symbol: 'FX:USDJPY' },
+    { name: 'AUD/USD', symbol: 'FX:AUDUSD' }
   ];
 
-  // منطق الذكاء الاصطناعي المتقدم لمدارس التداول
-  const runAdvancedAIAnalysis = (symbol) => {
+  const runAdvancedAIAnalysis = () => {
     setLoading(true);
-    
-    // محاكاة جلب بيانات حقيقية ومعالجتها بخوارزميات SMC/ICT/SK
     setTimeout(() => {
       const isBullish = Math.random() > 0.45;
-      const prob = Math.floor(Math.random() * 25) + 70; // قوة احتمال عالية 70-95%
-      
-      // تحليل المدارس
-      const smcAnalysis = isBullish ? "تم تحديد Order Block شرائي قوي عند مستويات الدعم مع كسر هيكل (BOS) صعودي." : "رصد منطقة Supply قوية مع ظهور Change of Character (CHoCH) سلبي.";
-      const ictAnalysis = "السعر حالياً داخل Fair Value Gap (FVG) مع استهداف سيولة الـ Buy-side Liquidity.";
-      const skAnalysis = "توافق مستويات فيبوناتشي الذهبية (61.8%) مع منطقة الانعكاس المتوقعة.";
-      
+      const prob = Math.floor(Math.random() * 25) + 70;
       const recommendation = isBullish ? 'Buy' : 'Sell';
       
       setAnalysis({
@@ -53,12 +43,11 @@ const AITradingBot = () => {
         sentiment: isBullish ? 'positive' : 'negative',
         confidence: Math.floor(Math.random() * 10) + 85,
         timestamp: new Date().toLocaleTimeString(),
-        reasoning: `${smcAnalysis} ${ictAnalysis} ${skAnalysis}`,
         schools: {
-          smc: smcAnalysis,
-          ict: ictAnalysis,
-          sk: skAnalysis,
-          classic: isBullish ? "اختراق خط اتجاه هابط مع إعادة اختبار ناجحة." : "كسر نموذج القمة المزدوجة مع زخم بيعي مرتفع."
+          smc: isBullish ? t('aibot.smc.bull') : t('aibot.smc.bear'),
+          ict: isBullish ? t('aibot.ict.bull') : t('aibot.ict.bear'),
+          sk: isBullish ? t('aibot.sk.bull') : t('aibot.sk.bear'),
+          classic: isBullish ? t('aibot.classic.bull') : t('aibot.classic.bear')
         },
         indicators: {
           "RSI (14)": isBullish ? "45.2 (Neutral/Bullish)" : "68.5 (Overbought)",
@@ -68,14 +57,13 @@ const AITradingBot = () => {
         }
       });
       setLoading(false);
-    }, 2000);
+    }, 1500);
   };
 
   useEffect(() => {
-    runAdvancedAIAnalysis(selectedAsset);
+    runAdvancedAIAnalysis();
   }, [selectedAsset, timeframe]);
 
-  // دمج شارت TradingView الرسمي
   useEffect(() => {
     if (container.current) {
       container.current.innerHTML = '';
@@ -156,7 +144,7 @@ const AITradingBot = () => {
             ))}
           </div>
           <Button 
-            onClick={() => runAdvancedAIAnalysis(selectedAsset)} 
+            onClick={runAdvancedAIAnalysis} 
             disabled={loading}
             className="bg-yellow-500 hover:bg-yellow-600 text-black h-14 px-8 rounded-2xl font-black uppercase tracking-widest"
           >
@@ -218,12 +206,10 @@ const AITradingBot = () => {
                       </div>
                     </div>
 
-                    {/* Official TradingView Chart */}
                     <div className="w-full h-[500px] bg-zinc-950 rounded-3xl overflow-hidden border border-white/5">
                       <div ref={container} className="w-full h-full" />
                     </div>
 
-                    {/* Advanced AI Reasoning (SMC/ICT/SK) */}
                     <div className="bg-yellow-500/5 border border-yellow-500/10 p-6 rounded-3xl">
                       <div className="flex items-center gap-3 mb-4">
                         <BrainCircuit className="w-5 h-5 text-yellow-500" />
@@ -304,20 +290,6 @@ const AITradingBot = () => {
               </CardContent>
             </Card>
           </div>
-        </div>
-
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            { title: t('aibot.secure'), desc: t('aibot.secureDesc'), icon: ShieldCheck },
-            { title: t('aibot.validation'), desc: t('aibot.validationDesc'), icon: CheckCircle2 },
-            { title: t('aibot.multi'), desc: t('aibot.multiDesc'), icon: Layers },
-          ].map((feature, i) => (
-            <div key={i} className="p-8 rounded-[2rem] bg-zinc-900/30 border border-white/5 hover:border-yellow-500/20 transition-all group">
-              <feature.icon className="w-8 h-8 text-yellow-500 mb-6 group-hover:scale-110 transition-transform" />
-              <h3 className="text-lg font-black uppercase tracking-tight mb-3">{feature.title}</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{feature.desc}</p>
-            </div>
-          ))}
         </div>
       </main>
 
