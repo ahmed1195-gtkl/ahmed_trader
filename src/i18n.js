@@ -181,7 +181,20 @@ const resources = {
       "aibot.sk.bull": "Golden Fibonacci levels (61.8%) align perfectly with the expected reversal zone.",
       "aibot.sk.bear": "Price rejected from the 78.6% Fibonacci extension, indicating a strong downward continuation.",
       "aibot.classic.bull": "Breakout of a descending trendline with a successful retest.",
-      "aibot.classic.bear": "Double top pattern breakout with high selling momentum."
+      "aibot.classic.bear": "Double top pattern breakout with high selling momentum.",
+      "aibot.fundamental": "Fundamental Analysis",
+      "aibot.expertTip": "Expert Tip",
+      "aibot.reasoning": "AI Reasoning",
+      "aibot.newsCalendar": "Economic Calendar",
+      "aibot.dateTime": "Date/Time",
+      "aibot.currency": "Currency",
+      "aibot.event": "Event",
+      "aibot.impact": "Impact",
+      "aibot.highImpact": "High Impact",
+      "aibot.mediumImpact": "Medium Impact",
+      "aibot.lowImpact": "Low Impact",
+      "aibot.signalLocked": "Signal Locked",
+      "aibot.waitingConditions": "Waiting for 80%+ condition alignment."
     }
   },
   ar: {
@@ -362,7 +375,20 @@ const resources = {
       "aibot.sk.bull": "توافق مستويات فيبوناتشي الذهبية (61.8%) مع منطقة الانعكاس المتوقعة.",
       "aibot.sk.bear": "رفض السعر من امتداد فيبوناتشي 78.6% مما يشير إلى استمرار الهبوط القوي.",
       "aibot.classic.bull": "اختراق خط اتجاه هابط مع إعادة اختبار ناجحة.",
-      "aibot.classic.bear": "كسر نموذج القمة المزدوجة مع زخم بيعي مرتفع."
+      "aibot.classic.bear": "كسر نموذج القمة المزدوجة مع زخم بيعي مرتفع.",
+      "aibot.fundamental": "التحليل الأساسي",
+      "aibot.expertTip": "نصيحة الخبير",
+      "aibot.reasoning": "منطق الذكاء الاصطناعي",
+      "aibot.newsCalendar": "التقويم الاقتصادي",
+      "aibot.dateTime": "التاريخ/الوقت",
+      "aibot.currency": "العملة",
+      "aibot.event": "الحدث",
+      "aibot.impact": "التأثير",
+      "aibot.highImpact": "تأثير مرتفع",
+      "aibot.mediumImpact": "تأثير متوسط",
+      "aibot.lowImpact": "تأثير منخفض",
+      "aibot.signalLocked": "الإشارة مقفلة",
+      "aibot.waitingConditions": "في انتظار توافق الشروط بنسبة +80%."
     }
   },
   fr: {
