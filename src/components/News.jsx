@@ -124,7 +124,7 @@ const News = () => {
                   className="group bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-[2rem] overflow-hidden hover:border-yellow-500/30 transition-all duration-500 flex flex-col"
                 >
                   <div className="relative p-4">
-                    <div className="aspect-[16/10] overflow-hidden relative rounded-2xl border border-white/5">
+                    <div className="aspect-[16/10] overflow-hidden relative rounded-[2rem] border border-white/10">
                       {item.mediaType === 'video' ? (
                         <video src={item.thumbnail} className="w-full h-full object-cover" muted onMouseOver={e => e.target.play()} onMouseOut={e => e.target.pause()} />
                       ) : item.mediaType === 'audio' ? (

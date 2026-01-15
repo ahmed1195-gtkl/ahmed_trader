@@ -154,7 +154,7 @@ const Hero = () => {
 
               {/* Post Image */}
               <div className="relative p-4">
-                <div className="relative rounded-[1.5rem] overflow-hidden border border-white/5 shadow-2xl">
+                <div className="relative rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl">
                   <img 
                     src={post.imageUrl} 
                     alt="" 
