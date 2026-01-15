@@ -49,7 +49,6 @@ const Header = () => {
       if (currentUser) {
         setIsAdmin(adminEmails.includes(currentUser.email?.toLowerCase()));
         
-        // Listen to user data for notifications/warnings
         const userRef = doc(db, 'users', currentUser.uid);
         const unsubscribeDoc = onSnapshot(userRef, (docSnap) => {
           if (docSnap.exists()) {
@@ -136,30 +135,28 @@ const Header = () => {
               </Link>
             ))}
             
-            {user && (
-              <div className="flex items-center gap-8">
-                {isAdmin && (
-                  <Link 
-                    to="/admin" 
-                    className={`text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:text-yellow-500 flex items-center gap-2 ${location.pathname === '/admin' ? 'text-yellow-500' : 'text-gray-400'}`}
-                  >
-                    <LayoutDashboard className="w-3 h-3" /> {t('nav.admin', 'Admin')}
-                  </Link>
-                )}
-                <div className="relative group">
-                  <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 group-hover:text-yellow-500 transition-all">
-                    {t('nav.channels')} <ChevronDown className="w-3 h-3" />
-                  </button>
-                  <div className="absolute top-full right-0 mt-4 w-48 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                    {socialChannels.map((channel) => (
-                      <a key={channel.name} href={channel.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-all">
-                        {channel.icon} <span className="text-[10px] font-black uppercase tracking-widest">{channel.name}</span>
-                      </a>
-                    ))}
-                  </div>
+            <div className="flex items-center gap-8">
+              {user && isAdmin && (
+                <Link 
+                  to="/admin" 
+                  className={`text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:text-yellow-500 flex items-center gap-2 ${location.pathname === '/admin' ? 'text-yellow-500' : 'text-gray-400'}`}
+                >
+                  <LayoutDashboard className="w-3 h-3" /> {t('nav.admin', 'Admin')}
+                </Link>
+              )}
+              <div className="relative group">
+                <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 group-hover:text-yellow-500 transition-all">
+                  {t('nav.channels')} <ChevronDown className="w-3 h-3" />
+                </button>
+                <div className="absolute top-full right-0 mt-4 w-48 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                  {socialChannels.map((channel) => (
+                    <a key={channel.name} href={channel.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-all">
+                      {channel.icon} <span className="text-[10px] font-black uppercase tracking-widest">{channel.name}</span>
+                    </a>
+                  ))}
                 </div>
               </div>
-            )}
+            </div>
           </nav>
 
           {/* Actions */}
@@ -176,7 +173,12 @@ const Header = () => {
                 </button>
                 <AnimatePresence>
                   {isNotificationsOpen && (
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute top-full right-0 mt-4 w-64 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-2 shadow-2xl z-[110]">
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }} 
+                      animate={{ opacity: 1, y: 0 }} 
+                      exit={{ opacity: 0, y: 10 }} 
+                      className={`absolute top-full ${i18n.language === 'ar' ? 'left-0' : 'right-0'} mt-4 w-64 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-2 shadow-2xl z-[110]`}
+                    >
                       <div className="px-4 py-2 border-b border-white/5 mb-2">
                         <span className="text-[10px] font-black uppercase tracking-widest text-yellow-500">Notifications</span>
                       </div>
@@ -209,7 +211,12 @@ const Header = () => {
               </button>
               <AnimatePresence>
                 {isLangOpen && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute top-full right-0 mt-4 w-40 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-2 shadow-2xl">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }} 
+                    animate={{ opacity: 1, y: 0 }} 
+                    exit={{ opacity: 0, y: 10 }} 
+                    className={`absolute top-full ${i18n.language === 'ar' ? 'left-0' : 'right-0'} mt-4 w-40 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-2 shadow-2xl`}
+                  >
                     {languages.map((lang) => (
                       <button key={lang.code} onClick={() => changeLanguage(lang.code)} className={`flex items-center justify-between w-full px-4 py-3 rounded-lg transition-all ${i18n.language === lang.code ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>
                         <span className="text-[10px] font-black uppercase tracking-widest">{lang.name}</span>
@@ -276,16 +283,14 @@ const Header = () => {
                   </Link>
                 )}
                 
-                {user && (
-                  <div className="mt-4 space-y-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 ml-4">{t('nav.channels')}</p>
-                    {socialChannels.map((channel) => (
-                      <a key={channel.name} href={channel.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/5 text-gray-400 hover:text-white transition-all">
-                        {channel.icon} <span className="text-xs font-black uppercase tracking-widest">{channel.name}</span>
-                      </a>
-                    ))}
-                  </div>
-                )}
+                <div className="mt-4 space-y-4">
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 ml-4">{t('nav.channels')}</p>
+                  {socialChannels.map((channel) => (
+                    <a key={channel.name} href={channel.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/5 text-gray-400 hover:text-white transition-all">
+                      {channel.icon} <span className="text-xs font-black uppercase tracking-widest">{channel.name}</span>
+                    </a>
+                  ))}
+                </div>
               </nav>
 
               <div className="pt-8 border-t border-white/10">

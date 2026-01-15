@@ -3,8 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { auth, db } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AlertTriangle, Lock } from 'lucide-react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Benefits from './components/Benefits';
@@ -68,58 +69,73 @@ function LoadingScreen() {
   );
 }
 
+function BannedScreen({ banData }) {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-black p-6 text-center">
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="max-w-md w-full bg-zinc-900/50 border border-red-500/20 backdrop-blur-xl p-10 rounded-[3rem] shadow-2xl shadow-red-500/5"
+      >
+        <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-red-500/20">
+          <Lock className="w-10 h-10 text-red-500" />
+        </div>
+        <h1 className="text-2xl font-black text-white uppercase tracking-tighter mb-4">Account Suspended</h1>
+        <div className="space-y-4 text-left bg-black/40 p-6 rounded-2xl border border-white/5 mb-8">
+          <div>
+            <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1">Reason</p>
+            <p className="text-sm text-gray-300">{banData.banReason || 'Violation of community guidelines'}</p>
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1">Duration</p>
+            <p className="text-sm text-gray-300">{banData.banDuration === 'permanent' ? 'Permanent Ban' : `${banData.banDuration} Days`}</p>
+          </div>
+          {banData.banUntil && (
+            <div>
+              <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1">Expires On</p>
+              <p className="text-sm text-gray-300">{new Date(banData.banUntil).toLocaleString()}</p>
+            </div>
+          )}
+        </div>
+        <p className="text-xs text-gray-500 leading-relaxed">
+          If you believe this is a mistake, please contact our support team via Telegram.
+        </p>
+      </motion.div>
+    </div>
+  );
+}
+
 function App() {
   const { i18n } = useTranslation();
   const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [onboardingCompleted, setOnboardingCompleted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // Set a maximum timeout for loading to prevent infinite loading screen
-    const loadingTimeout = setTimeout(() => {
-      if (loading) {
-        console.warn("Loading timeout reached, forcing app to show.");
-        setLoading(false);
-      }
-    }, 3000); // 3 seconds max loading
-
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        try {
-          // Use a promise with timeout for Firestore fetch
-          const fetchUserData = async () => {
-            const docRef = doc(db, "users", currentUser.uid);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-              const userData = docSnap.data();
-              setOnboardingCompleted(userData.onboardingCompleted);
-              setIsAdmin(currentUser.email?.toLowerCase() === 'mchokri100@gmail.com');
-            } else {
-              setOnboardingCompleted(false);
-              setIsAdmin(currentUser.email?.toLowerCase() === 'mchokri100@gmail.com');
-            }
-          };
-
-          // Race between fetch and a shorter timeout
-          await Promise.race([
-            fetchUserData(),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("Firestore timeout")), 1500))
-          ]).catch(err => console.error("User data fetch issue:", err));
-
-        } catch (err) {
-          console.error("Error in auth state change:", err);
-        }
+        const userRef = doc(db, "users", currentUser.uid);
+        const unsubscribeDoc = onSnapshot(userRef, (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setUserData(data);
+            setOnboardingCompleted(data.onboardingCompleted);
+            setIsAdmin(['mchokri100@gmail.com', 'ahmed1195@gmail.com'].includes(currentUser.email?.toLowerCase()));
+          }
+          setLoading(false);
+        });
+        return () => unsubscribeDoc();
+      } else {
+        setUserData(null);
+        setIsAdmin(false);
+        setLoading(false);
       }
-      setLoading(false);
-      clearTimeout(loadingTimeout);
     });
 
-    return () => {
-      unsubscribe();
-      clearTimeout(loadingTimeout);
-    };
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -132,37 +148,39 @@ function App() {
     }
   }, [i18n.language]);
 
+  if (loading) return <LoadingScreen />;
+
+  if (userData?.isBanned) {
+    return <BannedScreen banData={userData} />;
+  }
+
   return (
     <AnimatePresence mode="wait">
-      {loading ? (
-        <LoadingScreen key="loading" />
-      ) : (
-        <motion.div
-          key="content"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Router>
-            <div className="min-h-screen relative bg-black">
-              <div className="relative z-10">
-                <Routes>
-                  <Route path="/" element={<MainLayout />} />
-                  <Route path="/auth" element={user ? <Navigate to={onboardingCompleted ? "/" : "/onboarding"} /> : <Auth />} />
-                  <Route path="/onboarding" element={user ? (onboardingCompleted ? <Navigate to="/" /> : <Onboarding />) : <Navigate to="/auth" />} />
-                  <Route path="/settings" element={user ? <Settings /> : <Navigate to="/auth" />} />
-                  <Route path="/news" element={<News />} />
-                  <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/" />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
-                  <Route path="/privacy" element={<PrivacyPolicy />} />
-                  <Route path="*" element={<Navigate to="/" />} />
-                </Routes>
-              </div>
-              <CookieConsent />
+      <motion.div
+        key="content"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Router>
+          <div className="min-h-screen relative bg-black">
+            <div className="relative z-10">
+              <Routes>
+                <Route path="/" element={<MainLayout />} />
+                <Route path="/auth" element={user ? <Navigate to={onboardingCompleted ? "/" : "/onboarding"} /> : <Auth />} />
+                <Route path="/onboarding" element={user ? (onboardingCompleted ? <Navigate to="/" /> : <Onboarding />) : <Navigate to="/auth" />} />
+                <Route path="/settings" element={user ? <Settings /> : <Navigate to="/auth" />} />
+                <Route path="/news" element={<News />} />
+                <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/" />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="*" element={<Navigate to="/" />} />
+              </Routes>
             </div>
-          </Router>
-        </motion.div>
-      )}
+            <CookieConsent />
+          </div>
+        </Router>
+      </motion.div>
     </AnimatePresence>
   );
 }
