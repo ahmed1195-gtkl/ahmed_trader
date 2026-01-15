@@ -88,11 +88,13 @@ const AITradingBot = () => {
       const minuteTimestamp = Math.floor(Date.now() / 60000);
       const seed = selectedAsset.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + minuteTimestamp + selectedTimeframe.charCodeAt(0);
       
-      // STRICT 30-MINUTE WARNING: Only trigger if High Impact news is within 30 minutes
+      // STRICT 30-MINUTE WARNING: Only trigger if High Impact news has a SPECIFIC TIME and is within 30 minutes
       const criticalNews = currentNews.find(n => 
         n.impact === 'High' && 
+        n.time !== 'All Day' && // Ignore "All Day" events
+        n.time !== 'Tentative' && // Ignore "Tentative" events
         n.minutesToEvent > 0 && 
-        n.minutesToEvent <= 30 && // Changed from 60 to 30
+        n.minutesToEvent <= 30 && 
         (selectedAsset.includes(n.currency) || n.currency === 'ALL')
       );
 
