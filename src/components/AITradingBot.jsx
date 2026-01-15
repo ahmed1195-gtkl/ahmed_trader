@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   TrendingUp, TrendingDown, Activity, 
-  Zap, Info, RefreshCw, BrainCircuit, Lock
+  Zap, RefreshCw, BrainCircuit, Lock,
+  Newspaper, ShieldCheck, Loader2, CheckCircle2, Layers
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -108,7 +109,7 @@ const AITradingBot = () => {
             transition={{ delay: 0.1 }}
             className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-6 leading-none"
           >
-            {t('aibot.title').split(' ')[0]} <span className="text-yellow-500">{t('aibot.title').split(' ').slice(1).join(' ')}</span>
+            {t('aibot.title') ? t('aibot.title').split(' ')[0] : 'AI'} <span className="text-yellow-500">{t('aibot.title') ? t('aibot.title').split(' ').slice(1).join(' ') : 'Trading Bot'}</span>
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
@@ -156,7 +157,9 @@ const AITradingBot = () => {
           <Card className="lg:col-span-2 bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white overflow-hidden rounded-[2.5rem] border-t-yellow-500/50">
             <CardHeader className="p-8 border-b border-white/5">
               <div className="flex justify-between items-center">
-                <CardTitle className="text-2xl font-black uppercase tracking-tight">{t('aibot.verdict').split(' ')[0]} <span className="text-yellow-500">{t('aibot.verdict').split(' ').slice(1).join(' ')}</span></CardTitle>
+                <CardTitle className="text-2xl font-black uppercase tracking-tight">
+                  {t('aibot.verdict') ? t('aibot.verdict').split(' ')[0] : 'Market'} <span className="text-yellow-500">{t('aibot.verdict') ? t('aibot.verdict').split(' ').slice(1).join(' ') : 'Verdict'}</span>
+                </CardTitle>
                 <div className="flex items-center gap-2 text-[10px] font-black text-gray-500 uppercase tracking-widest">
                   <Activity className="w-4 h-4 text-yellow-500" /> {t('aibot.live')}
                 </div>
@@ -258,7 +261,9 @@ const AITradingBot = () => {
           <div className="space-y-8">
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white overflow-hidden rounded-[2.5rem]">
               <CardHeader className="p-8 border-b border-white/5">
-                <CardTitle className="text-xl font-black uppercase tracking-tight">{t('aibot.metrics').split(' ')[0]} <span className="text-yellow-500">{t('aibot.metrics').split(' ').slice(1).join(' ')}</span></CardTitle>
+                <CardTitle className="text-xl font-black uppercase tracking-tight">
+                  {t('aibot.metrics') ? t('aibot.metrics').split(' ')[0] : 'Technical'} <span className="text-yellow-500">{t('aibot.metrics') ? t('aibot.metrics').split(' ').slice(1).join(' ') : 'Metrics'}</span>
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-8 space-y-4">
                 {analysis && Object.entries(analysis.indicators).map(([name, status], i) => (
@@ -277,7 +282,9 @@ const AITradingBot = () => {
 
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white overflow-hidden rounded-[2.5rem]">
               <CardHeader className="p-8 border-b border-white/5">
-                <CardTitle className="text-xl font-black uppercase tracking-tight">{t('aibot.tradeLevels').split(' ')[0]} <span className="text-yellow-500">{t('aibot.tradeLevels').split(' ').slice(1).join(' ')}</span></CardTitle>
+                <CardTitle className="text-xl font-black uppercase tracking-tight">
+                  {t('aibot.tradeLevels') ? t('aibot.tradeLevels').split(' ')[0] : 'Trade'} <span className="text-yellow-500">{t('aibot.tradeLevels') ? t('aibot.tradeLevels').split(' ').slice(1).join(' ') : 'Levels'}</span>
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-8 space-y-4">
                 <div className="p-6 rounded-3xl bg-yellow-500/5 border border-yellow-500/10 text-center">
@@ -290,6 +297,20 @@ const AITradingBot = () => {
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+          {[
+            { title: t('aibot.secure'), desc: t('aibot.secureDesc'), icon: ShieldCheck },
+            { title: t('aibot.validation'), desc: t('aibot.validationDesc'), icon: CheckCircle2 },
+            { title: t('aibot.multi'), desc: t('aibot.multiDesc'), icon: Layers },
+          ].map((feature, i) => (
+            <div key={i} className="p-8 rounded-[2rem] bg-zinc-900/30 border border-white/5 hover:border-yellow-500/20 transition-all group">
+              <feature.icon className="w-8 h-8 text-yellow-500 mb-6 group-hover:scale-110 transition-transform" />
+              <h3 className="text-lg font-black uppercase tracking-tight mb-3">{feature.title}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">{feature.desc}</p>
+            </div>
+          ))}
         </div>
       </main>
 
