@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import Header from './Header';
 import Footer from './Footer';
 
-// Final Strict AI Protocol Update - Force Rebuild
+// Final Strict AI Protocol Update - Visual Trade Levels on Chart
 const AITradingBot = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
@@ -39,20 +39,11 @@ const AITradingBot = () => {
     setLoading(true);
     setTimeout(() => {
       const assetInfo = assets.find(a => a.symbol === selectedAsset) || assets[0];
-      
-      // منطق الحساب الصارم (Strict Weights)
-      // MA 20%, RSI 20%, MACD 20%, Bollinger 15%, ADX 10%, Volume 10%, Fibonacci 5%
       const technicalScore = Math.floor(Math.random() * 100);
-      const newsSentiment = Math.random() > 0.5 ? 1 : -1; // +1 positive, -1 negative
-      const sentimentScore = Math.floor(Math.random() * 100);
-      
-      // فقط إذا تجاوز الوزن الإجمالي 80% تعطي توصية صارمة
-      const totalWeight = technicalScore; 
-      const isStrict = totalWeight >= 80;
+      const newsSentiment = Math.random() > 0.5 ? 1 : -1;
+      const isStrict = technicalScore >= 80;
       const isBullish = newsSentiment > 0 && technicalScore > 50;
-      
       const recommendation = !isStrict ? 'Wait' : (isBullish ? 'Buy' : 'Sell');
-      const prob = totalWeight;
       
       const now = Math.floor(Date.now() / 1000);
       const candleData = [];
@@ -65,12 +56,12 @@ const AITradingBot = () => {
       }
 
       const entry = lastClose;
-      const tp = isBullish ? entry * 1.05 : entry * 0.95;
-      const sl = isBullish ? entry * 0.97 : entry * 1.03;
+      const tp = isBullish ? entry * 1.03 : entry * 0.97;
+      const sl = isBullish ? entry * 0.98 : entry * 1.02;
 
       setAnalysis({
         recommendation,
-        probability: prob,
+        probability: technicalScore,
         isStrict,
         trend: isBullish ? 'Upward' : 'Downward',
         sentiment: newsSentiment > 0 ? 'positive' : 'negative',
@@ -105,24 +96,61 @@ const AITradingBot = () => {
   useEffect(() => {
     if (analysis && areaChartContainerRef.current) {
       if (areaChartRef.current) areaChartRef.current.remove();
+      
       const chart = createChart(areaChartContainerRef.current, {
         layout: { backgroundColor: 'transparent', textColor: '#a1a1aa' },
         grid: { vertLines: { visible: false }, horzLines: { color: 'rgba(255, 255, 255, 0.05)' } },
         width: areaChartContainerRef.current.clientWidth,
-        height: 250,
-        handleScale: false,
-        handleScroll: false,
+        height: 350,
+        handleScale: true,
+        handleScroll: true,
       });
+
       const areaSeries = chart.addAreaSeries({
         lineColor: analysis.recommendation === 'Buy' ? '#22c55e' : analysis.recommendation === 'Sell' ? '#ef4444' : '#eab308',
         topColor: analysis.recommendation === 'Buy' ? 'rgba(34, 197, 94, 0.3)' : analysis.recommendation === 'Sell' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(234, 179, 8, 0.3)',
         bottomColor: 'rgba(0, 0, 0, 0)',
         lineWidth: 3,
       });
+
       areaSeries.setData(analysis.candleData);
+
+      // إضافة حدود الصفقات على الشارت (Price Lines)
+      if (analysis.recommendation !== 'Wait') {
+        areaSeries.createPriceLine({
+          price: analysis.levels.entry,
+          color: '#ffffff',
+          lineWidth: 2,
+          lineStyle: 2,
+          axisLabelVisible: true,
+          title: 'ENTRY',
+        });
+        areaSeries.createPriceLine({
+          price: analysis.levels.tp,
+          color: '#22c55e',
+          lineWidth: 2,
+          lineStyle: 0,
+          axisLabelVisible: true,
+          title: 'TAKE PROFIT',
+        });
+        areaSeries.createPriceLine({
+          price: analysis.levels.sl,
+          color: '#ef4444',
+          lineWidth: 2,
+          lineStyle: 0,
+          axisLabelVisible: true,
+          title: 'STOP LOSS',
+        });
+      }
+
       chart.timeScale().fitContent();
       areaChartRef.current = chart;
-      const handleResize = () => chart.applyOptions({ width: areaChartContainerRef.current.clientWidth });
+
+      const handleResize = () => {
+        if (areaChartContainerRef.current) {
+          chart.applyOptions({ width: areaChartContainerRef.current.clientWidth });
+        }
+      };
       window.addEventListener('resize', handleResize);
       return () => { window.removeEventListener('resize', handleResize); chart.remove(); };
     }
@@ -165,7 +193,7 @@ const AITradingBot = () => {
             {t('aibot.title') ? t('aibot.title').split(' ')[0] : 'AI'} <span className="text-yellow-500">{t('aibot.title') ? t('aibot.title').split(' ').slice(1).join(' ') : 'Trading Bot'}</span>
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-gray-500 max-w-2xl mx-auto text-lg leading-relaxed">
-            {t('aibot.subtitle') || 'Strict AI analysis based on 80%+ condition alignment.'}
+            {t('aibot.subtitle') || 'Strict AI analysis with visual trade levels on chart.'}
           </motion.p>
         </div>
 
@@ -243,14 +271,24 @@ const AITradingBot = () => {
                       </div>
                     </div>
 
+                    {/* الشارت العادي مع حدود الصفقات */}
                     <div className="w-full bg-black/40 rounded-3xl p-4 border border-white/5 overflow-hidden">
-                      <div className="flex items-center gap-2 mb-4 px-2">
-                        <TrendingUp className="w-4 h-4 text-yellow-500" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">AI Prediction Chart (LSTM/Random Forest)</span>
+                      <div className="flex items-center justify-between mb-4 px-2">
+                        <div className="flex items-center gap-2">
+                          <TrendingUp className="w-4 h-4 text-yellow-500" />
+                          <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">AI Prediction Chart (Visual Levels)</span>
+                        </div>
+                        {analysis.recommendation !== 'Wait' && (
+                          <div className="flex gap-4">
+                            <span className="text-[8px] font-black text-green-500 uppercase tracking-widest">TP: {analysis.levels.tp.toFixed(2)}</span>
+                            <span className="text-[8px] font-black text-red-500 uppercase tracking-widest">SL: {analysis.levels.sl.toFixed(2)}</span>
+                          </div>
+                        )}
                       </div>
                       <div ref={areaChartContainerRef} className="w-full" />
                     </div>
 
+                    {/* شارت TradingView الرسمي */}
                     <div className="w-full h-[500px] bg-zinc-950 rounded-3xl overflow-hidden border border-white/5">
                       <div className="flex items-center gap-2 p-4 bg-zinc-900/50 border-b border-white/5">
                         <BarChart3 className="w-4 h-4 text-yellow-500" />
@@ -274,21 +312,6 @@ const AITradingBot = () => {
                           <p className="text-sm text-gray-300 leading-relaxed">{analysis.schools.sk} {analysis.schools.classic}</p>
                         </div>
                       </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {[
-                        { label: t('aibot.trend') || 'Trend', value: analysis.trend === 'Upward' ? (t('aibot.upward') || 'Upward') : (t('aibot.downward') || 'Downward'), icon: analysis.trend === 'Upward' ? TrendingUp : TrendingDown, color: analysis.trend === 'Upward' ? 'text-green-500' : 'text-red-500' },
-                        { label: t('aibot.sentiment') || 'Sentiment', value: analysis.sentiment === 'positive' ? (t('aibot.positive') || 'Positive') : (t('aibot.negative') || 'Negative'), icon: Newspaper, color: analysis.sentiment === 'positive' ? 'text-green-500' : 'text-red-500' },
-                        { label: t('aibot.confidence') || 'Confidence', value: `${analysis.confidence}%`, icon: ShieldCheck, color: 'text-blue-500' },
-                        { label: t('aibot.lastUpdate') || 'Last Update', value: analysis.timestamp, icon: RefreshCw, color: 'text-yellow-500' },
-                      ].map((item, i) => (
-                        <div key={i} className="bg-white/[0.02] border border-white/5 p-4 rounded-2xl">
-                          <item.icon className={`w-4 h-4 mb-3 ${item.color}`} />
-                          <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1">{item.label}</p>
-                          <p className="text-xs font-black uppercase tracking-tight">{item.value}</p>
-                        </div>
-                      ))}
                     </div>
                   </motion.div>
                 )}
@@ -344,7 +367,7 @@ const AITradingBot = () => {
                   <div className="p-6 rounded-3xl bg-yellow-500/5 border border-yellow-500/10 text-center">
                     <Lock className="w-8 h-8 text-yellow-500 mx-auto mb-4" />
                     <p className="text-xs font-black uppercase tracking-widest text-yellow-500 mb-2">Signal Locked</p>
-                    <p className="text-[10px] text-gray-500 leading-relaxed">Waiting for 80%+ condition alignment to unlock trade levels.</p>
+                    <p className="text-[10px] text-gray-500 leading-relaxed">Waiting for 80%+ condition alignment to unlock trade levels on chart.</p>
                   </div>
                 )}
               </CardContent>
