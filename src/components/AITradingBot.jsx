@@ -6,7 +6,7 @@ import {
   Zap, RefreshCw, BrainCircuit, Lock,
   Newspaper, ShieldCheck, Loader2, CheckCircle2, Layers,
   Target, ArrowUpRight, ArrowDownRight, BarChart3, AlertCircle,
-  MessageSquare, Lightbulb, Info, Calendar, Clock, Globe
+  MessageSquare, Lightbulb, Info, Calendar, Clock, Globe, AlertTriangle
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { Button } from './ui/button';
@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import Header from './Header';
 import Footer from './Footer';
 
-// Version 3.6.1 - Price Logic Correction & Design Preservation
+// Version 3.7.0 - News Safety Protocol & Design Preservation
 const AITradingBot = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
@@ -22,6 +22,7 @@ const AITradingBot = () => {
   const [selectedAsset, setSelectedAsset] = useState('BTCUSDT');
   const [selectedTimeframe, setSelectedTimeframe] = useState('1H');
   const [newsEvents, setNewsEvents] = useState([]);
+  const [newsWarning, setNewsWarning] = useState(null);
 
   const assets = [
     { name: 'BTC/USDT', symbol: 'BTCUSDT', tvSymbol: 'BINANCE:BTCUSDT', basePrice: 45000 },
@@ -42,14 +43,16 @@ const AITradingBot = () => {
   ];
 
   const fetchForexFactoryNews = useCallback(() => {
+    // Simulated live news feed
     const mockNews = [
-      { id: 1, currency: 'USD', event: 'CPI m/m', impact: 'High', time: '14:30', date: 'Today' },
-      { id: 2, currency: 'EUR', event: 'Main Refinancing Rate', impact: 'High', time: '13:45', date: 'Today' },
-      { id: 3, currency: 'GBP', event: 'GDP m/m', impact: 'Medium', time: '08:00', date: 'Tomorrow' },
-      { id: 4, currency: 'USD', event: 'Unemployment Claims', impact: 'Medium', time: '14:30', date: 'Tomorrow' },
-      { id: 5, currency: 'ALL', event: 'OPEC Meetings', impact: 'Low', time: 'All Day', date: 'Today' }
+      { id: 1, currency: 'USD', event: 'CPI m/m', impact: 'High', time: '14:30', date: 'Today', minutesToEvent: 45 },
+      { id: 2, currency: 'EUR', event: 'Main Refinancing Rate', impact: 'High', time: '13:45', date: 'Today', minutesToEvent: 120 },
+      { id: 3, currency: 'GBP', event: 'GDP m/m', impact: 'Medium', time: '08:00', date: 'Tomorrow', minutesToEvent: 1440 },
+      { id: 4, currency: 'USD', event: 'Unemployment Claims', impact: 'Medium', time: '14:30', date: 'Tomorrow', minutesToEvent: 1500 },
+      { id: 5, currency: 'ALL', event: 'OPEC Meetings', impact: 'Low', time: 'All Day', date: 'Today', minutesToEvent: 0 }
     ];
     setNewsEvents(mockNews);
+    return mockNews;
   }, []);
 
   const getTradingViewPrice = (symbol) => {
@@ -63,22 +66,38 @@ const AITradingBot = () => {
 
   const runAdvancedAIAnalysis = useCallback(() => {
     setLoading(true);
-    fetchForexFactoryNews();
+    const currentNews = fetchForexFactoryNews();
     
     setTimeout(() => {
       const currentPrice = getTradingViewPrice(selectedAsset);
       const minuteTimestamp = Math.floor(Date.now() / 60000);
       const seed = selectedAsset.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + minuteTimestamp + selectedTimeframe.charCodeAt(0);
-      const technicalScore = 78 + Math.floor(((Math.sin(seed + 1) + 1) / 2) * 18);
       
+      // Check for High Impact news within 60 minutes
+      const criticalNews = currentNews.find(n => 
+        n.impact === 'High' && 
+        n.minutesToEvent > 0 && 
+        n.minutesToEvent <= 60 && 
+        (selectedAsset.includes(n.currency) || n.currency === 'ALL')
+      );
+
+      if (criticalNews) {
+        setNewsWarning(criticalNews);
+      } else {
+        setNewsWarning(null);
+      }
+
+      const technicalScore = 78 + Math.floor(((Math.sin(seed + 1) + 1) / 2) * 18);
       const isStrict = technicalScore >= 80;
       const isBullish = (Math.sin(seed + 2) + 1) / 2 > 0.5;
-      const recommendation = !isStrict ? 'Wait' : (isBullish ? 'Buy' : 'Sell');
+      
+      // Override recommendation if critical news is present
+      let recommendation = !isStrict ? 'Wait' : (isBullish ? 'Buy' : 'Sell');
+      if (criticalNews) recommendation = 'Stop';
       
       const chartData = [];
       for (let i = 0; i < 30; i++) {
         const pointSeed = seed + i;
-        // Corrected price generation to avoid "flipped" look
         const pointPrice = currentPrice + (Math.sin(pointSeed * 0.5) * (currentPrice * 0.002));
         chartData.push({ time: i, price: pointPrice });
       }
@@ -87,31 +106,37 @@ const AITradingBot = () => {
       const tp = isBullish ? entry * 1.025 : entry * 0.975;
       const sl = isBullish ? entry * 0.99 : entry * 1.01;
 
-      const fundamentalImpact = newsEvents.some(n => n.impact === 'High' && (selectedAsset.includes(n.currency) || n.currency === 'ALL')) 
-        ? "High Volatility Expected due to major news events." 
+      const fundamentalImpact = criticalNews 
+        ? `CRITICAL: ${criticalNews.event} in ${criticalNews.minutesToEvent} mins. High volatility expected.`
         : "Stable fundamental environment.";
 
-      const aiReasoning = isBullish ? {
+      const aiReasoning = criticalNews ? {
+        smc: "Market structure is unstable due to upcoming high-impact news.",
+        ict: "Liquidity gaps expected to form rapidly. Avoid entries.",
+        sk: "Fibonacci levels may be invalidated by news volatility.",
+        fundamental: fundamentalImpact,
+        advice: "Trading during high-impact news is extremely risky. Protect your capital and wait for the market to settle."
+      } : (isBullish ? {
         smc: t('aibot.smc.bull'),
         ict: t('aibot.ict.bull'),
         sk: t('aibot.sk.bull'),
-        fundamental: `${t('aibot.fundamental')}: ${fundamentalImpact}`,
+        fundamental: fundamentalImpact,
         advice: t('aibot.classic.bull')
       } : {
         smc: t('aibot.smc.bear'),
         ict: t('aibot.ict.bear'),
         sk: t('aibot.sk.bear'),
-        fundamental: `${t('aibot.fundamental')}: ${fundamentalImpact}`,
+        fundamental: fundamentalImpact,
         advice: t('aibot.classic.bear')
-      };
+      });
 
       setAnalysis({
         recommendation,
-        probability: technicalScore,
-        isStrict,
+        probability: criticalNews ? 0 : technicalScore,
+        isStrict: criticalNews ? false : isStrict,
         trend: isBullish ? 'Upward' : 'Downward',
-        sentiment: isBullish ? 'positive' : 'negative',
-        confidence: 88 + Math.floor(((Math.sin(seed + 3) + 1) / 2) * 8),
+        sentiment: criticalNews ? 'neutral' : (isBullish ? 'positive' : 'negative'),
+        confidence: criticalNews ? 0 : (88 + Math.floor(((Math.sin(seed + 3) + 1) / 2) * 8)),
         timestamp: new Date().toLocaleTimeString(),
         currentPrice,
         levels: { entry, tp, sl },
@@ -119,15 +144,15 @@ const AITradingBot = () => {
         aiReasoning,
         timeframe: selectedTimeframe,
         indicators: {
-          "SMC Status": isBullish ? "Accumulation" : "Distribution",
-          "ICT FVG": isBullish ? "Bullish Gap" : "Bearish Gap",
-          "SK Level": "61.8% Fib",
+          "SMC Status": criticalNews ? "News Volatility" : (isBullish ? "Accumulation" : "Distribution"),
+          "ICT FVG": criticalNews ? "Extreme Gaps" : (isBullish ? "Bullish Gap" : "Bearish Gap"),
+          "SK Level": criticalNews ? "Invalidated" : "61.8% Fib",
           "Fundamental": fundamentalImpact
         }
       });
       setLoading(false);
     }, 1500);
-  }, [selectedAsset, selectedTimeframe, newsEvents, fetchForexFactoryNews, t]);
+  }, [selectedAsset, selectedTimeframe, fetchForexFactoryNews, t]);
 
   useEffect(() => {
     runAdvancedAIAnalysis();
@@ -147,7 +172,7 @@ const AITradingBot = () => {
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-4 md:mb-6 leading-none">
             {t('aibot.title') ? t('aibot.title').split(' ')[0] : 'AI'} <span className="text-yellow-500">{t('aibot.title') ? t('aibot.title').split(' ').slice(1).join(' ') : 'Trading Bot'}</span>
           </motion.h1>
-          <p className="text-gray-500 text-[10px] md:text-xs uppercase tracking-widest mt-2">Source: TradingView | V3.6.1 Multi-Timeframe Analysis</p>
+          <p className="text-gray-500 text-[10px] md:text-xs uppercase tracking-widest mt-2">Source: TradingView | V3.7.0 News Safety Protocol</p>
         </div>
 
         <div className="flex flex-col items-center gap-6 mb-8 md:mb-12">
@@ -190,7 +215,7 @@ const AITradingBot = () => {
                   {analysis && (
                     <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10">
                       <span className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest">TradingView Price:</span>
-                      <span className="text-xs font-black text-yellow-500">{analysis.currentPrice.toFixed(selectedAsset.includes('USDT') ? 2 : 4)}</span>
+                      <span className="text-xs font-black text-yellow-500">{analysis.currentPrice.toFixed(selectedAsset.includes('JPY') ? 2 : 4)}</span>
                     </div>
                   )}
                 </div>
@@ -207,8 +232,8 @@ const AITradingBot = () => {
                       <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
                         <div className="text-center md:text-left">
                           <p className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-2">{t('aibot.recommendation')}</p>
-                          <h2 className={`text-5xl md:text-7xl font-black uppercase tracking-tighter ${analysis.recommendation === 'Buy' ? 'text-green-500' : analysis.recommendation === 'Sell' ? 'text-red-500' : 'text-yellow-500'}`}>
-                            {analysis.recommendation === 'Buy' ? t('aibot.buy') : analysis.recommendation === 'Sell' ? t('aibot.sell') : t('aibot.wait')}
+                          <h2 className={`text-5xl md:text-7xl font-black uppercase tracking-tighter ${analysis.recommendation === 'Buy' ? 'text-green-500' : analysis.recommendation === 'Sell' ? 'text-red-500' : analysis.recommendation === 'Stop' ? 'text-orange-500' : 'text-yellow-500'}`}>
+                            {analysis.recommendation === 'Buy' ? t('aibot.buy') : analysis.recommendation === 'Sell' ? t('aibot.sell') : analysis.recommendation === 'Stop' ? 'STOP TRADING' : t('aibot.wait')}
                           </h2>
                         </div>
                         <div className="text-center">
@@ -217,25 +242,35 @@ const AITradingBot = () => {
                         </div>
                       </div>
 
-                      <div className="w-full h-[250px] md:h-[350px] bg-black/40 rounded-2xl md:rounded-3xl p-2 md:p-4 border border-white/5">
+                      <div className="relative w-full h-[250px] md:h-[350px] bg-black/40 rounded-2xl md:rounded-3xl p-2 md:p-4 border border-white/5">
+                        {newsWarning && (
+                          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-2xl md:rounded-3xl p-6 text-center">
+                            <div className="max-w-xs">
+                              <AlertTriangle className="w-12 h-12 text-orange-500 mx-auto mb-4 animate-pulse" />
+                              <h3 className="text-lg font-black text-orange-500 uppercase mb-2">NEWS ALERT: STOP TRADING</h3>
+                              <p className="text-[10px] text-white font-bold uppercase tracking-widest mb-1">{newsWarning.event} ({newsWarning.currency})</p>
+                              <p className="text-[9px] text-gray-400 uppercase tracking-widest">Expected in {newsWarning.minutesToEvent} minutes</p>
+                            </div>
+                          </div>
+                        )}
                         <div className="flex items-center gap-2 mb-4 px-2">
                           <TrendingUp className="w-4 h-4 text-yellow-500" />
-                          <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-gray-500">TradingView Live Chart ({selectedTimeframe})</span>
+                          <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-gray-500">AI Prediction Chart ({selectedTimeframe})</span>
                         </div>
                         <ResponsiveContainer width="100%" height="100%">
                           <AreaChart data={analysis.chartData}>
                             <defs>
                               <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor={analysis.recommendation === 'Buy' ? '#22c55e' : analysis.recommendation === 'Sell' ? '#ef4444' : '#eab308'} stopOpacity={0.3}/>
-                                <stop offset="95%" stopColor={analysis.recommendation === 'Buy' ? '#22c55e' : analysis.recommendation === 'Sell' ? '#ef4444' : '#eab308'} stopOpacity={0}/>
+                                <stop offset="5%" stopColor={analysis.recommendation === 'Buy' ? '#22c55e' : analysis.recommendation === 'Sell' ? '#ef4444' : analysis.recommendation === 'Stop' ? '#f97316' : '#eab308'} stopOpacity={0.3}/>
+                                <stop offset="95%" stopColor={analysis.recommendation === 'Buy' ? '#22c55e' : analysis.recommendation === 'Sell' ? '#ef4444' : analysis.recommendation === 'Stop' ? '#f97316' : '#eab308'} stopOpacity={0}/>
                               </linearGradient>
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                             <XAxis dataKey="time" hide />
                             <YAxis domain={['auto', 'auto']} hide />
                             <Tooltip contentStyle={{ backgroundColor: '#18181b', border: 'none', borderRadius: '12px', fontSize: '10px' }} />
-                            <Area type="monotone" dataKey="price" stroke={analysis.recommendation === 'Buy' ? '#22c55e' : analysis.recommendation === 'Sell' ? '#ef4444' : '#eab308'} fillOpacity={1} fill="url(#colorPrice)" strokeWidth={3} />
-                            {analysis.isStrict && (
+                            <Area type="monotone" dataKey="price" stroke={analysis.recommendation === 'Buy' ? '#22c55e' : analysis.recommendation === 'Sell' ? '#ef4444' : analysis.recommendation === 'Stop' ? '#f97316' : '#eab308'} fillOpacity={1} fill="url(#colorPrice)" strokeWidth={3} />
+                            {analysis.isStrict && analysis.recommendation !== 'Stop' && (
                               <>
                                 <ReferenceLine y={analysis.levels.entry} stroke="white" strokeDasharray="3 3" label={{ position: 'right', value: 'ENTRY', fill: 'white', fontSize: 8, fontWeight: 'bold' }} />
                                 <ReferenceLine y={analysis.levels.tp} stroke="#22c55e" strokeDasharray="3 3" label={{ position: 'right', value: 'TP', fill: '#22c55e', fontSize: 8, fontWeight: 'bold' }} />
@@ -283,11 +318,11 @@ const AITradingBot = () => {
                     </thead>
                     <tbody>
                       {newsEvents.map((news) => (
-                        <tr key={news.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
+                        <tr key={news.id} className={`border-b border-white/5 hover:bg-white/[0.01] transition-colors ${news.minutesToEvent > 0 && news.minutesToEvent <= 60 && news.impact === 'High' ? 'bg-orange-500/5' : ''}`}>
                           <td className="p-4 md:p-6">
                             <div className="flex items-center gap-2">
-                              <Clock className="w-3 h-3 text-gray-500" />
-                              <span className="text-[10px] md:text-xs font-bold">{news.date} {news.time}</span>
+                              <Clock className={`w-3 h-3 ${news.minutesToEvent > 0 && news.minutesToEvent <= 60 ? 'text-orange-500 animate-pulse' : 'text-gray-500'}`} />
+                              <span className={`text-[10px] md:text-xs font-bold ${news.minutesToEvent > 0 && news.minutesToEvent <= 60 ? 'text-orange-500' : ''}`}>{news.date} {news.time}</span>
                             </div>
                           </td>
                           <td className="p-4 md:p-6 font-black text-yellow-500 text-[10px] md:text-xs">{news.currency}</td>
@@ -318,10 +353,12 @@ const AITradingBot = () => {
               <CardContent className="p-6 md:p-8 space-y-6">
                 {analysis && (
                   <>
-                    <div className="p-4 rounded-xl md:rounded-2xl bg-yellow-500/5 border border-yellow-500/10">
+                    <div className={`p-4 rounded-xl md:rounded-2xl border ${analysis.recommendation === 'Stop' ? 'bg-orange-500/5 border-orange-500/20' : 'bg-yellow-500/5 border-yellow-500/10'}`}>
                       <div className="flex items-center gap-2 mb-3">
-                        <Lightbulb className="w-4 h-4 text-yellow-500" />
-                        <span className="text-[9px] md:text-[10px] font-black text-yellow-500 uppercase tracking-widest">{t('aibot.expertTip')}</span>
+                        {analysis.recommendation === 'Stop' ? <AlertTriangle className="w-4 h-4 text-orange-500" /> : <Lightbulb className="w-4 h-4 text-yellow-500" />}
+                        <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest ${analysis.recommendation === 'Stop' ? 'text-orange-500' : 'text-yellow-500'}`}>
+                          {analysis.recommendation === 'Stop' ? 'CRITICAL SAFETY ADVICE' : t('aibot.expertTip')}
+                        </span>
                       </div>
                       <p className="text-[11px] md:text-xs text-gray-300 leading-relaxed italic">"{analysis.aiReasoning.advice}"</p>
                     </div>
@@ -356,7 +393,7 @@ const AITradingBot = () => {
                 <CardTitle className="text-lg md:text-xl font-black uppercase tracking-tight">{t('aibot.tradeLevels').split(' ')[0]} <span className="text-yellow-500">{t('aibot.tradeLevels').split(' ').slice(1).join(' ')}</span></CardTitle>
               </CardHeader>
               <CardContent className="p-6 md:p-8 space-y-4">
-                {analysis && analysis.isStrict ? (
+                {analysis && analysis.isStrict && analysis.recommendation !== 'Stop' ? (
                   <>
                     <div className="p-4 rounded-xl md:rounded-2xl bg-white/[0.02] border border-white/5 flex justify-between items-center">
                       <div><p className="text-[7px] md:text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1">Entry Price</p><p className="text-base md:text-lg font-black text-white">{analysis.levels.entry.toFixed(selectedAsset.includes('JPY') ? 2 : 4)}</p></div>
@@ -372,10 +409,14 @@ const AITradingBot = () => {
                     </div>
                   </>
                 ) : (
-                  <div className="p-6 rounded-2xl md:rounded-3xl bg-yellow-500/5 border border-yellow-500/10 text-center">
-                    <Lock className="w-6 md:w-8 h-6 md:h-8 text-yellow-500 mx-auto mb-4" />
-                    <p className="text-[10px] md:text-xs font-black uppercase tracking-widest text-yellow-500 mb-2">{t('aibot.signalLocked')}</p>
-                    <p className="text-[9px] md:text-[10px] text-gray-500 leading-relaxed">{t('aibot.waitingConditions')}</p>
+                  <div className={`p-6 rounded-2xl md:rounded-3xl border text-center ${analysis?.recommendation === 'Stop' ? 'bg-orange-500/5 border-orange-500/10' : 'bg-yellow-500/5 border-yellow-500/10'}`}>
+                    {analysis?.recommendation === 'Stop' ? <AlertTriangle className="w-6 md:w-8 h-6 md:h-8 text-orange-500 mx-auto mb-4 animate-pulse" /> : <Lock className="w-6 md:w-8 h-6 md:h-8 text-yellow-500 mx-auto mb-4" />}
+                    <p className={`text-[10px] md:text-xs font-black uppercase tracking-widest mb-2 ${analysis?.recommendation === 'Stop' ? 'text-orange-500' : 'text-yellow-500'}`}>
+                      {analysis?.recommendation === 'Stop' ? 'TRADING HALTED' : t('aibot.signalLocked')}
+                    </p>
+                    <p className="text-[9px] md:text-[10px] text-gray-500 leading-relaxed">
+                      {analysis?.recommendation === 'Stop' ? 'High-impact news detected. Trading is disabled for safety.' : t('aibot.waitingConditions')}
+                    </p>
                   </div>
                 )}
               </CardContent>
