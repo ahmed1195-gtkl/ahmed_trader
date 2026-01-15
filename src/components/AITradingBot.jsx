@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import Header from './Header';
 import Footer from './Footer';
 
-// Version 3.6.0 - Timeframe Integration & Design Preservation
+// Version 3.6.1 - Price Logic Correction & Design Preservation
 const AITradingBot = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
@@ -78,7 +78,8 @@ const AITradingBot = () => {
       const chartData = [];
       for (let i = 0; i < 30; i++) {
         const pointSeed = seed + i;
-        const pointPrice = currentPrice + (Math.sin(pointSeed) * (currentPrice * 0.003));
+        // Corrected price generation to avoid "flipped" look
+        const pointPrice = currentPrice + (Math.sin(pointSeed * 0.5) * (currentPrice * 0.002));
         chartData.push({ time: i, price: pointPrice });
       }
 
@@ -146,7 +147,7 @@ const AITradingBot = () => {
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-4 md:mb-6 leading-none">
             {t('aibot.title') ? t('aibot.title').split(' ')[0] : 'AI'} <span className="text-yellow-500">{t('aibot.title') ? t('aibot.title').split(' ').slice(1).join(' ') : 'Trading Bot'}</span>
           </motion.h1>
-          <p className="text-gray-500 text-[10px] md:text-xs uppercase tracking-widest mt-2">Source: TradingView | V3.6.0 Multi-Timeframe Analysis</p>
+          <p className="text-gray-500 text-[10px] md:text-xs uppercase tracking-widest mt-2">Source: TradingView | V3.6.1 Multi-Timeframe Analysis</p>
         </div>
 
         <div className="flex flex-col items-center gap-6 mb-8 md:mb-12">
@@ -358,15 +359,15 @@ const AITradingBot = () => {
                 {analysis && analysis.isStrict ? (
                   <>
                     <div className="p-4 rounded-xl md:rounded-2xl bg-white/[0.02] border border-white/5 flex justify-between items-center">
-                      <div><p className="text-[7px] md:text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1">Entry Price</p><p className="text-base md:text-lg font-black text-white">{analysis.levels.entry.toFixed(4)}</p></div>
+                      <div><p className="text-[7px] md:text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1">Entry Price</p><p className="text-base md:text-lg font-black text-white">{analysis.levels.entry.toFixed(selectedAsset.includes('JPY') ? 2 : 4)}</p></div>
                       <Target className="w-5 h-5 text-white/20" />
                     </div>
                     <div className="p-4 rounded-xl md:rounded-2xl bg-green-500/5 border border-green-500/10 flex justify-between items-center">
-                      <div><p className="text-[7px] md:text-[8px] font-black text-green-500 uppercase tracking-widest mb-1">Take Profit</p><p className="text-base md:text-lg font-black text-green-500">{analysis.levels.tp.toFixed(4)}</p></div>
+                      <div><p className="text-[7px] md:text-[8px] font-black text-green-500 uppercase tracking-widest mb-1">Take Profit</p><p className="text-base md:text-lg font-black text-green-500">{analysis.levels.tp.toFixed(selectedAsset.includes('JPY') ? 2 : 4)}</p></div>
                       <ArrowUpRight className="w-5 h-5 text-green-500/50" />
                     </div>
                     <div className="p-4 rounded-xl md:rounded-2xl bg-red-500/5 border border-red-500/10 flex justify-between items-center">
-                      <div><p className="text-[7px] md:text-[8px] font-black text-red-500 uppercase tracking-widest mb-1">Stop Loss</p><p className="text-base md:text-lg font-black text-red-500">{analysis.levels.sl.toFixed(4)}</p></div>
+                      <div><p className="text-[7px] md:text-[8px] font-black text-red-500 uppercase tracking-widest mb-1">Stop Loss</p><p className="text-base md:text-lg font-black text-red-500">{analysis.levels.sl.toFixed(selectedAsset.includes('JPY') ? 2 : 4)}</p></div>
                       <ArrowDownRight className="w-5 h-5 text-red-500/50" />
                     </div>
                   </>
