@@ -40,8 +40,8 @@ const AITradingBot = () => {
 
   const timeframes = [
     { label: '15M', value: '15' },
-    { label: '1H', value: '60' },
-    { label: '4H', value: '240' },
+    { label: '1H', value: 'H' },
+    { label: '4H', value: '4H' },
     { label: '1D', value: 'D' }
   ];
 
@@ -352,7 +352,7 @@ const AITradingBot = () => {
                           <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-gray-500">TradingView Official Terminal</span>
                         </div>
                         <iframe 
-                          src={`https://s.tradingview.com/widgetembed/?frameElementId=tradingview_76d4d&symbol=${currentAsset.tvSymbol}&interval=${currentTimeframe.value}&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=[]&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides={}&overrides={}&enabled_features=[]&disabled_features=[]&locale=ar&utm_source=localhost&utm_medium=widget&utm_campaign=chart&utm_term=${currentAsset.tvSymbol}`}
+                          src={`https://s.tradingview.com/widgetembed/?frameElementId=tradingview_76d4d&symbol=${currentAsset.tvSymbol}&interval=${currentTimeframe.value}&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=[]&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides={}&overrides={}&enabled_features=[]&disabled_features=[]&locale=ar&utm_source=www.tradingview.com&utm_medium=widget&utm_campaign=chart&utm_term=${currentAsset.tvSymbol}`}
                           style={{ width: '100%', height: '100%', border: 'none' }}
                           title="TradingView Chart"
                         />
