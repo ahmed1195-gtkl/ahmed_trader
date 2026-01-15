@@ -17,7 +17,8 @@ import {
   Video,
   Home,
   Bell,
-  AlertTriangle
+  AlertTriangle,
+  Zap
 } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
@@ -90,6 +91,7 @@ const Header = () => {
   const navLinks = [
     { name: t('nav.home'), path: '/', icon: <Home className="w-4 h-4" /> },
     { name: t('nav.news'), path: '/news', icon: <Newspaper className="w-4 h-4" /> },
+    { name: 'AI Bot', path: '/ai-bot', icon: <Zap className="w-4 h-4" /> },
   ];
 
   const changeLanguage = (code) => {

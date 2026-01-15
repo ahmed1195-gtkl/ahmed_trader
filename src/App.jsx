@@ -21,6 +21,7 @@ import Feed from './components/Feed';
 import AdminDashboard from './components/AdminDashboard';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import ResetPassword from './components/ResetPassword';
+import AITradingBot from './components/AITradingBot';
 import CookieConsent from './components/CookieConsent';
 import './App.css';
 
@@ -182,6 +183,7 @@ function App() {
                 <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/" />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/ai-bot" element={<AITradingBot />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </div>
