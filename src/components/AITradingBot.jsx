@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import Header from './Header';
 import Footer from './Footer';
 
-// Version 3.0.0 - Advanced AI Intelligence (SMC, ICT, SK)
+// Version 3.1.0 - Final Tag Closure & AI Stability
 const AITradingBot = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
@@ -52,7 +52,6 @@ const AITradingBot = () => {
       const tp = isBullish ? entry * 1.04 : entry * 0.96;
       const sl = isBullish ? entry * 0.98 : entry * 1.02;
 
-      // منطق الذكاء الاصطناعي لمدارس التداول
       const aiReasoning = isBullish ? {
         smc: "تم رصد كسر في هيكل السوق (BOS) مع وجود منطقة طلب (Order Block) قوية عند مستويات الدعم الحالية. السيولة تم سحبها من القيعان السابقة مما يعزز الصعود.",
         ict: "نلاحظ وجود فجوة سعرية (Fair Value Gap) لم يتم ملؤها بعد، مع دخول السعر في منطقة الـ Kill Zone الخاصة بلندن، مما يشير إلى اندفاع شرائي وشيك.",
@@ -105,7 +104,7 @@ const AITradingBot = () => {
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-6 leading-none">
             {t('aibot.title') ? t('aibot.title').split(' ')[0] : 'AI'} <span className="text-yellow-500">{t('aibot.title') ? t('aibot.title').split(' ').slice(1).join(' ') : 'Trading Bot'}</span>
           </motion.h1>
-          <p className="text-gray-500 text-xs uppercase tracking-widest mt-2">AI Brain Status: Online - SMC/ICT/SK Mastered</p>
+          <p className="text-gray-500 text-xs uppercase tracking-widest mt-2">AI Brain Status: Online - SMC/ICT/SK Mastered (V3.1.0)</p>
         </div>
 
         <div className="flex flex-wrap justify-center gap-4 mb-12">
@@ -126,7 +125,7 @@ const AITradingBot = () => {
             <CardHeader className="p-8 border-b border-white/5">
               <div className="flex justify-between items-center">
                 <CardTitle className="text-2xl font-black uppercase tracking-tight">
-                  {t('aibot.verdict') ? t('aibot.verdict').split(' ')[0] : 'Market'} <span className="text-yellow-500">{t('aibot.verdict') ? t('aibot.verdict').split(' ').slice(1).join(' ')}</span>
+                  {t('aibot.verdict') ? t('aibot.verdict').split(' ')[0] : 'Market'} <span className="text-yellow-500">{t('aibot.verdict') ? t('aibot.verdict').split(' ').slice(1).join(' ') : ''}</span>
                 </CardTitle>
                 {analysis && (
                   <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10">
@@ -158,7 +157,6 @@ const AITradingBot = () => {
                       </div>
                     </div>
 
-                    {/* الشارت الأول - AI Prediction Chart */}
                     <div className="w-full h-[350px] bg-black/40 rounded-3xl p-4 border border-white/5">
                       <div className="flex items-center gap-2 mb-4 px-2">
                         <TrendingUp className="w-4 h-4 text-yellow-500" />
@@ -188,7 +186,6 @@ const AITradingBot = () => {
                       </ResponsiveContainer>
                     </div>
 
-                    {/* شارت TradingView - Official Terminal */}
                     <div className="w-full h-[500px] bg-zinc-950 rounded-3xl overflow-hidden border border-white/5">
                       <div className="flex items-center gap-2 p-4 bg-zinc-900/50 border-b border-white/5">
                         <BarChart3 className="w-4 h-4 text-yellow-500" />
