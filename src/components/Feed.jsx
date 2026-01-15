@@ -132,6 +132,28 @@ const Feed = () => {
     }
   };
 
+  const renderTextWithLinks = (text) => {
+    if (!text) return null;
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    return parts.map((part, i) => {
+      if (part.match(urlRegex)) {
+        return (
+          <a 
+            key={i} 
+            href={part} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="text-yellow-500 hover:underline break-all"
+          >
+            {part}
+          </a>
+        );
+      }
+      return part;
+    });
+  };
+
   return (
     <section className="py-12 md:py-20 relative bg-black min-h-screen">
       <div className="container mx-auto px-4 max-w-3xl">
@@ -231,7 +253,9 @@ const Feed = () => {
                   </CardHeader>
                   
                   <CardContent className="px-6 pb-6">
-                    <p className="text-gray-300 leading-relaxed whitespace-pre-wrap mb-6 font-medium">{post.text}</p>
+                    <p className="text-gray-300 leading-relaxed whitespace-pre-wrap mb-6 font-medium">
+                      {renderTextWithLinks(post.text)}
+                    </p>
                     {post.image && (
                       <div className="w-full rounded-3xl overflow-hidden bg-black border border-white/5">
                         {post.mediaType === 'video' ? (
@@ -285,7 +309,9 @@ const Feed = () => {
                             </div>
                             <div className="flex-1">
                               <p className="text-[10px] font-black text-white uppercase tracking-tight mb-0.5">{comment.userName}</p>
-                              <p className="text-xs text-gray-400 leading-relaxed">{comment.text}</p>
+                              <p className="text-xs text-gray-400 leading-relaxed">
+                                {renderTextWithLinks(comment.text)}
+                              </p>
                             </div>
                           </div>
                         ))}
