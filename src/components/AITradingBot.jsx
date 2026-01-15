@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   TrendingUp, TrendingDown, AlertCircle, Activity, 
@@ -12,6 +13,7 @@ import Header from './Header';
 import Footer from './Footer';
 
 const AITradingBot = () => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState(null);
   const [selectedAsset, setSelectedAsset] = useState('BTC/USDT');
