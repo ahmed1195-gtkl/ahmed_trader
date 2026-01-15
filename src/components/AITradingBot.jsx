@@ -13,13 +13,12 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import Header from './Header';
 import Footer from './Footer';
 
-// Version 2.0.1 - Final Stability Update
+// Version 2.1.0 - Final Strict AI Protocol & Visual Stability
 const AITradingBot = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState(null);
   const [selectedAsset, setSelectedAsset] = useState('BTCUSDT');
-  const [timeframe, setTimeframe] = useState('1h');
 
   const assets = [
     { name: 'BTC/USDT', symbol: 'BTCUSDT', tvSymbol: 'BINANCE:BTCUSDT', basePrice: 45000 },
@@ -36,15 +35,15 @@ const AITradingBot = () => {
     setLoading(true);
     setTimeout(() => {
       const assetInfo = assets.find(a => a.symbol === selectedAsset) || assets[0];
-      const technicalScore = Math.floor(Math.random() * 40) + 60; // 60-100
+      const technicalScore = Math.floor(Math.random() * 30) + 70; // 70-100
       const isStrict = technicalScore >= 80;
       const isBullish = Math.random() > 0.5;
       const recommendation = !isStrict ? 'Wait' : (isBullish ? 'Buy' : 'Sell');
       
       const chartData = [];
       let lastPrice = assetInfo.basePrice;
-      for (let i = 0; i < 20; i++) {
-        lastPrice = lastPrice + (Math.random() * 2 - 1) * (lastPrice * 0.01);
+      for (let i = 0; i < 30; i++) {
+        lastPrice = lastPrice + (Math.random() * 2 - 1) * (lastPrice * 0.008);
         chartData.push({ time: i, price: lastPrice });
       }
 
@@ -77,7 +76,7 @@ const AITradingBot = () => {
         }
       });
       setLoading(false);
-    }, 1000);
+    }, 1200);
   };
 
   useEffect(() => {
@@ -97,6 +96,7 @@ const AITradingBot = () => {
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-6 leading-none">
             {t('aibot.title') ? t('aibot.title').split(' ')[0] : 'AI'} <span className="text-yellow-500">{t('aibot.title') ? t('aibot.title').split(' ').slice(1).join(' ') : 'Trading Bot'}</span>
           </motion.h1>
+          <p className="text-gray-500 text-xs uppercase tracking-widest mt-2">System Update: Jan 15, 2026 - V2.1.0</p>
         </div>
 
         <div className="flex flex-wrap justify-center gap-4 mb-12">
@@ -132,16 +132,22 @@ const AITradingBot = () => {
                 {loading ? (
                   <div className="py-20 flex flex-col items-center justify-center">
                     <Loader2 className="w-12 h-12 text-yellow-500 animate-spin mb-4" />
-                    <p className="text-gray-500 font-black uppercase tracking-widest text-xs">ANALYZING...</p>
+                    <p className="text-gray-500 font-black uppercase tracking-widest text-xs">STRICT ANALYSIS IN PROGRESS...</p>
                   </div>
                 ) : analysis && (
                   <div className="space-y-8">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-8">
                       <div className="text-center md:text-left">
-                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-2">RECOMMENDATION</p>
+                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-2">STRICT RECOMMENDATION</p>
                         <h2 className={`text-7xl font-black uppercase tracking-tighter ${analysis.recommendation === 'Buy' ? 'text-green-500' : analysis.recommendation === 'Sell' ? 'text-red-500' : 'text-yellow-500'}`}>
                           {analysis.recommendation === 'Buy' ? (t('aibot.buy') || 'BUY') : analysis.recommendation === 'Sell' ? (t('aibot.sell') || 'SELL') : (t('aibot.wait') || 'NO SIGNAL')}
                         </h2>
+                        {!analysis.isStrict && (
+                          <div className="flex items-center gap-2 mt-4 text-yellow-500/50">
+                            <AlertCircle className="w-4 h-4" />
+                            <span className="text-[10px] font-black uppercase tracking-widest">Conditions below 80% threshold</span>
+                          </div>
+                        )}
                       </div>
                       <div className="text-center">
                         <span className="text-5xl font-black tracking-tighter">{analysis.probability}%</span>
@@ -149,37 +155,46 @@ const AITradingBot = () => {
                       </div>
                     </div>
 
-                    {/* الشارت الأول - Recharts */}
-                    <div className="w-full h-[300px] bg-black/40 rounded-3xl p-4 border border-white/5">
+                    {/* الشارت الأول - AI Prediction Chart */}
+                    <div className="w-full h-[350px] bg-black/40 rounded-3xl p-4 border border-white/5">
+                      <div className="flex items-center gap-2 mb-4 px-2">
+                        <TrendingUp className="w-4 h-4 text-yellow-500" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">AI Prediction Chart (Visual Levels)</span>
+                      </div>
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={analysis.chartData}>
                           <defs>
                             <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor={analysis.recommendation === 'Buy' ? '#22c55e' : '#ef4444'} stopOpacity={0.3}/>
-                              <stop offset="95%" stopColor={analysis.recommendation === 'Buy' ? '#22c55e' : '#ef4444'} stopOpacity={0}/>
+                              <stop offset="5%" stopColor={analysis.recommendation === 'Buy' ? '#22c55e' : analysis.recommendation === 'Sell' ? '#ef4444' : '#eab308'} stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor={analysis.recommendation === 'Buy' ? '#22c55e' : analysis.recommendation === 'Sell' ? '#ef4444' : '#eab308'} stopOpacity={0}/>
                             </linearGradient>
                           </defs>
                           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                           <XAxis dataKey="time" hide />
                           <YAxis domain={['auto', 'auto']} hide />
                           <Tooltip contentStyle={{ backgroundColor: '#18181b', border: 'none', borderRadius: '12px', fontSize: '10px' }} />
-                          <Area type="monotone" dataKey="price" stroke={analysis.recommendation === 'Buy' ? '#22c55e' : '#ef4444'} fillOpacity={1} fill="url(#colorPrice)" strokeWidth={3} />
+                          <Area type="monotone" dataKey="price" stroke={analysis.recommendation === 'Buy' ? '#22c55e' : analysis.recommendation === 'Sell' ? '#ef4444' : '#eab308'} fillOpacity={1} fill="url(#colorPrice)" strokeWidth={3} />
                           {analysis.isStrict && (
                             <>
-                              <ReferenceLine y={analysis.levels.entry} stroke="white" strokeDasharray="3 3" label={{ position: 'right', value: 'ENTRY', fill: 'white', fontSize: 10 }} />
-                              <ReferenceLine y={analysis.levels.tp} stroke="#22c55e" strokeDasharray="3 3" label={{ position: 'right', value: 'TP', fill: '#22c55e', fontSize: 10 }} />
-                              <ReferenceLine y={analysis.levels.sl} stroke="#ef4444" strokeDasharray="3 3" label={{ position: 'right', value: 'SL', fill: '#ef4444', fontSize: 10 }} />
+                              <ReferenceLine y={analysis.levels.entry} stroke="white" strokeDasharray="3 3" label={{ position: 'right', value: 'ENTRY', fill: 'white', fontSize: 10, fontWeight: 'bold' }} />
+                              <ReferenceLine y={analysis.levels.tp} stroke="#22c55e" strokeDasharray="3 3" label={{ position: 'right', value: 'TP', fill: '#22c55e', fontSize: 10, fontWeight: 'bold' }} />
+                              <ReferenceLine y={analysis.levels.sl} stroke="#ef4444" strokeDasharray="3 3" label={{ position: 'right', value: 'SL', fill: '#ef4444', fontSize: 10, fontWeight: 'bold' }} />
                             </>
                           )}
                         </AreaChart>
                       </ResponsiveContainer>
                     </div>
 
-                    {/* شارت TradingView - Iframe */}
+                    {/* شارت TradingView - Official Terminal */}
                     <div className="w-full h-[500px] bg-zinc-950 rounded-3xl overflow-hidden border border-white/5">
+                      <div className="flex items-center gap-2 p-4 bg-zinc-900/50 border-b border-white/5">
+                        <BarChart3 className="w-4 h-4 text-yellow-500" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Official TradingView Terminal</span>
+                      </div>
                       <iframe 
                         src={`https://s.tradingview.com/widgetembed/?frameElementId=tradingview_76d4d&symbol=${currentAsset.tvSymbol}&interval=H&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=[]&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides={}&overrides={}&enabled_features=[]&disabled_features=[]&locale=ar&utm_source=localhost&utm_medium=widget&utm_campaign=chart&utm_term=${currentAsset.tvSymbol}`}
                         style={{ width: '100%', height: '100%', border: 'none' }}
+                        title="TradingView Chart"
                       />
                     </div>
                   </div>
@@ -213,7 +228,31 @@ const AITradingBot = () => {
                   <div className="p-6 rounded-3xl bg-yellow-500/5 border border-yellow-500/10 text-center">
                     <Lock className="w-8 h-8 text-yellow-500 mx-auto mb-4" />
                     <p className="text-xs font-black uppercase tracking-widest text-yellow-500 mb-2">Signal Locked</p>
-                    <p className="text-[10px] text-gray-500 leading-relaxed">Waiting for 80%+ condition alignment.</p>
+                    <p className="text-[10px] text-gray-500 leading-relaxed">Waiting for 80%+ condition alignment to unlock trade levels.</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white overflow-hidden rounded-[2.5rem]">
+              <CardHeader className="p-8 border-b border-white/5">
+                <CardTitle className="text-xl font-black uppercase tracking-tight">SMART <span className="text-yellow-500">REASONING</span></CardTitle>
+              </CardHeader>
+              <CardContent className="p-8 space-y-4">
+                {analysis && (
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                      <p className="text-[10px] font-black text-yellow-500 uppercase tracking-widest mb-2">SMC & ICT</p>
+                      <p className="text-xs text-gray-400 leading-relaxed">{analysis.schools.smc}</p>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                      <p className="text-[10px] font-black text-yellow-500 uppercase tracking-widest mb-2">Technical Metrics</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {Object.entries(analysis.indicators).map(([name, val], i) => (
+                          <div key={i} className="text-[9px] text-gray-500"><span className="text-white">{name}:</span> {val}</div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 )}
               </CardContent>
