@@ -5,7 +5,7 @@ import {
   TrendingUp, TrendingDown, Activity, 
   Zap, RefreshCw, BrainCircuit, Lock,
   Newspaper, ShieldCheck, Loader2, CheckCircle2, Layers,
-  Target, ArrowUpRight, ArrowDownRight
+  Target, ArrowUpRight, ArrowDownRight, BarChart3
 } from 'lucide-react';
 import { createChart } from 'lightweight-charts';
 import { Button } from './ui/button';
@@ -19,9 +19,9 @@ const AITradingBot = () => {
   const [analysis, setAnalysis] = useState(null);
   const [selectedAsset, setSelectedAsset] = useState('BINANCE:BTCUSDT');
   const [timeframe, setTimeframe] = useState('60');
-  const tvContainerRef = useRef();
-  const areaChartContainerRef = useRef();
-  const areaChartRef = useRef();
+  const tvContainerRef = useRef(null);
+  const areaChartContainerRef = useRef(null);
+  const areaChartRef = useRef(null);
 
   const assets = [
     { name: 'BTC/USDT', symbol: 'BINANCE:BTCUSDT', basePrice: 45000 },
@@ -42,7 +42,6 @@ const AITradingBot = () => {
       const prob = Math.floor(Math.random() * 25) + 70;
       const recommendation = isBullish ? 'Buy' : 'Sell';
       
-      // توليد بيانات الشارت الأول (Area Chart)
       const candleData = [];
       let lastClose = assetInfo.basePrice;
       const now = Math.floor(Date.now() / 1000);
@@ -53,7 +52,6 @@ const AITradingBot = () => {
         lastClose = value;
       }
 
-      // حدود الصفقات
       const entry = lastClose;
       const tp = isBullish ? entry * 1.05 : entry * 0.95;
       const sl = isBullish ? entry * 0.97 : entry * 1.03;
@@ -89,10 +87,11 @@ const AITradingBot = () => {
     runAdvancedAIAnalysis();
   }, [selectedAsset, timeframe]);
 
-  // إعداد الشارت الأول (Area Chart)
   useEffect(() => {
     if (analysis && areaChartContainerRef.current) {
-      if (areaChartRef.current) areaChartRef.current.remove();
+      if (areaChartRef.current) {
+        areaChartRef.current.remove();
+      }
 
       const chart = createChart(areaChartContainerRef.current, {
         layout: { backgroundColor: 'transparent', textColor: '#a1a1aa' },
@@ -114,7 +113,11 @@ const AITradingBot = () => {
       chart.timeScale().fitContent();
       areaChartRef.current = chart;
 
-      const handleResize = () => chart.applyOptions({ width: areaChartContainerRef.current.clientWidth });
+      const handleResize = () => {
+        if (areaChartContainerRef.current) {
+          chart.applyOptions({ width: areaChartContainerRef.current.clientWidth });
+        }
+      };
       window.addEventListener('resize', handleResize);
       return () => {
         window.removeEventListener('resize', handleResize);
@@ -123,7 +126,6 @@ const AITradingBot = () => {
     }
   }, [analysis]);
 
-  // إعداد شارت TradingView الرسمي
   useEffect(() => {
     if (tvContainerRef.current) {
       tvContainerRef.current.innerHTML = '';
@@ -160,7 +162,7 @@ const AITradingBot = () => {
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[10px] font-black uppercase tracking-[0.2em] mb-6"
           >
-            <Zap className="w-3 h-3" /> {t('aibot.powered')}
+            <Zap className="w-3 h-3" /> {t('aibot.powered') || 'AI POWERED TRADING'}
           </motion.div>
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
@@ -176,7 +178,7 @@ const AITradingBot = () => {
             transition={{ delay: 0.2 }}
             className="text-gray-500 max-w-2xl mx-auto text-lg leading-relaxed"
           >
-            {t('aibot.subtitle')}
+            {t('aibot.subtitle') || 'Advanced market analysis using multiple technical indicators.'}
           </motion.p>
         </div>
 
@@ -208,7 +210,7 @@ const AITradingBot = () => {
             disabled={loading}
             className="bg-yellow-500 hover:bg-yellow-600 text-black h-14 px-8 rounded-2xl font-black uppercase tracking-widest"
           >
-            {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : t('aibot.refresh')}
+            {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : (t('aibot.refresh') || 'REFRESH')}
           </Button>
         </div>
 
@@ -227,7 +229,7 @@ const AITradingBot = () => {
                     </div>
                   )}
                   <div className="flex items-center gap-2 text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                    <Activity className="w-4 h-4 text-yellow-500" /> {t('aibot.live')}
+                    <Activity className="w-4 h-4 text-yellow-500" /> {t('aibot.live') || 'LIVE'}
                   </div>
                 </div>
               </div>
@@ -243,7 +245,7 @@ const AITradingBot = () => {
                     className="py-20 flex flex-col items-center justify-center"
                   >
                     <Loader2 className="w-12 h-12 text-yellow-500 animate-spin mb-4" />
-                    <p className="text-gray-500 font-black uppercase tracking-widest text-xs">{t('aibot.processing')}</p>
+                    <p className="text-gray-500 font-black uppercase tracking-widest text-xs">{t('aibot.processing') || 'PROCESSING...'}</p>
                   </motion.div>
                 ) : analysis && (
                   <motion.div
@@ -254,9 +256,9 @@ const AITradingBot = () => {
                   >
                     <div className="flex flex-col md:flex-row items-center justify-between gap-8">
                       <div className="text-center md:text-left">
-                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-2">{t('aibot.recommendation')}</p>
+                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-2">{t('aibot.recommendation') || 'RECOMMENDATION'}</p>
                         <h2 className={`text-7xl font-black uppercase tracking-tighter ${analysis.recommendation === 'Buy' ? 'text-green-500' : analysis.recommendation === 'Sell' ? 'text-red-500' : 'text-yellow-500'}`}>
-                          {analysis.recommendation === 'Buy' ? t('aibot.buy') : analysis.recommendation === 'Sell' ? t('aibot.sell') : t('aibot.wait')}
+                          {analysis.recommendation === 'Buy' ? (t('aibot.buy') || 'BUY') : analysis.recommendation === 'Sell' ? (t('aibot.sell') || 'SELL') : (t('aibot.wait') || 'WAIT')}
                         </h2>
                       </div>
                       <div className="relative w-40 h-40 flex items-center justify-center">
@@ -271,12 +273,11 @@ const AITradingBot = () => {
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
                           <span className="text-3xl font-black tracking-tighter">{analysis.probability}%</span>
-                          <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.probability')}</span>
+                          <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.probability') || 'PROBABILITY'}</span>
                         </div>
                       </div>
                     </div>
 
-                    {/* الشارت الأول (Area Chart) */}
                     <div className="w-full bg-black/40 rounded-3xl p-4 border border-white/5 overflow-hidden">
                       <div className="flex items-center gap-2 mb-4 px-2">
                         <TrendingUp className="w-4 h-4 text-yellow-500" />
@@ -285,7 +286,6 @@ const AITradingBot = () => {
                       <div ref={areaChartContainerRef} className="w-full" />
                     </div>
 
-                    {/* شارت TradingView الرسمي */}
                     <div className="w-full h-[500px] bg-zinc-950 rounded-3xl overflow-hidden border border-white/5">
                       <div className="flex items-center gap-2 p-4 bg-zinc-900/50 border-b border-white/5">
                         <BarChart3 className="w-4 h-4 text-yellow-500" />
@@ -297,7 +297,7 @@ const AITradingBot = () => {
                     <div className="bg-yellow-500/5 border border-yellow-500/10 p-6 rounded-3xl">
                       <div className="flex items-center gap-3 mb-4">
                         <BrainCircuit className="w-5 h-5 text-yellow-500" />
-                        <h4 className="text-xs font-black uppercase tracking-widest text-yellow-500">{t('aibot.smartReasoning')}</h4>
+                        <h4 className="text-xs font-black uppercase tracking-widest text-yellow-500">{t('aibot.smartReasoning') || 'SMART REASONING'}</h4>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
@@ -321,10 +321,10 @@ const AITradingBot = () => {
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {[
-                        { label: t('aibot.trend'), value: analysis.trend === 'Upward' ? t('aibot.upward') : t('aibot.downward'), icon: analysis.trend === 'Upward' ? TrendingUp : TrendingDown, color: analysis.trend === 'Upward' ? 'text-green-500' : 'text-red-500' },
-                        { label: t('aibot.sentiment'), value: analysis.sentiment === 'positive' ? t('aibot.positive') : t('aibot.negative'), icon: Newspaper, color: analysis.sentiment === 'positive' ? 'text-green-500' : 'text-red-500' },
-                        { label: t('aibot.confidence'), value: `${analysis.confidence}%`, icon: ShieldCheck, color: 'text-blue-500' },
-                        { label: t('aibot.lastUpdate'), value: analysis.timestamp, icon: RefreshCw, color: 'text-yellow-500' },
+                        { label: t('aibot.trend') || 'Trend', value: analysis.trend === 'Upward' ? (t('aibot.upward') || 'Upward') : (t('aibot.downward') || 'Downward'), icon: analysis.trend === 'Upward' ? TrendingUp : TrendingDown, color: analysis.trend === 'Upward' ? 'text-green-500' : 'text-red-500' },
+                        { label: t('aibot.sentiment') || 'Sentiment', value: analysis.sentiment === 'positive' ? (t('aibot.positive') || 'Positive') : (t('aibot.negative') || 'Negative'), icon: Newspaper, color: analysis.sentiment === 'positive' ? 'text-green-500' : 'text-red-500' },
+                        { label: t('aibot.confidence') || 'Confidence', value: `${analysis.confidence}%`, icon: ShieldCheck, color: 'text-blue-500' },
+                        { label: t('aibot.lastUpdate') || 'Last Update', value: analysis.timestamp, icon: RefreshCw, color: 'text-yellow-500' },
                       ].map((item, i) => (
                         <div key={i} className="bg-white/[0.02] border border-white/5 p-4 rounded-2xl">
                           <item.icon className={`w-4 h-4 mb-3 ${item.color}`} />
@@ -343,7 +343,7 @@ const AITradingBot = () => {
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white overflow-hidden rounded-[2.5rem]">
               <CardHeader className="p-8 border-b border-white/5">
                 <CardTitle className="text-xl font-black uppercase tracking-tight">
-                  {t('aibot.metrics') ? t('aibot.metrics').split(' ')[0] : 'Technical'} <span className="text-yellow-500">{t('aibot.metrics') ? t('aibot.metrics').split(' ').slice(1).join(' ') : 'Metrics'}</span>
+                  {t('aibot.metrics') ? t('aibot.metrics').split(' ')[0] : 'Technical'} <span className="text-yellow-500">{t('aibot.metrics') ? t('aibot.metrics').split(' ').slice(1).join(' ')}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-8 space-y-4">
@@ -400,9 +400,9 @@ const AITradingBot = () => {
 
         <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
-            { title: t('aibot.secure'), desc: t('aibot.secureDesc'), icon: ShieldCheck },
-            { title: t('aibot.validation'), desc: t('aibot.validationDesc'), icon: CheckCircle2 },
-            { title: t('aibot.multi'), desc: t('aibot.multiDesc'), icon: Layers },
+            { title: t('aibot.secure') || 'Secure APIs', desc: t('aibot.secureDesc') || 'Data fetched from verified sources.', icon: ShieldCheck },
+            { title: t('aibot.validation') || 'Data Validation', desc: t('aibot.validationDesc') || 'Real-time verification.', icon: CheckCircle2 },
+            { title: t('aibot.multi') || 'Multi-Timeframe', desc: t('aibot.multiDesc') || 'Analysis across multiple charts.', icon: Layers },
           ].map((feature, i) => (
             <div key={i} className="p-8 rounded-[2rem] bg-zinc-900/30 border border-white/5 hover:border-yellow-500/20 transition-all group">
               <feature.icon className="w-8 h-8 text-yellow-500 mb-6 group-hover:scale-110 transition-transform" />
