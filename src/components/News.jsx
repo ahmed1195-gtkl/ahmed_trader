@@ -123,23 +123,25 @@ const News = () => {
                   transition={{ delay: index * 0.05 }}
                   className="group bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-[2rem] overflow-hidden hover:border-yellow-500/30 transition-all duration-500 flex flex-col"
                 >
-                  <div className="aspect-[16/10] overflow-hidden relative">
-                    {item.mediaType === 'video' ? (
-                      <video src={item.thumbnail} className="w-full h-full object-cover" muted onMouseOver={e => e.target.play()} onMouseOut={e => e.target.pause()} />
-                    ) : item.mediaType === 'audio' ? (
-                      <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
-                        <div className="w-12 h-12 rounded-full bg-yellow-500 flex items-center justify-center">
-                          <Clock className="w-6 h-6 text-black" />
+                  <div className="relative p-4">
+                    <div className="aspect-[16/10] overflow-hidden relative rounded-2xl border border-white/5">
+                      {item.mediaType === 'video' ? (
+                        <video src={item.thumbnail} className="w-full h-full object-cover" muted onMouseOver={e => e.target.play()} onMouseOut={e => e.target.pause()} />
+                      ) : item.mediaType === 'audio' ? (
+                        <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+                          <div className="w-12 h-12 rounded-full bg-yellow-500 flex items-center justify-center">
+                            <Clock className="w-6 h-6 text-black" />
+                          </div>
                         </div>
-                      </div>
-                    ) : (
-                      <img 
-                        src={item.thumbnail || `https://images.unsplash.com/photo-1611974714024-462cd297c8aa?q=80&w=800&auto=format&fit=crop`} 
-                        alt=""
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-transparent opacity-60" />
+                      ) : (
+                        <img 
+                          src={item.thumbnail || `https://images.unsplash.com/photo-1611974714024-462cd297c8aa?q=80&w=800&auto=format&fit=crop`} 
+                          alt=""
+                          className="w-full h-full object-contain bg-black/20 group-hover:scale-105 transition-transform duration-700"
+                        />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 via-transparent to-transparent opacity-60" />
+                    </div>
                     <div className="absolute top-4 left-4 flex flex-col gap-2">
                       <div className="flex items-center gap-2 px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-lg border border-white/10">
                         <Clock className="w-3 h-3 text-yellow-500" />

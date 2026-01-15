@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button.jsx';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { collection, query, orderBy, limit, onSnapshot, doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
-import { Heart, MessageCircle, Share2, User, Clock, X } from 'lucide-react';
+import { collection, query, orderBy, limit, onSnapshot, doc, updateDoc, arrayUnion, arrayRemove, deleteDoc } from 'firebase/firestore';
+import { Heart, MessageCircle, Share2, User, Clock, X, Trash2 } from 'lucide-react';
 import CreatePost from './CreatePost';
 import Comments from './Comments';
 
@@ -17,10 +17,13 @@ const Hero = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedPost, setSelectedPost] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    const adminEmails = ['mchokri100@gmail.com', 'ahmed1195@gmail.com'];
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      setIsAdmin(currentUser && adminEmails.includes(currentUser.email?.toLowerCase()));
     });
 
     const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(10));
@@ -46,6 +49,17 @@ const Hero = () => {
     await updateDoc(postRef, {
       likes: isLiked ? arrayRemove(user.uid) : arrayUnion(user.uid)
     });
+  };
+
+  const handleDeletePost = async (postId) => {
+    if (window.confirm('Are you sure you want to delete this post?')) {
+      try {
+        await deleteDoc(doc(db, 'posts', postId));
+      } catch (error) {
+        console.error("Error deleting post:", error);
+        alert("Failed to delete post");
+      }
+    }
   };
 
   return (
@@ -124,12 +138,29 @@ const Hero = () => {
                     </div>
                   </div>
                 </div>
-                <span className="text-[10px] bg-white/5 px-2 py-1 rounded border border-white/10 text-gray-500 font-black">ID: {post.userNumericUID}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] bg-white/5 px-2 py-1 rounded border border-white/10 text-gray-500 font-black">ID: {post.userNumericUID}</span>
+                  {isAdmin && (
+                    <button 
+                      onClick={() => handleDeletePost(post.id)}
+                      className="p-2 text-gray-500 hover:text-red-500 transition-colors"
+                      title="Delete Post"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Post Image */}
-              <div className="aspect-video relative overflow-hidden">
-                <img src={post.imageUrl} alt="" className="w-full h-full object-cover" />
+              <div className="relative p-4">
+                <div className="relative rounded-[1.5rem] overflow-hidden border border-white/5 shadow-2xl">
+                  <img 
+                    src={post.imageUrl} 
+                    alt="" 
+                    className="w-full h-auto object-contain max-h-[500px] mx-auto bg-black/20" 
+                  />
+                </div>
               </div>
 
               {/* Post Content */}

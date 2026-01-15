@@ -29,13 +29,18 @@ const Header = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => setUser(currentUser));
+    const adminEmails = ['mchokri100@gmail.com', 'ahmed1195@gmail.com'];
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setIsAdmin(currentUser && adminEmails.includes(currentUser.email?.toLowerCase()));
+    });
     return () => {
       window.removeEventListener('scroll', handleScroll);
       unsubscribe();
@@ -94,16 +99,26 @@ const Header = () => {
             ))}
             
             {user && (
-              <div className="relative group">
-                <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 group-hover:text-yellow-500 transition-all">
-                  {t('nav.channels')} <ChevronDown className="w-3 h-3" />
-                </button>
-                <div className="absolute top-full right-0 mt-4 w-48 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                  {socialChannels.map((channel) => (
-                    <a key={channel.name} href={channel.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-all">
-                      {channel.icon} <span className="text-[10px] font-black uppercase tracking-widest">{channel.name}</span>
-                    </a>
-                  ))}
+              <div className="flex items-center gap-8">
+                {isAdmin && (
+                  <Link 
+                    to="/admin" 
+                    className={`text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:text-yellow-500 flex items-center gap-2 ${location.pathname === '/admin' ? 'text-yellow-500' : 'text-gray-400'}`}
+                  >
+                    <LayoutDashboard className="w-3 h-3" /> {t('nav.admin', 'Admin')}
+                  </Link>
+                )}
+                <div className="relative group">
+                  <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 group-hover:text-yellow-500 transition-all">
+                    {t('nav.channels')} <ChevronDown className="w-3 h-3" />
+                  </button>
+                  <div className="absolute top-full right-0 mt-4 w-48 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                    {socialChannels.map((channel) => (
+                      <a key={channel.name} href={channel.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-all">
+                        {channel.icon} <span className="text-[10px] font-black uppercase tracking-widest">{channel.name}</span>
+                      </a>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
@@ -178,6 +193,12 @@ const Header = () => {
                     {link.icon} <span className="text-xs font-black uppercase tracking-widest">{link.name}</span>
                   </Link>
                 ))}
+                
+                {isAdmin && (
+                  <Link to="/admin" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-4 p-4 rounded-xl border transition-all ${location.pathname === '/admin' ? 'bg-yellow-500 border-yellow-500 text-black' : 'bg-white/5 border-white/5 text-yellow-500 hover:border-white/10'}`}>
+                    <LayoutDashboard className="w-5 h-5" /> <span className="text-xs font-black uppercase tracking-widest">{t('nav.admin', 'Admin')}</span>
+                  </Link>
+                )}
                 
                 {user && (
                   <div className="mt-4 space-y-4">
