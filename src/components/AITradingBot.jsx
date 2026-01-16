@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import Header from './Header';
 import Footer from './Footer';
 
-// Version 5.0.0 - Advanced Confidence System, AI Learning & UX Pro Upgrade
+// Version 5.1.0 - Fixed TradingView Chart & Weekly Outlook + Confidence System
 const AITradingBot = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
@@ -27,7 +27,7 @@ const AITradingBot = () => {
   const [newsWarning, setNewsWarning] = useState(null);
   const [livePrice, setLivePrice] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [marketStatus, setMarketStatus] = useState('Stable'); // Stable, Volatile, Danger
+  const [marketStatus, setMarketStatus] = useState('Stable');
   const [performance, setPerformance] = useState({ winRate: 84.5, profitFactor: 2.4, totalTrades: 1240 });
   
   const priceIntervalRef = useRef(null);
@@ -52,15 +52,11 @@ const AITradingBot = () => {
     { label: '1D', value: 'D' }
   ];
 
-  // Real-time Clock
   useEffect(() => {
-    timeIntervalRef.current = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 10000);
+    timeIntervalRef.current = setInterval(() => setCurrentTime(new Date()), 10000);
     return () => clearInterval(timeIntervalRef.current);
   }, []);
 
-  // Real-time Price Connection
   useEffect(() => {
     if (wsRef.current) wsRef.current.close();
     const isCrypto = selectedAsset.includes('USDT');
@@ -119,7 +115,6 @@ const AITradingBot = () => {
       setNewsEvents(daily);
       setWeeklyNews(weekly);
       
-      // Update Market Status based on news
       const highImpactSoon = daily.some(n => n.impact === 'High' && Math.abs(n.raw - now) < 3600000);
       setMarketStatus(highImpactSoon ? 'Danger' : (daily.some(n => n.impact === 'Medium') ? 'Volatile' : 'Stable'));
       
@@ -136,16 +131,12 @@ const AITradingBot = () => {
   }, [fetchForexFactoryNews]);
 
   const calculateConfidence = (seed) => {
-    const trend = 15 + Math.floor(((Math.sin(seed) + 1) / 2) * 10); // 25%
-    const momentum = 15 + Math.floor(((Math.cos(seed + 1) + 1) / 2) * 10); // 25%
-    const volume = 10 + Math.floor(((Math.sin(seed + 2) + 1) / 2) * 5); // 15%
-    const mtf = 12 + Math.floor(((Math.cos(seed + 3) + 1) / 2) * 8); // 20%
-    const aiForecast = 10 + Math.floor(((Math.sin(seed + 4) + 1) / 2) * 5); // 15%
-    
-    return {
-      total: trend + momentum + volume + mtf + aiForecast,
-      breakdown: { trend, momentum, volume, mtf, aiForecast }
-    };
+    const trend = 15 + Math.floor(((Math.sin(seed) + 1) / 2) * 10);
+    const momentum = 15 + Math.floor(((Math.cos(seed + 1) + 1) / 2) * 10);
+    const volume = 10 + Math.floor(((Math.sin(seed + 2) + 1) / 2) * 5);
+    const mtf = 12 + Math.floor(((Math.cos(seed + 3) + 1) / 2) * 8);
+    const aiForecast = 10 + Math.floor(((Math.sin(seed + 4) + 1) / 2) * 5);
+    return { total: trend + momentum + volume + mtf + aiForecast, breakdown: { trend, momentum, volume, mtf, aiForecast } };
   };
 
   const runAdvancedAIAnalysis = useCallback(() => {
@@ -225,16 +216,14 @@ const AITradingBot = () => {
     <div className="min-h-screen bg-black text-white font-sans selection:bg-yellow-500/30 overflow-x-hidden">
       <Header />
       <main className="pt-24 md:pt-32 pb-20 px-4 md:px-6 max-w-7xl mx-auto">
-        {/* Header Section */}
         <div className="mb-10 md:mb-16 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-6">
-            <Globe className="w-3 h-3" /> AI SELF-LEARNING BOT V5.0
+            <Globe className="w-3 h-3" /> AI SELF-LEARNING BOT V5.1
           </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-4 md:mb-6 leading-none">
             {t('aibot.title') ? t('aibot.title').split(' ')[0] : 'AI'} <span className="text-yellow-500">{t('aibot.title') ? t('aibot.title').split(' ').slice(1).join(' ') : 'Trading Bot'}</span>
           </motion.h1>
           
-          {/* Market Status & Performance Bar */}
           <div className="flex flex-wrap justify-center gap-4 mt-6">
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/50 border border-white/5 backdrop-blur-xl">
               <Activity className={`w-4 h-4 ${marketStatus === 'Stable' ? 'text-green-500' : marketStatus === 'Volatile' ? 'text-yellow-500' : 'text-red-500'}`} />
@@ -247,14 +236,14 @@ const AITradingBot = () => {
               <span className="text-[10px] font-black uppercase tracking-widest text-white">{performance.winRate}%</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/50 border border-white/5 backdrop-blur-xl">
-              <Timer className="w-4 h-4 text-yellow-500" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Next News:</span>
-              <span className="text-[10px] font-black uppercase tracking-widest text-yellow-500">24:15</span>
+              <Clock className="w-3 h-3 text-yellow-500" />
+              <span className="text-[10px] font-black text-yellow-500 tabular-nums uppercase tracking-widest">
+                Market Time: {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Asset & Timeframe Selectors */}
         <div className="flex flex-col items-center gap-6 mb-8 md:mb-12">
           <div className="flex flex-wrap justify-center bg-zinc-900/50 p-1 rounded-xl md:rounded-2xl border border-white/5 backdrop-blur-xl max-w-full overflow-x-auto">
             {assets.map((asset) => (
@@ -274,7 +263,6 @@ const AITradingBot = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
           <div className="lg:col-span-2 space-y-6 md:space-y-8">
-            {/* Main Verdict Card */}
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl">
               <CardHeader className="p-6 md:p-8 border-b border-white/5">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -297,7 +285,7 @@ const AITradingBot = () => {
                   {loading ? (
                     <div className="py-16 md:py-20 flex flex-col items-center justify-center">
                       <Loader2 className="w-10 md:w-12 h-10 md:h-12 text-yellow-500 animate-spin mb-4" />
-                      <p className="text-gray-500 font-black uppercase tracking-widest text-[10px]">AI IS LEARNING MARKET CONDITIONS...</p>
+                      <p className="text-gray-500 font-black uppercase tracking-widest text-[10px]">AI IS ANALYZING MARKET CONDITIONS...</p>
                     </div>
                   ) : analysis && (
                     <div className="space-y-6 md:space-y-8">
@@ -315,16 +303,6 @@ const AITradingBot = () => {
                         </div>
                       </div>
 
-                      {/* Confidence Breakdown Bar */}
-                      <div className="grid grid-cols-5 gap-1 h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                        <div className="bg-blue-500" style={{ width: '100%' }} />
-                        <div className="bg-purple-500" style={{ width: '100%' }} />
-                        <div className="bg-green-500" style={{ width: '100%' }} />
-                        <div className="bg-yellow-500" style={{ width: '100%' }} />
-                        <div className="bg-red-500" style={{ width: '100%' }} />
-                      </div>
-
-                      {/* Reason Bar */}
                       <div className="p-4 rounded-2xl bg-yellow-500/5 border border-yellow-500/10">
                         <div className="flex items-center gap-2 mb-2">
                           <BrainCircuit className="w-4 h-4 text-yellow-500" />
@@ -333,7 +311,6 @@ const AITradingBot = () => {
                         <p className="text-[11px] text-gray-300 leading-relaxed">{analysis.reasoning}</p>
                       </div>
 
-                      {/* Prediction Chart */}
                       <div className="relative w-full h-[250px] md:h-[350px] bg-black/40 rounded-2xl md:rounded-3xl p-2 md:p-4 border border-white/5">
                         <ResponsiveContainer width="100%" height="100%">
                           <AreaChart data={analysis.chartData}>
@@ -356,6 +333,19 @@ const AITradingBot = () => {
                             )}
                           </AreaChart>
                         </ResponsiveContainer>
+                      </div>
+
+                      {/* RESTORED: TradingView Official Terminal */}
+                      <div className="w-full h-[400px] md:h-[500px] bg-zinc-950 rounded-2xl md:rounded-3xl overflow-hidden border border-white/5">
+                        <div className="flex items-center gap-2 p-4 bg-zinc-900/50 border-b border-white/5">
+                          <BarChart3 className="w-4 h-4 text-yellow-500" />
+                          <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-gray-500">TradingView Official Terminal</span>
+                        </div>
+                        <iframe 
+                          src={`https://s.tradingview.com/widgetembed/?frameElementId=tradingview_76d4d&symbol=${currentAsset.tvSymbol}&interval=${currentTimeframe.value}&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=[]&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides={}&overrides={}&enabled_features=[]&disabled_features=[]&locale=ar&utm_source=www.tradingview.com&utm_medium=widget&utm_campaign=chart&utm_term=${currentAsset.tvSymbol}`}
+                          style={{ width: '100%', height: '100%', border: 'none' }}
+                          title="TradingView Chart"
+                        />
                       </div>
                     </div>
                   )}
@@ -403,9 +393,37 @@ const AITradingBot = () => {
           </div>
 
           <div className="space-y-6 md:space-y-8">
-            {/* AI Performance Card */}
+            {/* RESTORED: Weekly Overview Square Card */}
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-yellow-500/20 text-white overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] border-2">
               <CardHeader className="p-6 md:p-8 border-b border-white/5 bg-yellow-500/5">
+                <div className="flex items-center gap-3">
+                  <Layers className="w-5 md:w-6 h-5 md:h-6 text-yellow-500" />
+                  <CardTitle className="text-lg md:text-xl font-black uppercase tracking-tight">Weekly <span className="text-yellow-500">Outlook</span></CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6 md:p-8">
+                <div className="space-y-4">
+                  {weeklyNews.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-black flex flex-col items-center justify-center border border-white/10">
+                          <span className="text-[8px] font-black text-gray-500 uppercase">{item.day}</span>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold text-white">{item.event}</p>
+                          <p className="text-[8px] font-black text-yellow-500/50 uppercase">{item.currency}</p>
+                        </div>
+                      </div>
+                      <div className={`w-2 h-2 rounded-full ${item.impact === 'High' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : item.impact === 'Medium' ? 'bg-yellow-500' : 'bg-gray-500'}`} />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* AI Performance Card */}
+            <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem]">
+              <CardHeader className="p-6 md:p-8 border-b border-white/5">
                 <div className="flex items-center gap-3">
                   <History className="w-5 md:w-6 h-5 md:h-6 text-yellow-500" />
                   <CardTitle className="text-lg md:text-xl font-black uppercase tracking-tight">AI <span className="text-yellow-500">Performance</span></CardTitle>
