@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import Header from './Header';
 import Footer from './Footer';
 
-// Version 5.1.0 - Fixed TradingView Chart & Weekly Outlook + Confidence System
+// Version 5.2.0 - Final Comprehensive Fix: Restored Recommendations, Reasoning, Chart & Weekly Outlook
 const AITradingBot = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
@@ -216,9 +216,10 @@ const AITradingBot = () => {
     <div className="min-h-screen bg-black text-white font-sans selection:bg-yellow-500/30 overflow-x-hidden">
       <Header />
       <main className="pt-24 md:pt-32 pb-20 px-4 md:px-6 max-w-7xl mx-auto">
+        {/* Header Section */}
         <div className="mb-10 md:mb-16 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-6">
-            <Globe className="w-3 h-3" /> AI SELF-LEARNING BOT V5.1
+            <Globe className="w-3 h-3" /> AI SELF-LEARNING BOT V5.2
           </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-4 md:mb-6 leading-none">
             {t('aibot.title') ? t('aibot.title').split(' ')[0] : 'AI'} <span className="text-yellow-500">{t('aibot.title') ? t('aibot.title').split(' ').slice(1).join(' ') : 'Trading Bot'}</span>
@@ -244,6 +245,7 @@ const AITradingBot = () => {
           </div>
         </div>
 
+        {/* Asset & Timeframe Selectors */}
         <div className="flex flex-col items-center gap-6 mb-8 md:mb-12">
           <div className="flex flex-wrap justify-center bg-zinc-900/50 p-1 rounded-xl md:rounded-2xl border border-white/5 backdrop-blur-xl max-w-full overflow-x-auto">
             {assets.map((asset) => (
@@ -263,6 +265,7 @@ const AITradingBot = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
           <div className="lg:col-span-2 space-y-6 md:space-y-8">
+            {/* Main Verdict Card */}
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl">
               <CardHeader className="p-6 md:p-8 border-b border-white/5">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -289,6 +292,7 @@ const AITradingBot = () => {
                     </div>
                   ) : analysis && (
                     <div className="space-y-6 md:space-y-8">
+                      {/* RESTORED: Written Recommendation & Confidence */}
                       <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
                         <div className="text-center md:text-left">
                           <p className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-2">Recommendation</p>
@@ -303,14 +307,16 @@ const AITradingBot = () => {
                         </div>
                       </div>
 
+                      {/* RESTORED: AI Reasoning Bar */}
                       <div className="p-4 rounded-2xl bg-yellow-500/5 border border-yellow-500/10">
                         <div className="flex items-center gap-2 mb-2">
                           <BrainCircuit className="w-4 h-4 text-yellow-500" />
                           <span className="text-[9px] font-black text-yellow-500 uppercase tracking-widest">AI Reasoning</span>
                         </div>
-                        <p className="text-[11px] text-gray-300 leading-relaxed">{analysis.reasoning}</p>
+                        <p className="text-[11px] text-gray-300 leading-relaxed italic">"{analysis.reasoning}"</p>
                       </div>
 
+                      {/* Prediction Chart */}
                       <div className="relative w-full h-[250px] md:h-[350px] bg-black/40 rounded-2xl md:rounded-3xl p-2 md:p-4 border border-white/5">
                         <ResponsiveContainer width="100%" height="100%">
                           <AreaChart data={analysis.chartData}>
@@ -335,7 +341,7 @@ const AITradingBot = () => {
                         </ResponsiveContainer>
                       </div>
 
-                      {/* RESTORED: TradingView Official Terminal */}
+                      {/* TradingView Official Terminal */}
                       <div className="w-full h-[400px] md:h-[500px] bg-zinc-950 rounded-2xl md:rounded-3xl overflow-hidden border border-white/5">
                         <div className="flex items-center gap-2 p-4 bg-zinc-900/50 border-b border-white/5">
                           <BarChart3 className="w-4 h-4 text-yellow-500" />
@@ -393,7 +399,7 @@ const AITradingBot = () => {
           </div>
 
           <div className="space-y-6 md:space-y-8">
-            {/* RESTORED: Weekly Overview Square Card */}
+            {/* Weekly Overview Square Card */}
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-yellow-500/20 text-white overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] border-2">
               <CardHeader className="p-6 md:p-8 border-b border-white/5 bg-yellow-500/5">
                 <div className="flex items-center gap-3">
