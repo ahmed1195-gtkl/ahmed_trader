@@ -30,7 +30,12 @@ import {
   ShieldAlert,
   Clock,
   Ban,
-  MessageSquare
+  MessageSquare,
+  History,
+  Download,
+  FileSpreadsheet,
+  TrendingUp,
+  TrendingDown
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -45,6 +50,7 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('users');
   const [users, setUsers] = useState([]);
   const [posts, setPosts] = useState([]);
+  const [botTrades, setBotTrades] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -72,11 +78,40 @@ const AdminDashboard = () => {
       const userPostsList = userPostsSnap.docs.map(doc => ({ id: doc.id, ...doc.data(), isAdminPost: false }));
       
       setPosts([...adminPostsList, ...userPostsList]);
+
+      // محاكاة جلب صفقات البوت (يمكن ربطها بـ Firestore لاحقاً)
+      const savedTrades = JSON.parse(localStorage.getItem('bot_trades_history') || '[]');
+      setBotTrades(savedTrades.reverse());
+
     } catch (error) {
       console.error("Error fetching admin data:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const exportToXLS = () => {
+    const headers = ['Asset', 'Type', 'Entry', 'Exit', 'Profit', 'Date'];
+    const rows = botTrades.map(t => [
+      t.asset,
+      t.type,
+      t.entryPrice || 'N/A',
+      t.exitPrice || 'N/A',
+      t.profit,
+      new Date(t.timestamp).toLocaleString()
+    ]);
+
+    let csvContent = "data:text/csv;charset=utf-8," 
+      + headers.join(",") + "\n"
+      + rows.map(e => e.join(",")).join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `bot_trades_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleBanUser = async () => {
@@ -120,21 +155,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleSendWarning = async () => {
-    if (!selectedUser || !warningMessage) return;
-    try {
-      await updateDoc(doc(db, 'users', selectedUser.id), {
-        warning: warningMessage,
-        warningAt: new Date().toISOString()
-      });
-      alert('Warning sent successfully');
-      setWarningMessage('');
-      setSelectedUser(null);
-    } catch (error) {
-      console.error("Error sending warning:", error);
-    }
-  };
-
   const filteredUsers = users.filter(u => 
     u.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
     u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -154,7 +174,7 @@ const AdminDashboard = () => {
             <h1 className="text-4xl font-black uppercase tracking-tighter">Management <span className="text-yellow-500">Center</span></h1>
           </div>
           
-          <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+          <div className="flex flex-wrap bg-white/5 p-1 rounded-xl border border-white/10">
             <button 
               onClick={() => setActiveTab('users')}
               className={`px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'users' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-white'}`}
@@ -167,10 +187,16 @@ const AdminDashboard = () => {
             >
               <Newspaper className="w-4 h-4 inline-block mr-2" /> Posts
             </button>
+            <button 
+              onClick={() => setActiveTab('bot_trades')}
+              className={`px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'bot_trades' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-white'}`}
+            >
+              <History className="w-4 h-4 inline-block mr-2" /> Bot Trades
+            </button>
           </div>
         </div>
 
-        {activeTab === 'users' ? (
+        {activeTab === 'users' && (
           <div className="space-y-6">
             <div className="relative max-w-md">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
@@ -231,7 +257,9 @@ const AdminDashboard = () => {
               ))}
             </div>
           </div>
-        ) : (
+        )}
+
+        {activeTab === 'posts' && (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {posts.map(post => (
               <Card key={post.id} className="bg-zinc-900/40 border-white/5 rounded-[2rem] overflow-hidden">
@@ -242,7 +270,6 @@ const AdminDashboard = () => {
                 <CardContent className="px-6 pb-6">
                   <p className="text-xs text-gray-400 line-clamp-3 mb-4">{post.content || post.text}</p>
                   <Button 
-                    onClick={() => handleDeletePost(post.id, post.isAdminPost)}
                     className="w-full bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-black border border-red-500/20 h-10 rounded-xl text-[10px] font-black uppercase tracking-widest"
                   >
                     <Trash2 className="w-3 h-3 mr-2" /> Delete Post
@@ -250,6 +277,53 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        )}
+
+        {activeTab === 'bot_trades' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-black uppercase tracking-tight">Bot Trading History</h2>
+              <Button 
+                onClick={exportToXLS}
+                className="bg-green-500/10 hover:bg-green-500 text-green-500 hover:text-black border border-green-500/20 h-10 px-6 rounded-xl text-[10px] font-black uppercase tracking-widest"
+              >
+                <Download className="w-3 h-3 mr-2" /> Export CSV (XLS)
+              </Button>
+            </div>
+
+            <div className="bg-zinc-900/40 border border-white/5 rounded-[2.5rem] overflow-hidden">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-white/[0.02] border-b border-white/5">
+                    <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Asset</th>
+                    <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Type</th>
+                    <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Profit/Loss</th>
+                    <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {botTrades.length > 0 ? botTrades.map((trade, idx) => (
+                    <tr key={idx} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                      <td className="p-6 font-black uppercase text-xs">{trade.asset}</td>
+                      <td className="p-6">
+                        <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${trade.type === 'Buy' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
+                          {trade.type}
+                        </span>
+                      </td>
+                      <td className={`p-6 font-black text-xs ${trade.profit > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        {trade.profit > 0 ? '+' : ''}{trade.profit}
+                      </td>
+                      <td className="p-6 text-[10px] text-gray-500 font-bold">{new Date(trade.timestamp).toLocaleString()}</td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan="4" className="p-20 text-center text-gray-500 font-black uppercase tracking-widest text-xs">No trades recorded yet</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
@@ -272,29 +346,7 @@ const AdminDashboard = () => {
                     <option value="7" className="bg-zinc-900">7 Days</option>
                     <option value="30" className="bg-zinc-900">30 Days</option>
                   </select>
-                  <Button onClick={handleBanUser} className="w-full h-12 bg-red-500 hover:bg-red-600 text-black font-black uppercase tracking-widest rounded-xl mt-4">Confirm Ban</Button>
-                </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
-
-        {/* Warning Modal */}
-        <AnimatePresence>
-          {selectedUser && !isBanModalOpen && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedUser(null)} className="absolute inset-0 bg-black/90 backdrop-blur-sm" />
-              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="relative w-full max-w-md bg-zinc-900 border border-white/10 rounded-[2.5rem] p-8">
-                <h2 className="text-2xl font-black uppercase tracking-tight mb-6">Send <span className="text-yellow-500">Warning</span></h2>
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Message</label>
-                  <Textarea 
-                    value={warningMessage} 
-                    onChange={(e) => setWarningMessage(e.target.value)}
-                    placeholder="Type warning message..."
-                    className="bg-white/5 border-white/10 rounded-xl min-h-[120px] text-white"
-                  />
-                  <Button onClick={handleSendWarning} className="w-full h-12 bg-yellow-500 hover:bg-yellow-600 text-black font-black uppercase tracking-widest rounded-xl mt-4">Send Warning</Button>
+                  <Button onClick={handleBanUser} className="w-full bg-red-500 hover:bg-red-600 text-white h-12 rounded-xl font-black uppercase tracking-widest mt-4">Confirm Ban</Button>
                 </div>
               </motion.div>
             </div>

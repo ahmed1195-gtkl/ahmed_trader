@@ -22,6 +22,7 @@ import AdminDashboard from './components/AdminDashboard';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import ResetPassword from './components/ResetPassword';
 import AITradingBot from './components/AITradingBot';
+import PipCalculator from './components/PipCalculator';
 import CookieConsent from './components/CookieConsent';
 import './App.css';
 
@@ -184,6 +185,7 @@ function App() {
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route path="/ai-bot" element={<AITradingBot />} />
+                <Route path="/pip-calculator" element={<PipCalculator />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </div>

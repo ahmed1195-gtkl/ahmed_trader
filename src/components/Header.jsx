@@ -92,6 +92,7 @@ const Header = () => {
     { name: t('nav.home'), path: '/', icon: <Home className="w-4 h-4" /> },
     { name: t('nav.news'), path: '/news', icon: <Newspaper className="w-4 h-4" /> },
     { name: 'AI Bot', path: '/ai-bot', icon: <Zap className="w-4 h-4" /> },
+    { name: 'Pips', path: '/pip-calculator', icon: <Zap className="w-4 h-4" /> },
   ];
 
   const changeLanguage = (code) => {
