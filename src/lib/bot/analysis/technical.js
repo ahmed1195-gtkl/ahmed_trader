@@ -1,10 +1,10 @@
 /**
- * محرك التحليل الفني الاحترافي
- * يحلل البيانات الحقيقية ويقدم تفسيرات منطقية
+ * محرك التحليل الفني المتقدم
+ * يقوم بحساب المؤشرات الفنية وتقديم إشارات التداول
  */
 
 export const calculateRSI = (prices, period = 14) => {
-  if (prices.length <= period) return 50;
+  if (prices.length < period) return 50;
   let gains = 0;
   let losses = 0;
   for (let i = 1; i <= period; i++) {
@@ -16,45 +16,25 @@ export const calculateRSI = (prices, period = 14) => {
   return 100 - (100 / (1 + rs));
 };
 
-export const analyzeMarketStructure = (prices) => {
-  const lastPrice = prices[prices.length - 1];
-  const prevPrice = prices[prices.length - 2];
-  const high = Math.max(...prices.slice(-20));
-  const low = Math.min(...prices.slice(-20));
-
-  let structure = 'Consolidation';
-  let reason = 'Price is ranging between key levels.';
-
-  if (lastPrice > high * 0.99) {
-    structure = 'BOS Bullish';
-    reason = 'Break of Structure detected. Price is clearing buy-side liquidity.';
-  } else if (lastPrice < low * 1.01) {
-    structure = 'BOS Bearish';
-    reason = 'Break of Structure detected. Price is hunting sell-side liquidity.';
-  }
-
-  return { structure, reason, lastPrice, high, low };
+export const analyzeTrend = (prices) => {
+  const shortMA = prices.slice(-10).reduce((a, b) => a + b, 0) / 10;
+  const longMA = prices.slice(-30).reduce((a, b) => a + b, 0) / 30;
+  if (shortMA > longMA) return 'bullish';
+  if (shortMA < longMA) return 'bearish';
+  return 'neutral';
 };
 
 export const getTechnicalSignal = (prices) => {
-  if (prices.length < 2) return { score: 0, rsi: 50, trend: 'neutral' };
-  
   const rsi = calculateRSI(prices);
-  const { structure } = analyzeMarketStructure(prices);
+  const trend = analyzeTrend(prices);
   
   let score = 0;
-  if (rsi < 35) score += 25; // Overbought condition
-  if (rsi > 65) score -= 25; // Oversold condition
+  if (rsi < 30) score += 30; // Overbought
+  if (rsi > 70) score -= 30; // Oversold
+  if (trend === 'bullish') score += 20;
+  if (trend === 'bearish') score -= 20;
   
-  if (structure.includes('Bullish')) score += 30;
-  if (structure.includes('Bearish')) score -= 30;
-  
-  return { 
-    score, 
-    rsi, 
-    trend: score > 0 ? 'bullish' : score < 0 ? 'bearish' : 'neutral',
-    structure 
-  };
+  return { score, rsi, trend };
 };
 
 export const calculateMACD = (prices) => {
@@ -62,7 +42,7 @@ export const calculateMACD = (prices) => {
   const ema12 = prices.slice(-12).reduce((a, b) => a + b, 0) / 12;
   const ema26 = prices.slice(-26).reduce((a, b) => a + b, 0) / 26;
   const macd = ema12 - ema26;
-  const signal = macd * 0.9;
+  const signal = macd * 0.9; // تبسيط للإشارة
   return { macd, signal, histogram: macd - signal };
 };
 
@@ -72,5 +52,9 @@ export const calculateBollingerBands = (prices, period = 20, stdDev = 2) => {
   const middle = slice.reduce((a, b) => a + b, 0) / period;
   const variance = slice.reduce((a, b) => a + Math.pow(b - middle, 2), 0) / period;
   const sd = Math.sqrt(variance);
-  return { middle, upper: middle + (stdDev * sd), lower: middle - (stdDev * sd) };
+  return {
+    middle,
+    upper: middle + (stdDev * sd),
+    lower: middle - (stdDev * sd)
+  };
 };
