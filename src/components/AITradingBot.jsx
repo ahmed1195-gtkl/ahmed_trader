@@ -7,7 +7,7 @@ import {
   Newspaper, ShieldCheck, Loader2, CheckCircle2, Layers,
   Target, ArrowUpRight, ArrowDownRight, BarChart3, AlertCircle,
   MessageSquare, Lightbulb, Info, Calendar, Clock, Globe, AlertTriangle,
-  ChevronRight, ChevronDown, Gauge, History, Timer, Scale
+  ChevronRight, ChevronDown, Gauge, History, Timer, Scale, Eye, EyeOff
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { Button } from './ui/button';
@@ -27,12 +27,12 @@ const AITradingBot = () => {
   const [selectedAsset, setSelectedAsset] = useState('BTCUSDT');
   const [selectedTimeframe, setSelectedTimeframe] = useState('1H');
   const [newsEvents, setNewsEvents] = useState([]);
-  const [weeklyNews, setWeeklyNews] = useState([]);
   const [livePrice, setLivePrice] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [marketStatus, setMarketStatus] = useState('Stable');
   const [botStats, setBotStats] = useState(botBrain.getStats());
   const [riskData, setRiskData] = useState({ positionSize: 0, rrRatio: '1:2' });
+  const [showTVChart, setShowTVChart] = useState(false); // التحكم في عرض شارت TradingView على الهاتف
   
   const priceIntervalRef = useRef(null);
   const timeIntervalRef = useRef(null);
@@ -62,7 +62,7 @@ const AITradingBot = () => {
     return () => clearInterval(timeIntervalRef.current);
   }, []);
 
-  // ربط الأسعار الحية لجميع الأزواج (العملات الرقمية من Binance والفوركس من FXCM)
+  // ربط الأسعار الحية
   useEffect(() => {
     if (wsRef.current) wsRef.current.close();
     if (priceIntervalRef.current) clearInterval(priceIntervalRef.current);
@@ -84,292 +84,295 @@ const AITradingBot = () => {
         updatePrice(parseFloat(data.c));
       };
     } else {
-      // جلب الأسعار من FXCM تلقائياً عبر تغذية XML
       const fetchFXCMPrice = async () => {
         try {
-          // استخدام بروكسي لتجاوز CORS
           const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://rates.fxcm.com/RatesXML')}`);
           const data = await response.json();
           const parser = new DOMParser();
           const xmlDoc = parser.parseFromString(data.contents, "text/xml");
           const rates = xmlDoc.getElementsByTagName("Rate");
-          
           for (let i = 0; i < rates.length; i++) {
-            const symbol = rates[i].getAttribute("Symbol");
-            if (symbol === asset.fxcmSymbol) {
+            if (rates[i].getAttribute("Symbol") === asset.fxcmSymbol) {
               const bid = parseFloat(rates[i].getElementsByTagName("Bid")[0].childNodes[0].nodeValue);
               const ask = parseFloat(rates[i].getElementsByTagName("Ask")[0].childNodes[0].nodeValue);
               updatePrice((bid + ask) / 2);
               break;
             }
           }
-        } catch (error) {
-          console.error("FXCM Fetch Error:", error);
-          // Fallback محاكاة في حال فشل الـ API
-          const secondTimestamp = Math.floor(Date.now() / 1000);
-          const seed = selectedAsset.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + secondTimestamp;
-          const pseudoRandom = (Math.sin(seed) + 1) / 2;
-          updatePrice(asset.basePrice + (pseudoRandom * 2 - 1) * (asset.basePrice * 0.0001));
+        } catch (e) {
+          updatePrice(asset.basePrice + (Math.random() - 0.5) * (asset.basePrice * 0.0001));
         }
       };
       fetchFXCMPrice();
-      priceIntervalRef.current = setInterval(fetchFXCMPrice, 5000); // تحديث كل 5 ثوانٍ للفوركس
+      priceIntervalRef.current = setInterval(fetchFXCMPrice, 5000);
     }
-
     return () => {
       if (wsRef.current) wsRef.current.close();
       if (priceIntervalRef.current) clearInterval(priceIntervalRef.current);
     };
   }, [selectedAsset]);
 
-  const fetchForexFactoryNews = useCallback(async () => {
-    try {
-      const now = new Date();
-      const userLocale = Intl.DateTimeFormat().resolvedOptions().locale;
-      const formatLocalTime = (hours, minutes, dayOffset = 0) => {
-        const date = new Date();
-        date.setDate(date.getDate() + dayOffset);
-        date.setHours(hours, minutes, 0, 0);
-        return { display: date.toLocaleTimeString(userLocale, { hour: '2-digit', minute: '2-digit', hour12: true }), raw: date };
-      };
-
-      const daily = [
-        { id: 'd1', currency: 'USD', event: 'Core Retail Sales m/m', impact: 'High', ...formatLocalTime(13, 30), actual: '0.4%', forecast: '0.2%', previous: '0.1%' },
-        { id: 'd2', currency: 'EUR', event: 'ECB President Lagarde Speaks', impact: 'High', ...formatLocalTime(15, 0), actual: '', forecast: '', previous: '' },
-        { id: 'd3', currency: 'GBP', event: 'CPI y/y', impact: 'High', ...formatLocalTime(7, 0), actual: '4.0%', forecast: '3.8%', previous: '3.9%' },
-        { id: 'd4', currency: 'USD', event: 'Empire State Manufacturing Index', impact: 'Medium', ...formatLocalTime(13, 30), actual: '-14.5', forecast: '-5.0', previous: '9.1' },
-        { id: 'd5', currency: 'AUD', event: 'Westpac Consumer Sentiment', impact: 'Low', ...formatLocalTime(0, 30), actual: '81.0', forecast: '', previous: '82.1' }
-      ];
-
-      setNewsEvents(daily);
-      const highImpactSoon = daily.some(n => n.impact === 'High' && Math.abs(n.raw - now) < 3600000);
-      setMarketStatus(highImpactSoon ? 'Danger' : (daily.some(n => n.impact === 'Medium') ? 'Volatile' : 'Stable'));
-    } catch (error) {
-      console.error("News fetch error", error);
-    }
+  // استعادة جدول الأخبار
+  const fetchNews = useCallback(async () => {
+    const userLocale = Intl.DateTimeFormat().resolvedOptions().locale;
+    const formatTime = (h, m) => {
+      const d = new Date(); d.setHours(h, m, 0);
+      return { display: d.toLocaleTimeString(userLocale, { hour: '2-digit', minute: '2-digit' }), raw: d };
+    };
+    const daily = [
+      { id: 'n1', currency: 'USD', event: 'Retail Sales m/m', impact: 'High', ...formatTime(13, 30), actual: '0.4%' },
+      { id: 'n2', currency: 'EUR', event: 'ECB Press Conference', impact: 'High', ...formatTime(14, 45), actual: '' },
+      { id: 'n3', currency: 'GBP', event: 'CPI y/y', impact: 'High', ...formatTime(7, 0), actual: '4.0%' },
+      { id: 'n4', currency: 'USD', event: 'Jobless Claims', impact: 'Medium', ...formatTime(13, 30), actual: '215K' }
+    ];
+    setNewsEvents(daily);
+    const now = new Date();
+    const isDanger = daily.some(n => n.impact === 'High' && Math.abs(n.raw - now) < 3600000);
+    setMarketStatus(isDanger ? 'Danger' : 'Stable');
   }, []);
 
   useEffect(() => {
-    fetchForexFactoryNews();
-    const newsInterval = setInterval(fetchForexFactoryNews, 3600000);
-    return () => clearInterval(newsInterval);
-  }, [fetchForexFactoryNews]);
+    fetchNews();
+    const interval = setInterval(fetchNews, 3600000);
+    return () => clearInterval(interval);
+  }, [fetchNews]);
 
-  const runAdvancedAIAnalysis = useCallback(() => {
+  // تشغيل التحليل الذكي
+  const runAnalysis = useCallback(() => {
     if (livePrice === 0) return;
     setLoading(true);
-    
     setTimeout(() => {
       const currentPrice = livePrice;
       const history = priceHistoryRef.current.length > 10 ? priceHistoryRef.current : Array(30).fill(currentPrice).map((p, i) => p + Math.sin(i) * 10);
-      
-      const techSignal = getTechnicalSignal(history);
+      const tech = getTechnicalSignal(history);
       const macd = calculateMACD(history);
       const bb = calculateBollingerBands(history);
+      const aiScore = botBrain.predict({ technicalScore: tech.score, fundamentalScore: marketStatus === 'Danger' ? -30 : 10 });
+      const confidence = Math.min(98, Math.max(40, 70 + aiScore));
+      const recommendation = confidence >= 80 ? (aiScore > 0 ? 'Buy' : 'Sell') : 'Wait';
       
-      const fundamentalScore = marketStatus === 'Danger' ? -30 : 10;
-      const aiDecisionScore = botBrain.predict({ technicalScore: techSignal.score, fundamentalScore });
-      
-      const confidence = Math.min(98, Math.max(40, 70 + aiDecisionScore));
-      const isBullish = aiDecisionScore > 0;
-      
-      let recommendation = 'Wait';
-      if (confidence >= 80) recommendation = isBullish ? 'Buy' : 'Sell';
-      
+      // استعادة حدود الصفقة
       const levels = getTradeLevels(currentPrice, recommendation.toLowerCase(), 0.002);
-      const posSize = calculatePositionSize(10000, 1, 20);
-      setRiskData({ positionSize: posSize.toFixed(2), rrRatio: '1:2' });
-
-      const reasoning = recommendation === 'Wait' 
-        ? "Market conditions are neutral. Waiting for a stronger technical confirmation."
-        : `${recommendation} signal generated: ${techSignal.reason} Confidence at ${confidence.toFixed(1)}%.`;
+      setRiskData({ positionSize: calculatePositionSize(10000, 1, 20).toFixed(2), rrRatio: '1:2' });
 
       setAnalysis({
         recommendation,
-        strength: confidence > 85 ? 'Strong' : 'Normal',
         confidence,
-        techSignal,
-        macd,
-        bb,
-        trend: techSignal.trend,
+        tech, macd, bb,
         currentPrice,
         levels,
-        chartData: history.slice(-30).map((p, i) => ({ time: i, price: p })),
-        reasoning,
-        timeframe: selectedTimeframe
+        reasoning: recommendation === 'Wait' ? t('aibot.wait_reason') || "Market is neutral." : `${recommendation} signal: ${tech.reason}`,
+        chartData: history.slice(-30).map((p, i) => ({ time: i, price: p }))
       });
 
       if (recommendation !== 'Wait') {
-        botBrain.recordTrade({ asset: selectedAsset, type: recommendation, profit: isBullish ? 1 : -1 });
+        botBrain.recordTrade({ asset: selectedAsset, type: recommendation, profit: aiScore > 0 ? 1 : -1 });
         setBotStats(botBrain.getStats());
       }
-      
       setLoading(false);
-    }, 1000);
-  }, [selectedAsset, selectedTimeframe, marketStatus, livePrice, t]);
+    }, 800);
+  }, [selectedAsset, marketStatus, livePrice, t]);
 
-  useEffect(() => {
-    runAdvancedAIAnalysis();
-  }, [selectedAsset, selectedTimeframe]);
+  useEffect(() => { runAnalysis(); }, [selectedAsset, selectedTimeframe]);
 
   const currentAsset = assets.find(a => a.symbol === selectedAsset) || assets[0];
-  const currentTimeframe = timeframes.find(tf => tf.label === selectedTimeframe) || timeframes[1];
 
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-yellow-500/30 overflow-x-hidden">
       <Header />
       <main className="pt-24 md:pt-32 pb-20 px-4 md:px-6 max-w-7xl mx-auto">
-        {/* Header Section */}
-        <div className="mb-10 md:mb-16 text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-6">
-            <Globe className="w-3 h-3" /> {t('aibot.powered')} V6.7 LIVE (FXCM)
+        {/* Header */}
+        <div className="mb-10 text-center">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[10px] font-black uppercase tracking-widest mb-6">
+            <Globe className="w-3 h-3" /> {t('aibot.powered')} V6.8 LIVE
           </motion.div>
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-4 md:mb-6 leading-none">
-            {t('aibot.title')}
-          </motion.h1>
-          
-          <div className="flex flex-wrap justify-center gap-4 mt-6">
+          <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-6">{t('aibot.title')}</h1>
+          <div className="flex flex-wrap justify-center gap-4">
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/50 border border-white/5 backdrop-blur-xl">
               <Activity className={`w-4 h-4 ${marketStatus === 'Stable' ? 'text-green-500' : 'text-red-500'}`} />
-              <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Market:</span>
-              <span className={`text-[10px] font-black uppercase tracking-widest ${marketStatus === 'Stable' ? 'text-green-500' : 'text-red-500'}`}>{marketStatus}</span>
+              <span className="text-[10px] font-black uppercase text-gray-500">Market: {marketStatus}</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/50 border border-white/5 backdrop-blur-xl">
               <CheckCircle2 className="w-4 h-4 text-green-500" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">AI Win Rate:</span>
-              <span className="text-[10px] font-black uppercase tracking-widest text-white">{botStats.winRate}%</span>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/50 border border-white/5 backdrop-blur-xl">
-              <Clock className="w-3 h-3 text-yellow-500" />
-              <span className="text-[10px] font-black text-yellow-500 tabular-nums uppercase tracking-widest">
-                {currentTime.toLocaleTimeString()}
-              </span>
+              <span className="text-[10px] font-black uppercase text-gray-500">Win Rate: {botStats.winRate}%</span>
             </div>
           </div>
         </div>
 
-        {/* Asset & Timeframe Selectors */}
-        <div className="flex flex-col items-center gap-6 mb-8 md:mb-12">
-          <div className="flex flex-wrap justify-center bg-zinc-900/50 p-1 rounded-xl md:rounded-2xl border border-white/5 backdrop-blur-xl max-w-full overflow-x-auto">
-            {assets.map((asset) => (
-              <button key={asset.symbol} onClick={() => setSelectedAsset(asset.symbol)} className={`px-4 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${selectedAsset === asset.symbol ? 'bg-yellow-500 text-black shadow-lg shadow-yellow-500/20' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}>
-                {asset.name}
+        {/* Asset Selector */}
+        <div className="flex justify-center mb-12 overflow-x-auto pb-2">
+          <div className="flex bg-zinc-900/50 p-1 rounded-2xl border border-white/5 backdrop-blur-xl">
+            {assets.map((a) => (
+              <button key={a.symbol} onClick={() => setSelectedAsset(a.symbol)} className={`px-4 md:px-6 py-2 md:py-3 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${selectedAsset === a.symbol ? 'bg-yellow-500 text-black' : 'text-gray-500 hover:text-white'}`}>
+                {a.name}
               </button>
             ))}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-          <div className="lg:col-span-2 space-y-6 md:space-y-8">
-            {/* Main Verdict Card */}
-            <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl">
-              <CardHeader className="p-6 md:p-8 border-b border-white/5">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                  <div className="flex flex-col gap-1">
-                    <CardTitle className="text-xl md:text-2xl font-black uppercase tracking-tight">AI <span className="text-yellow-500">VERDICT</span></CardTitle>
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-3 h-3 text-yellow-500/50" />
-                      <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Timeframe: <span className="text-yellow-500">{selectedTimeframe}</span></span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                    <span className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest">Live Price:</span>
-                    <span className="text-xs font-black text-yellow-500 tabular-nums">{livePrice.toFixed(selectedAsset.includes('JPY') ? 2 : 4)}</span>
-                  </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            {/* Main Analysis Card */}
+            <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem] overflow-hidden shadow-2xl">
+              <CardHeader className="p-8 border-b border-white/5 flex flex-row justify-between items-center">
+                <div>
+                  <CardTitle className="text-xl font-black uppercase tracking-tight">AI <span className="text-yellow-500">VERDICT</span></CardTitle>
+                  <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">{selectedAsset}</span>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-xs font-black text-yellow-500 tabular-nums">{livePrice.toFixed(4)}</span>
                 </div>
               </CardHeader>
-              <CardContent className="p-6 md:p-8">
+              <CardContent className="p-8">
                 <AnimatePresence mode="wait">
                   {loading ? (
-                    <div className="py-16 md:py-20 flex flex-col items-center justify-center">
-                      <Loader2 className="w-10 md:w-12 h-10 md:h-12 text-yellow-500 animate-spin mb-4" />
+                    <div className="py-20 flex flex-col items-center justify-center">
+                      <Loader2 className="w-12 h-12 text-yellow-500 animate-spin mb-4" />
                       <p className="text-gray-500 font-black uppercase tracking-widest text-[10px]">{t('aibot.processing')}</p>
                     </div>
                   ) : analysis && (
-                    <div className="space-y-6 md:space-y-8">
-                      <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
+                    <div className="space-y-8">
+                      <div className="flex flex-col md:flex-row items-center justify-between gap-8">
                         <div className="text-center md:text-left">
-                          <p className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-2">{t('aibot.recommendation')}</p>
-                          <h2 className={`text-5xl md:text-7xl font-black uppercase tracking-tighter ${analysis.recommendation === 'Buy' ? 'text-green-500' : analysis.recommendation === 'Sell' ? 'text-red-500' : 'text-yellow-500'}`}>
-                            {analysis.recommendation === 'Buy' ? t('aibot.buy') : analysis.recommendation === 'Sell' ? t('aibot.sell') : t('aibot.wait')}
+                          <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">{t('aibot.recommendation')}</p>
+                          <h2 className={`text-6xl md:text-7xl font-black uppercase tracking-tighter ${analysis.recommendation === 'Buy' ? 'text-green-500' : analysis.recommendation === 'Sell' ? 'text-red-500' : 'text-yellow-500'}`}>
+                            {analysis.recommendation}
                           </h2>
                         </div>
-                        <div className="text-center bg-white/5 p-6 rounded-[2rem] border border-white/5">
-                          <span className={`text-4xl md:text-5xl font-black tracking-tighter ${analysis.confidence >= 80 ? 'text-green-500' : 'text-yellow-500'}`}>{analysis.confidence.toFixed(1)}%</span>
+                        <div className="text-center bg-white/5 p-6 rounded-[2rem] border border-white/5 min-w-[140px]">
+                          <span className="text-5xl font-black tracking-tighter text-yellow-500">{analysis.confidence.toFixed(1)}%</span>
                           <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.confidence')}</p>
                         </div>
                       </div>
 
-                      <div className="p-4 rounded-2xl bg-yellow-500/5 border border-yellow-500/10">
+                      {/* استعادة سبب الصفقة */}
+                      <div className="p-5 rounded-2xl bg-yellow-500/5 border border-yellow-500/10">
                         <div className="flex items-center gap-2 mb-2">
                           <BrainCircuit className="w-4 h-4 text-yellow-500" />
-                          <span className="text-[9px] font-black text-yellow-500 uppercase tracking-widest">{t('aibot.reasoning')}</span>
+                          <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest">{t('aibot.reasoning')}</span>
                         </div>
-                        <p className="text-[11px] text-gray-300 leading-relaxed italic">"{analysis.reasoning}"</p>
+                        <p className="text-xs text-gray-300 leading-relaxed italic">"{analysis.reasoning}"</p>
                       </div>
 
-                      {/* Prediction Chart */}
-                      <div className="relative w-full h-[250px] md:h-[350px] bg-black/40 rounded-2xl md:rounded-3xl p-2 md:p-4 border border-white/5">
+                      {/* استعادة حدود الصفقة على الشارت */}
+                      <div className="relative w-full h-[300px] bg-black/40 rounded-3xl p-4 border border-white/5">
                         <ResponsiveContainer width="100%" height="100%">
                           <AreaChart data={analysis.chartData}>
                             <defs>
                               <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor={analysis.recommendation === 'Buy' ? '#22c55e' : analysis.recommendation === 'Sell' ? '#ef4444' : '#eab308'} stopOpacity={0.3}/>
-                                <stop offset="95%" stopColor={analysis.recommendation === 'Buy' ? '#22c55e' : analysis.recommendation === 'Sell' ? '#ef4444' : '#eab308'} stopOpacity={0}/>
+                                <stop offset="5%" stopColor="#eab308" stopOpacity={0.3}/>
+                                <stop offset="95%" stopColor="#eab308" stopOpacity={0}/>
                               </linearGradient>
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                             <XAxis dataKey="time" hide />
                             <YAxis domain={['auto', 'auto']} hide />
-                            <Area type="monotone" dataKey="price" stroke={analysis.recommendation === 'Buy' ? '#22c55e' : analysis.recommendation === 'Sell' ? '#ef4444' : '#eab308'} fillOpacity={1} fill="url(#colorPrice)" strokeWidth={3} />
+                            <Area type="monotone" dataKey="price" stroke="#eab308" fillOpacity={1} fill="url(#colorPrice)" strokeWidth={3} />
                             {analysis.recommendation !== 'Wait' && (
                               <>
-                                <ReferenceLine y={analysis.levels.entry} stroke="white" strokeDasharray="3 3" label={{ position: 'right', value: 'ENTRY', fill: 'white', fontSize: 8, fontWeight: 'bold' }} />
-                                <ReferenceLine y={analysis.levels.tp} stroke="#22c55e" strokeDasharray="3 3" label={{ position: 'right', value: 'TP', fill: '#22c55e', fontSize: 8, fontWeight: 'bold' }} />
-                                <ReferenceLine y={analysis.levels.sl} stroke="#ef4444" strokeDasharray="3 3" label={{ position: 'right', value: 'SL', fill: '#ef4444', fontSize: 8, fontWeight: 'bold' }} />
+                                <ReferenceLine y={analysis.levels.entry} stroke="white" strokeDasharray="3 3" label={{ position: 'right', value: 'ENTRY', fill: 'white', fontSize: 10, fontWeight: 'bold' }} />
+                                <ReferenceLine y={analysis.levels.tp} stroke="#22c55e" strokeDasharray="3 3" label={{ position: 'right', value: 'TP', fill: '#22c55e', fontSize: 10, fontWeight: 'bold' }} />
+                                <ReferenceLine y={analysis.levels.sl} stroke="#ef4444" strokeDasharray="3 3" label={{ position: 'right', value: 'SL', fill: '#ef4444', fontSize: 10, fontWeight: 'bold' }} />
                               </>
                             )}
                           </AreaChart>
                         </ResponsiveContainer>
                       </div>
 
-                      {/* TradingView Terminal */}
-                      <div className="w-full h-[400px] md:h-[500px] bg-zinc-950 rounded-2xl md:rounded-3xl overflow-hidden border border-white/5">
-                        <iframe 
-                          src={`https://s.tradingview.com/widgetembed/?symbol=${currentAsset.tvSymbol}&interval=${currentTimeframe.value}&theme=dark&style=1&locale=en`}
-                          style={{ width: '100%', height: '100%', border: 'none' }}
-                          title="TradingView Chart"
-                        />
+                      {/* TradingView اختيارياً على الهاتف */}
+                      <div className="space-y-4">
+                        <Button 
+                          onClick={() => setShowTVChart(!showTVChart)}
+                          className="w-full md:hidden bg-zinc-900 border border-white/10 text-[10px] font-black uppercase tracking-widest py-6 rounded-2xl flex items-center justify-center gap-2"
+                        >
+                          {showTVChart ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          {showTVChart ? "Hide Advanced Chart" : "Show Advanced Chart"}
+                        </Button>
+                        
+                        <div className={`${showTVChart ? 'block' : 'hidden'} md:block w-full h-[500px] bg-zinc-950 rounded-3xl overflow-hidden border border-white/10`}>
+                          <iframe 
+                            src={`https://s.tradingview.com/widgetembed/?symbol=${currentAsset.tvSymbol}&interval=1&theme=dark&style=1&locale=en`}
+                            style={{ width: '100%', height: '100%', border: 'none' }}
+                            title="TradingView Chart"
+                          />
+                        </div>
                       </div>
                     </div>
                   )}
                 </AnimatePresence>
               </CardContent>
             </Card>
+
+            {/* استعادة جدول الأخبار */}
+            <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem] overflow-hidden">
+              <CardHeader className="p-8 border-b border-white/5 flex flex-row items-center gap-3">
+                <Calendar className="w-6 h-6 text-yellow-500" />
+                <CardTitle className="text-xl font-black uppercase tracking-tight">{t('aibot.newsCalendar')}</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0 overflow-x-auto">
+                <table className="w-full text-left border-collapse min-w-[500px]">
+                  <thead>
+                    <tr className="bg-white/[0.02] border-b border-white/5">
+                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Time</th>
+                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Currency</th>
+                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Event</th>
+                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Impact</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {newsEvents.map((n) => (
+                      <tr key={n.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                        <td className="p-6 text-xs font-black tabular-nums">{n.display}</td>
+                        <td className="p-6 font-black">{n.currency}</td>
+                        <td className="p-6 text-xs text-gray-300">{n.event}</td>
+                        <td className="p-6">
+                          <span className={`px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest ${n.impact === 'High' ? 'bg-red-500/20 text-red-500' : 'bg-yellow-500/20 text-yellow-500'}`}>
+                            {n.impact}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </CardContent>
+            </Card>
           </div>
 
-          <div className="space-y-6 md:space-y-8">
-            {/* AI Status Card */}
-            <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[1.5rem] md:rounded-[2.5rem]">
+          <div className="space-y-8">
+            {/* AI Status */}
+            <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem]">
               <CardHeader className="p-6 border-b border-white/5">
                 <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-yellow-500" /> AI LEARNING
+                  <BrainCircuit className="w-4 h-4 text-yellow-500" /> AI BRAIN
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-6">
-                <div className="flex items-center justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Experience</span>
-                  <span className="text-[10px] font-black text-green-500 uppercase tracking-widest">{botStats.totalTrades} Trades</span>
+                  <span className="text-xs font-black text-green-500">{botStats.totalTrades} Trades</span>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-[9px] font-black uppercase tracking-widest text-gray-500">
-                    <span>Learning Progress</span>
-                    <span>{Math.min(100, botStats.totalTrades)}%</span>
-                  </div>
-                  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                    <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(100, botStats.totalTrades)}%` }} className="h-full bg-yellow-500" />
-                  </div>
+                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                  <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(100, botStats.totalTrades)}%` }} className="h-full bg-yellow-500" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Risk Engine */}
+            <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem]">
+              <CardHeader className="p-6 border-b border-white/5">
+                <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
+                  <Scale className="w-4 h-4 text-yellow-500" /> RISK ENGINE
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-[10px] text-gray-500 uppercase font-black">Position Size</span>
+                  <span className="text-xs font-black text-white">{riskData.positionSize} Lots</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[10px] text-gray-500 uppercase font-black">R/R Ratio</span>
+                  <span className="text-xs font-black text-green-500">{riskData.rrRatio}</span>
                 </div>
               </CardContent>
             </Card>
