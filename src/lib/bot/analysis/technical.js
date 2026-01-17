@@ -36,3 +36,25 @@ export const getTechnicalSignal = (prices) => {
   
   return { score, rsi, trend };
 };
+
+export const calculateMACD = (prices) => {
+  if (prices.length < 26) return { macd: 0, signal: 0, histogram: 0 };
+  const ema12 = prices.slice(-12).reduce((a, b) => a + b, 0) / 12;
+  const ema26 = prices.slice(-26).reduce((a, b) => a + b, 0) / 26;
+  const macd = ema12 - ema26;
+  const signal = macd * 0.9; // تبسيط للإشارة
+  return { macd, signal, histogram: macd - signal };
+};
+
+export const calculateBollingerBands = (prices, period = 20, stdDev = 2) => {
+  if (prices.length < period) return { middle: 0, upper: 0, lower: 0 };
+  const slice = prices.slice(-period);
+  const middle = slice.reduce((a, b) => a + b, 0) / period;
+  const variance = slice.reduce((a, b) => a + Math.pow(b - middle, 2), 0) / period;
+  const sd = Math.sqrt(variance);
+  return {
+    middle,
+    upper: middle + (stdDev * sd),
+    lower: middle - (stdDev * sd)
+  };
+};

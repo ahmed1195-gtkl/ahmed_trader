@@ -16,7 +16,7 @@ import Header from './Header';
 import Footer from './Footer';
 
 // استيراد الوحدات الجديدة
-import { getTechnicalSignal } from '../lib/bot/analysis/technical';
+import { getTechnicalSignal, calculateMACD, calculateBollingerBands } from '../lib/bot/analysis/technical';
 import { getTradeLevels, calculatePositionSize } from '../lib/bot/risk/manager';
 import { botBrain } from '../lib/bot/models/rl_model';
 
@@ -35,6 +35,8 @@ const AITradingBot = () => {
   const [marketStatus, setMarketStatus] = useState('Stable');
   const [performance, setPerformance] = useState({ winRate: 86.2, profitFactor: 2.7, totalTrades: 1450 });
   const [riskData, setRiskData] = useState({ positionSize: 0, rrRatio: '1:2' });
+  const [paperBalance, setPaperBalance] = useState(10000);
+  const [backtestResults, setBacktestResults] = useState(null);
   
   const priceIntervalRef = useRef(null);
   const timeIntervalRef = useRef(null);
@@ -162,8 +164,11 @@ const AITradingBot = () => {
       if (criticalNews) setNewsWarning(criticalNews);
       else setNewsWarning(null);
 
-      // استخدام المحرك التقني الجديد
-      const techSignal = getTechnicalSignal(priceHistoryRef.current.length > 30 ? priceHistoryRef.current : Array(30).fill(currentPrice).map((p, i) => p + Math.sin(i) * 10));
+      // استخدام المحرك التقني الجديد مع المؤشرات الإضافية
+      const history = priceHistoryRef.current.length > 30 ? priceHistoryRef.current : Array(30).fill(currentPrice).map((p, i) => p + Math.sin(i) * 10);
+      const techSignal = getTechnicalSignal(history);
+      const macd = calculateMACD(history);
+      const bb = calculateBollingerBands(history);
       
       // محاكاة التحليل الأساسي
       const fundamentalScore = criticalNews ? -50 : 10;
@@ -207,6 +212,8 @@ const AITradingBot = () => {
         strength,
         confidence,
         techSignal,
+        macd,
+        bb,
         trend: isBullish ? t('aibot.upward') : t('aibot.downward'),
         currentPrice,
         levels,
