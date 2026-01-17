@@ -32,7 +32,7 @@ const AITradingBot = () => {
   const [marketStatus, setMarketStatus] = useState('Stable');
   const [botStats, setBotStats] = useState(botBrain.getStats());
   const [riskData, setRiskData] = useState({ positionSize: 0, rrRatio: '1:2' });
-  const [showTVChart, setShowTVChart] = useState(false); // التحكم في عرض شارت TradingView على الهاتف
+  const [showTVChart, setShowTVChart] = useState(false);
   
   const priceIntervalRef = useRef(null);
   const timeIntervalRef = useRef(null);
@@ -68,7 +68,6 @@ const AITradingBot = () => {
     if (priceIntervalRef.current) clearInterval(priceIntervalRef.current);
     
     const asset = assets.find(a => a.symbol === selectedAsset);
-    
     const updatePrice = (price) => {
       if (!price || isNaN(price)) return;
       setLivePrice(price);
@@ -112,7 +111,7 @@ const AITradingBot = () => {
     };
   }, [selectedAsset]);
 
-  // استعادة جدول الأخبار
+  // استعادة الأخبار
   const fetchNews = useCallback(async () => {
     const userLocale = Intl.DateTimeFormat().resolvedOptions().locale;
     const formatTime = (h, m) => {
@@ -137,7 +136,7 @@ const AITradingBot = () => {
     return () => clearInterval(interval);
   }, [fetchNews]);
 
-  // تشغيل التحليل الذكي
+  // التحليل الذكي الحقيقي
   const runAnalysis = useCallback(() => {
     if (livePrice === 0) return;
     setLoading(true);
@@ -151,17 +150,21 @@ const AITradingBot = () => {
       const confidence = Math.min(98, Math.max(40, 70 + aiScore));
       const recommendation = confidence >= 80 ? (aiScore > 0 ? 'Buy' : 'Sell') : 'Wait';
       
-      // استعادة حدود الصفقة
       const levels = getTradeLevels(currentPrice, recommendation.toLowerCase(), 0.002);
       setRiskData({ positionSize: calculatePositionSize(10000, 1, 20).toFixed(2), rrRatio: '1:2' });
 
+      // استعادة الترجمات الذكية
+      const reasoningKey = recommendation === 'Wait' ? 'aibot.wait_reason' : (aiScore > 0 ? 'aibot.bullish_reason' : 'aibot.bearish_reason');
+      const reasoning = t(reasoningKey, { techReason: tech.reason });
+
       setAnalysis({
-        recommendation,
+        recommendation: recommendation === 'Wait' ? t('aibot.wait') : (recommendation === 'Buy' ? t('aibot.buy') : t('aibot.sell')),
+        rawRecommendation: recommendation,
         confidence,
         tech, macd, bb,
         currentPrice,
         levels,
-        reasoning: recommendation === 'Wait' ? t('aibot.wait_reason') || "Market is neutral." : `${recommendation} signal: ${tech.reason}`,
+        reasoning,
         chartData: history.slice(-30).map((p, i) => ({ time: i, price: p }))
       });
 
@@ -184,27 +187,36 @@ const AITradingBot = () => {
         {/* Header */}
         <div className="mb-10 text-center">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[10px] font-black uppercase tracking-widest mb-6">
-            <Globe className="w-3 h-3" /> {t('aibot.powered')} V6.8 LIVE
+            <Globe className="w-3 h-3" /> {t('aibot.powered')} V6.9 LIVE
           </motion.div>
           <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-6">{t('aibot.title')}</h1>
           <div className="flex flex-wrap justify-center gap-4">
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/50 border border-white/5 backdrop-blur-xl">
               <Activity className={`w-4 h-4 ${marketStatus === 'Stable' ? 'text-green-500' : 'text-red-500'}`} />
-              <span className="text-[10px] font-black uppercase text-gray-500">Market: {marketStatus}</span>
+              <span className="text-[10px] font-black uppercase text-gray-500">{t('aibot.market_status')}: {marketStatus}</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/50 border border-white/5 backdrop-blur-xl">
               <CheckCircle2 className="w-4 h-4 text-green-500" />
-              <span className="text-[10px] font-black uppercase text-gray-500">Win Rate: {botStats.winRate}%</span>
+              <span className="text-[10px] font-black uppercase text-gray-500">{t('aibot.win_rate')}: {botStats.winRate}%</span>
             </div>
           </div>
         </div>
 
-        {/* Asset Selector */}
-        <div className="flex justify-center mb-12 overflow-x-auto pb-2">
-          <div className="flex bg-zinc-900/50 p-1 rounded-2xl border border-white/5 backdrop-blur-xl">
-            {assets.map((a) => (
-              <button key={a.symbol} onClick={() => setSelectedAsset(a.symbol)} className={`px-4 md:px-6 py-2 md:py-3 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${selectedAsset === a.symbol ? 'bg-yellow-500 text-black' : 'text-gray-500 hover:text-white'}`}>
-                {a.name}
+        {/* Asset & Timeframe Selectors (استعادة الفريمات) */}
+        <div className="flex flex-col items-center gap-6 mb-12">
+          <div className="flex justify-center overflow-x-auto w-full pb-2">
+            <div className="flex bg-zinc-900/50 p-1 rounded-2xl border border-white/5 backdrop-blur-xl">
+              {assets.map((a) => (
+                <button key={a.symbol} onClick={() => setSelectedAsset(a.symbol)} className={`px-4 md:px-6 py-2 md:py-3 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${selectedAsset === a.symbol ? 'bg-yellow-500 text-black' : 'text-gray-500 hover:text-white'}`}>
+                  {a.name}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex bg-zinc-900/50 p-1 rounded-xl border border-white/5 backdrop-blur-xl">
+            {timeframes.map((tf) => (
+              <button key={tf.label} onClick={() => setSelectedTimeframe(tf.label)} className={`px-4 md:px-6 py-2 rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all ${selectedTimeframe === tf.label ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white'}`}>
+                {tf.label}
               </button>
             ))}
           </div>
@@ -216,8 +228,8 @@ const AITradingBot = () => {
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem] overflow-hidden shadow-2xl">
               <CardHeader className="p-8 border-b border-white/5 flex flex-row justify-between items-center">
                 <div>
-                  <CardTitle className="text-xl font-black uppercase tracking-tight">AI <span className="text-yellow-500">VERDICT</span></CardTitle>
-                  <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">{selectedAsset}</span>
+                  <CardTitle className="text-xl font-black uppercase tracking-tight">{t('aibot.live_analysis')}</CardTitle>
+                  <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">{selectedAsset} | {selectedTimeframe}</span>
                 </div>
                 <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
                   <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
@@ -236,7 +248,7 @@ const AITradingBot = () => {
                       <div className="flex flex-col md:flex-row items-center justify-between gap-8">
                         <div className="text-center md:text-left">
                           <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">{t('aibot.recommendation')}</p>
-                          <h2 className={`text-6xl md:text-7xl font-black uppercase tracking-tighter ${analysis.recommendation === 'Buy' ? 'text-green-500' : analysis.recommendation === 'Sell' ? 'text-red-500' : 'text-yellow-500'}`}>
+                          <h2 className={`text-6xl md:text-7xl font-black uppercase tracking-tighter ${analysis.rawRecommendation === 'Buy' ? 'text-green-500' : analysis.rawRecommendation === 'Sell' ? 'text-red-500' : 'text-yellow-500'}`}>
                             {analysis.recommendation}
                           </h2>
                         </div>
@@ -246,7 +258,6 @@ const AITradingBot = () => {
                         </div>
                       </div>
 
-                      {/* استعادة سبب الصفقة */}
                       <div className="p-5 rounded-2xl bg-yellow-500/5 border border-yellow-500/10">
                         <div className="flex items-center gap-2 mb-2">
                           <BrainCircuit className="w-4 h-4 text-yellow-500" />
@@ -255,7 +266,6 @@ const AITradingBot = () => {
                         <p className="text-xs text-gray-300 leading-relaxed italic">"{analysis.reasoning}"</p>
                       </div>
 
-                      {/* استعادة حدود الصفقة على الشارت */}
                       <div className="relative w-full h-[300px] bg-black/40 rounded-3xl p-4 border border-white/5">
                         <ResponsiveContainer width="100%" height="100%">
                           <AreaChart data={analysis.chartData}>
@@ -269,7 +279,7 @@ const AITradingBot = () => {
                             <XAxis dataKey="time" hide />
                             <YAxis domain={['auto', 'auto']} hide />
                             <Area type="monotone" dataKey="price" stroke="#eab308" fillOpacity={1} fill="url(#colorPrice)" strokeWidth={3} />
-                            {analysis.recommendation !== 'Wait' && (
+                            {analysis.rawRecommendation !== 'Wait' && (
                               <>
                                 <ReferenceLine y={analysis.levels.entry} stroke="white" strokeDasharray="3 3" label={{ position: 'right', value: 'ENTRY', fill: 'white', fontSize: 10, fontWeight: 'bold' }} />
                                 <ReferenceLine y={analysis.levels.tp} stroke="#22c55e" strokeDasharray="3 3" label={{ position: 'right', value: 'TP', fill: '#22c55e', fontSize: 10, fontWeight: 'bold' }} />
@@ -280,14 +290,13 @@ const AITradingBot = () => {
                         </ResponsiveContainer>
                       </div>
 
-                      {/* TradingView اختيارياً على الهاتف */}
                       <div className="space-y-4">
                         <Button 
                           onClick={() => setShowTVChart(!showTVChart)}
                           className="w-full md:hidden bg-zinc-900 border border-white/10 text-[10px] font-black uppercase tracking-widest py-6 rounded-2xl flex items-center justify-center gap-2"
                         >
                           {showTVChart ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                          {showTVChart ? "Hide Advanced Chart" : "Show Advanced Chart"}
+                          {showTVChart ? t('aibot.hide_chart') : t('aibot.show_chart')}
                         </Button>
                         
                         <div className={`${showTVChart ? 'block' : 'hidden'} md:block w-full h-[500px] bg-zinc-950 rounded-3xl overflow-hidden border border-white/10`}>
@@ -304,7 +313,7 @@ const AITradingBot = () => {
               </CardContent>
             </Card>
 
-            {/* استعادة جدول الأخبار */}
+            {/* News Calendar */}
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem] overflow-hidden">
               <CardHeader className="p-8 border-b border-white/5 flex flex-row items-center gap-3">
                 <Calendar className="w-6 h-6 text-yellow-500" />
@@ -314,10 +323,10 @@ const AITradingBot = () => {
                 <table className="w-full text-left border-collapse min-w-[500px]">
                   <thead>
                     <tr className="bg-white/[0.02] border-b border-white/5">
-                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Time</th>
-                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Currency</th>
-                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Event</th>
-                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Impact</th>
+                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.time')}</th>
+                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.currency')}</th>
+                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.event')}</th>
+                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.impact')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -344,13 +353,13 @@ const AITradingBot = () => {
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem]">
               <CardHeader className="p-6 border-b border-white/5">
                 <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
-                  <BrainCircuit className="w-4 h-4 text-yellow-500" /> AI BRAIN
+                  <BrainCircuit className="w-4 h-4 text-yellow-500" /> {t('aibot.ai_brain')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-6">
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Experience</span>
-                  <span className="text-xs font-black text-green-500">{botStats.totalTrades} Trades</span>
+                  <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.experience')}</span>
+                  <span className="text-xs font-black text-green-500">{botStats.totalTrades} {t('aibot.trades')}</span>
                 </div>
                 <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
                   <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(100, botStats.totalTrades)}%` }} className="h-full bg-yellow-500" />
@@ -362,16 +371,16 @@ const AITradingBot = () => {
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem]">
               <CardHeader className="p-6 border-b border-white/5">
                 <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
-                  <Scale className="w-4 h-4 text-yellow-500" /> RISK ENGINE
+                  <Scale className="w-4 h-4 text-yellow-500" /> {t('aibot.risk_engine')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
                 <div className="flex justify-between">
-                  <span className="text-[10px] text-gray-500 uppercase font-black">Position Size</span>
+                  <span className="text-[10px] text-gray-500 uppercase font-black">{t('aibot.position_size')}</span>
                   <span className="text-xs font-black text-white">{riskData.positionSize} Lots</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[10px] text-gray-500 uppercase font-black">R/R Ratio</span>
+                  <span className="text-[10px] text-gray-500 uppercase font-black">{t('aibot.rr_ratio')}</span>
                   <span className="text-xs font-black text-green-500">{riskData.rrRatio}</span>
                 </div>
               </CardContent>
