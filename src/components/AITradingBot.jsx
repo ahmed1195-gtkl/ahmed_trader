@@ -36,6 +36,7 @@ const AITradingBot = () => {
   
   const priceIntervalRef = useRef(null);
   const timeIntervalRef = useRef(null);
+  const newsIntervalRef = useRef(null);
   const wsRef = useRef(null);
   const priceHistoryRef = useRef([]);
 
@@ -57,6 +58,7 @@ const AITradingBot = () => {
     { label: '1D', value: 'D' }
   ];
 
+  // تحديث الوقت كل ثانية
   useEffect(() => {
     timeIntervalRef.current = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timeIntervalRef.current);
@@ -111,30 +113,61 @@ const AITradingBot = () => {
     };
   }, [selectedAsset]);
 
-  // استعادة الأخبار
-  const fetchNews = useCallback(async () => {
-    const userLocale = Intl.DateTimeFormat().resolvedOptions().locale;
-    const formatTime = (h, m) => {
-      const d = new Date(); d.setHours(h, m, 0);
-      return { display: d.toLocaleTimeString(userLocale, { hour: '2-digit', minute: '2-digit' }), raw: d };
-    };
-    const daily = [
-      { id: 'n1', currency: 'USD', event: 'Retail Sales m/m', impact: 'High', ...formatTime(13, 30), actual: '0.4%' },
-      { id: 'n2', currency: 'EUR', event: 'ECB Press Conference', impact: 'High', ...formatTime(14, 45), actual: '' },
-      { id: 'n3', currency: 'GBP', event: 'CPI y/y', impact: 'High', ...formatTime(7, 0), actual: '4.0%' },
-      { id: 'n4', currency: 'USD', event: 'Jobless Claims', impact: 'Medium', ...formatTime(13, 30), actual: '215K' }
-    ];
-    setNewsEvents(daily);
-    const now = new Date();
-    const isDanger = daily.some(n => n.impact === 'High' && Math.abs(n.raw - now) < 3600000);
-    setMarketStatus(isDanger ? 'Danger' : 'Stable');
+  // ربط Forex Factory وتحديث البيانات تلقائياً
+  const fetchForexFactoryNews = useCallback(async () => {
+    try {
+      // استخدام RSS feed من Forex Factory وتحويله لـ JSON
+      const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://www.forexfactory.com/ff_calendar_thisweek.xml')}`);
+      const data = await response.json();
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(data.contents, "text/xml");
+      const items = xmlDoc.getElementsByTagName("event");
+      
+      const events = [];
+      const now = new Date();
+      
+      for (let i = 0; i < Math.min(items.length, 15); i++) {
+        const title = items[i].getElementsByTagName("title")[0]?.textContent;
+        const country = items[i].getElementsByTagName("country")[0]?.textContent;
+        const dateStr = items[i].getElementsByTagName("date")[0]?.textContent;
+        const timeStr = items[i].getElementsByTagName("time")[0]?.textContent;
+        const impact = items[i].getElementsByTagName("impact")[0]?.textContent;
+        const forecast = items[i].getElementsByTagName("forecast")[0]?.textContent || "---";
+        const previous = items[i].getElementsByTagName("previous")[0]?.textContent || "---";
+        
+        // تحويل الوقت لتنسيق محلي
+        const eventDate = new Date(`${dateStr} ${timeStr}`);
+        
+        events.push({
+          id: i,
+          currency: country,
+          event: title,
+          impact: impact, // High, Medium, Low
+          displayTime: eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          rawDate: eventDate,
+          forecast,
+          previous,
+          actual: eventDate < now ? "Released" : "Pending" // محاكاة الحالة بناءً على الوقت
+        });
+      }
+      
+      setNewsEvents(events);
+      
+      // تحديث حالة السوق بناءً على الأخبار القادمة
+      const hasHighImpactSoon = events.some(e => e.impact === 'High' && Math.abs(e.rawDate - now) < 3600000);
+      setMarketStatus(hasHighImpactSoon ? 'Danger' : 'Stable');
+      
+    } catch (error) {
+      console.error("Forex Factory Fetch Error:", error);
+    }
   }, []);
 
   useEffect(() => {
-    fetchNews();
-    const interval = setInterval(fetchNews, 3600000);
-    return () => clearInterval(interval);
-  }, [fetchNews]);
+    fetchForexFactoryNews();
+    // تحديث البيانات كل ساعة من المصدر
+    newsIntervalRef.current = setInterval(fetchForexFactoryNews, 3600000);
+    return () => clearInterval(newsIntervalRef.current);
+  }, [fetchForexFactoryNews]);
 
   // التحليل الذكي الحقيقي
   const runAnalysis = useCallback(() => {
@@ -144,8 +177,6 @@ const AITradingBot = () => {
       const currentPrice = livePrice;
       const history = priceHistoryRef.current.length > 10 ? priceHistoryRef.current : Array(30).fill(currentPrice).map((p, i) => p + Math.sin(i) * 10);
       const tech = getTechnicalSignal(history);
-      const macd = calculateMACD(history);
-      const bb = calculateBollingerBands(history);
       const aiScore = botBrain.predict({ technicalScore: tech.score, fundamentalScore: marketStatus === 'Danger' ? -30 : 10 });
       const confidence = Math.min(98, Math.max(40, 70 + aiScore));
       const recommendation = confidence >= 80 ? (aiScore > 0 ? 'Buy' : 'Sell') : 'Wait';
@@ -153,7 +184,6 @@ const AITradingBot = () => {
       const levels = getTradeLevels(currentPrice, recommendation.toLowerCase(), 0.002);
       setRiskData({ positionSize: calculatePositionSize(10000, 1, 20).toFixed(2), rrRatio: '1:2' });
 
-      // استعادة الترجمات الذكية
       const reasoningKey = recommendation === 'Wait' ? 'aibot.wait_reason' : (aiScore > 0 ? 'aibot.bullish_reason' : 'aibot.bearish_reason');
       const reasoning = t(reasoningKey, { techReason: tech.reason });
 
@@ -161,7 +191,7 @@ const AITradingBot = () => {
         recommendation: recommendation === 'Wait' ? t('aibot.wait') : (recommendation === 'Buy' ? t('aibot.buy') : t('aibot.sell')),
         rawRecommendation: recommendation,
         confidence,
-        tech, macd, bb,
+        tech,
         currentPrice,
         levels,
         reasoning,
@@ -187,7 +217,7 @@ const AITradingBot = () => {
         {/* Header */}
         <div className="mb-10 text-center">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[10px] font-black uppercase tracking-widest mb-6">
-            <Globe className="w-3 h-3" /> {t('aibot.powered')} V6.9 LIVE
+            <Globe className="w-3 h-3" /> {t('aibot.powered')} V7.0 LIVE (Forex Factory)
           </motion.div>
           <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-6">{t('aibot.title')}</h1>
           <div className="flex flex-wrap justify-center gap-4">
@@ -199,10 +229,16 @@ const AITradingBot = () => {
               <CheckCircle2 className="w-4 h-4 text-green-500" />
               <span className="text-[10px] font-black uppercase text-gray-500">{t('aibot.win_rate')}: {botStats.winRate}%</span>
             </div>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/50 border border-white/5 backdrop-blur-xl">
+              <Clock className="w-3 h-3 text-yellow-500" />
+              <span className="text-[10px] font-black text-yellow-500 tabular-nums uppercase tracking-widest">
+                {currentTime.toLocaleTimeString()}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Asset & Timeframe Selectors (استعادة الفريمات) */}
+        {/* Asset & Timeframe Selectors */}
         <div className="flex flex-col items-center gap-6 mb-12">
           <div className="flex justify-center overflow-x-auto w-full pb-2">
             <div className="flex bg-zinc-900/50 p-1 rounded-2xl border border-white/5 backdrop-blur-xl">
@@ -313,33 +349,37 @@ const AITradingBot = () => {
               </CardContent>
             </Card>
 
-            {/* News Calendar */}
+            {/* News Calendar (Forex Factory) */}
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem] overflow-hidden">
               <CardHeader className="p-8 border-b border-white/5 flex flex-row items-center gap-3">
                 <Calendar className="w-6 h-6 text-yellow-500" />
                 <CardTitle className="text-xl font-black uppercase tracking-tight">{t('aibot.newsCalendar')}</CardTitle>
               </CardHeader>
               <CardContent className="p-0 overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[500px]">
+                <table className="w-full text-left border-collapse min-w-[600px]">
                   <thead>
                     <tr className="bg-white/[0.02] border-b border-white/5">
                       <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.time')}</th>
                       <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.currency')}</th>
                       <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.event')}</th>
                       <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.impact')}</th>
+                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Forecast</th>
+                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Previous</th>
                     </tr>
                   </thead>
                   <tbody>
                     {newsEvents.map((n) => (
                       <tr key={n.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                        <td className="p-6 text-xs font-black tabular-nums">{n.display}</td>
+                        <td className="p-6 text-xs font-black tabular-nums">{n.displayTime}</td>
                         <td className="p-6 font-black">{n.currency}</td>
                         <td className="p-6 text-xs text-gray-300">{n.event}</td>
                         <td className="p-6">
-                          <span className={`px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest ${n.impact === 'High' ? 'bg-red-500/20 text-red-500' : 'bg-yellow-500/20 text-yellow-500'}`}>
+                          <span className={`px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest ${n.impact === 'High' ? 'bg-red-500/20 text-red-500' : n.impact === 'Medium' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-green-500/20 text-green-500'}`}>
                             {n.impact}
                           </span>
                         </td>
+                        <td className="p-6 text-xs font-black text-gray-400">{n.forecast}</td>
+                        <td className="p-6 text-xs font-black text-gray-400">{n.previous}</td>
                       </tr>
                     ))}
                   </tbody>
