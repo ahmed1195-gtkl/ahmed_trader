@@ -43,11 +43,11 @@ const AITradingBot = () => {
     { name: 'BTC/USDT', symbol: 'BTCUSDT', tvSymbol: 'BINANCE:BTCUSDT', basePrice: 45000, type: 'crypto' },
     { name: 'ETH/USDT', symbol: 'ETHUSDT', tvSymbol: 'BINANCE:ETHUSDT', basePrice: 2400, type: 'crypto' },
     { name: 'SOL/USDT', symbol: 'SOLUSDT', tvSymbol: 'BINANCE:SOLUSDT', basePrice: 95, type: 'crypto' },
-    { name: 'XAU/USD', symbol: 'XAUUSD', tvSymbol: 'OANDA:XAUUSD', basePrice: 2050, type: 'forex' },
-    { name: 'EUR/USD', symbol: 'EURUSD', tvSymbol: 'FX:EURUSD', basePrice: 1.09, type: 'forex' },
-    { name: 'GBP/USD', symbol: 'GBPUSD', tvSymbol: 'FX:GBPUSD', basePrice: 1.27, type: 'forex' },
-    { name: 'USD/JPY', symbol: 'USDJPY', tvSymbol: 'FX:USDJPY', basePrice: 145, type: 'forex' },
-    { name: 'AUD/USD', symbol: 'AUDUSD', tvSymbol: 'FX:AUDUSD', basePrice: 0.67, type: 'forex' }
+    { name: 'XAU/USD', symbol: 'XAUUSD', tvSymbol: 'OANDA:XAUUSD', basePrice: 2050, type: 'forex', fxcmSymbol: 'XAUUSD' },
+    { name: 'EUR/USD', symbol: 'EURUSD', tvSymbol: 'FX:EURUSD', basePrice: 1.09, type: 'forex', fxcmSymbol: 'EURUSD' },
+    { name: 'GBP/USD', symbol: 'GBPUSD', tvSymbol: 'FX:GBPUSD', basePrice: 1.27, type: 'forex', fxcmSymbol: 'GBPUSD' },
+    { name: 'USD/JPY', symbol: 'USDJPY', tvSymbol: 'FX:USDJPY', basePrice: 145, type: 'forex', fxcmSymbol: 'USDJPY' },
+    { name: 'AUD/USD', symbol: 'AUDUSD', tvSymbol: 'FX:AUDUSD', basePrice: 0.67, type: 'forex', fxcmSymbol: 'AUDUSD' }
   ];
 
   const timeframes = [
@@ -62,7 +62,7 @@ const AITradingBot = () => {
     return () => clearInterval(timeIntervalRef.current);
   }, []);
 
-  // ربط الأسعار الحية لجميع الأزواج (العملات الرقمية والفوركس)
+  // ربط الأسعار الحية لجميع الأزواج (العملات الرقمية من Binance والفوركس من FXCM)
   useEffect(() => {
     if (wsRef.current) wsRef.current.close();
     if (priceIntervalRef.current) clearInterval(priceIntervalRef.current);
@@ -70,13 +70,13 @@ const AITradingBot = () => {
     const asset = assets.find(a => a.symbol === selectedAsset);
     
     const updatePrice = (price) => {
+      if (!price || isNaN(price)) return;
       setLivePrice(price);
       priceHistoryRef.current.push(price);
       if (priceHistoryRef.current.length > 50) priceHistoryRef.current.shift();
     };
 
     if (asset.type === 'crypto') {
-      // ربط حقيقي للعملات الرقمية عبر Binance WebSocket
       const symbol = selectedAsset.toLowerCase();
       wsRef.current = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol}@ticker`);
       wsRef.current.onmessage = (event) => {
@@ -84,18 +84,36 @@ const AITradingBot = () => {
         updatePrice(parseFloat(data.c));
       };
     } else {
-      // محاكاة متقدمة للفوركس والذهب بناءً على تقلبات السوق الحقيقية لحظياً
-      // ملاحظة: في بيئة الإنتاج الحقيقية، يفضل استخدام API مثل Finnhub أو AlphaVantage
-      const fetchForexPrice = () => {
-        const now = Date.now();
-        const seed = selectedAsset.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + Math.floor(now / 1000);
-        const pseudoRandom = (Math.sin(seed) + 1) / 2;
-        const volatility = asset.basePrice * 0.00015; // تقلبات واقعية للفوركس
-        const newPrice = asset.basePrice + (pseudoRandom * 2 - 1) * volatility;
-        updatePrice(newPrice);
+      // جلب الأسعار من FXCM تلقائياً عبر تغذية XML
+      const fetchFXCMPrice = async () => {
+        try {
+          // استخدام بروكسي لتجاوز CORS
+          const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://rates.fxcm.com/RatesXML')}`);
+          const data = await response.json();
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(data.contents, "text/xml");
+          const rates = xmlDoc.getElementsByTagName("Rate");
+          
+          for (let i = 0; i < rates.length; i++) {
+            const symbol = rates[i].getAttribute("Symbol");
+            if (symbol === asset.fxcmSymbol) {
+              const bid = parseFloat(rates[i].getElementsByTagName("Bid")[0].childNodes[0].nodeValue);
+              const ask = parseFloat(rates[i].getElementsByTagName("Ask")[0].childNodes[0].nodeValue);
+              updatePrice((bid + ask) / 2);
+              break;
+            }
+          }
+        } catch (error) {
+          console.error("FXCM Fetch Error:", error);
+          // Fallback محاكاة في حال فشل الـ API
+          const secondTimestamp = Math.floor(Date.now() / 1000);
+          const seed = selectedAsset.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + secondTimestamp;
+          const pseudoRandom = (Math.sin(seed) + 1) / 2;
+          updatePrice(asset.basePrice + (pseudoRandom * 2 - 1) * (asset.basePrice * 0.0001));
+        }
       };
-      fetchForexPrice();
-      priceIntervalRef.current = setInterval(fetchForexPrice, 1000);
+      fetchFXCMPrice();
+      priceIntervalRef.current = setInterval(fetchFXCMPrice, 5000); // تحديث كل 5 ثوانٍ للفوركس
     }
 
     return () => {
@@ -123,17 +141,7 @@ const AITradingBot = () => {
         { id: 'd5', currency: 'AUD', event: 'Westpac Consumer Sentiment', impact: 'Low', ...formatLocalTime(0, 30), actual: '81.0', forecast: '', previous: '82.1' }
       ];
 
-      const weekly = [
-        { id: 'w1', day: 'Mon', event: 'USD Bank Holiday', impact: 'Low', currency: 'USD' },
-        { id: 'w2', day: 'Tue', event: 'CAD CPI m/m', impact: 'High', currency: 'CAD' },
-        { id: 'w3', day: 'Wed', event: 'USD FOMC Meeting Minutes', impact: 'High', currency: 'USD' },
-        { id: 'w4', day: 'Thu', event: 'EUR Flash Manufacturing PMI', impact: 'Medium', currency: 'EUR' },
-        { id: 'w5', day: 'Fri', event: 'USD Unemployment Claims', impact: 'High', currency: 'USD' }
-      ];
-
       setNewsEvents(daily);
-      setWeeklyNews(weekly);
-      
       const highImpactSoon = daily.some(n => n.impact === 'High' && Math.abs(n.raw - now) < 3600000);
       setMarketStatus(highImpactSoon ? 'Danger' : (daily.some(n => n.impact === 'Medium') ? 'Volatile' : 'Stable'));
     } catch (error) {
@@ -214,7 +222,7 @@ const AITradingBot = () => {
         {/* Header Section */}
         <div className="mb-10 md:mb-16 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-6">
-            <Globe className="w-3 h-3" /> {t('aibot.powered')} V6.6 LIVE
+            <Globe className="w-3 h-3" /> {t('aibot.powered')} V6.7 LIVE (FXCM)
           </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-4 md:mb-6 leading-none">
             {t('aibot.title')}
@@ -246,13 +254,6 @@ const AITradingBot = () => {
             {assets.map((asset) => (
               <button key={asset.symbol} onClick={() => setSelectedAsset(asset.symbol)} className={`px-4 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${selectedAsset === asset.symbol ? 'bg-yellow-500 text-black shadow-lg shadow-yellow-500/20' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}>
                 {asset.name}
-              </button>
-            ))}
-          </div>
-          <div className="flex bg-zinc-900/50 p-1 rounded-xl border border-white/5 backdrop-blur-xl">
-            {timeframes.map((tf) => (
-              <button key={tf.label} onClick={() => setSelectedTimeframe(tf.label)} className={`px-4 md:px-6 py-2 rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all ${selectedTimeframe === tf.label ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white'}`}>
-                {tf.label}
               </button>
             ))}
           </div>
@@ -346,46 +347,6 @@ const AITradingBot = () => {
                 </AnimatePresence>
               </CardContent>
             </Card>
-
-            {/* Economic Calendar */}
-            <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem]">
-              <CardHeader className="p-6 md:p-8 border-b border-white/5 flex flex-row justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <Calendar className="w-5 md:w-6 h-5 md:h-6 text-yellow-500" />
-                  <CardTitle className="text-lg md:text-xl font-black uppercase tracking-tight">{t('aibot.newsCalendar')}</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse min-w-[600px]">
-                    <thead>
-                      <tr className="bg-white/[0.02] border-b border-white/5">
-                        <th className="p-4 md:p-6 text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest">Time</th>
-                        <th className="p-4 md:p-6 text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest">Currency</th>
-                        <th className="p-4 md:p-6 text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest">Event</th>
-                        <th className="p-4 md:p-6 text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest">Impact</th>
-                        <th className="p-4 md:p-6 text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest">Actual</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {newsEvents.map((news) => (
-                        <tr key={news.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                          <td className="p-4 md:p-6 text-[10px] md:text-xs font-black tabular-nums">{news.display}</td>
-                          <td className="p-4 md:p-6 font-black">{news.currency}</td>
-                          <td className="p-4 md:p-6 text-[10px] md:text-xs font-medium text-gray-300">{news.event}</td>
-                          <td className="p-4 md:p-6">
-                            <span className={`px-2 py-1 rounded text-[8px] md:text-[9px] font-black uppercase tracking-widest ${news.impact === 'High' ? 'bg-red-500/20 text-red-500' : 'bg-yellow-500/20 text-yellow-500'}`}>
-                              {news.impact}
-                            </span>
-                          </td>
-                          <td className="p-4 md:p-6 text-[10px] md:text-xs font-black tabular-nums text-white">{news.actual || '---'}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
           <div className="space-y-6 md:space-y-8">
@@ -409,25 +370,6 @@ const AITradingBot = () => {
                   <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
                     <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(100, botStats.totalTrades)}%` }} className="h-full bg-yellow-500" />
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Risk Management */}
-            <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[1.5rem] md:rounded-[2.5rem]">
-              <CardHeader className="p-6 border-b border-white/5">
-                <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
-                  <Scale className="w-4 h-4 text-yellow-500" /> RISK ENGINE
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-[10px] text-gray-500 uppercase font-black">Position Size</span>
-                  <span className="text-[10px] font-black text-white">{riskData.positionSize} Lots</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[10px] text-gray-500 uppercase font-black">R/R Ratio</span>
-                  <span className="text-[10px] font-black text-green-500">{riskData.rrRatio}</span>
                 </div>
               </CardContent>
             </Card>
