@@ -14,9 +14,11 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import Header from './Header';
 import Footer from './Footer';
+import { db } from '../lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 // استيراد الوحدات المحدثة
-import { getTechnicalSignal, calculateMACD, calculateBollingerBands } from '../lib/bot/analysis/technical';
+import { getTechnicalSignal } from '../lib/bot/analysis/technical';
 import { getTradeLevels, calculatePositionSize } from '../lib/bot/risk/manager';
 import { botBrain } from '../lib/bot/models/rl_model';
 
@@ -30,6 +32,7 @@ const AITradingBot = () => {
   const [livePrice, setLivePrice] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [marketStatus, setMarketStatus] = useState('Stable');
+  const [isMarketClosed, setIsMarketClosed] = useState(false);
   const [botStats, setBotStats] = useState(botBrain.getStats());
   const [riskData, setRiskData] = useState({ positionSize: 0, rrRatio: '1:2' });
   const [showTVChart, setShowTVChart] = useState(false);
@@ -58,13 +61,33 @@ const AITradingBot = () => {
     { label: '1D', value: 'D' }
   ];
 
-  // تحديث الوقت كل ثانية
+  // التحقق من حالة إغلاق السوق (السبت والأحد للفوركس)
+  useEffect(() => {
+    const checkMarketStatus = () => {
+      const now = new Date();
+      const day = now.getUTCDay(); // 0 = Sunday, 6 = Saturday
+      const hour = now.getUTCHours();
+      
+      const asset = assets.find(a => a.symbol === selectedAsset);
+      if (asset.type === 'forex') {
+        // سوق الفوركس يغلق الجمعة 22:00 UTC ويفتح الأحد 22:00 UTC
+        const isClosed = (day === 6) || (day === 5 && hour >= 22) || (day === 0 && hour < 22);
+        setIsMarketClosed(isClosed);
+      } else {
+        setIsMarketClosed(false); // العملات الرقمية لا تغلق
+      }
+    };
+    
+    checkMarketStatus();
+    const interval = setInterval(checkMarketStatus, 60000);
+    return () => clearInterval(interval);
+  }, [selectedAsset]);
+
   useEffect(() => {
     timeIntervalRef.current = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timeIntervalRef.current);
   }, []);
 
-  // ربط الأسعار الحية
   useEffect(() => {
     if (wsRef.current) wsRef.current.close();
     if (priceIntervalRef.current) clearInterval(priceIntervalRef.current);
@@ -84,7 +107,7 @@ const AITradingBot = () => {
         const data = JSON.parse(event.data);
         updatePrice(parseFloat(data.c));
       };
-    } else {
+    } else if (!isMarketClosed) {
       const fetchFXCMPrice = async () => {
         try {
           const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://rates.fxcm.com/RatesXML')}`);
@@ -106,26 +129,24 @@ const AITradingBot = () => {
       };
       fetchFXCMPrice();
       priceIntervalRef.current = setInterval(fetchFXCMPrice, 5000);
+    } else {
+      setLivePrice(asset.basePrice); // سعر ثابت عند الإغلاق
     }
     return () => {
       if (wsRef.current) wsRef.current.close();
       if (priceIntervalRef.current) clearInterval(priceIntervalRef.current);
     };
-  }, [selectedAsset]);
+  }, [selectedAsset, isMarketClosed]);
 
-  // ربط Forex Factory وتحديث البيانات تلقائياً
   const fetchForexFactoryNews = useCallback(async () => {
     try {
-      // استخدام RSS feed من Forex Factory وتحويله لـ JSON
       const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://www.forexfactory.com/ff_calendar_thisweek.xml')}`);
       const data = await response.json();
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(data.contents, "text/xml");
       const items = xmlDoc.getElementsByTagName("event");
-      
       const events = [];
       const now = new Date();
-      
       for (let i = 0; i < Math.min(items.length, 15); i++) {
         const title = items[i].getElementsByTagName("title")[0]?.textContent;
         const country = items[i].getElementsByTagName("country")[0]?.textContent;
@@ -134,77 +155,67 @@ const AITradingBot = () => {
         const impact = items[i].getElementsByTagName("impact")[0]?.textContent;
         const forecast = items[i].getElementsByTagName("forecast")[0]?.textContent || "---";
         const previous = items[i].getElementsByTagName("previous")[0]?.textContent || "---";
-        
-        // تحويل الوقت لتنسيق محلي
         const eventDate = new Date(`${dateStr} ${timeStr}`);
-        
         events.push({
-          id: i,
-          currency: country,
-          event: title,
-          impact: impact, // High, Medium, Low
-          displayTime: eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          rawDate: eventDate,
-          forecast,
-          previous,
-          actual: eventDate < now ? "Released" : "Pending" // محاكاة الحالة بناءً على الوقت
+          id: i, currency: country, event: title, impact, displayTime: eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          rawDate: eventDate, forecast, previous, actual: eventDate < now ? "Released" : "Pending"
         });
       }
-      
       setNewsEvents(events);
-      
-      // تحديث حالة السوق بناءً على الأخبار القادمة
       const hasHighImpactSoon = events.some(e => e.impact === 'High' && Math.abs(e.rawDate - now) < 3600000);
       setMarketStatus(hasHighImpactSoon ? 'Danger' : 'Stable');
-      
-    } catch (error) {
-      console.error("Forex Factory Fetch Error:", error);
-    }
+    } catch (error) { console.error("News Fetch Error:", error); }
   }, []);
 
   useEffect(() => {
     fetchForexFactoryNews();
-    // تحديث البيانات كل ساعة من المصدر
     newsIntervalRef.current = setInterval(fetchForexFactoryNews, 3600000);
     return () => clearInterval(newsIntervalRef.current);
   }, [fetchForexFactoryNews]);
 
-  // التحليل الذكي الحقيقي
-  const runAnalysis = useCallback(() => {
-    if (livePrice === 0) return;
+  const runAnalysis = useCallback(async () => {
+    if (livePrice === 0 || isMarketClosed) return;
     setLoading(true);
-    setTimeout(() => {
+    setTimeout(async () => {
       const currentPrice = livePrice;
       const history = priceHistoryRef.current.length > 10 ? priceHistoryRef.current : Array(30).fill(currentPrice).map((p, i) => p + Math.sin(i) * 10);
       const tech = getTechnicalSignal(history);
       const aiScore = botBrain.predict({ technicalScore: tech.score, fundamentalScore: marketStatus === 'Danger' ? -30 : 10 });
       const confidence = Math.min(98, Math.max(40, 70 + aiScore));
       const recommendation = confidence >= 80 ? (aiScore > 0 ? 'Buy' : 'Sell') : 'Wait';
-      
       const levels = getTradeLevels(currentPrice, recommendation.toLowerCase(), 0.002);
       setRiskData({ positionSize: calculatePositionSize(10000, 1, 20).toFixed(2), rrRatio: '1:2' });
-
-      const reasoningKey = recommendation === 'Wait' ? 'aibot.wait_reason' : (aiScore > 0 ? 'aibot.bullish_reason' : 'aibot.bearish_reason');
-      const reasoning = t(reasoningKey, { techReason: tech.reason });
+      const reasoning = t(recommendation === 'Wait' ? 'aibot.wait_reason' : (aiScore > 0 ? 'aibot.bullish_reason' : 'aibot.bearish_reason'), { techReason: tech.reason });
 
       setAnalysis({
         recommendation: recommendation === 'Wait' ? t('aibot.wait') : (recommendation === 'Buy' ? t('aibot.buy') : t('aibot.sell')),
-        rawRecommendation: recommendation,
-        confidence,
-        tech,
-        currentPrice,
-        levels,
-        reasoning,
+        rawRecommendation: recommendation, confidence, tech, currentPrice, levels, reasoning,
         chartData: history.slice(-30).map((p, i) => ({ time: i, price: p }))
       });
 
       if (recommendation !== 'Wait') {
-        botBrain.recordTrade({ asset: selectedAsset, type: recommendation, profit: aiScore > 0 ? 1 : -1 });
+        const tradeData = {
+          asset: selectedAsset,
+          type: recommendation,
+          entryPrice: currentPrice,
+          tp: levels.tp,
+          sl: levels.sl,
+          profit: aiScore > 0 ? 1 : -1,
+          timestamp: Date.now(),
+          createdAt: serverTimestamp()
+        };
+        
+        // حفظ في Firestore للأدمن
+        try {
+          await addDoc(collection(db, 'bot_trades'), tradeData);
+        } catch (e) { console.error("Error saving trade:", e); }
+        
+        botBrain.recordTrade(tradeData);
         setBotStats(botBrain.getStats());
       }
       setLoading(false);
     }, 800);
-  }, [selectedAsset, marketStatus, livePrice, t]);
+  }, [selectedAsset, marketStatus, livePrice, isMarketClosed, t]);
 
   useEffect(() => { runAnalysis(); }, [selectedAsset, selectedTimeframe]);
 
@@ -214,16 +225,17 @@ const AITradingBot = () => {
     <div className="min-h-screen bg-black text-white font-sans selection:bg-yellow-500/30 overflow-x-hidden">
       <Header />
       <main className="pt-24 md:pt-32 pb-20 px-4 md:px-6 max-w-7xl mx-auto">
-        {/* Header */}
         <div className="mb-10 text-center">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[10px] font-black uppercase tracking-widest mb-6">
-            <Globe className="w-3 h-3" /> {t('aibot.powered')} V7.0 LIVE (Forex Factory)
+            <Globe className="w-3 h-3" /> {t('aibot.powered')} V7.2 LIVE
           </motion.div>
           <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-6">{t('aibot.title')}</h1>
           <div className="flex flex-wrap justify-center gap-4">
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/50 border border-white/5 backdrop-blur-xl">
-              <Activity className={`w-4 h-4 ${marketStatus === 'Stable' ? 'text-green-500' : 'text-red-500'}`} />
-              <span className="text-[10px] font-black uppercase text-gray-500">{t('aibot.market_status')}: {marketStatus}</span>
+              <Activity className={`w-4 h-4 ${isMarketClosed ? 'text-red-500' : 'text-green-500'}`} />
+              <span className="text-[10px] font-black uppercase text-gray-500">
+                {t('aibot.market_status')}: {isMarketClosed ? 'CLOSED' : marketStatus}
+              </span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/50 border border-white/5 backdrop-blur-xl">
               <CheckCircle2 className="w-4 h-4 text-green-500" />
@@ -231,14 +243,19 @@ const AITradingBot = () => {
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/50 border border-white/5 backdrop-blur-xl">
               <Clock className="w-3 h-3 text-yellow-500" />
-              <span className="text-[10px] font-black text-yellow-500 tabular-nums uppercase tracking-widest">
-                {currentTime.toLocaleTimeString()}
-              </span>
+              <span className="text-[10px] font-black text-yellow-500 tabular-nums uppercase tracking-widest">{currentTime.toLocaleTimeString()}</span>
             </div>
           </div>
         </div>
 
-        {/* Asset & Timeframe Selectors */}
+        {isMarketClosed && (
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-center">
+            <p className="text-red-500 font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2">
+              <AlertTriangle className="w-4 h-4" /> Market is currently closed for Forex pairs. Analysis will resume on Sunday 22:00 UTC.
+            </p>
+          </motion.div>
+        )}
+
         <div className="flex flex-col items-center gap-6 mb-12">
           <div className="flex justify-center overflow-x-auto w-full pb-2">
             <div className="flex bg-zinc-900/50 p-1 rounded-2xl border border-white/5 backdrop-blur-xl">
@@ -260,7 +277,6 @@ const AITradingBot = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
-            {/* Main Analysis Card */}
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem] overflow-hidden shadow-2xl">
               <CardHeader className="p-8 border-b border-white/5 flex flex-row justify-between items-center">
                 <div>
@@ -268,7 +284,7 @@ const AITradingBot = () => {
                   <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">{selectedAsset} | {selectedTimeframe}</span>
                 </div>
                 <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
-                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                  <div className={`w-1.5 h-1.5 rounded-full ${isMarketClosed ? 'bg-red-500' : 'bg-green-500 animate-pulse'}`} />
                   <span className="text-xs font-black text-yellow-500 tabular-nums">{livePrice.toFixed(4)}</span>
                 </div>
               </CardHeader>
@@ -293,7 +309,6 @@ const AITradingBot = () => {
                           <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.confidence')}</p>
                         </div>
                       </div>
-
                       <div className="p-5 rounded-2xl bg-yellow-500/5 border border-yellow-500/10">
                         <div className="flex items-center gap-2 mb-2">
                           <BrainCircuit className="w-4 h-4 text-yellow-500" />
@@ -301,19 +316,12 @@ const AITradingBot = () => {
                         </div>
                         <p className="text-xs text-gray-300 leading-relaxed italic">"{analysis.reasoning}"</p>
                       </div>
-
                       <div className="relative w-full h-[300px] bg-black/40 rounded-3xl p-4 border border-white/5">
                         <ResponsiveContainer width="100%" height="100%">
                           <AreaChart data={analysis.chartData}>
-                            <defs>
-                              <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#eab308" stopOpacity={0.3}/>
-                                <stop offset="95%" stopColor="#eab308" stopOpacity={0}/>
-                              </linearGradient>
-                            </defs>
+                            <defs><linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#eab308" stopOpacity={0.3}/><stop offset="95%" stopColor="#eab308" stopOpacity={0}/></linearGradient></defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                            <XAxis dataKey="time" hide />
-                            <YAxis domain={['auto', 'auto']} hide />
+                            <XAxis dataKey="time" hide /><YAxis domain={['auto', 'auto']} hide />
                             <Area type="monotone" dataKey="price" stroke="#eab308" fillOpacity={1} fill="url(#colorPrice)" strokeWidth={3} />
                             {analysis.rawRecommendation !== 'Wait' && (
                               <>
@@ -325,22 +333,13 @@ const AITradingBot = () => {
                           </AreaChart>
                         </ResponsiveContainer>
                       </div>
-
                       <div className="space-y-4">
-                        <Button 
-                          onClick={() => setShowTVChart(!showTVChart)}
-                          className="w-full md:hidden bg-zinc-900 border border-white/10 text-[10px] font-black uppercase tracking-widest py-6 rounded-2xl flex items-center justify-center gap-2"
-                        >
+                        <Button onClick={() => setShowTVChart(!showTVChart)} className="w-full md:hidden bg-zinc-900 border border-white/10 text-[10px] font-black uppercase tracking-widest py-6 rounded-2xl flex items-center justify-center gap-2">
                           {showTVChart ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           {showTVChart ? t('aibot.hide_chart') : t('aibot.show_chart')}
                         </Button>
-                        
                         <div className={`${showTVChart ? 'block' : 'hidden'} md:block w-full h-[500px] bg-zinc-950 rounded-3xl overflow-hidden border border-white/10`}>
-                          <iframe 
-                            src={`https://s.tradingview.com/widgetembed/?symbol=${currentAsset.tvSymbol}&interval=1&theme=dark&style=1&locale=en`}
-                            style={{ width: '100%', height: '100%', border: 'none' }}
-                            title="TradingView Chart"
-                          />
+                          <iframe src={`https://s.tradingview.com/widgetembed/?symbol=${currentAsset.tvSymbol}&interval=1&theme=dark&style=1&locale=en`} style={{ width: '100%', height: '100%', border: 'none' }} title="TradingView Chart" />
                         </div>
                       </div>
                     </div>
@@ -348,12 +347,9 @@ const AITradingBot = () => {
                 </AnimatePresence>
               </CardContent>
             </Card>
-
-            {/* News Calendar (Forex Factory) */}
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem] overflow-hidden">
               <CardHeader className="p-8 border-b border-white/5 flex flex-row items-center gap-3">
-                <Calendar className="w-6 h-6 text-yellow-500" />
-                <CardTitle className="text-xl font-black uppercase tracking-tight">{t('aibot.newsCalendar')}</CardTitle>
+                <Calendar className="w-6 h-6 text-yellow-500" /><CardTitle className="text-xl font-black uppercase tracking-tight">{t('aibot.newsCalendar')}</CardTitle>
               </CardHeader>
               <CardContent className="p-0 overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[600px]">
@@ -374,9 +370,7 @@ const AITradingBot = () => {
                         <td className="p-6 font-black">{n.currency}</td>
                         <td className="p-6 text-xs text-gray-300">{n.event}</td>
                         <td className="p-6">
-                          <span className={`px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest ${n.impact === 'High' ? 'bg-red-500/20 text-red-500' : n.impact === 'Medium' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-green-500/20 text-green-500'}`}>
-                            {n.impact}
-                          </span>
+                          <span className={`px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest ${n.impact === 'High' ? 'bg-red-500/20 text-red-500' : n.impact === 'Medium' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-green-500/20 text-green-500'}`}>{n.impact}</span>
                         </td>
                         <td className="p-6 text-xs font-black text-gray-400">{n.forecast}</td>
                         <td className="p-6 text-xs font-black text-gray-400">{n.previous}</td>
@@ -387,14 +381,10 @@ const AITradingBot = () => {
               </CardContent>
             </Card>
           </div>
-
           <div className="space-y-8">
-            {/* AI Status */}
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem]">
               <CardHeader className="p-6 border-b border-white/5">
-                <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
-                  <BrainCircuit className="w-4 h-4 text-yellow-500" /> {t('aibot.ai_brain')}
-                </CardTitle>
+                <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2"><BrainCircuit className="w-4 h-4 text-yellow-500" /> {t('aibot.ai_brain')}</CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-6">
                 <div className="flex justify-between items-center">
@@ -406,23 +396,13 @@ const AITradingBot = () => {
                 </div>
               </CardContent>
             </Card>
-
-            {/* Risk Engine */}
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem]">
               <CardHeader className="p-6 border-b border-white/5">
-                <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
-                  <Scale className="w-4 h-4 text-yellow-500" /> {t('aibot.risk_engine')}
-                </CardTitle>
+                <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2"><Scale className="w-4 h-4 text-yellow-500" /> {t('aibot.risk_engine')}</CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-[10px] text-gray-500 uppercase font-black">{t('aibot.position_size')}</span>
-                  <span className="text-xs font-black text-white">{riskData.positionSize} Lots</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[10px] text-gray-500 uppercase font-black">{t('aibot.rr_ratio')}</span>
-                  <span className="text-xs font-black text-green-500">{riskData.rrRatio}</span>
-                </div>
+                <div className="flex justify-between"><span className="text-[10px] text-gray-500 uppercase font-black">{t('aibot.position_size')}</span><span className="text-xs font-black text-white">{riskData.positionSize} Lots</span></div>
+                <div className="flex justify-between"><span className="text-[10px] text-gray-500 uppercase font-black">{t('aibot.rr_ratio')}</span><span className="text-xs font-black text-green-500">{riskData.rrRatio}</span></div>
               </CardContent>
             </Card>
           </div>

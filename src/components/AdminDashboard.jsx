@@ -10,7 +10,8 @@ import {
   query, 
   orderBy, 
   serverTimestamp,
-  where
+  where,
+  limit
 } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { useTranslation } from 'react-i18next';
@@ -35,7 +36,8 @@ import {
   Download,
   FileSpreadsheet,
   TrendingUp,
-  TrendingDown
+  TrendingDown,
+  RefreshCw
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -52,6 +54,7 @@ const AdminDashboard = () => {
   const [posts, setPosts] = useState([]);
   const [botTrades, setBotTrades] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   
   // User Detail State
@@ -79,9 +82,10 @@ const AdminDashboard = () => {
       
       setPosts([...adminPostsList, ...userPostsList]);
 
-      // محاكاة جلب صفقات البوت (يمكن ربطها بـ Firestore لاحقاً)
-      const savedTrades = JSON.parse(localStorage.getItem('bot_trades_history') || '[]');
-      setBotTrades(savedTrades.reverse());
+      // جلب صفقات البوت من Firestore
+      const tradesSnap = await getDocs(query(collection(db, 'bot_trades'), orderBy('createdAt', 'desc'), limit(100)));
+      const tradesList = tradesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setBotTrades(tradesList);
 
     } catch (error) {
       console.error("Error fetching admin data:", error);
@@ -90,15 +94,28 @@ const AdminDashboard = () => {
     }
   };
 
+  const refreshTrades = async () => {
+    setRefreshing(true);
+    try {
+      const tradesSnap = await getDocs(query(collection(db, 'bot_trades'), orderBy('createdAt', 'desc'), limit(100)));
+      const tradesList = tradesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setBotTrades(tradesList);
+    } catch (error) {
+      console.error("Error refreshing trades:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const exportToXLS = () => {
-    const headers = ['Asset', 'Type', 'Entry', 'Exit', 'Profit', 'Date'];
+    const headers = ['Asset', 'Type', 'Entry', 'TP', 'SL', 'Date'];
     const rows = botTrades.map(t => [
       t.asset,
       t.type,
       t.entryPrice || 'N/A',
-      t.exitPrice || 'N/A',
-      t.profit,
-      new Date(t.timestamp).toLocaleString()
+      t.tp || 'N/A',
+      t.sl || 'N/A',
+      t.createdAt ? new Date(t.createdAt.seconds * 1000).toLocaleString() : new Date(t.timestamp).toLocaleString()
     ]);
 
     let csvContent = "data:text/csv;charset=utf-8," 
@@ -283,7 +300,12 @@ const AdminDashboard = () => {
         {activeTab === 'bot_trades' && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-black uppercase tracking-tight">Bot Trading History</h2>
+              <div className="flex items-center gap-4">
+                <h2 className="text-xl font-black uppercase tracking-tight">Bot Trading History (Live)</h2>
+                <Button onClick={refreshTrades} className="bg-white/5 hover:bg-white/10 text-white p-2 rounded-xl">
+                  <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                </Button>
+              </div>
               <Button 
                 onClick={exportToXLS}
                 className="bg-green-500/10 hover:bg-green-500 text-green-500 hover:text-black border border-green-500/20 h-10 px-6 rounded-xl text-[10px] font-black uppercase tracking-widest"
@@ -298,27 +320,34 @@ const AdminDashboard = () => {
                   <tr className="bg-white/[0.02] border-b border-white/5">
                     <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Asset</th>
                     <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Type</th>
-                    <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Profit/Loss</th>
+                    <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Entry Price</th>
+                    <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">TP / SL</th>
                     <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Date</th>
                   </tr>
                 </thead>
                 <tbody>
                   {botTrades.length > 0 ? botTrades.map((trade, idx) => (
-                    <tr key={idx} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                    <tr key={trade.id || idx} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                       <td className="p-6 font-black uppercase text-xs">{trade.asset}</td>
                       <td className="p-6">
                         <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${trade.type === 'Buy' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
                           {trade.type}
                         </span>
                       </td>
-                      <td className={`p-6 font-black text-xs ${trade.profit > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                        {trade.profit > 0 ? '+' : ''}{trade.profit}
+                      <td className="p-6 font-black text-xs text-white">{trade.entryPrice?.toFixed(4)}</td>
+                      <td className="p-6">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[9px] font-black text-green-500 uppercase">TP: {trade.tp?.toFixed(4)}</span>
+                          <span className="text-[9px] font-black text-red-500 uppercase">SL: {trade.sl?.toFixed(4)}</span>
+                        </div>
                       </td>
-                      <td className="p-6 text-[10px] text-gray-500 font-bold">{new Date(trade.timestamp).toLocaleString()}</td>
+                      <td className="p-6 text-[10px] text-gray-500 font-bold">
+                        {trade.createdAt ? new Date(trade.createdAt.seconds * 1000).toLocaleString() : new Date(trade.timestamp).toLocaleString()}
+                      </td>
                     </tr>
                   )) : (
                     <tr>
-                      <td colSpan="4" className="p-20 text-center text-gray-500 font-black uppercase tracking-widest text-xs">No trades recorded yet</td>
+                      <td colSpan="5" className="p-20 text-center text-gray-500 font-black uppercase tracking-widest text-xs">No trades recorded in database yet</td>
                     </tr>
                   )}
                 </tbody>
