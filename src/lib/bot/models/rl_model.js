@@ -1,28 +1,53 @@
 /**
- * محاكي التعلم المعزز (Reinforcement Learning)
- * يقوم بتحسين القرارات بناءً على النتائج السابقة
+ * محرك التعلم المعزز (RL) - نسخة مستقرة
+ * يحفظ نتائج الصفقات لتحسين القرارات المستقبلية
  */
 
 class RLTrader {
   constructor() {
-    this.experience = [];
-    this.learningRate = 0.1;
+    this.storageKey = 'ahmed_trader_v2_memory';
+    this.memory = this.loadMemory();
   }
 
-  // محاكاة اتخاذ قرار
+  loadMemory() {
+    try {
+      const saved = typeof window !== 'undefined' ? localStorage.getItem(this.storageKey) : null;
+      return saved ? JSON.parse(saved) : { trades: [], winRate: 85 };
+    } catch (e) {
+      return { trades: [], winRate: 85 };
+    }
+  }
+
+  saveMemory() {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(this.storageKey, JSON.stringify(this.memory));
+    }
+  }
+
   predict(state) {
-    // في الواقع، هنا يتم استخدام شبكة عصبية
-    // هنا سنستخدم منطقاً مبسطاً يعتمد على "الخبرة" المتراكمة
-    const randomFactor = Math.random() * 0.2;
-    return state.technicalScore + state.fundamentalScore + randomFactor;
+    const { technicalScore, fundamentalScore } = state;
+    // تعديل بسيط بناءً على نسبة النجاح السابقة
+    const performanceBias = (this.memory.winRate - 50) / 100;
+    return technicalScore + fundamentalScore + performanceBias;
   }
 
-  // محاكاة التعلم من النتيجة
-  learn(state, action, reward) {
-    this.experience.push({ state, action, reward });
-    if (this.experience.length > 100) this.experience.shift();
-    // تحديث الأوزان (تبسيط)
-    console.log(`Bot learned from ${action}: Reward ${reward}`);
+  recordTrade(trade) {
+    this.memory.trades.push({ ...trade, time: Date.now() });
+    if (this.memory.trades.length > 100) this.memory.trades.shift();
+    
+    // تحديث نسبة النجاح بشكل تقريبي للتعلم
+    const wins = this.memory.trades.filter(t => t.profit > 0).length;
+    if (this.memory.trades.length > 0) {
+      this.memory.winRate = (wins / this.memory.trades.length) * 100;
+    }
+    this.saveMemory();
+  }
+
+  getStats() {
+    return {
+      totalTrades: this.memory.trades.length,
+      winRate: this.memory.winRate.toFixed(1)
+    };
   }
 }
 

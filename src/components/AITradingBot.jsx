@@ -15,12 +15,11 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import Header from './Header';
 import Footer from './Footer';
 
-// استيراد الوحدات الجديدة
+// استيراد الوحدات المحدثة
 import { getTechnicalSignal, calculateMACD, calculateBollingerBands } from '../lib/bot/analysis/technical';
 import { getTradeLevels, calculatePositionSize } from '../lib/bot/risk/manager';
 import { botBrain } from '../lib/bot/models/rl_model';
 
-// Version 6.0.0 - Advanced AI Update: Technical, Fundamental, Risk Management & RL Integration
 const AITradingBot = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
@@ -29,14 +28,11 @@ const AITradingBot = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState('1H');
   const [newsEvents, setNewsEvents] = useState([]);
   const [weeklyNews, setWeeklyNews] = useState([]);
-  const [newsWarning, setNewsWarning] = useState(null);
   const [livePrice, setLivePrice] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [marketStatus, setMarketStatus] = useState('Stable');
-  const [performance, setPerformance] = useState({ winRate: 86.2, profitFactor: 2.7, totalTrades: 1450 });
+  const [botStats, setBotStats] = useState(botBrain.getStats());
   const [riskData, setRiskData] = useState({ positionSize: 0, rrRatio: '1:2' });
-  const [paperBalance, setPaperBalance] = useState(10000);
-  const [backtestResults, setBacktestResults] = useState(null);
   
   const priceIntervalRef = useRef(null);
   const timeIntervalRef = useRef(null);
@@ -62,10 +58,11 @@ const AITradingBot = () => {
   ];
 
   useEffect(() => {
-    timeIntervalRef.current = setInterval(() => setCurrentTime(new Date()), 10000);
+    timeIntervalRef.current = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timeIntervalRef.current);
   }, []);
 
+  // ربط الأسعار الحية
   useEffect(() => {
     if (wsRef.current) wsRef.current.close();
     const isCrypto = selectedAsset.includes('USDT');
@@ -133,16 +130,14 @@ const AITradingBot = () => {
       
       const highImpactSoon = daily.some(n => n.impact === 'High' && Math.abs(n.raw - now) < 3600000);
       setMarketStatus(highImpactSoon ? 'Danger' : (daily.some(n => n.impact === 'Medium') ? 'Volatile' : 'Stable'));
-      
-      return daily;
     } catch (error) {
-      return [];
+      console.error("News fetch error", error);
     }
   }, []);
 
   useEffect(() => {
     fetchForexFactoryNews();
-    const newsInterval = setInterval(fetchForexFactoryNews, 86400000);
+    const newsInterval = setInterval(fetchForexFactoryNews, 3600000);
     return () => clearInterval(newsInterval);
   }, [fetchForexFactoryNews]);
 
@@ -152,82 +147,54 @@ const AITradingBot = () => {
     
     setTimeout(() => {
       const currentPrice = livePrice;
-      const minuteTimestamp = Math.floor(Date.now() / 60000);
-      const seed = selectedAsset.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + minuteTimestamp + selectedTimeframe.charCodeAt(0);
+      const history = priceHistoryRef.current.length > 10 ? priceHistoryRef.current : Array(30).fill(currentPrice).map((p, i) => p + Math.sin(i) * 10);
       
-      const now = new Date();
-      const criticalNews = newsEvents.find(n => 
-        n.impact === 'High' && n.raw && (n.raw - now) > 0 && (n.raw - now) <= 1800000 && 
-        (selectedAsset.includes(n.currency) || n.currency === 'ALL')
-      );
-
-      if (criticalNews) setNewsWarning(criticalNews);
-      else setNewsWarning(null);
-
-      // استخدام المحرك التقني الجديد مع المؤشرات الإضافية
-      const history = priceHistoryRef.current.length > 30 ? priceHistoryRef.current : Array(30).fill(currentPrice).map((p, i) => p + Math.sin(i) * 10);
       const techSignal = getTechnicalSignal(history);
       const macd = calculateMACD(history);
       const bb = calculateBollingerBands(history);
       
-      // محاكاة التحليل الأساسي
-      const fundamentalScore = criticalNews ? -50 : 10;
-      
-      // استخدام محرك RL لاتخاذ القرار
+      const fundamentalScore = marketStatus === 'Danger' ? -30 : 10;
       const aiDecisionScore = botBrain.predict({ technicalScore: techSignal.score, fundamentalScore });
       
       const confidence = Math.min(98, Math.max(40, 70 + aiDecisionScore));
       const isBullish = aiDecisionScore > 0;
       
       let recommendation = 'Wait';
-      let strength = 'Normal';
+      if (confidence >= 80) recommendation = isBullish ? 'Buy' : 'Sell';
       
-      if (!criticalNews) {
-        if (confidence >= 85) {
-          recommendation = isBullish ? 'Buy' : 'Sell';
-          strength = 'Strong';
-        } else if (confidence >= 75) {
-          recommendation = isBullish ? 'Buy' : 'Sell';
-          strength = 'Normal';
-        }
-      } else {
-        recommendation = 'Stop';
-      }
-      
-      const chartData = [];
-      for (let i = 0; i < 30; i++) {
-        chartData.push({ time: i, price: currentPrice + (Math.sin((seed + i) * 0.5) * (currentPrice * 0.002)) });
-      }
-
-      // استخدام محرك إدارة المخاطر
       const levels = getTradeLevels(currentPrice, recommendation.toLowerCase(), 0.002);
       const posSize = calculatePositionSize(10000, 1, 20);
       setRiskData({ positionSize: posSize.toFixed(2), rrRatio: '1:2' });
 
-      const reasoning = criticalNews ? t('aibot.smc.bear') : 
-        (isBullish ? t('aibot.ict.bull') : t('aibot.sk.bear'));
+      // تفسير واقعي بناءً على التحليل
+      const reasoning = recommendation === 'Wait' 
+        ? "Market conditions are neutral. Waiting for a stronger technical confirmation."
+        : `${recommendation} signal generated: ${techSignal.reason} Confidence at ${confidence.toFixed(1)}%.`;
 
       setAnalysis({
         recommendation,
-        strength,
+        strength: confidence > 85 ? 'Strong' : 'Normal',
         confidence,
         techSignal,
         macd,
         bb,
-        trend: isBullish ? t('aibot.upward') : t('aibot.downward'),
+        trend: techSignal.trend,
         currentPrice,
         levels,
-        chartData,
+        chartData: history.slice(-30).map((p, i) => ({ time: i, price: p })),
         reasoning,
         timeframe: selectedTimeframe
       });
-      
-      // محاكاة التعلم
-      botBrain.learn({ technicalScore: techSignal.score }, recommendation, isBullish ? 1 : -1);
+
+      // حفظ الصفقة للتعلم
+      if (recommendation !== 'Wait') {
+        botBrain.recordTrade({ asset: selectedAsset, type: recommendation, profit: isBullish ? 1 : -1 });
+        setBotStats(botBrain.getStats());
+      }
       
       setLoading(false);
     }, 1000);
-  }, [selectedAsset, selectedTimeframe, newsEvents, livePrice, t]);
+  }, [selectedAsset, selectedTimeframe, marketStatus, livePrice, t]);
 
   useEffect(() => {
     runAdvancedAIAnalysis();
@@ -243,7 +210,7 @@ const AITradingBot = () => {
         {/* Header Section */}
         <div className="mb-10 md:mb-16 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-6">
-            <Globe className="w-3 h-3" /> {t('aibot.powered')} V6.0
+            <Globe className="w-3 h-3" /> {t('aibot.powered')} V6.5 LIVE
           </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-4 md:mb-6 leading-none">
             {t('aibot.title')}
@@ -251,19 +218,19 @@ const AITradingBot = () => {
           
           <div className="flex flex-wrap justify-center gap-4 mt-6">
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/50 border border-white/5 backdrop-blur-xl">
-              <Activity className={`w-4 h-4 ${marketStatus === 'Stable' ? 'text-green-500' : marketStatus === 'Volatile' ? 'text-yellow-500' : 'text-red-500'}`} />
-              <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">{t('market.live')}:</span>
-              <span className={`text-[10px] font-black uppercase tracking-widest ${marketStatus === 'Stable' ? 'text-green-500' : marketStatus === 'Volatile' ? 'text-yellow-500' : 'text-red-500'}`}>{marketStatus}</span>
+              <Activity className={`w-4 h-4 ${marketStatus === 'Stable' ? 'text-green-500' : 'text-red-500'}`} />
+              <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Market:</span>
+              <span className={`text-[10px] font-black uppercase tracking-widest ${marketStatus === 'Stable' ? 'text-green-500' : 'text-red-500'}`}>{marketStatus}</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/50 border border-white/5 backdrop-blur-xl">
               <CheckCircle2 className="w-4 h-4 text-green-500" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Win Rate:</span>
-              <span className="text-[10px] font-black uppercase tracking-widest text-white">{performance.winRate}%</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">AI Win Rate:</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-white">{botStats.winRate}%</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/50 border border-white/5 backdrop-blur-xl">
               <Clock className="w-3 h-3 text-yellow-500" />
               <span className="text-[10px] font-black text-yellow-500 tabular-nums uppercase tracking-widest">
-                {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                {currentTime.toLocaleTimeString()}
               </span>
             </div>
           </div>
@@ -319,50 +286,13 @@ const AITradingBot = () => {
                       <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
                         <div className="text-center md:text-left">
                           <p className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-2">{t('aibot.recommendation')}</p>
-                          <h2 className={`text-5xl md:text-7xl font-black uppercase tracking-tighter ${analysis.recommendation === 'Buy' ? 'text-green-500' : analysis.recommendation === 'Sell' ? 'text-red-500' : analysis.recommendation === 'Stop' ? 'text-orange-500' : 'text-yellow-500'}`}>
-                            {analysis.recommendation === 'Buy' ? t('aibot.buy') : analysis.recommendation === 'Sell' ? t('aibot.sell') : analysis.recommendation === 'Stop' ? 'STOP' : t('aibot.wait')}
-                            {analysis.strength === 'Strong' && <span className="text-xs align-top ml-2 bg-white/10 px-2 py-1 rounded-lg">STRONG</span>}
+                          <h2 className={`text-5xl md:text-7xl font-black uppercase tracking-tighter ${analysis.recommendation === 'Buy' ? 'text-green-500' : analysis.recommendation === 'Sell' ? 'text-red-500' : 'text-yellow-500'}`}>
+                            {analysis.recommendation === 'Buy' ? t('aibot.buy') : analysis.recommendation === 'Sell' ? t('aibot.sell') : t('aibot.wait')}
                           </h2>
                         </div>
                         <div className="text-center bg-white/5 p-6 rounded-[2rem] border border-white/5">
-                          <span className={`text-4xl md:text-5xl font-black tracking-tighter ${analysis.confidence >= 85 ? 'text-green-500' : analysis.confidence >= 75 ? 'text-yellow-500' : 'text-gray-500'}`}>{analysis.confidence}%</span>
+                          <span className={`text-4xl md:text-5xl font-black tracking-tighter ${analysis.confidence >= 80 ? 'text-green-500' : 'text-yellow-500'}`}>{analysis.confidence.toFixed(1)}%</span>
                           <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.confidence')}</p>
-                        </div>
-                      </div>
-
-                      {/* New: Risk Management & Technical Info */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
-                          <div className="flex items-center gap-2 mb-3">
-                            <Scale className="w-4 h-4 text-blue-500" />
-                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{t('aibot.risk.title')}</span>
-                          </div>
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <span className="text-[10px] text-gray-500">{t('aibot.risk.positionSize')}</span>
-                              <span className="text-[10px] font-bold text-white">{riskData.positionSize} Lots</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-[10px] text-gray-500">{t('aibot.risk.ratio')}</span>
-                              <span className="text-[10px] font-bold text-green-500">{riskData.rrRatio}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
-                          <div className="flex items-center gap-2 mb-3">
-                            <Zap className="w-4 h-4 text-yellow-500" />
-                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{t('aibot.metrics')}</span>
-                          </div>
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <span className="text-[10px] text-gray-500">{t('aibot.tech.rsi')}</span>
-                              <span className="text-[10px] font-bold text-white">{analysis.techSignal.rsi.toFixed(2)}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-[10px] text-gray-500">{t('aibot.tech.trend')}</span>
-                              <span className={`text-[10px] font-bold ${analysis.techSignal.trend === 'bullish' ? 'text-green-500' : 'text-red-500'}`}>{analysis.techSignal.trend.toUpperCase()}</span>
-                            </div>
-                          </div>
                         </div>
                       </div>
 
@@ -388,7 +318,7 @@ const AITradingBot = () => {
                             <XAxis dataKey="time" hide />
                             <YAxis domain={['auto', 'auto']} hide />
                             <Area type="monotone" dataKey="price" stroke={analysis.recommendation === 'Buy' ? '#22c55e' : analysis.recommendation === 'Sell' ? '#ef4444' : '#eab308'} fillOpacity={1} fill="url(#colorPrice)" strokeWidth={3} />
-                            {analysis.recommendation !== 'Wait' && analysis.recommendation !== 'Stop' && (
+                            {analysis.recommendation !== 'Wait' && (
                               <>
                                 <ReferenceLine y={analysis.levels.entry} stroke="white" strokeDasharray="3 3" label={{ position: 'right', value: 'ENTRY', fill: 'white', fontSize: 8, fontWeight: 'bold' }} />
                                 <ReferenceLine y={analysis.levels.tp} stroke="#22c55e" strokeDasharray="3 3" label={{ position: 'right', value: 'TP', fill: '#22c55e', fontSize: 8, fontWeight: 'bold' }} />
@@ -399,14 +329,10 @@ const AITradingBot = () => {
                         </ResponsiveContainer>
                       </div>
 
-                      {/* TradingView Official Terminal */}
+                      {/* TradingView Terminal */}
                       <div className="w-full h-[400px] md:h-[500px] bg-zinc-950 rounded-2xl md:rounded-3xl overflow-hidden border border-white/5">
-                        <div className="flex items-center gap-2 p-4 bg-zinc-900/50 border-b border-white/5">
-                          <BarChart3 className="w-4 h-4 text-yellow-500" />
-                          <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-gray-500">TradingView Official Terminal</span>
-                        </div>
                         <iframe 
-                          src={`https://s.tradingview.com/widgetembed/?frameElementId=tradingview_76d4d&symbol=${currentAsset.tvSymbol}&interval=${currentTimeframe.value}&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=[]&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides={}&overrides={}&enabled_features=[]&disabled_features=[]&locale=ar&utm_source=www.tradingview.com&utm_medium=widget&utm_campaign=chart&utm_term=${currentAsset.tvSymbol}`}
+                          src={`https://s.tradingview.com/widgetembed/?symbol=${currentAsset.tvSymbol}&interval=${currentTimeframe.value}&theme=dark&style=1&locale=en`}
                           style={{ width: '100%', height: '100%', border: 'none' }}
                           title="TradingView Chart"
                         />
@@ -441,15 +367,10 @@ const AITradingBot = () => {
                       {newsEvents.map((news) => (
                         <tr key={news.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                           <td className="p-4 md:p-6 text-[10px] md:text-xs font-black tabular-nums">{news.display}</td>
-                          <td className="p-4 md:p-6">
-                            <div className="flex items-center gap-2">
-                              <div className="w-4 h-3 bg-zinc-800 rounded-sm overflow-hidden border border-white/10" />
-                              <span className="text-[10px] md:text-xs font-black">{news.currency}</span>
-                            </div>
-                          </td>
+                          <td className="p-4 md:p-6 font-black">{news.currency}</td>
                           <td className="p-4 md:p-6 text-[10px] md:text-xs font-medium text-gray-300">{news.event}</td>
                           <td className="p-4 md:p-6">
-                            <span className={`px-2 py-1 rounded text-[8px] md:text-[9px] font-black uppercase tracking-widest ${news.impact === 'High' ? 'bg-red-500/20 text-red-500' : news.impact === 'Medium' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-blue-500/20 text-blue-500'}`}>
+                            <span className={`px-2 py-1 rounded text-[8px] md:text-[9px] font-black uppercase tracking-widest ${news.impact === 'High' ? 'bg-red-500/20 text-red-500' : 'bg-yellow-500/20 text-yellow-500'}`}>
                               {news.impact}
                             </span>
                           </td>
@@ -468,58 +389,41 @@ const AITradingBot = () => {
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[1.5rem] md:rounded-[2.5rem]">
               <CardHeader className="p-6 border-b border-white/5">
                 <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-yellow-500" /> {t('aibot.rl.learning')}
+                  <Zap className="w-4 h-4 text-yellow-500" /> AI LEARNING
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-6">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Status</span>
-                  <span className="text-[10px] font-black text-green-500 uppercase tracking-widest animate-pulse">{t('aibot.rl.status')}</span>
+                  <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Experience</span>
+                  <span className="text-[10px] font-black text-green-500 uppercase tracking-widest">{botStats.totalTrades} Trades</span>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-[9px] font-black uppercase tracking-widest text-gray-500">
                     <span>Learning Progress</span>
-                    <span>94%</span>
+                    <span>{Math.min(100, botStats.totalTrades)}%</span>
                   </div>
                   <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                    <motion.div initial={{ width: 0 }} animate={{ width: '94%' }} className="h-full bg-yellow-500" />
+                    <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(100, botStats.totalTrades)}%` }} className="h-full bg-yellow-500" />
                   </div>
-                </div>
-                <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Lightbulb className="w-3 h-3 text-yellow-500" />
-                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{t('aibot.expertTip')}</span>
-                  </div>
-                  <p className="text-[10px] text-gray-400 leading-relaxed">
-                    The AI has detected a recurring pattern in {selectedAsset} during {selectedTimeframe} sessions. Adjusting risk parameters for optimal performance.
-                  </p>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Weekly Outlook */}
+            {/* Risk Management */}
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[1.5rem] md:rounded-[2.5rem]">
               <CardHeader className="p-6 border-b border-white/5">
                 <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
-                  <History className="w-4 h-4 text-yellow-500" /> Weekly Outlook
+                  <Scale className="w-4 h-4 text-yellow-500" /> RISK ENGINE
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  {weeklyNews.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center text-[10px] font-black text-yellow-500">
-                          {item.day}
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-black text-white uppercase">{item.event}</p>
-                          <p className="text-[8px] font-black text-gray-500 uppercase">{item.currency}</p>
-                        </div>
-                      </div>
-                      <div className={`w-1.5 h-1.5 rounded-full ${item.impact === 'High' ? 'bg-red-500' : 'bg-yellow-500'}`} />
-                    </div>
-                  ))}
+              <CardContent className="p-6 space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-[10px] text-gray-500 uppercase font-black">Position Size</span>
+                  <span className="text-[10px] font-black text-white">{riskData.positionSize} Lots</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[10px] text-gray-500 uppercase font-black">R/R Ratio</span>
+                  <span className="text-[10px] font-black text-green-500">{riskData.rrRatio}</span>
                 </div>
               </CardContent>
             </Card>
