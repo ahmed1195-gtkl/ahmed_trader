@@ -210,7 +210,8 @@ const AITradingBot = () => {
         tech: decisionResult.tech,
         currentPrice,
         levels,
-        reasoning: `${displayReason} | ${displayAccountType}`,
+        reasoning: displayReason,
+        accountType: displayAccountType,
         chartData: history.slice(-30).map((p, i) => ({ time: i, price: p }))
       });
 
@@ -430,6 +431,24 @@ const AITradingBot = () => {
               <CardContent className="p-6 space-y-4">
                 <div className="flex justify-between"><span className="text-[10px] text-gray-500 uppercase font-black">{t('aibot.position_size')}</span><span className="text-xs font-black text-white">{riskData.positionSize} Lots</span></div>
                 <div className="flex justify-between"><span className="text-[10px] text-gray-500 uppercase font-black">{t('aibot.rr_ratio')}</span><span className="text-xs font-black text-green-500">{riskData.rrRatio}</span></div>
+                {analysis && analysis.rawRecommendation !== 'Wait' && (
+                  <div className="pt-4 mt-4 border-t border-white/5 space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[9px] text-gray-500 uppercase font-black flex items-center gap-1"><Target className="w-3 h-3 text-green-500" /> Take Profit</span>
+                      <span className="text-xs font-black text-green-500 tabular-nums">{analysis.levels.tp.toFixed(selectedAsset.includes('JPY') || selectedAsset.includes('XAU') ? 2 : 5)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[9px] text-gray-500 uppercase font-black flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-red-500" /> Stop Loss</span>
+                      <span className="text-xs font-black text-red-500 tabular-nums">{analysis.levels.sl.toFixed(selectedAsset.includes('JPY') || selectedAsset.includes('XAU') ? 2 : 5)}</span>
+                    </div>
+                    <div className="pt-2">
+                      <div className="px-3 py-2 rounded-lg bg-white/5 border border-white/5">
+                        <span className="text-[8px] text-gray-500 uppercase font-black block mb-1">Recommended Account</span>
+                        <span className="text-[10px] font-black text-yellow-500 uppercase tracking-tight">{analysis.accountType}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
