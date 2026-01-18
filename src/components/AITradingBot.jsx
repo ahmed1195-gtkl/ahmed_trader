@@ -190,26 +190,27 @@ const AITradingBot = () => {
         assetType: assets.find(a => a.symbol === selectedAsset)?.type
       });
 
-      const { recommendation, confidence, riskPercent, tech, reason } = decisionResult;
-      const levels = getTradeLevels(currentPrice, recommendation.toLowerCase(), 0.002);
+      const { recommendation, confidence, levels, accountType, reason } = decisionResult;
       
-      // ربط المخاطرة بالثقة
-      setRiskData({ 
-        positionSize: recommendation !== 'WAIT' ? calculatePositionSize(10000, riskPercent, 20).toFixed(2) : 0, 
-        rrRatio: '1:2' 
-      });
-
       const currentLang = i18n.language || 'ar';
       const displayReason = reason[currentLang] || reason['en'];
+      const displayAccountType = accountType[currentLang] || accountType['en'];
+
+      // ربط المخاطرة بالثقة ونوع الحساب
+      setRiskData({ 
+        positionSize: recommendation !== 'WAIT' ? calculatePositionSize(10000, confidence > 80 ? 2 : 1, 20).toFixed(2) : 0, 
+        rrRatio: '1:2.1',
+        accountType: displayAccountType
+      });
 
       setAnalysis({
         recommendation: recommendation === 'WAIT' ? t('aibot.wait') : (recommendation === 'BUY' ? t('aibot.buy') : t('aibot.sell')),
         rawRecommendation: recommendation === 'BUY' ? 'Buy' : (recommendation === 'SELL' ? 'Sell' : 'Wait'),
         confidence,
-        tech,
+        tech: decisionResult.tech,
         currentPrice,
         levels,
-        reasoning: displayReason,
+        reasoning: `${displayReason} | ${displayAccountType}`,
         chartData: history.slice(-30).map((p, i) => ({ time: i, price: p }))
       });
 
@@ -223,8 +224,9 @@ const AITradingBot = () => {
           sl: levels.sl,
           profit: Math.random() > 0.5 ? 1 : -1,
           confidence,
-          riskPercent,
-          reason: reason.en, // حفظ التفسير بالإنجليزية في قاعدة البيانات للتوحيد
+          accountType: accountType.en,
+          timeframe: selectedTimeframe,
+          reason: reason.en,
           timestamp: Date.now(),
           createdAt: serverTimestamp(),
           isBotTrade: true

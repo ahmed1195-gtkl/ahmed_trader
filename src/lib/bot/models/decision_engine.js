@@ -1,6 +1,6 @@
 /**
- * محرك القرار المتقدم (Decision Engine) - V8.1
- * إصلاح شروط الدخول وإضافة تفسيرات ذكية بجميع اللغات
+ * محرك القرار المتقدم (Decision Engine) - V8.2
+ * استقلالية الإطارات الزمنية، تحديد نوع الحساب، وحدود صفقات ذكية
  */
 
 import { getTechnicalSignal, calculateRSI, calculateMACD, calculateBollingerBands } from '../analysis/technical';
@@ -37,9 +37,15 @@ export const getDecision = (data) => {
   const macd = calculateMACD(prices);
   const bb = calculateBollingerBands(prices);
 
+  // منطق ذكي حسب الإطار الزمني (Timeframe)
+  let tfMultiplier = 1;
+  if (timeframe === '15M') tfMultiplier = 0.5;
+  if (timeframe === '4H') tfMultiplier = 2;
+  if (timeframe === '1D') tfMultiplier = 4;
+
   const decision = {
     trend: tech.score > 0 ? 1 : tech.score < 0 ? -1 : 0,
-    entryModel: (rsi < 40 || rsi > 60) ? (rsi < 40 ? 1 : -1) : 0, // تم تخفيف الشرط قليلاً للسماح بصفقات أكثر
+    entryModel: (rsi < 40 || rsi > 60) ? (rsi < 40 ? 1 : -1) : 0,
     momentum: macd.histogram > 0 ? 1 : macd.histogram < 0 ? -1 : 0,
     volume: (currentPrice > bb.upper || currentPrice < bb.lower) ? (currentPrice < bb.lower ? 1 : -1) : 0,
     fundamental: marketStatus === 'Stable' ? 1 : 0,
@@ -47,25 +53,6 @@ export const getDecision = (data) => {
   };
 
   let confidence = 0;
-  let hasConflict = false;
-
-  // التحقق من التعارض الصارخ فقط
-  if ((decision.trend === 1 && decision.momentum === -1) || (decision.trend === -1 && decision.momentum === 1)) {
-    hasConflict = true;
-  }
-
-  if (hasConflict) {
-    return { 
-      recommendation: 'WAIT', 
-      confidence: 40, 
-      reason: {
-        en: 'Market Conflict: Trend and Momentum are opposing each other.',
-        ar: 'تعارض في السوق: الاتجاه والزخم يسيران في اتجاهات متعاكسة.'
-      }
-    };
-  }
-
-  // حساب الثقة
   confidence += Math.abs(decision.trend) * 25;
   confidence += Math.abs(decision.entryModel) * 20;
   confidence += Math.abs(decision.momentum) * 15;
@@ -75,39 +62,54 @@ export const getDecision = (data) => {
 
   confidence = Math.max(0, Math.min(100, confidence));
 
-  let riskPercent = 0;
   let recommendation = 'WAIT';
-
-  // تعديل عتبة الدخول لتكون أكثر مرونة (70% بدلاً من 80%) لضمان ظهور صفقات
   if (confidence >= 70) {
     recommendation = tech.score > 0 ? 'BUY' : 'SELL';
-    if (confidence >= 90) riskPercent = 2;
-    else if (confidence >= 80) riskPercent = 1.5;
-    else riskPercent = 1;
   }
 
-  // توليد التفسير الذكي
+  // حدود صفقات ذكية (Smart TP/SL) بناءً على التقلب والبولينجر باند
+  const volatility = (bb.upper - bb.lower) / currentPrice;
+  const smartSL = volatility * 0.8 * tfMultiplier;
+  const smartTP = smartSL * 2.1; // نسبة ربح لمخاطرة ذكية 1:2.1
+
+  const levels = {
+    entry: currentPrice,
+    tp: recommendation === 'BUY' ? currentPrice * (1 + smartTP) : currentPrice * (1 - smartTP),
+    sl: recommendation === 'BUY' ? currentPrice * (1 - smartSL) : currentPrice * (1 + smartSL)
+  };
+
+  // تحديد نوع الحساب المناسب بناءً على المخاطرة والسيولة
+  let accountType = "Standard (> $500)";
+  let accountTypeAr = "حساب قياسي (أكبر من 500$)";
+  
+  if (smartSL * 100 > 0.05) { // إذا كان الوقف كبيراً جداً
+    accountType = "Pro (> $1000)";
+    accountTypeAr = "حساب احترافي (أكبر من 1000$)";
+  } else if (smartSL * 100 < 0.02) {
+    accountType = "Micro (< $100)";
+    accountTypeAr = "حساب ميكرو (أقل من 100$)";
+  } else {
+    accountType = "Mini ($100 - $500)";
+    accountTypeAr = "حساب ميني (100$ - 500$)";
+  }
+
   const getReason = (lang) => {
     if (recommendation === 'WAIT') {
-      if (confidence < 50) return lang === 'ar' ? 'السوق في حالة تذبذب ضعيفة، ننتظر إشارة أقوى.' : 'Market is in low volatility, waiting for a stronger signal.';
-      return lang === 'ar' ? `الثقة (${confidence.toFixed(0)}%) غير كافية للدخول الآمن.` : `Confidence (${confidence.toFixed(0)}%) is insufficient for a safe entry.`;
+      return lang === 'ar' 
+        ? `الإطار الزمني (${timeframe}): الثقة (${confidence.toFixed(0)}%) غير كافية. ننتظر وضوح الاتجاه.`
+        : `Timeframe (${timeframe}): Confidence (${confidence.toFixed(0)}%) is insufficient. Waiting for trend clarity.`;
     }
     const action = lang === 'ar' ? (recommendation === 'BUY' ? 'شراء' : 'بيع') : recommendation;
-    const trendText = lang === 'ar' ? (decision.trend === 1 ? 'صاعد' : 'هابط') : (decision.trend === 1 ? 'Bullish' : 'Bearish');
     return lang === 'ar' 
-      ? `إشارة ${action} قوية: الاتجاه ${trendText} مع دعم من الزخم ومؤشر RSI بنسبة ثقة ${confidence.toFixed(0)}%.`
-      : `Strong ${action} signal: ${trendText} trend supported by momentum and RSI with ${confidence.toFixed(0)}% confidence.`;
+      ? `إطار ${timeframe}: إشارة ${action} ذكية. مناسب لـ ${accountTypeAr}. الثقة: ${confidence.toFixed(0)}%.`
+      : `TF ${timeframe}: Smart ${action} signal. Suitable for ${accountType}. Confidence: ${confidence.toFixed(0)}%.`;
   };
 
   return {
     recommendation,
     confidence,
-    riskPercent,
-    decision,
-    tech,
-    reason: {
-      en: getReason('en'),
-      ar: getReason('ar')
-    }
+    levels,
+    accountType: { en: accountType, ar: accountTypeAr },
+    reason: { en: getReason('en'), ar: getReason('ar') }
   };
 };
