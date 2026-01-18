@@ -16,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import Header from './Header';
 import Footer from './Footer';
 import { db } from '../lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, query, where, orderBy, limit, onSnapshot } from 'firebase/firestore';
 
 // استيراد الوحدات المحدثة
 import { getTradeLevels, calculatePositionSize } from '../lib/bot/risk/manager';
@@ -38,6 +38,7 @@ const AITradingBot = () => {
   const [riskData, setRiskData] = useState({ positionSize: 0, rrRatio: '1:2' });
   const [showTVChart, setShowTVChart] = useState(false);
   const [activeTrades, setActiveTrades] = useState({}); // تتبع الصفقات النشطة لكل زوج وفريم
+  const [todayTrades, setTodayTrades] = useState([]); // صفقات اليوم
   
   const priceIntervalRef = useRef(null);
   const timeIntervalRef = useRef(null);
@@ -88,6 +89,27 @@ const AITradingBot = () => {
   useEffect(() => {
     timeIntervalRef.current = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timeIntervalRef.current);
+  }, []);
+
+  // جلب صفقات اليوم من Firestore
+  useEffect(() => {
+    const twentyFourHoursAgo = Date.now() - (24 * 60 * 60 * 1000);
+    const q = query(
+      collection(db, 'bot_trades'),
+      where('timestamp', '>=', twentyFourHoursAgo),
+      orderBy('timestamp', 'desc'),
+      limit(10)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const trades = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setTodayTrades(trades);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -496,6 +518,74 @@ const AITradingBot = () => {
                     </div>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* صفقات اليوم */}
+          <div className="mt-12">
+            <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem] overflow-hidden shadow-2xl">
+              <CardHeader className="p-8 border-b border-white/5 flex flex-row items-center justify-between">
+                <CardTitle className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
+                  <History className="w-6 h-6 text-yellow-500" /> {i18n.language === 'ar' ? 'صفقات اليوم (آخر 24 ساعة)' : "Today's Trades (Last 24h)"}
+                </CardTitle>
+                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[10px] font-black uppercase tracking-widest">
+                  <Timer className="w-3 h-3" /> {i18n.language === 'ar' ? 'تحديث تلقائي' : 'Auto Update'}
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-white/5">
+                        <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">{i18n.language === 'ar' ? 'الزوج' : 'Asset'}</th>
+                        <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">{i18n.language === 'ar' ? 'النوع' : 'Type'}</th>
+                        <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">{i18n.language === 'ar' ? 'الدخول' : 'Entry'}</th>
+                        <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">{i18n.language === 'ar' ? 'النتيجة' : 'Result'}</th>
+                        <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">{i18n.language === 'ar' ? 'الوقت' : 'Time'}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {todayTrades.length > 0 ? (
+                        todayTrades.map((trade) => (
+                          <tr key={trade.id} className="hover:bg-white/[0.02] transition-colors">
+                            <td className="p-6">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-500 font-black text-[10px]">
+                                  {trade.asset?.substring(0, 2)}
+                                </div>
+                                <span className="text-sm font-black uppercase">{trade.asset}</span>
+                              </div>
+                            </td>
+                            <td className="p-6">
+                              <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                                trade.type === 'Buy' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'
+                              }`}>
+                                {trade.type}
+                              </span>
+                            </td>
+                            <td className="p-6 font-black text-sm tabular-nums">{trade.entryPrice?.toFixed(trade.asset?.includes('JPY') || trade.asset?.includes('XAU') ? 2 : 5)}</td>
+                            <td className="p-6">
+                              <div className={`flex items-center gap-2 font-black text-sm ${trade.profit > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                {trade.profit > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                                {trade.profit > 0 ? 'WIN' : 'LOSS'}
+                              </div>
+                            </td>
+                            <td className="p-6 text-gray-500 text-xs font-medium">
+                              {new Date(trade.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="5" className="p-12 text-center text-gray-500 font-black uppercase tracking-widest text-xs">
+                            {i18n.language === 'ar' ? 'لا توجد صفقات اليوم حتى الآن' : 'No trades recorded today yet'}
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </CardContent>
             </Card>
           </div>
