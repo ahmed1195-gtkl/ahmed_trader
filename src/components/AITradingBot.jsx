@@ -18,9 +18,9 @@ import { db } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 // استيراد الوحدات المحدثة
-import { getTechnicalSignal } from '../lib/bot/analysis/technical';
 import { getTradeLevels, calculatePositionSize } from '../lib/bot/risk/manager';
 import { botBrain } from '../lib/bot/models/rl_model';
+import { getDecision } from '../lib/bot/models/decision_engine';
 
 const AITradingBot = () => {
   const { t } = useTranslation();
@@ -176,50 +176,67 @@ const AITradingBot = () => {
   const runAnalysis = useCallback(async () => {
     if (livePrice === 0 || isMarketClosed) return;
     setLoading(true);
+    
     setTimeout(async () => {
       const currentPrice = livePrice;
-      const history = priceHistoryRef.current.length > 10 ? priceHistoryRef.current : Array(30).fill(currentPrice).map((p, i) => p + Math.sin(i) * 10);
-      const tech = getTechnicalSignal(history);
-      const aiScore = botBrain.predict({ technicalScore: tech.score, fundamentalScore: marketStatus === 'Danger' ? -30 : 10 });
-      const confidence = Math.min(98, Math.max(40, 70 + aiScore));
-      const recommendation = confidence >= 80 ? (aiScore > 0 ? 'Buy' : 'Sell') : 'Wait';
+      const history = priceHistoryRef.current.length >= 30 ? priceHistoryRef.current : Array(30).fill(currentPrice).map((p, i) => p + Math.sin(i) * (currentPrice * 0.001));
+      
+      // طلب القرار من محرك القرار (Decision Engine) - فصل المنطق عن الواجهة
+      const decisionResult = getDecision({
+        prices: history,
+        marketStatus,
+        timeframe: selectedTimeframe,
+        assetType: assets.find(a => a.symbol === selectedAsset)?.type
+      });
+
+      const { recommendation, confidence, riskPercent, tech, reason } = decisionResult;
       const levels = getTradeLevels(currentPrice, recommendation.toLowerCase(), 0.002);
-      setRiskData({ positionSize: calculatePositionSize(10000, 1, 20).toFixed(2), rrRatio: '1:2' });
-      const reasoning = t(recommendation === 'Wait' ? 'aibot.wait_reason' : (aiScore > 0 ? 'aibot.bullish_reason' : 'aibot.bearish_reason'), { techReason: tech.reason });
+      
+      // ربط المخاطرة بالثقة
+      setRiskData({ 
+        positionSize: recommendation !== 'WAIT' ? calculatePositionSize(10000, riskPercent, 20).toFixed(2) : 0, 
+        rrRatio: '1:2' 
+      });
 
       setAnalysis({
-        recommendation: recommendation === 'Wait' ? t('aibot.wait') : (recommendation === 'Buy' ? t('aibot.buy') : t('aibot.sell')),
-        rawRecommendation: recommendation, confidence, tech, currentPrice, levels, reasoning,
+        recommendation: recommendation === 'WAIT' ? t('aibot.wait') : (recommendation === 'BUY' ? t('aibot.buy') : t('aibot.sell')),
+        rawRecommendation: recommendation === 'BUY' ? 'Buy' : (recommendation === 'SELL' ? 'Sell' : 'Wait'),
+        confidence,
+        tech,
+        currentPrice,
+        levels,
+        reasoning: reason,
         chartData: history.slice(-30).map((p, i) => ({ time: i, price: p }))
       });
 
-      // تسجيل صفقات البوت فقط (Buy/Sell) في Firestore لتظهر في لوحة الإدارة
-      if (recommendation === 'Buy' || recommendation === 'Sell') {
+      // تسجيل صفقات البوت فقط (Buy/Sell) في Firestore
+      if (recommendation === 'BUY' || recommendation === 'SELL') {
         const tradeData = {
           asset: selectedAsset,
-          type: recommendation,
+          type: recommendation === 'BUY' ? 'Buy' : 'Sell',
           entryPrice: currentPrice,
           tp: levels.tp,
           sl: levels.sl,
-          profit: aiScore > 0 ? 1 : -1,
+          profit: Math.random() > 0.5 ? 1 : -1, // محاكاة النتيجة للتعلم
+          confidence,
+          riskPercent,
+          reason,
           timestamp: Date.now(),
           createdAt: serverTimestamp(),
-          isBotTrade: true // علامة إضافية للتأكيد على أنها صفقة بوت
+          isBotTrade: true
         };
         
         try {
-          // الحفظ في مجموعة bot_trades المخصصة لسجل صفقات البوت في الأدمن
           await addDoc(collection(db, 'bot_trades'), tradeData);
+          await botBrain.recordTrade(tradeData);
+          setBotStats(botBrain.getStats());
         } catch (e) { 
-          console.error("Error saving bot trade to Firestore:", e); 
+          console.error("Error saving bot trade:", e); 
         }
-        
-        botBrain.recordTrade(tradeData);
-        setBotStats(botBrain.getStats());
       }
       setLoading(false);
     }, 800);
-  }, [selectedAsset, marketStatus, livePrice, isMarketClosed, t]);
+  }, [selectedAsset, marketStatus, livePrice, isMarketClosed, selectedTimeframe, t]);
 
   useEffect(() => { runAnalysis(); }, [selectedAsset, selectedTimeframe]);
 

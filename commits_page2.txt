@@ -1,0 +1,8 @@
+05be5c39fd694ede759df9a26a450955188b1d73 Fix: Ensure Sign Up fields (Name, Phone, Country) are visible and styled correctly
+c215ce6b9e42278a4da87684d3837ba1419da34c Fix: Export db (Firestore) to resolve build error in Vercel
+fba0af74cbff75f5e439a37e118fb2a4372be244 Feat: Enhance Auth with multi-language errors, extra fields, password validation, and email verification
+06cc2f59bfe7fedee0d25386284e9423a2431461 Fix: Export auth and googleProvider from firebase.js to fix login error
+3e31d24a71dfd7ece03435a0cf88303942c560c4 Update firebase.js
+ffc8dcac8930618fce68cf4f49f3af67139d3ab9 Add Auth page with Firebase and Google login support
+59f00ce5fae62f30a79996dd25a9f7f84ac07c77 Rename favicon.ico to favicon.ic
+59aba2730520dcf185e787fce6c9f5cfc4f33c06 first commit

@@ -1,0 +1,105 @@
+* 3b9b128 Add Android WebView App source code
+* f402b7a V7.2.0: Market status logic, advanced Pip Calculator with live rates, and persistent Firestore trade logging. Maintained design and stability.
+* cd71464 V7.1.0: Added Pip Calculator page and Bot Trading History in Admin Dashboard with XLS export. Maintained design consistency and system stability.
+* 9a52217 V7.0.0: Live Forex Factory Integration. Real-time news updates with Actual/Forecast data. Enhanced AI analysis based on fundamental events.
+* e794640 V6.9.0: Restore Timeframes and Full Translations. Enhanced Smart Reasoning with real-time data.
+* 686284c V6.8.0: Restore News Calendar, Trade Levels, and Reasoning. Added optional TradingView chart for mobile.
+* 9d9a35b V6.7.0: Automatic live price integration from FXCM XML feed for Forex and Gold
+* e4e2eeb V6.6.0: Real-time price integration for all pairs (Crypto & Forex) with stable AI learning
+* 372b1d1 V6.5.0: Real-time Price Integration, AI Learning Memory, and Realistic Trade Reasoning
+* 8832b98 Revert "V7.0.0: Fully Dynamic AI Trader with Live WebSocket Data, Learning Memory, and Real-Time Analysis"
+* 71a3da3 V7.0.0: Fully Dynamic AI Trader with Live WebSocket Data, Learning Memory, and Real-Time Analysis
+* f4faedd Complete update checklist: Added MACD, Bollinger Bands, Paper Trading simulation, and Backtesting logic
+* 3f671de Update AI Trading Bot to V6.0: Technical, Fundamental, Risk Management & RL Integration
+* b3704f7 Trigger Vercel Redeploy to sync with commit 093fa37
+* 093fa37 Fix: Restore Written Recommendations and AI Reasoning while maintaining all other features
+* ddd3e66 Fix: Restore TradingView Chart and Weekly Outlook while keeping AI Confidence System
+* a1f1dcd Update: AI Self-Learning Bot V5.0 with Confidence Score, Market Status, and UX Pro Upgrade
+* c8eb286 Update: Real-time Price Sync (Binance/TradingView) for Charts and Recommendations
+* 0759b90 Update: Real-time Economic Calendar with Bot Predictions, Results, and Weekly Outlook
+* 70114a7 Fix: TradingView Chart visibility and timeframe values
+* ef1757c User Device Time Sync & Forex Factory Format V3.8.3
+* 13803e1 Strict 30-min Specific Time News Warning V3.8.2
+* ecfb1c7 Strict 30-min News Warning Protocol V3.8.1
+* 420b04a Real-time Price Sync (1s) & TradingView Alignment V3.8.0
+* 71ec99d News Safety Protocol: Stop Trading Feature V3.7.0
+* 9173ec2 Price Logic & Chart Direction Correction V3.6.1
+* d03bd89 Multi-Timeframe Analysis Integration V3.6.0
+* 97254f4 Unified Price Source: TradingView Integration V3.5.0
+* be71372 Mobile Excellence V3.4.0: Responsive Design & Translation Fixes
+* 133cff8 Fundamental Evolution V3.3.0: Integrated Forex Factory News & Investing.com Unified Prices
+* b12e34d Data Integrity V3.2.0: Unified Price Feed & Stability for User Trust
+* aa80fbc Final Stability V3.1.0: Guaranteed Tag Closure & AI Intelligence Activation
+* a9c2196 AI Evolution: Mastered SMC, ICT, SK schools with expert advice and reasoning system
+* 8abef39 Final Stability Update V2.1.0: Integrated Dual Charts, Visual Trade Levels, and Live Prices with guaranteed visibility
+* 8462154 Critical Stability Update: Rebuilt charts with Recharts and Iframe for guaranteed visibility
+* 49d89bd Final Visual Update: Trade Levels (Entry, TP, SL) now visible directly on AI Prediction Chart with TradingView integration
+* 3c5472e Force Rebuild: Added TradingView core script and updated AI Bot component
+* 677dbc2 Final Strict AI Protocol: Integrated Dual Charts, Strict 80% Threshold, and Live Forex/Crypto Prices
+* 0bd15ef Final Fix: Complete rebuild of AITradingBot to ensure visibility of all charts, levels, and prices
+* 6fe4f3e Restore Area Chart, integrate TradingView, and show Trade Levels with Live Prices
+* 10d3aae Fix white screen issue by correcting icon imports and adding safety checks for translations
+* febbb9d Final Update: Forex support and multi-language AI reasoning for SMC, ICT, SK
+* 0b19457 Final Upgrade: Advanced AI (SMC, ICT, SK) and Official TradingView Chart Integration
+* 52e65d0 Upgrade AI logic and integrate TradingView-style candlestick chart
+* 93467cb Integrate translation keys in AITradingBot
+* b5234ab Update translations for AITradingBot
+* 5ca3cdc Update AITradingBot with smart reasoning, charts, and more assets
+* 6d53b85 Fix: Enable useTranslation in AITradingBot component to show translations
+* 7ec2a5f Add multi-language support (AR, EN, FR) for AI Trading Bot page
+* 1e72613 Add AI Trading Bot page with advanced technical analysis logic
+* 46c3a93 Fix notification dropdown position and add logout button to banned screen
+* 6381349 Enhance notification bell, implement advanced ban system, and enable social channels on desktop
+* 4d70735 Add notification bell and enable clickable links in posts
+* 8e7d591 Adjust image border radius to match original design (rounded-[2.5rem])
+* 3f384b1 Improve image display, add Admin delete post feature, and Admin Panel button in Header
+* 4ee0aad Update: Image upload for profile and posts, and country dropdown
+* 94927e8 Fix: Sidebar white screen, Privacy Policy, and Cookie Consent
+* 768845b Fix: Resolve Hero.jsx syntax error and update production build
+* df57636 Fix: Restore missing Privacy Policy and Cookie translations while keeping new features
+* 66287c6 Fix: Sidebar overlap, Admin permissions, Notifications, and Social Feed interactions
+* 9bec268 Fix: Mobile stability, No-zoom, Header fix, Permanent comments, and No-image posting
+* be6528a Fix: Feed posting, Profile image, and Admin moderation system (Ban/Warn)
+* ac6a32c Fix: Comments system with bad words filter and Profile settings with Firebase integration
+*   115bc95 Merge remote changes and apply comprehensive updates
+|\  
+| * 589cba0 Fix MarketData overlap, add profile editing (name, country, age, photo), and enable 2FA settings
+| * 1c75702 Restrict admin access to mchokri100@gmail.com only
+| * ec0c8ee Implement animated sidebar and fix admin button with direct hash navigation
+| * 6886bff Final fix for routing, Not Found error, Dashboard button, and Reset Password page
+| * 67c9d04 Robust fix for Admin Dashboard button to work on all devices
+| * 9aa715b Fix Admin Dashboard link visibility for ahmed1195@gmail.com
+| * 1818586 Add comprehensive admin posts guide in Arabic
+| * 83375bf Improve Admin Dashboard UI for media uploads with better file handling and preview
+| * d69a6a4 Add media upload support (image, audio, video) to Admin Dashboard and Feed
+| *   dbc8ddb Resolve conflicts and merge Admin Feed with latest changes
+| |\  
+| * | 040c9ca Add Admin Feed with image upload, likes, and comments + Fix news fetching
+* | | 307f550 Comprehensive update: Fix UI issues, Profile editing, 2FA, Advanced Admin, Social Feed, and Content Filtering
+| |/  
+|/|   
+* | 5ef4cd0 Add Admin Dashboard for mchokri100@gmail.com with user and post management
+* | 99a5643 Add numeric UID for users and comments feature for news posts
+* | 6e90cf1 Add Firebase suspension guide
+* | 858df36 Add account suspension handling and error messages
+* | 20ef098 Critical Fix: Improved Google Login with Redirect fallback and fixed Password Reset link routing
+* | fbbec37 Authentication System Final Polish: Fixed Reset Password flow, Google Login Firestore sync, and cleaned up App routes
+* | b644d6e Final Fixes: Reset Password page, Firestore integration, Complete Translations, and Stable News Feed
+* | a028779 Optimize: Reduce loading time and add professional loading screen
+* | 36fab4b Fix: Resolve white screen issue by fixing i18n syntax and ensuring stable build
+* | 4705fc9 Fix: Implement Protected Routes, Auto-navigation, and hide CTA for logged-in users
+* | 2bf515b Final Fix: Simplify login logic and ensure stable navigation even if Firestore fails
+* | 673d730 Debug: Add console logs to diagnose login issues
+* | 58b4075 Fix login and implement professional password reset system with dedicated page and secure tokens
+* | 5160ad4 Update Auth logic: Allow direct login without email verification check, keep verification for new signups only
+* | 02ece3e Final stable update: Fix syntax errors in i18n.js and ensure all features (Auth, Cookies, Privacy, Channels) are active
+* | 76aca53 Comprehensive Auth Update: Fix Google Login, add Forgot Password, Email Verification, Firestore Onboarding storage, and Social Channels in Header
+* | c81a1dd Fix and improve authentication flow: better error handling and smoother onboarding redirect
+* | fbe0fd6 Add professional Cookie Consent banner and Privacy Policy page with multi-language support
+|/  
+* 6a53bf5 Improve mobile responsiveness and fix layout issues
+* ed134c6 Remove background image and set solid black background
+* 7423d93 Fix news fetching and complete translations for AR, EN, FR
+* 9a0377f Performance overhaul, simplified professional header, and stable news system
+* 4204752 Professional Header, Live Economic News (Investing/Forex Factory), and Mobile Performance Optimization
+* 0097daf Major updates: Improved Auth, added Onboarding, Settings, Market Data API, and fixed translations

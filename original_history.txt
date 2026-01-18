@@ -1,0 +1,55 @@
+c120a26 Manual Restore: Reverting all Manus changes to original state (V3.8.3) as requested by user
+e85b265 Upgrade: AI Decision Engine V6.0 with Firebase Self-Learning, Strict News Filter, and Risk Management
+d1e38e7 Fix: Restore Sidebar Navigation and link AI Trading Bot service correctly
+ffd0ab3 Final Verification: Re-uploading Stable V5.2.0 to ensure project integrity and fix external modifications
+9c39cff Fix: Redesign Sidebar for better responsiveness and consistency, add Language selector
+986cca6 Fix: Close section tag in Hero.jsx to resolve build error
+66287c6 Fix: Sidebar overlap, Admin permissions, Notifications, and Social Feed interactions
+9bec268 Fix: Mobile stability, No-zoom, Header fix, Permanent comments, and No-image posting
+be6528a Fix: Feed posting, Profile image, and Admin moderation system (Ban/Warn)
+ac6a32c Fix: Comments system with bad words filter and Profile settings with Firebase integration
+115bc95 Merge remote changes and apply comprehensive updates
+307f550 Comprehensive update: Fix UI issues, Profile editing, 2FA, Advanced Admin, Social Feed, and Content Filtering
+589cba0 Fix MarketData overlap, add profile editing (name, country, age, photo), and enable 2FA settings
+1c75702 Restrict admin access to mchokri100@gmail.com only
+ec0c8ee Implement animated sidebar and fix admin button with direct hash navigation
+6886bff Final fix for routing, Not Found error, Dashboard button, and Reset Password page
+67c9d04 Robust fix for Admin Dashboard button to work on all devices
+9aa715b Fix Admin Dashboard link visibility for ahmed1195@gmail.com
+1818586 Add comprehensive admin posts guide in Arabic
+83375bf Improve Admin Dashboard UI for media uploads with better file handling and preview
+d69a6a4 Add media upload support (image, audio, video) to Admin Dashboard and Feed
+dbc8ddb Resolve conflicts and merge Admin Feed with latest changes
+040c9ca Add Admin Feed with image upload, likes, and comments + Fix news fetching
+5ef4cd0 Add Admin Dashboard for mchokri100@gmail.com with user and post management
+99a5643 Add numeric UID for users and comments feature for news posts
+6e90cf1 Add Firebase suspension guide
+858df36 Add account suspension handling and error messages
+20ef098 Critical Fix: Improved Google Login with Redirect fallback and fixed Password Reset link routing
+fbbec37 Authentication System Final Polish: Fixed Reset Password flow, Google Login Firestore sync, and cleaned up App routes
+b644d6e Final Fixes: Reset Password page, Firestore integration, Complete Translations, and Stable News Feed
+a028779 Optimize: Reduce loading time and add professional loading screen
+36fab4b Fix: Resolve white screen issue by fixing i18n syntax and ensuring stable build
+4705fc9 Fix: Implement Protected Routes, Auto-navigation, and hide CTA for logged-in users
+2bf515b Final Fix: Simplify login logic and ensure stable navigation even if Firestore fails
+673d730 Debug: Add console logs to diagnose login issues
+58b4075 Fix login and implement professional password reset system with dedicated page and secure tokens
+5160ad4 Update Auth logic: Allow direct login without email verification check, keep verification for new signups only
+02ece3e Final stable update: Fix syntax errors in i18n.js and ensure all features (Auth, Cookies, Privacy, Channels) are active
+76aca53 Comprehensive Auth Update: Fix Google Login, add Forgot Password, Email Verification, Firestore Onboarding storage, and Social Channels in Header
+c81a1dd Fix and improve authentication flow: better error handling and smoother onboarding redirect
+fbe0fd6 Add professional Cookie Consent banner and Privacy Policy page with multi-language support
+6a53bf5 Improve mobile responsiveness and fix layout issues
+ed134c6 Remove background image and set solid black background
+7423d93 Fix news fetching and complete translations for AR, EN, FR
+9a0377f Performance overhaul, simplified professional header, and stable news system
+4204752 Professional Header, Live Economic News (Investing/Forex Factory), and Mobile Performance Optimization
+0097daf Major updates: Improved Auth, added Onboarding, Settings, Market Data API, and fixed translations
+05be5c3 Fix: Ensure Sign Up fields (Name, Phone, Country) are visible and styled correctly
+c215ce6 Fix: Export db (Firestore) to resolve build error in Vercel
+fba0af7 Feat: Enhance Auth with multi-language errors, extra fields, password validation, and email verification
+06cc2f5 Fix: Export auth and googleProvider from firebase.js to fix login error
+3e31d24 Update firebase.js
+ffc8dca Add Auth page with Firebase and Google login support
+59f00ce Rename favicon.ico to favicon.ic
+59aba27 first commit
