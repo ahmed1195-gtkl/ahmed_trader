@@ -37,6 +37,7 @@ const AITradingBot = () => {
   const [botStats, setBotStats] = useState(botBrain.getStats());
   const [riskData, setRiskData] = useState({ positionSize: 0, rrRatio: '1:2' });
   const [showTVChart, setShowTVChart] = useState(false);
+  const [activeTrades, setActiveTrades] = useState({}); // تتبع الصفقات النشطة لكل زوج وفريم
   
   const priceIntervalRef = useRef(null);
   const timeIntervalRef = useRef(null);
@@ -187,7 +188,8 @@ const AITradingBot = () => {
         prices: history,
         marketStatus,
         timeframe: selectedTimeframe,
-        assetType: assets.find(a => a.symbol === selectedAsset)?.type
+        assetType: assets.find(a => a.symbol === selectedAsset)?.type,
+        selectedAsset
       });
 
       const { recommendation, confidence, levels, accountType, reason } = decisionResult;
@@ -215,8 +217,9 @@ const AITradingBot = () => {
         chartData: history.slice(-30).map((p, i) => ({ time: i, price: p }))
       });
 
-      // تسجيل صفقات البوت فقط (Buy/Sell) في Firestore
-      if (recommendation === 'BUY' || recommendation === 'SELL') {
+      // ذكاء منع تكرار الصفقات: التحقق إذا كان هناك صفقة نشطة لهذا الزوج والفريم
+      const tradeKey = `${selectedAsset}_${selectedTimeframe}`;
+      if ((recommendation === 'BUY' || recommendation === 'SELL') && !activeTrades[tradeKey]) {
         const tradeData = {
           asset: selectedAsset,
           type: recommendation === 'BUY' ? 'Buy' : 'Sell',
@@ -232,6 +235,18 @@ const AITradingBot = () => {
           createdAt: serverTimestamp(),
           isBotTrade: true
         };
+
+        // تحديث الصفقات النشطة
+        setActiveTrades(prev => ({ ...prev, [tradeKey]: true }));
+        
+        // محاكاة انتهاء الصفقة بعد فترة (لأغراض العرض والذكاء)
+        setTimeout(() => {
+          setActiveTrades(prev => {
+            const newState = { ...prev };
+            delete newState[tradeKey];
+            return newState;
+          });
+        }, 60000 * (selectedTimeframe === '15M' ? 15 : 60)); // مدة افتراضية حسب الفريم
         
         try {
           await addDoc(collection(db, 'bot_trades'), tradeData);

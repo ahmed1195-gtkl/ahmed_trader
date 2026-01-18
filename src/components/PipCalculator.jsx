@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Calculator, Info, ArrowRightLeft, DollarSign, BarChart3, Globe, RefreshCw } from 'lucide-react';
+import { Calculator, Globe, BarChart3, RefreshCw, Info } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -16,23 +16,40 @@ const PipCalculator = () => {
   const [loading, setLoading] = useState(false);
 
   const assets = [
+    // Forex Majors
     { name: 'EUR/USD', symbol: 'EURUSD', pipDecimal: 4, type: 'forex', fxcmSymbol: 'EURUSD' },
     { name: 'GBP/USD', symbol: 'GBPUSD', pipDecimal: 4, type: 'forex', fxcmSymbol: 'GBPUSD' },
     { name: 'USD/JPY', symbol: 'USDJPY', pipDecimal: 2, type: 'forex', fxcmSymbol: 'USDJPY' },
     { name: 'AUD/USD', symbol: 'AUDUSD', pipDecimal: 4, type: 'forex', fxcmSymbol: 'AUDUSD' },
     { name: 'USD/CHF', symbol: 'USDCHF', pipDecimal: 4, type: 'forex', fxcmSymbol: 'USDCHF' },
-    { name: 'XAU/USD', symbol: 'XAUUSD', pipDecimal: 2, type: 'forex', fxcmSymbol: 'XAUUSD' },
+    { name: 'USD/CAD', symbol: 'USDCAD', pipDecimal: 4, type: 'forex', fxcmSymbol: 'USDCAD' },
+    { name: 'NZD/USD', symbol: 'NZDUSD', pipDecimal: 4, type: 'forex', fxcmSymbol: 'NZDUSD' },
+    // Forex Crosses
+    { name: 'EUR/GBP', symbol: 'EURGBP', pipDecimal: 4, type: 'forex', fxcmSymbol: 'EURGBP' },
+    { name: 'EUR/JPY', symbol: 'EURJPY', pipDecimal: 2, type: 'forex', fxcmSymbol: 'EURJPY' },
+    { name: 'GBP/JPY', symbol: 'GBPJPY', pipDecimal: 2, type: 'forex', fxcmSymbol: 'GBPJPY' },
+    { name: 'AUD/JPY', symbol: 'AUDJPY', pipDecimal: 2, type: 'forex', fxcmSymbol: 'AUDJPY' },
+    { name: 'EUR/AUD', symbol: 'EURAUD', pipDecimal: 4, type: 'forex', fxcmSymbol: 'EURAUD' },
+    // Metals & Commodities
+    { name: 'XAU/USD (Gold)', symbol: 'XAUUSD', pipDecimal: 2, type: 'forex', fxcmSymbol: 'XAUUSD' },
+    { name: 'XAG/USD (Silver)', symbol: 'XAGUSD', pipDecimal: 3, type: 'forex', fxcmSymbol: 'XAGUSD' },
+    { name: 'USOil (WTI)', symbol: 'USOil', pipDecimal: 2, type: 'forex', fxcmSymbol: 'USOil' },
+    { name: 'UKOil (Brent)', symbol: 'UKOil', pipDecimal: 2, type: 'forex', fxcmSymbol: 'UKOil' },
+    // Crypto
     { name: 'BTC/USDT', symbol: 'BTCUSDT', pipDecimal: 2, type: 'crypto' },
-    { name: 'ETH/USDT', symbol: 'ETHUSDT', pipDecimal: 2, type: 'crypto' }
+    { name: 'ETH/USDT', symbol: 'ETHUSDT', pipDecimal: 2, type: 'crypto' },
+    { name: 'SOL/USDT', symbol: 'SOLUSDT', pipDecimal: 2, type: 'crypto' },
+    { name: 'BNB/USDT', symbol: 'BNBUSDT', pipDecimal: 2, type: 'crypto' },
+    { name: 'XRP/USDT', symbol: 'XRPUSDT', pipDecimal: 4, type: 'crypto' }
   ];
 
   const accountCurrencies = [
     { code: 'USD', symbol: '$' },
     { code: 'EUR', symbol: '€' },
-    { code: 'GBP', symbol: '£' }
+    { code: 'GBP', symbol: '£' },
+    { code: 'JPY', symbol: '¥' }
   ];
 
-  // جلب الأسعار الحية
   useEffect(() => {
     const fetchPrice = async () => {
       setLoading(true);
@@ -65,38 +82,29 @@ const PipCalculator = () => {
     };
 
     fetchPrice();
-    const interval = setInterval(fetchPrice, 10000);
+    const interval = setInterval(fetchPrice, 15000);
     return () => clearInterval(interval);
   }, [asset]);
 
-  // حساب قيمة النقطة
   useEffect(() => {
     const selectedAsset = assets.find(a => a.symbol === asset);
+    const pipSize = Math.pow(10, -selectedAsset.pipDecimal);
     let value = 0;
     
-    // منطق حساب قيمة النقطة (Pip Value)
-    // Formula: (One Pip / Exchange Rate) * Lot Size
-    const pipSize = Math.pow(10, -selectedAsset.pipDecimal);
-    
     if (selectedAsset.type === 'forex') {
-      if (asset.startsWith(accountCurrency)) {
-        // إذا كانت عملة الحساب هي العملة الأساسية (مثل USD/JPY والحساب USD)
-        value = (pipSize / livePrice) * lotSize * 100000;
-      } else if (asset.endsWith(accountCurrency)) {
-        // إذا كانت عملة الحساب هي عملة الاقتباس (مثل EUR/USD والحساب USD)
-        value = pipSize * lotSize * 100000;
+      const lotUnits = 100000;
+      if (asset.endsWith(accountCurrency)) {
+        value = pipSize * lotSize * lotUnits;
       } else {
-        // أزواج متقاطعة (تبسيط للحساب)
-        value = (pipSize / livePrice) * lotSize * 100000;
+        value = (pipSize / livePrice) * lotSize * lotUnits;
       }
     } else {
-      // للعملات الرقمية والذهب
       value = pipSize * lotSize;
     }
 
-    // تحويل العملة إذا لزم الأمر (تبسيط)
     if (accountCurrency === 'EUR') value *= 0.92;
     if (accountCurrency === 'GBP') value *= 0.79;
+    if (accountCurrency === 'JPY') value *= 145;
 
     setPipValue(value.toFixed(2));
   }, [asset, lotSize, livePrice, accountCurrency]);
@@ -110,14 +118,14 @@ const PipCalculator = () => {
             <Calculator className="w-3 h-3" /> {t('nav.tools', 'Trading Tools')}
           </motion.div>
           <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-4">Pip Calculator</h1>
-          <p className="text-gray-500 text-sm font-medium uppercase tracking-widest">Smart calculation for all pairs with live rates</p>
+          <p className="text-gray-500 text-sm font-medium uppercase tracking-widest">Global Assets & Live Market Rates</p>
         </div>
 
         <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem] overflow-hidden shadow-2xl">
           <CardHeader className="p-8 border-b border-white/5">
             <CardTitle className="text-xl font-black uppercase tracking-tight flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <BarChart3 className="w-6 h-6 text-yellow-500" /> Calculation Parameters
+                <BarChart3 className="w-6 h-6 text-yellow-500" /> Parameters
               </div>
               {loading && <RefreshCw className="w-4 h-4 text-yellow-500 animate-spin" />}
             </CardTitle>
@@ -125,40 +133,25 @@ const PipCalculator = () => {
           <CardContent className="p-8 space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="space-y-4">
-                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Deposit Currency</label>
-                <select 
-                  value={accountCurrency} 
-                  onChange={(e) => setAccountCurrency(e.target.value)}
-                  className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-sm font-bold focus:outline-none focus:border-yellow-500 transition-colors"
-                >
+                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Account Currency</label>
+                <select value={accountCurrency} onChange={(e) => setAccountCurrency(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-sm font-bold focus:outline-none focus:border-yellow-500 transition-colors">
                   {accountCurrencies.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
                 </select>
               </div>
               <div className="space-y-4">
-                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Select Asset</label>
-                <select 
-                  value={asset} 
-                  onChange={(e) => setAsset(e.target.value)}
-                  className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-sm font-bold focus:outline-none focus:border-yellow-500 transition-colors"
-                >
+                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Asset Pair</label>
+                <select value={asset} onChange={(e) => setAsset(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-sm font-bold focus:outline-none focus:border-yellow-500 transition-colors">
                   {assets.map(a => <option key={a.symbol} value={a.symbol}>{a.name}</option>)}
                 </select>
               </div>
               <div className="space-y-4">
                 <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Lot Size</label>
-                <input 
-                  type="number" 
-                  value={lotSize} 
-                  onChange={(e) => setLotSize(e.target.value)}
-                  className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-sm font-bold focus:outline-none focus:border-yellow-500 transition-colors"
-                  step="0.01"
-                  min="0.01"
-                />
+                <input type="number" value={lotSize} onChange={(e) => setLotSize(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-sm font-bold focus:outline-none focus:border-yellow-500 transition-colors" step="0.01" min="0.01" />
               </div>
             </div>
 
             <div className="p-8 rounded-[2rem] bg-yellow-500/5 border border-yellow-500/10 flex flex-col items-center justify-center text-center">
-              <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest mb-2">Pip Value Result</span>
+              <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest mb-2">Pip Value</span>
               <div className="flex items-baseline gap-2">
                 <span className="text-6xl font-black tracking-tighter text-white">
                   {accountCurrencies.find(c => c.code === accountCurrency).symbol}{pipValue}
@@ -166,27 +159,8 @@ const PipCalculator = () => {
                 <span className="text-xl font-bold text-gray-500">{accountCurrency}</span>
               </div>
               <div className="mt-4 flex items-center gap-4">
-                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest flex items-center gap-2">
-                  <Globe className="w-3 h-3" /> Live Price: {livePrice.toFixed(4)}
-                </p>
-                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest flex items-center gap-2">
-                  <Info className="w-3 h-3" /> Smart Calculation
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 rounded-2xl bg-white/5 border border-white/5 text-center">
-                <p className="text-[8px] font-black text-gray-500 uppercase mb-1">Standard Lot (1.0)</p>
-                <p className="text-sm font-bold">100,000 Units</p>
-              </div>
-              <div className="p-4 rounded-2xl bg-white/5 border border-white/5 text-center">
-                <p className="text-[8px] font-black text-gray-500 uppercase mb-1">Mini Lot (0.1)</p>
-                <p className="text-sm font-bold">10,000 Units</p>
-              </div>
-              <div className="p-4 rounded-2xl bg-white/5 border border-white/5 text-center">
-                <p className="text-[8px] font-black text-gray-500 uppercase mb-1">Micro Lot (0.01)</p>
-                <p className="text-sm font-bold">1,000 Units</p>
+                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest flex items-center gap-2"><Globe className="w-3 h-3" /> Price: {livePrice.toFixed(4)}</p>
+                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest flex items-center gap-2"><Info className="w-3 h-3" /> Real-time</p>
               </div>
             </div>
           </CardContent>
