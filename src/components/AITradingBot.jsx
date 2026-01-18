@@ -449,6 +449,10 @@ const AITradingBot = () => {
                 {analysis && analysis.rawRecommendation !== 'Wait' && (
                   <div className="pt-4 mt-4 border-t border-white/5 space-y-3">
                     <div className="flex justify-between items-center">
+                      <span className="text-[9px] text-gray-500 uppercase font-black flex items-center gap-1"><Zap className="w-3 h-3 text-yellow-500" /> Entry Price</span>
+                      <span className="text-xs font-black text-white tabular-nums">{analysis.levels.entry.toFixed(selectedAsset.includes('JPY') || selectedAsset.includes('XAU') ? 2 : 5)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
                       <span className="text-[9px] text-gray-500 uppercase font-black flex items-center gap-1"><Target className="w-3 h-3 text-green-500" /> Take Profit</span>
                       <span className="text-xs font-black text-green-500 tabular-nums">{analysis.levels.tp.toFixed(selectedAsset.includes('JPY') || selectedAsset.includes('XAU') ? 2 : 5)}</span>
                     </div>
