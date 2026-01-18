@@ -176,7 +176,20 @@ const AITradingBot = () => {
   }, [fetchForexFactoryNews]);
 
   const runAnalysis = useCallback(async () => {
-    if (livePrice === 0 || isMarketClosed) return;
+    if (livePrice === 0) return;
+    
+    // منع التحليل إذا كان السوق مغلقاً
+    if (isMarketClosed) {
+      setAnalysis({
+        recommendation: t('aibot.wait'),
+        rawRecommendation: 'Wait',
+        confidence: 0,
+        reasoning: i18n.language === 'ar' ? "السوق مغلق حالياً. لا يمكن إجراء تحليل أو فتح صفقات." : "Market is closed. No analysis or trades allowed.",
+        chartData: []
+      });
+      return;
+    }
+
     setLoading(true);
     
     setTimeout(async () => {
@@ -219,7 +232,22 @@ const AITradingBot = () => {
 
       // ذكاء منع تكرار الصفقات: التحقق إذا كان هناك صفقة نشطة لهذا الزوج والفريم
       const tradeKey = `${selectedAsset}_${selectedTimeframe}`;
-      if ((recommendation === 'BUY' || recommendation === 'SELL') && !activeTrades[tradeKey]) {
+      
+      // إذا كانت هناك صفقة نشطة، نعرض حالة الانتظار مع التفسير
+      if (activeTrades[tradeKey]) {
+        setAnalysis(prev => ({
+          ...prev,
+          recommendation: t('aibot.wait'),
+          rawRecommendation: 'Wait',
+          reasoning: i18n.language === 'ar' 
+            ? `هناك صفقة نشطة حالياً على ${selectedAsset} (${selectedTimeframe}). ننتظر انتهاءها قبل أخذ قرار جديد.`
+            : `Active trade in progress for ${selectedAsset} (${selectedTimeframe}). Waiting for completion.`
+        }));
+        setLoading(false);
+        return;
+      }
+
+      if ((recommendation === 'BUY' || recommendation === 'SELL')) {
         const tradeData = {
           asset: selectedAsset,
           type: recommendation === 'BUY' ? 'Buy' : 'Sell',

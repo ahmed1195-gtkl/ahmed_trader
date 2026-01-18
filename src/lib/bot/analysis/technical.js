@@ -67,3 +67,11 @@ export const calculateBollingerBands = (prices, period = 20, stdDev = 2) => {
   const sd = Math.sqrt(variance);
   return { middle, upper: middle + (stdDev * sd), lower: middle - (stdDev * sd) };
 };
+
+export const calculateSupportResistance = (prices) => {
+  if (prices.length < 20) return { support: 0, resistance: 0 };
+  const sorted = [...prices].sort((a, b) => a - b);
+  const support = sorted[Math.floor(prices.length * 0.1)]; // أدنى 10%
+  const resistance = sorted[Math.floor(prices.length * 0.9)]; // أعلى 10%
+  return { support, resistance };
+};

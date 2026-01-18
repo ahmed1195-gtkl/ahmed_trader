@@ -1,9 +1,9 @@
 /**
- * محرك القرار المتقدم (Decision Engine) - V9.0
- * تفسيرات حية، استقلالية الإطارات الزمنية، وحدود صفقات ذكية
+ * محرك القرار المتقدم (Decision Engine) - V10.0
+ * دعم ومقاومة، تفسيرات حية، استقلالية الإطارات الزمنية
  */
 
-import { getTechnicalSignal, calculateRSI, calculateMACD, calculateBollingerBands } from '../analysis/technical';
+import { getTechnicalSignal, calculateRSI, calculateMACD, calculateBollingerBands, calculateSupportResistance } from '../analysis/technical';
 
 export const getDecision = (data) => {
   const { prices, marketStatus, timeframe, assetType, selectedAsset } = data;
@@ -36,6 +36,7 @@ export const getDecision = (data) => {
   const rsi = calculateRSI(prices);
   const macd = calculateMACD(prices);
   const bb = calculateBollingerBands(prices);
+  const { support, resistance } = calculateSupportResistance(prices);
 
   // منطق ذكي حسب الإطار الزمني (Timeframe)
   let tfMultiplier = 1;
@@ -93,28 +94,28 @@ export const getDecision = (data) => {
   }
 
   const getLiveReason = (lang) => {
+    const precision = selectedAsset.includes('JPY') || selectedAsset.includes('XAU') ? 2 : 5;
+    const supStr = support.toFixed(precision);
+    const resStr = resistance.toFixed(precision);
+
     if (recommendation === 'WAIT') {
       if (Math.abs(tech.score) < 2) {
         return lang === 'ar' 
-          ? `السوق في حالة تذبذب عرضي على فريم ${timeframe}. ننتظر كسر مستويات السيولة للدخول.`
-          : `Market is in sideways consolidation on ${timeframe}. Waiting for liquidity breakout.`;
-      }
-      if (rsi > 45 && rsi < 55) {
-        return lang === 'ar'
-          ? `مؤشر القوة النسبية (RSI) محايد عند ${rsi.toFixed(1)}. لا توجد غلبة للمشترين أو البائعين حالياً.`
-          : `RSI is neutral at ${rsi.toFixed(1)}. No clear dominance from buyers or sellers yet.`;
+          ? `السوق يتذبذب بين الدعم ${supStr} والمقاومة ${resStr} على فريم ${timeframe}. ننتظر كسر هذه المناطق للدخول.`
+          : `Market consolidating between Support ${supStr} and Resistance ${resStr} on ${timeframe}. Waiting for breakout.`;
       }
       return lang === 'ar'
-        ? `إشارات متعارضة بين الاتجاه والزخم. الثقة ${confidence.toFixed(0)}% لا تدعم الدخول الآمن.`
-        : `Conflicting signals between trend and momentum. Confidence ${confidence.toFixed(0)}% is too low for a safe entry.`;
+        ? `إشارات متعارضة. السعر يقترب من ${currentPrice > (support + resistance) / 2 ? 'المقاومة' : 'الدعم'}. الثقة ${confidence.toFixed(0)}% غير كافية.`
+        : `Conflicting signals. Price near ${currentPrice > (support + resistance) / 2 ? 'Resistance' : 'Support'}. Confidence ${confidence.toFixed(0)}% is low.`;
     }
 
     const action = lang === 'ar' ? (recommendation === 'BUY' ? 'شراء' : 'بيع') : recommendation;
-    const trendDesc = lang === 'ar' ? (decision.trend > 0 ? 'صاعد قوي' : 'هابط قوي') : (decision.trend > 0 ? 'Strong Bullish' : 'Strong Bearish');
+    const zone = recommendation === 'BUY' ? (lang === 'ar' ? 'منطقة دعم' : 'Support zone') : (lang === 'ar' ? 'منطقة مقاومة' : 'Resistance zone');
+    const targetZone = recommendation === 'BUY' ? resStr : supStr;
     
     return lang === 'ar'
-      ? `تم رصد اتجاه ${trendDesc} على فريم ${timeframe}. الزخم يدعم ال${action} مع ثقة ${confidence.toFixed(0)}%. مناسب لـ ${accountTypeAr}.`
-      : `Detected ${trendDesc} trend on ${timeframe}. Momentum supports ${action} with ${confidence.toFixed(0)}% confidence. Best for ${accountType}.`;
+      ? `تم رصد ارتداد من ${zone} (${recommendation === 'BUY' ? supStr : resStr}) على فريم ${timeframe}. الهدف القادم نحو ${targetZone} بثقة ${confidence.toFixed(0)}%.`
+      : `Detected bounce from ${zone} (${recommendation === 'BUY' ? supStr : resStr}) on ${timeframe}. Target set towards ${targetZone} with ${confidence.toFixed(0)}% confidence.`;
   };
 
   return {
@@ -123,6 +124,6 @@ export const getDecision = (data) => {
     levels,
     accountType: { en: accountType, ar: accountTypeAr },
     reason: { en: getLiveReason('en'), ar: getLiveReason('ar') },
-    tech: { rsi, volatility: (volatility * 100).toFixed(2) }
+    tech: { rsi, volatility: (volatility * 100).toFixed(2), support, resistance }
   };
 };
