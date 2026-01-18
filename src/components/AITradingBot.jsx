@@ -193,7 +193,8 @@ const AITradingBot = () => {
         chartData: history.slice(-30).map((p, i) => ({ time: i, price: p }))
       });
 
-      if (recommendation !== 'Wait') {
+      // تسجيل صفقات البوت فقط (Buy/Sell) في Firestore لتظهر في لوحة الإدارة
+      if (recommendation === 'Buy' || recommendation === 'Sell') {
         const tradeData = {
           asset: selectedAsset,
           type: recommendation,
@@ -202,13 +203,16 @@ const AITradingBot = () => {
           sl: levels.sl,
           profit: aiScore > 0 ? 1 : -1,
           timestamp: Date.now(),
-          createdAt: serverTimestamp()
+          createdAt: serverTimestamp(),
+          isBotTrade: true // علامة إضافية للتأكيد على أنها صفقة بوت
         };
         
-        // حفظ في Firestore للأدمن
         try {
+          // الحفظ في مجموعة bot_trades المخصصة لسجل صفقات البوت في الأدمن
           await addDoc(collection(db, 'bot_trades'), tradeData);
-        } catch (e) { console.error("Error saving trade:", e); }
+        } catch (e) { 
+          console.error("Error saving bot trade to Firestore:", e); 
+        }
         
         botBrain.recordTrade(tradeData);
         setBotStats(botBrain.getStats());
