@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   TrendingUp, TrendingDown, Activity, 
@@ -198,6 +199,9 @@ const AITradingBot = () => {
         rrRatio: '1:2' 
       });
 
+      const currentLang = i18n.language || 'ar';
+      const displayReason = reason[currentLang] || reason['en'];
+
       setAnalysis({
         recommendation: recommendation === 'WAIT' ? t('aibot.wait') : (recommendation === 'BUY' ? t('aibot.buy') : t('aibot.sell')),
         rawRecommendation: recommendation === 'BUY' ? 'Buy' : (recommendation === 'SELL' ? 'Sell' : 'Wait'),
@@ -205,7 +209,7 @@ const AITradingBot = () => {
         tech,
         currentPrice,
         levels,
-        reasoning: reason,
+        reasoning: displayReason,
         chartData: history.slice(-30).map((p, i) => ({ time: i, price: p }))
       });
 
@@ -217,10 +221,10 @@ const AITradingBot = () => {
           entryPrice: currentPrice,
           tp: levels.tp,
           sl: levels.sl,
-          profit: Math.random() > 0.5 ? 1 : -1, // محاكاة النتيجة للتعلم
+          profit: Math.random() > 0.5 ? 1 : -1,
           confidence,
           riskPercent,
-          reason,
+          reason: reason.en, // حفظ التفسير بالإنجليزية في قاعدة البيانات للتوحيد
           timestamp: Date.now(),
           createdAt: serverTimestamp(),
           isBotTrade: true
@@ -231,7 +235,7 @@ const AITradingBot = () => {
           await botBrain.recordTrade(tradeData);
           setBotStats(botBrain.getStats());
         } catch (e) { 
-          console.error("Error saving bot trade:", e); 
+          console.error("Error saving bot trade to Firestore:", e); 
         }
       }
       setLoading(false);
