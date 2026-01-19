@@ -1,20 +1,20 @@
 /**
- * محرك القرار المتقدم (Decision Engine) - V11.0
- * تحسين دقة التوصيات، معالجة تضارب الأسعار، وإدارة ذكية للأخبار
+ * محرك القرار المتقدم (Decision Engine) - V12.0
+ * دمج تحليل المشاعر، البيانات التاريخية، وتبسيط التفسير
  */
 
 import { getTechnicalSignal, calculateRSI, calculateMACD, calculateBollingerBands, calculateSupportResistance } from '../analysis/technical';
 
 export const getDecision = (data) => {
-  const { prices, marketStatus, timeframe, assetType, selectedAsset } = data;
+  const { prices, marketStatus, timeframe, assetType, selectedAsset, sentiment } = data;
 
-  if (!prices || prices.length < 20) {
+  if (!prices || prices.length < 30) {
     return { 
       recommendation: 'WAIT', 
       confidence: 0, 
       reason: {
-        en: 'Gathering more market data to ensure a high-probability decision.',
-        ar: 'جاري جمع المزيد من بيانات السوق لضمان اتخاذ قرار عالي الاحتمالية.'
+        en: 'Initializing deep market analysis and gathering historical context...',
+        ar: 'جاري بدء التحليل العميق للسوق وجمع السياق التاريخي للبيانات...'
       }
     };
   }
@@ -26,49 +26,43 @@ export const getDecision = (data) => {
   const bb = calculateBollingerBands(prices);
   const { support, resistance } = calculateSupportResistance(prices);
 
-  // منطق ذكي حسب الإطار الزمني (Timeframe)
-  let tfMultiplier = 1;
-  if (timeframe === '15M') tfMultiplier = 0.5;
-  if (timeframe === '4H') tfMultiplier = 2;
-  if (timeframe === '1D') tfMultiplier = 4;
+  // 1. دمج تحليل المشاعر (Sentiment Impact)
+  const sentimentImpact = sentiment ? sentiment.impact * 20 : 0;
 
-  const decision = {
-    trend: tech.score > 0 ? 1 : tech.score < 0 ? -1 : 0,
-    entryModel: (rsi < 35 || rsi > 65) ? (rsi < 35 ? 1 : -1) : 0,
-    momentum: macd.histogram > 0 ? 1 : macd.histogram < 0 ? -1 : 0,
-    volume: (currentPrice > bb.upper || currentPrice < bb.lower) ? (currentPrice < bb.lower ? 1 : -1) : 0,
-    fundamental: marketStatus === 'Stable' ? 1 : -0.5, // تقليل الثقة عند وجود خطر بدلاً من الإيقاف
-    multiTF: (tech.score > 0 ? 1 : -1)
-  };
+  // 2. منطق القرار المطور
+  let score = tech.score;
+  score += sentimentImpact; // إضافة تأثير المشاعر للقرار الفني
 
+  // 3. حساب الثقة بناءً على توافق العوامل
   let confidence = 0;
-  confidence += Math.abs(decision.trend) * 25;
-  confidence += Math.abs(decision.entryModel) * 20;
-  confidence += Math.abs(decision.momentum) * 15;
-  confidence += Math.abs(decision.volume) * 10;
-  confidence += Math.abs(decision.fundamental) * 15;
-  confidence += Math.abs(decision.multiTF) * 15;
+  const rsiSignal = (rsi < 35) ? 1 : (rsi > 65) ? -1 : 0;
+  const macdSignal = (macd.histogram > 0) ? 1 : -1;
+  const trendSignal = (currentPrice > bb.middle) ? 1 : -1;
 
-  // خفض الثقة إذا كان هناك خطر أخبار ولكن لا نعطل البوت
-  if (marketStatus === 'Danger') {
-    confidence *= 0.6; 
-  }
+  // زيادة الثقة إذا اتفقت المشاعر مع التحليل الفني
+  const sentimentAgreement = (score > 0 && sentimentImpact > 0) || (score < 0 && sentimentImpact < 0);
+  
+  confidence = Math.abs(score) * 0.8;
+  if (sentimentAgreement) confidence += 15;
+  
+  // خفض الثقة في حالات الخطر الإخباري
+  if (marketStatus === 'Danger') confidence *= 0.7;
 
   confidence = Math.max(0, Math.min(100, confidence));
 
+  // 4. تحديد التوصية
   let recommendation = 'WAIT';
-  // رفع حد الثقة المطلوب عند وجود خطر أخبار
-  const requiredConfidence = marketStatus === 'Danger' ? 85 : 75;
+  const threshold = marketStatus === 'Danger' ? 88 : 78;
   
-  if (confidence >= requiredConfidence) {
-    recommendation = tech.score > 0 ? 'BUY' : 'SELL';
+  if (confidence >= threshold) {
+    recommendation = score > 0 ? 'BUY' : 'SELL';
   }
 
-  // حدود صفقات ذكية (Smart TP/SL) - معالجة تضارب الأسعار
+  // 5. إدارة المخاطر (Smart TP/SL)
   const volatility = (bb.upper - bb.lower) / currentPrice;
-  const baseRisk = Math.max(volatility * 0.5, 0.002); // حد أدنى للمخاطرة
-  const smartSL = baseRisk * tfMultiplier;
-  const smartTP = smartSL * 2.0; // نسبة عائد للمخاطرة 1:2
+  const tfMultiplier = timeframe === '15M' ? 0.6 : timeframe === '4H' ? 1.8 : timeframe === '1D' ? 3.5 : 1;
+  const smartSL = Math.max(volatility * 0.6, 0.0015) * tfMultiplier;
+  const smartTP = smartSL * 2.2; // نسبة عائد مخاطرة محسنة
 
   const levels = {
     entry: currentPrice,
@@ -76,58 +70,33 @@ export const getDecision = (data) => {
     sl: recommendation === 'BUY' ? currentPrice * (1 - smartSL) : currentPrice * (1 + smartSL)
   };
 
-  // تحديد نوع الحساب
-  let accountType = "Standard (> $500)";
-  let accountTypeAr = "حساب قياسي (أكبر من 500$)";
-  if (smartSL > 0.01) {
-    accountType = "Pro (> $1000)";
-    accountTypeAr = "حساب احترافي (أكبر من 1000$)";
-  } else if (smartSL < 0.003) {
-    accountType = "Micro (< $100)";
-    accountTypeAr = "حساب ميكرو (أقل من 100$)";
-  } else {
-    accountType = "Mini ($100 - $500)";
-    accountTypeAr = "حساب ميني (100$ - 500$)";
-  }
-
-  const getLiveReason = (lang) => {
-    const precision = selectedAsset.includes('JPY') || selectedAsset.includes('XAU') ? 2 : 5;
-    const supStr = support.toFixed(precision);
-    const resStr = resistance.toFixed(precision);
-
-    if (marketStatus === 'Danger' && recommendation === 'WAIT') {
-      return lang === 'ar'
-        ? `تنبيه: أخبار عالية التأثير مكتشفة. نفضل الانتظار رغم وجود إشارات فنية لحماية رأس المال.`
-        : `Warning: High impact news detected. Prefer waiting despite technical signals to protect capital.`;
-    }
-
+  // 6. تبسيط التفسير (Human-Readable Reason)
+  const getSimpleReason = (lang) => {
+    const isAr = lang === 'ar';
     if (recommendation === 'WAIT') {
-      if (Math.abs(tech.score) < 10) {
-        return lang === 'ar' 
-          ? `السوق في حالة تذبذب عرضي بين ${supStr} و ${resStr}. ننتظر اتجاه أوضح.`
-          : `Market in sideways consolidation between ${supStr} and ${resStr}. Waiting for clearer trend.`;
-      }
-      return lang === 'ar'
-        ? `إشارات غير مكتملة. الثقة ${confidence.toFixed(0)}% أقل من الحد المطلوب (${requiredConfidence}%).`
-        : `Incomplete signals. Confidence ${confidence.toFixed(0)}% is below required threshold (${requiredConfidence}%).`;
+      if (marketStatus === 'Danger') return isAr ? "ننتظر هدوء العاصفة الإخبارية لضمان سلامة حسابك." : "Waiting for news volatility to settle for your safety.";
+      if (confidence < 50) return isAr ? "السوق غير واضح حالياً، نفضل البقاء في الخارج." : "Market direction is unclear, staying aside for now.";
+      return isAr ? "الإشارات قوية ولكنها لم تكتمل بعد، الصبر هو المفتاح." : "Signals are strong but not fully confirmed yet. Patience is key.";
     }
 
-    const zone = recommendation === 'BUY' ? (lang === 'ar' ? 'الدعم' : 'Support') : (lang === 'ar' ? 'المقاومة' : 'Resistance');
-    const level = recommendation === 'BUY' ? supStr : resStr;
+    const action = recommendation === 'BUY' ? (isAr ? "شراء" : "BUY") : (isAr ? "بيع" : "SELL");
+    const reasonPart = score > 0 ? (isAr ? "قوة شرائية واضحة" : "strong buying pressure") : (isAr ? "ضغط بيعي قوي" : "strong selling pressure");
+    const sentimentPart = sentimentAgreement ? (isAr ? "مع توافق مشاعر المتداولين" : "aligned with market sentiment") : "";
     
-    let newsWarning = marketStatus === 'Danger' ? (lang === 'ar' ? " (تحذير: تقلبات أخبار)" : " (News Volatility Warning)") : "";
-
-    return lang === 'ar'
-      ? `إشارة ${recommendation === 'BUY' ? 'شراء' : 'بيع'} قوية بعد ارتداد من ${zone} عند ${level}${newsWarning}. الثقة ${confidence.toFixed(0)}%.`
-      : `Strong ${recommendation} signal after bounce from ${zone} at ${level}${newsWarning}. Confidence ${confidence.toFixed(0)}%.`;
+    return isAr 
+      ? `قرار ${action} بناءً على ${reasonPart} ${sentimentPart}. الثقة عالية جداً.`
+      : `${action} decision based on ${reasonPart} ${sentimentPart}. Confidence is very high.`;
   };
 
   return {
     recommendation,
     confidence,
     levels,
-    accountType: { en: accountType, ar: accountTypeAr },
-    reason: { en: getLiveReason('en'), ar: getLiveReason('ar') },
+    accountType: { 
+      en: smartSL > 0.008 ? "Pro Account" : "Standard Account", 
+      ar: smartSL > 0.008 ? "حساب احترافي" : "حساب قياسي" 
+    },
+    reason: { en: getSimpleReason('en'), ar: getSimpleReason('ar') },
     tech: { rsi, volatility: (volatility * 100).toFixed(2), support, resistance }
   };
 };
