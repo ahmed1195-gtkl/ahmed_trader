@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { db, auth, storage } from '../lib/firebase';
 import { 
   collection, 
@@ -37,7 +37,8 @@ import {
   FileSpreadsheet,
   TrendingUp,
   TrendingDown,
-  RefreshCw
+  RefreshCw,
+  Settings
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
