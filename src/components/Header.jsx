@@ -43,7 +43,6 @@ const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      // تحسين استجابة التمرير
       if (window.scrollY > 10) {
         setIsScrolled(true);
       } else {
@@ -79,7 +78,6 @@ const Header = () => {
       }
     });
 
-    // جلب إعدادات الموقع
     const settingsRef = collection(db, 'site_settings');
     const unsubscribeSettings = onSnapshot(settingsRef, (snapshot) => {
       if (!snapshot.empty) {
@@ -116,7 +114,6 @@ const Header = () => {
   const changeLanguage = (code) => {
     i18n.changeLanguage(code);
     setIsLangOpen(false);
-    // تحديث الصفحة تلقائياً عند تغيير اللغة لضمان مزامنة كافة المكونات
     window.location.reload();
   };
 
@@ -146,7 +143,7 @@ const Header = () => {
             </div>
           </Link>
 
-          {/* Unified Nav - Desktop & Mobile Style */}
+          {/* Unified Nav - Desktop */}
           <nav className="hidden lg:flex items-center gap-6">
             {navLinks.map((link) => (
               <Link 
@@ -250,7 +247,7 @@ const Header = () => {
               </AnimatePresence>
             </div>
 
-            {/* User Profile */}
+            {/* User Profile / Login */}
             {user ? (
               <div className="flex items-center gap-2 md:gap-3 pl-2 md:pl-4 border-l border-white/10">
                 <button onClick={() => navigate('/settings')} className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-yellow-500 hover:bg-yellow-500 hover:text-black transition-all">
@@ -261,9 +258,14 @@ const Header = () => {
                 </button>
               </div>
             ) : (
-              <Link to="/login" className="px-4 md:px-6 py-2 md:py-2.5 rounded-xl bg-yellow-500 text-black text-[10px] font-black uppercase tracking-widest hover:bg-yellow-400 transition-all shadow-lg shadow-yellow-500/20">
-                {t('nav.login')}
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link to="/login" className="px-4 md:px-6 py-2 md:py-2.5 rounded-xl bg-yellow-500 text-black text-[10px] font-black uppercase tracking-widest hover:bg-yellow-400 transition-all shadow-lg shadow-yellow-500/20">
+                  {t('nav.login')}
+                </Link>
+                <Link to="/signup" className="hidden md:flex px-4 md:px-6 py-2 md:py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">
+                  {t('auth.signup')}
+                </Link>
+              </div>
             )}
 
             {/* Mobile Menu Toggle */}
@@ -312,6 +314,44 @@ const Header = () => {
                       {link.icon} {link.name}
                     </Link>
                   ))}
+                  
+                  {user && isAdmin && (
+                    <Link 
+                      to="/admin" 
+                      onClick={() => setIsSidebarOpen(false)}
+                      className={`flex items-center gap-4 px-4 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${location.pathname === '/admin' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:bg-white/5'}`}
+                    >
+                      <LayoutDashboard className="w-4 h-4" /> {t('nav.admin', 'Admin')}
+                    </Link>
+                  )}
+
+                  {!user && (
+                    <>
+                      <Link 
+                        to="/login" 
+                        onClick={() => setIsSidebarOpen(false)}
+                        className="flex items-center gap-4 px-4 py-4 rounded-2xl text-xs font-black uppercase tracking-widest bg-yellow-500 text-black mt-4"
+                      >
+                        <LogIn className="w-4 h-4" /> {t('nav.login')}
+                      </Link>
+                      <Link 
+                        to="/signup" 
+                        onClick={() => setIsSidebarOpen(false)}
+                        className="flex items-center gap-4 px-4 py-4 rounded-2xl text-xs font-black uppercase tracking-widest bg-white/5 text-white border border-white/10"
+                      >
+                        <User className="w-4 h-4" /> {t('auth.signup')}
+                      </Link>
+                    </>
+                  )}
+
+                  {user && (
+                    <button 
+                      onClick={() => { signOut(auth); setIsSidebarOpen(false); }}
+                      className="flex items-center gap-4 px-4 py-4 rounded-2xl text-xs font-black uppercase tracking-widest text-red-500 bg-red-500/10 border border-red-500/20 mt-4"
+                    >
+                      <LogOut className="w-4 h-4" /> {t('nav.logout')}
+                    </button>
+                  )}
                 </div>
                 <div className="mt-auto pt-6 border-t border-white/5">
                   <div className="flex justify-center gap-6">
