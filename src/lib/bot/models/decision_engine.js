@@ -50,9 +50,10 @@ export const getDecision = (data) => {
 
   confidence = Math.max(0, Math.min(100, confidence));
 
-  // 4. تحديد التوصية
+  // 4. تحديد التوصية (تم تقليل الصرامة بناءً على طلب المستخدم)
   let recommendation = 'WAIT';
-  const threshold = marketStatus === 'Danger' ? 88 : 78;
+  // العتبة السابقة كانت 78 و 88، تم خفضها لتكون أقل صرامة
+  const threshold = marketStatus === 'Danger' ? 80 : 70;
   
   if (confidence >= threshold) {
     recommendation = score > 0 ? 'BUY' : 'SELL';
