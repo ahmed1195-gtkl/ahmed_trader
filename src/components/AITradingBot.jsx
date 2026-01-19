@@ -8,7 +8,8 @@ import {
   Newspaper, ShieldCheck, Loader2, CheckCircle2, Layers,
   Target, ArrowUpRight, ArrowDownRight, BarChart3, AlertCircle,
   MessageSquare, Lightbulb, Info, Calendar, Clock, Globe, AlertTriangle,
-  ChevronRight, ChevronDown, Gauge, History, Timer, Scale, Eye, EyeOff
+  ChevronRight, ChevronDown, Gauge, History, Timer, Scale, Eye, EyeOff,
+  Search, Filter
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { Button } from './ui/button';
@@ -41,6 +42,7 @@ const AITradingBot = () => {
   const [activeTrades, setActiveTrades] = useState({}); 
   const [todayTrades, setTodayTrades] = useState([]); 
   const [marketSentiment, setMarketSentiment] = useState(null);
+  const [showAssetList, setShowAssetList] = useState(false);
   
   const priceIntervalRef = useRef(null);
   const timeIntervalRef = useRef(null);
@@ -49,14 +51,26 @@ const AITradingBot = () => {
   const priceHistoryRef = useRef({}); 
 
   const assets = [
+    // Crypto
     { name: 'BTC/USDT', symbol: 'BTCUSDT', tvSymbol: 'BINANCE:BTCUSDT', basePrice: 45000, type: 'crypto' },
     { name: 'ETH/USDT', symbol: 'ETHUSDT', tvSymbol: 'BINANCE:ETHUSDT', basePrice: 2400, type: 'crypto' },
     { name: 'SOL/USDT', symbol: 'SOLUSDT', tvSymbol: 'BINANCE:SOLUSDT', basePrice: 95, type: 'crypto' },
+    { name: 'XRP/USDT', symbol: 'XRPUSDT', tvSymbol: 'BINANCE:XRPUSDT', basePrice: 0.55, type: 'crypto' },
+    { name: 'ADA/USDT', symbol: 'ADAUSDT', tvSymbol: 'BINANCE:ADAUSDT', basePrice: 0.50, type: 'crypto' },
+    { name: 'DOT/USDT', symbol: 'DOTUSDT', tvSymbol: 'BINANCE:DOTUSDT', basePrice: 7.5, type: 'crypto' },
+    { name: 'DOGE/USDT', symbol: 'DOGEUSDT', tvSymbol: 'BINANCE:DOGEUSDT', basePrice: 0.08, type: 'crypto' },
+    { name: 'AVAX/USDT', symbol: 'AVAXUSDT', tvSymbol: 'BINANCE:AVAXUSDT', basePrice: 35, type: 'crypto' },
+    // Forex
     { name: 'XAU/USD', symbol: 'XAUUSD', tvSymbol: 'OANDA:XAUUSD', basePrice: 2050, type: 'forex', fxcmSymbol: 'XAUUSD' },
     { name: 'EUR/USD', symbol: 'EURUSD', tvSymbol: 'FX:EURUSD', basePrice: 1.09, type: 'forex', fxcmSymbol: 'EURUSD' },
     { name: 'GBP/USD', symbol: 'GBPUSD', tvSymbol: 'FX:GBPUSD', basePrice: 1.27, type: 'forex', fxcmSymbol: 'GBPUSD' },
     { name: 'USD/JPY', symbol: 'USDJPY', tvSymbol: 'FX:USDJPY', basePrice: 145, type: 'forex', fxcmSymbol: 'USDJPY' },
-    { name: 'AUD/USD', symbol: 'AUDUSD', tvSymbol: 'FX:AUDUSD', basePrice: 0.67, type: 'forex', fxcmSymbol: 'AUDUSD' }
+    { name: 'AUD/USD', symbol: 'AUDUSD', tvSymbol: 'FX:AUDUSD', basePrice: 0.67, type: 'forex', fxcmSymbol: 'AUDUSD' },
+    { name: 'USD/CAD', symbol: 'USDCAD', tvSymbol: 'FX:USDCAD', basePrice: 1.35, type: 'forex', fxcmSymbol: 'USDCAD' },
+    { name: 'NZD/USD', symbol: 'NZDUSD', tvSymbol: 'FX:NZDUSD', basePrice: 0.62, type: 'forex', fxcmSymbol: 'NZDUSD' },
+    { name: 'USD/CHF', symbol: 'USDCHF', tvSymbol: 'FX:USDCHF', basePrice: 0.88, type: 'forex', fxcmSymbol: 'USDCHF' },
+    { name: 'EUR/GBP', symbol: 'EURGBP', tvSymbol: 'FX:EURGBP', basePrice: 0.85, type: 'forex', fxcmSymbol: 'EURGBP' },
+    { name: 'GBP/JPY', symbol: 'GBPJPY', tvSymbol: 'FX:GBPJPY', basePrice: 185, type: 'forex', fxcmSymbol: 'GBPJPY' }
   ];
 
   const timeframes = [
@@ -191,7 +205,7 @@ const AITradingBot = () => {
       const items = xmlDoc.getElementsByTagName("event");
       const events = [];
       const now = new Date();
-      for (let i = 0; i < Math.min(items.length, 15); i++) {
+      for (let i = 0; i < Math.min(items.length, 25); i++) {
         const title = items[i].getElementsByTagName("title")[0]?.textContent;
         const country = items[i].getElementsByTagName("country")[0]?.textContent;
         const dateStr = items[i].getElementsByTagName("date")[0]?.textContent;
@@ -213,7 +227,8 @@ const AITradingBot = () => {
 
   useEffect(() => {
     fetchForexFactoryNews();
-    newsIntervalRef.current = setInterval(fetchForexFactoryNews, 3600000);
+    // تحديث الأخبار كل 5 دقائق لضمان التحديث التلقائي المستمر
+    newsIntervalRef.current = setInterval(fetchForexFactoryNews, 300000);
     return () => clearInterval(newsIntervalRef.current);
   }, [fetchForexFactoryNews]);
 
@@ -294,7 +309,7 @@ const AITradingBot = () => {
           entryPrice: currentPrice,
           tp: levels.tp,
           sl: levels.sl,
-          profit: Math.random() > 0.35 ? 1 : -1, // تحسين احتمالية الفوز بناءً على التطوير الجديد
+          profit: Math.random() > 0.35 ? 1 : -1, 
           confidence,
           accountType: accountType.en,
           timeframe: selectedTimeframe,
@@ -366,15 +381,51 @@ const AITradingBot = () => {
         )}
 
         <div className="flex flex-col items-center gap-6 mb-12">
-          <div className="flex justify-center overflow-x-auto w-full pb-2">
-            <div className="flex bg-zinc-900/50 p-1 rounded-2xl border border-white/5 backdrop-blur-xl">
-              {assets.map((a) => (
-                <button key={a.symbol} onClick={() => setSelectedAsset(a.symbol)} className={`px-4 md:px-6 py-2 md:py-3 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${selectedAsset === a.symbol ? 'bg-yellow-500 text-black' : 'text-gray-500 hover:text-white'}`}>
-                  {a.name}
-                </button>
-              ))}
-            </div>
+          {/* اختيار الزوج - قائمة منظمة مع الحفاظ على التصميم */}
+          <div className="relative w-full max-w-md">
+            <button 
+              onClick={() => setShowAssetList(!showAssetList)}
+              className="w-full flex items-center justify-between px-6 py-4 bg-zinc-900/50 border border-white/10 rounded-2xl backdrop-blur-xl transition-all hover:border-yellow-500/50 group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-black font-black text-[10px]">
+                  {currentAsset.name.substring(0, 2)}
+                </div>
+                <span className="text-sm font-black uppercase tracking-widest">{currentAsset.name}</span>
+              </div>
+              <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${showAssetList ? 'rotate-180' : ''}`} />
+            </button>
+
+            <AnimatePresence>
+              {showAssetList && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="absolute z-50 top-full left-0 right-0 mt-2 bg-zinc-900 border border-white/10 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-2xl max-h-[400px] overflow-y-auto"
+                >
+                  <div className="p-2 grid grid-cols-1 gap-1">
+                    {assets.map((a) => (
+                      <button 
+                        key={a.symbol} 
+                        onClick={() => {
+                          setSelectedAsset(a.symbol);
+                          setShowAssetList(false);
+                        }} 
+                        className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all ${selectedAsset === a.symbol ? 'bg-yellow-500 text-black' : 'hover:bg-white/5 text-gray-400 hover:text-white'}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-[10px] font-black uppercase tracking-widest">{a.name}</span>
+                        </div>
+                        {a.type === 'crypto' ? <Zap className="w-3 h-3 opacity-50" /> : <Globe className="w-3 h-3 opacity-50" />}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
+
           <div className="flex bg-zinc-900/50 p-1 rounded-xl border border-white/5 backdrop-blur-xl">
             {timeframes.map((tf) => (
               <button key={tf.label} onClick={() => setSelectedTimeframe(tf.label)} className={`px-4 md:px-6 py-2 rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all ${selectedTimeframe === tf.label ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white'}`}>
@@ -456,8 +507,14 @@ const AITradingBot = () => {
               </CardContent>
             </Card>
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem] overflow-hidden">
-              <CardHeader className="p-8 border-b border-white/5 flex flex-row items-center gap-3">
-                <Calendar className="w-6 h-6 text-yellow-500" /><CardTitle className="text-xl font-black uppercase tracking-tight">{t('aibot.newsCalendar')}</CardTitle>
+              <CardHeader className="p-8 border-b border-white/5 flex flex-row items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-6 h-6 text-yellow-500" />
+                  <CardTitle className="text-xl font-black uppercase tracking-tight">{t('aibot.newsCalendar')}</CardTitle>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-500 text-[9px] font-black uppercase tracking-widest">
+                  <RefreshCw className="w-3 h-3 animate-spin-slow" /> LIVE UPDATING
+                </div>
               </CardHeader>
               <CardContent className="p-0 overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[600px]">
