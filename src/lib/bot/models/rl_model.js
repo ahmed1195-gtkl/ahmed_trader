@@ -1,13 +1,13 @@
 /**
- * محرك التعلم المعزز (RL) - V8.0
- * يحفظ نتائج الصفقات لتحسين القرارات المستقبلية ويرتبط بـ Firebase لتحديث الأوزان
+ * محرك التعلم المعزز (RL) - V11.0 المحسن
+ * يحسن الأوزان بناءً على الأداء الفعلي ويرتبط بـ Firebase
  */
 import { collection, addDoc, serverTimestamp, doc, updateDoc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 
 class RLTrader {
   constructor() {
-    this.storageKey = 'ahmed_trader_v8_memory';
+    this.storageKey = 'ahmed_trader_v11_memory';
     this.memory = this.loadMemory();
     this.weights = {
       trend: 25,
@@ -53,8 +53,7 @@ class RLTrader {
     const tradeEntry = { 
       ...trade, 
       time: Date.now(),
-      session: this.memory.session,
-      volatility: trade.volatility || 'Normal'
+      session: this.memory.session
     };
     
     this.memory.trades.push(tradeEntry);
@@ -65,8 +64,8 @@ class RLTrader {
       this.memory.winRate = (wins / this.memory.trades.length) * 100;
     }
     
-    // تعلم تلقائي كل 10 صفقات
-    if (this.memory.trades.length % 10 === 0) {
+    // تعلم أكثر ذكاءً كل 5 صفقات
+    if (this.memory.trades.length % 5 === 0) {
       await this.evolveStrategy();
     }
     
@@ -75,16 +74,29 @@ class RLTrader {
 
   async evolveStrategy() {
     const recentTrades = this.memory.trades.slice(-10);
-    const losingTrades = recentTrades.filter(t => t.profit <= 0);
+    if (recentTrades.length < 5) return;
+
+    const winRate = (recentTrades.filter(t => t.profit > 0).length / recentTrades.length) * 100;
     
-    if (losingTrades.length > 5) {
-      // تقليل وزن الأسباب الخاسرة وتشديد الفلاتر
-      this.weights.trend = Math.max(10, this.weights.trend - 1);
-      this.weights.fundamental = Math.min(30, this.weights.fundamental + 2);
+    // إذا كان معدل الفوز منخفضاً، نقوم بتعديل الأوزان
+    if (winRate < 70) {
+      // زيادة وزن التحليل الفني والاتجاه لتقليل المخاطرة
+      this.weights.trend = Math.min(40, this.weights.trend + 2);
+      this.weights.entryModel = Math.min(30, this.weights.entryModel + 1);
+      this.weights.fundamental = Math.min(25, this.weights.fundamental + 1);
       
-      try {
-        await updateDoc(doc(db, 'bot_settings', 'weights'), this.weights);
-      } catch (e) { console.error("Update Weights Error:", e); }
+      // تقليل وزن الزخم والسيولة لأنهما قد يكونان خادعين في التذبذب
+      this.weights.momentum = Math.max(10, this.weights.momentum - 1);
+      this.weights.volume = Math.max(5, this.weights.volume - 1);
+    } else if (winRate > 90) {
+      // إذا كان الأداء ممتازاً، نحافظ على الأوزان مع تعديلات طفيفة للتحسين
+      this.weights.multiTF = Math.min(25, this.weights.multiTF + 1);
+    }
+    
+    try {
+      await updateDoc(doc(db, 'bot_settings', 'weights'), this.weights);
+    } catch (e) { 
+      console.error("Update Weights Error:", e); 
     }
   }
 

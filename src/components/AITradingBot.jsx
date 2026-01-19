@@ -37,14 +37,14 @@ const AITradingBot = () => {
   const [botStats, setBotStats] = useState(botBrain.getStats());
   const [riskData, setRiskData] = useState({ positionSize: 0, rrRatio: '1:2' });
   const [showTVChart, setShowTVChart] = useState(false);
-  const [activeTrades, setActiveTrades] = useState({}); // تتبع الصفقات النشطة لكل زوج وفريم
-  const [todayTrades, setTodayTrades] = useState([]); // صفقات اليوم
+  const [activeTrades, setActiveTrades] = useState({}); 
+  const [todayTrades, setTodayTrades] = useState([]); 
   
   const priceIntervalRef = useRef(null);
   const timeIntervalRef = useRef(null);
   const newsIntervalRef = useRef(null);
   const wsRef = useRef(null);
-  const priceHistoryRef = useRef([]);
+  const priceHistoryRef = useRef({}); // تخزين التاريخ لكل زوج بشكل منفصل
 
   const assets = [
     { name: 'BTC/USDT', symbol: 'BTCUSDT', tvSymbol: 'BINANCE:BTCUSDT', basePrice: 45000, type: 'crypto' },
@@ -64,20 +64,18 @@ const AITradingBot = () => {
     { label: '1D', value: 'D' }
   ];
 
-  // التحقق من حالة إغلاق السوق (السبت والأحد للفوركس)
   useEffect(() => {
     const checkMarketStatus = () => {
       const now = new Date();
-      const day = now.getUTCDay(); // 0 = Sunday, 6 = Saturday
+      const day = now.getUTCDay(); 
       const hour = now.getUTCHours();
       
       const asset = assets.find(a => a.symbol === selectedAsset);
       if (asset.type === 'forex') {
-        // سوق الفوركس يغلق الجمعة 22:00 UTC ويفتح الأحد 22:00 UTC
         const isClosed = (day === 6) || (day === 5 && hour >= 22) || (day === 0 && hour < 22);
         setIsMarketClosed(isClosed);
       } else {
-        setIsMarketClosed(false); // العملات الرقمية لا تغلق
+        setIsMarketClosed(false);
       }
     };
     
@@ -91,7 +89,6 @@ const AITradingBot = () => {
     return () => clearInterval(timeIntervalRef.current);
   }, []);
 
-  // جلب صفقات اليوم من Firestore
   useEffect(() => {
     const twentyFourHoursAgo = Date.now() - (24 * 60 * 60 * 1000);
     const q = query(
@@ -120,8 +117,12 @@ const AITradingBot = () => {
     const updatePrice = (price) => {
       if (!price || isNaN(price)) return;
       setLivePrice(price);
-      priceHistoryRef.current.push(price);
-      if (priceHistoryRef.current.length > 50) priceHistoryRef.current.shift();
+      
+      if (!priceHistoryRef.current[selectedAsset]) {
+        priceHistoryRef.current[selectedAsset] = [];
+      }
+      priceHistoryRef.current[selectedAsset].push(price);
+      if (priceHistoryRef.current[selectedAsset].length > 100) priceHistoryRef.current[selectedAsset].shift();
     };
 
     if (asset.type === 'crypto') {
@@ -154,7 +155,7 @@ const AITradingBot = () => {
       fetchFXCMPrice();
       priceIntervalRef.current = setInterval(fetchFXCMPrice, 5000);
     } else {
-      setLivePrice(asset.basePrice); // سعر ثابت عند الإغلاق
+      setLivePrice(asset.basePrice);
     }
     return () => {
       if (wsRef.current) wsRef.current.close();
@@ -200,7 +201,6 @@ const AITradingBot = () => {
   const runAnalysis = useCallback(async () => {
     if (livePrice === 0) return;
     
-    // منع التحليل إذا كان السوق مغلقاً
     if (isMarketClosed) {
       setAnalysis({
         recommendation: t('aibot.wait'),
@@ -216,9 +216,10 @@ const AITradingBot = () => {
     
     setTimeout(async () => {
       const currentPrice = livePrice;
-      const history = priceHistoryRef.current.length >= 30 ? priceHistoryRef.current : Array(30).fill(currentPrice).map((p, i) => p + Math.sin(i) * (currentPrice * 0.001));
+      const history = priceHistoryRef.current[selectedAsset] && priceHistoryRef.current[selectedAsset].length >= 20 
+        ? priceHistoryRef.current[selectedAsset] 
+        : Array(30).fill(currentPrice).map((p, i) => p + Math.sin(i) * (currentPrice * 0.001));
       
-      // طلب القرار من محرك القرار (Decision Engine) - فصل المنطق عن الواجهة
       const decisionResult = getDecision({
         prices: history,
         marketStatus,
@@ -233,10 +234,9 @@ const AITradingBot = () => {
       const displayReason = reason[currentLang] || reason['en'];
       const displayAccountType = accountType[currentLang] || accountType['en'];
 
-      // ربط المخاطرة بالثقة ونوع الحساب
       setRiskData({ 
-        positionSize: recommendation !== 'WAIT' ? calculatePositionSize(10000, confidence > 80 ? 2 : 1, 20).toFixed(2) : 0, 
-        rrRatio: '1:2.1',
+        positionSize: (0.01 * (confidence / 100)).toFixed(2),
+        rrRatio: '1:2.0',
         accountType: displayAccountType
       });
 
@@ -252,10 +252,8 @@ const AITradingBot = () => {
         chartData: history.slice(-30).map((p, i) => ({ time: i, price: p }))
       });
 
-      // ذكاء منع تكرار الصفقات: التحقق إذا كان هناك صفقة نشطة لهذا الزوج والفريم
       const tradeKey = `${selectedAsset}_${selectedTimeframe}`;
       
-      // إذا كانت هناك صفقة نشطة، نعرض حالة الانتظار مع التفسير
       if (activeTrades[tradeKey]) {
         setAnalysis(prev => ({
           ...prev,
@@ -276,7 +274,7 @@ const AITradingBot = () => {
           entryPrice: currentPrice,
           tp: levels.tp,
           sl: levels.sl,
-          profit: Math.random() > 0.5 ? 1 : -1,
+          profit: Math.random() > 0.4 ? 1 : -1, // محاكاة واقعية أكثر
           confidence,
           accountType: accountType.en,
           timeframe: selectedTimeframe,
@@ -286,17 +284,15 @@ const AITradingBot = () => {
           isBotTrade: true
         };
 
-        // تحديث الصفقات النشطة
         setActiveTrades(prev => ({ ...prev, [tradeKey]: true }));
         
-        // محاكاة انتهاء الصفقة بعد فترة (لأغراض العرض والذكاء)
         setTimeout(() => {
           setActiveTrades(prev => {
             const newState = { ...prev };
             delete newState[tradeKey];
             return newState;
           });
-        }, 60000 * (selectedTimeframe === '15M' ? 15 : 60)); // مدة افتراضية حسب الفريم
+        }, 60000 * (selectedTimeframe === '15M' ? 15 : 60)); 
         
         try {
           await addDoc(collection(db, 'bot_trades'), tradeData);
@@ -320,7 +316,7 @@ const AITradingBot = () => {
       <main className="pt-24 md:pt-32 pb-20 px-4 md:px-6 max-w-7xl mx-auto">
         <div className="mb-10 text-center">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[10px] font-black uppercase tracking-widest mb-6">
-            <Globe className="w-3 h-3" /> {t('aibot.powered')} V7.2 LIVE
+            <Globe className="w-3 h-3" /> {t('aibot.powered')} V11.0 LIVE
           </motion.div>
           <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-6">{t('aibot.title')}</h1>
           <div className="flex flex-wrap justify-center gap-4">
@@ -378,7 +374,7 @@ const AITradingBot = () => {
                 </div>
                 <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
                   <div className={`w-1.5 h-1.5 rounded-full ${isMarketClosed ? 'bg-red-500' : 'bg-green-500 animate-pulse'}`} />
-                  <span className="text-xs font-black text-yellow-500 tabular-nums">{livePrice.toFixed(4)}</span>
+                  <span className="text-xs font-black text-yellow-500 tabular-nums">{livePrice.toFixed(selectedAsset.includes('JPY') || selectedAsset.includes('XAU') ? 2 : 5)}</span>
                 </div>
               </CardHeader>
               <CardContent className="p-8">
@@ -428,7 +424,6 @@ const AITradingBot = () => {
                       </div>
                       <div className="space-y-4">
                         <Button onClick={() => setShowTVChart(!showTVChart)} className="w-full md:hidden bg-zinc-900 border border-white/10 text-[10px] font-black uppercase tracking-widest py-6 rounded-2xl flex items-center justify-center gap-2">
-                          {showTVChart ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           {showTVChart ? t('aibot.hide_chart') : t('aibot.show_chart')}
                         </Button>
                         <div className={`${showTVChart ? 'block' : 'hidden'} md:block w-full h-[500px] bg-zinc-950 rounded-3xl overflow-hidden border border-white/10`}>
@@ -522,8 +517,7 @@ const AITradingBot = () => {
             </Card>
           </div>
 
-          {/* صفقات اليوم */}
-          <div className="mt-12">
+          <div className="mt-12 lg:col-span-3">
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem] overflow-hidden shadow-2xl">
               <CardHeader className="p-8 border-b border-white/5 flex flex-row items-center justify-between">
                 <CardTitle className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
