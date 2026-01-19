@@ -9,7 +9,7 @@ import {
   Target, ArrowUpRight, ArrowDownRight, BarChart3, AlertCircle,
   MessageSquare, Lightbulb, Info, Calendar, Clock, Globe, AlertTriangle,
   ChevronRight, ChevronDown, Gauge, History, Timer, Scale, Eye, EyeOff,
-  Search, Filter
+  Search, Filter, Bell, BellRing, BellOff
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { Button } from './ui/button';
@@ -43,12 +43,15 @@ const AITradingBot = () => {
   const [todayTrades, setTodayTrades] = useState([]); 
   const [marketSentiment, setMarketSentiment] = useState(null);
   const [showAssetList, setShowAssetList] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   
   const priceIntervalRef = useRef(null);
   const timeIntervalRef = useRef(null);
   const newsIntervalRef = useRef(null);
+  const backgroundScannerRef = useRef(null);
   const wsRef = useRef(null);
   const priceHistoryRef = useRef({}); 
+  const lastNotificationTimeRef = useRef({});
 
   const assets = [
     // Crypto
@@ -79,6 +82,83 @@ const AITradingBot = () => {
     { label: '4H', value: '4H' },
     { label: '1D', value: 'D' }
   ];
+
+  // طلب إذن الإشعارات
+  const requestNotificationPermission = async () => {
+    if ('Notification' in window) {
+      const permission = await Notification.requestPermission();
+      setNotificationsEnabled(permission === 'granted');
+    }
+  };
+
+  useEffect(() => {
+    if ('Notification' in window) {
+      setNotificationsEnabled(Notification.permission === 'granted');
+    }
+  }, []);
+
+  const sendNotification = (title, body, asset) => {
+    if (notificationsEnabled && 'Notification' in window) {
+      const now = Date.now();
+      // منع تكرار الإشعارات لنفس الزوج خلال 30 دقيقة
+      if (lastNotificationTimeRef.current[asset] && (now - lastNotificationTimeRef.current[asset] < 1800000)) {
+        return;
+      }
+      
+      new Notification(title, {
+        body,
+        icon: '/logo192.png', // تأكد من وجود أيقونة
+        badge: '/logo192.png'
+      });
+      
+      lastNotificationTimeRef.current[asset] = now;
+    }
+  };
+
+  // محرك المسح المستمر في الخلفية (Background Scanner)
+  const runBackgroundScanner = useCallback(async () => {
+    // اختيار زوج عشوائي للمسح في كل دورة لتوفير الموارد
+    const randomAsset = assets[Math.floor(Math.random() * assets.length)];
+    if (randomAsset.symbol === selectedAsset) return; // تخطي الزوج الحالي لأنه يتم تحليله بالفعل
+
+    try {
+      const history = await fetchHistoricalData(randomAsset.symbol, selectedTimeframe);
+      if (!history) return;
+
+      const decision = getDecision({
+        prices: history,
+        marketStatus,
+        timeframe: selectedTimeframe,
+        assetType: randomAsset.type,
+        selectedAsset: randomAsset.symbol,
+        sentiment: marketSentiment
+      });
+
+      if (decision.confidence >= 85 && (decision.recommendation === 'BUY' || decision.recommendation === 'SELL')) {
+        const title = i18n.language === 'ar' ? `فرصة تداول قوية: ${randomAsset.name}` : `Strong Trade Opportunity: ${randomAsset.name}`;
+        const body = i18n.language === 'ar' 
+          ? `البوت اكتشف إشارة ${decision.recommendation === 'BUY' ? 'شراء' : 'بيع'} بنسبة ثقة ${decision.confidence.toFixed(1)}%`
+          : `Bot detected a ${decision.recommendation} signal with ${decision.confidence.toFixed(1)}% confidence`;
+        
+        sendNotification(title, body, randomAsset.symbol);
+      } else if (decision.confidence >= 70 && decision.confidence < 85) {
+        // تنبيه لصفقة قريبة
+        const title = i18n.language === 'ar' ? `صفقة محتملة قريباً: ${randomAsset.name}` : `Potential Trade Soon: ${randomAsset.name}`;
+        const body = i18n.language === 'ar'
+          ? `السعر يقترب من منطقة دخول جيدة. راقب الزوج الآن.`
+          : `Price is approaching a good entry zone. Watch the pair now.`;
+        
+        sendNotification(title, body, randomAsset.symbol);
+      }
+    } catch (error) {
+      console.error("Background scanner error:", error);
+    }
+  }, [selectedAsset, selectedTimeframe, marketStatus, marketSentiment, notificationsEnabled]);
+
+  useEffect(() => {
+    backgroundScannerRef.current = setInterval(runBackgroundScanner, 30000); // مسح زوج كل 30 ثانية
+    return () => clearInterval(backgroundScannerRef.current);
+  }, [runBackgroundScanner]);
 
   // جلب المشاعر والبيانات التاريخية عند تغيير الزوج
   useEffect(() => {
@@ -227,7 +307,6 @@ const AITradingBot = () => {
 
   useEffect(() => {
     fetchForexFactoryNews();
-    // تحديث الأخبار كل 5 دقائق لضمان التحديث التلقائي المستمر
     newsIntervalRef.current = setInterval(fetchForexFactoryNews, 300000);
     return () => clearInterval(newsIntervalRef.current);
   }, [fetchForexFactoryNews]);
@@ -369,6 +448,14 @@ const AITradingBot = () => {
               <Clock className="w-3 h-3 text-yellow-500" />
               <span className="text-[10px] font-black text-yellow-500 tabular-nums uppercase tracking-widest">{currentTime.toLocaleTimeString()}</span>
             </div>
+            {/* زر تفعيل الإشعارات - متناسق مع التصميم */}
+            <button 
+              onClick={requestNotificationPermission}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl border backdrop-blur-xl transition-all ${notificationsEnabled ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-zinc-900/50 border-white/5 text-gray-500 hover:text-white'}`}
+            >
+              {notificationsEnabled ? <BellRing className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+              <span className="text-[10px] font-black uppercase">{notificationsEnabled ? 'Alerts ON' : 'Enable Alerts'}</span>
+            </button>
           </div>
         </div>
 
@@ -381,7 +468,6 @@ const AITradingBot = () => {
         )}
 
         <div className="flex flex-col items-center gap-6 mb-12">
-          {/* اختيار الزوج - قائمة منظمة مع الحفاظ على التصميم */}
           <div className="relative w-full max-w-md">
             <button 
               onClick={() => setShowAssetList(!showAssetList)}
@@ -558,6 +644,16 @@ const AITradingBot = () => {
                 </div>
                 <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
                   <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(100, botStats.totalTrades)}%` }} className="h-full bg-yellow-500" />
+                </div>
+                {/* حالة المسح المستمر */}
+                <div className="pt-4 border-t border-white/5">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Background Scanner</span>
+                    <span className="flex items-center gap-1 text-[9px] font-black text-yellow-500">
+                      <RefreshCw className="w-2 h-2 animate-spin" /> ACTIVE
+                    </span>
+                  </div>
+                  <p className="text-[8px] text-gray-500 italic">Scanning all assets for opportunities...</p>
                 </div>
               </CardContent>
             </Card>
