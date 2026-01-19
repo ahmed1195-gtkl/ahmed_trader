@@ -180,10 +180,13 @@ const AITradingBot = () => {
     }
   }, [selectedAsset, selectedTimeframe, marketStatus, marketSentiment, notificationsEnabled]);
 
+  // تم إيقاف المسح في الخلفية بناءً على طلب المستخدم
+  /*
   useEffect(() => {
     backgroundScannerRef.current = setInterval(runBackgroundScanner, 30000); // مسح زوج كل 30 ثانية
     return () => clearInterval(backgroundScannerRef.current);
   }, [runBackgroundScanner]);
+  */
 
   // جلب المشاعر والبيانات التاريخية عند تغيير الزوج
   useEffect(() => {
@@ -676,16 +679,7 @@ const AITradingBot = () => {
                 <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
                   <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(100, botStats.totalTrades)}%` }} className="h-full bg-yellow-500" />
                 </div>
-                {/* حالة المسح المستمر */}
-                <div className="pt-4 border-t border-white/5">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Background Scanner</span>
-                    <span className="flex items-center gap-1 text-[9px] font-black text-yellow-500">
-                      <RefreshCw className="w-2 h-2 animate-spin" /> ACTIVE
-                    </span>
-                  </div>
-                  <p className="text-[8px] text-gray-500 italic">Scanning all assets for opportunities...</p>
-                </div>
+                {/* تم إزالة حالة المسح المستمر بناءً على طلب المستخدم */}
               </CardContent>
             </Card>
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem]">
