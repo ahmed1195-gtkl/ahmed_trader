@@ -20,9 +20,7 @@ import {
   AlertTriangle,
   Zap,
   Calculator,
-  Activity,
-  ShieldCheck,
-  ShieldAlert
+  Activity
 } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
@@ -41,7 +39,7 @@ const Header = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
   const [siteSettings, setSiteSettings] = useState({ showAIBot: true, showPipCalculator: true });
-  const [isBotActive, setIsBotActive] = useState(true); // حالة التحليل الخلفي
+  const [isBotActive, setIsBotActive] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -108,13 +106,13 @@ const Header = () => {
     { name: 'Instagram', icon: <Instagram className="w-4 h-4" />, url: 'https://www.instagram.com/mohamed_chokry' }
   ];
 
-  // تعديل: عرض الصفحات دائماً للمستخدمين حتى لو أغلقها الأدمن
+  // تعديل: الروابط تعتمد الآن على إعدادات الأدمن (siteSettings) لضمان الاختفاء عند التعطيل
   const navLinks = [
-    { name: t('nav.home'), path: '/', icon: <Home className="w-4 h-4" /> },
-    { name: t('nav.news'), path: '/news', icon: <Newspaper className="w-4 h-4" /> },
-    { name: 'AI Bot', path: '/ai-bot', icon: <Zap className="w-4 h-4" /> },
-    { name: 'Pips', path: '/pip-calculator', icon: <Calculator className="w-4 h-4" /> },
-  ];
+    { name: t('nav.home'), path: '/', icon: <Home className="w-4 h-4" />, show: true },
+    { name: t('nav.news'), path: '/news', icon: <Newspaper className="w-4 h-4" />, show: true },
+    { name: 'AI Bot', path: '/ai-bot', icon: <Zap className="w-4 h-4" />, show: siteSettings.showAIBot },
+    { name: 'Pips', path: '/pip-calculator', icon: <Calculator className="w-4 h-4" />, show: siteSettings.showPipCalculator },
+  ].filter(link => link.show);
 
   const changeLanguage = (code) => {
     i18n.changeLanguage(code);
