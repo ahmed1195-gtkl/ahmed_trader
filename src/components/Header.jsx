@@ -234,57 +234,9 @@ const Header = () => {
 
           {/* Actions */}
           <div className="flex items-center gap-2 md:gap-4">
-            {/* Bot Background Analysis Toggle */}
-            <button 
-              onClick={toggleBot}
-              className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl border transition-all ${isBotActive ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500' : 'bg-zinc-800/50 border-white/5 text-gray-500'}`}
-              title={isBotActive ? "Bot Analysis: Active" : "Bot Analysis: Paused"}
-            >
-              <Activity className={`w-4 h-4 ${isBotActive ? 'animate-pulse' : ''}`} />
-            </button>
+            {/* تم إزالة زر تبديل البوت بناءً على طلب المستخدم */}
 
-            {/* Notifications */}
-            {user && (
-              <div className="relative">
-                <button 
-                  onClick={toggleNotifications} 
-                  className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-yellow-500 transition-all relative"
-                >
-                  <Bell className="w-4 h-4" />
-                  {showWarning && <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-zinc-900 animate-pulse" />}
-                </button>
-                <AnimatePresence>
-                  {isNotificationsOpen && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10 }} 
-                      animate={{ opacity: 1, y: 0 }} 
-                      exit={{ opacity: 0, y: 10 }} 
-                      className="absolute top-full right-0 mt-4 w-64 bg-zinc-900/95 backdrop-blur-2xl border border-white/10 rounded-2xl p-2 shadow-2xl z-[110]"
-                    >
-                      <div className="px-4 py-2 border-b border-white/5 mb-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-yellow-500">Notifications</span>
-                      </div>
-                      {userData?.warning ? (
-                        <div 
-                          className={`p-3 rounded-xl transition-colors cursor-pointer ${userData.warningRead ? 'bg-white/5' : 'bg-red-500/10 border border-red-500/20'}`}
-                          onClick={markWarningAsRead}
-                        >
-                          <div className="flex items-center gap-2 mb-1">
-                            <AlertTriangle className="w-3 h-3 text-red-500" />
-                            <p className="text-[10px] font-bold text-white">System Warning</p>
-                          </div>
-                          <p className="text-[10px] text-gray-400 line-clamp-2">{userData.warning}</p>
-                        </div>
-                      ) : (
-                        <div className="p-4 text-center">
-                          <p className="text-[9px] font-black text-gray-600 uppercase tracking-widest">No new notifications</p>
-                        </div>
-                      )}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            )}
+            {/* تم إزالة زر الإشعارات بناءً على طلب المستخدم */}
 
             {/* Language Switcher */}
             <div className="relative">

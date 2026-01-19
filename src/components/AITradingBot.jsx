@@ -476,14 +476,7 @@ const AITradingBot = () => {
               <Clock className="w-3 h-3 text-yellow-500" />
               <span className="text-[10px] font-black text-yellow-500 tabular-nums uppercase tracking-widest">{currentTime.toLocaleTimeString()}</span>
             </div>
-            {/* زر تفعيل الإشعارات - متناسق مع التصميم */}
-            <button 
-              onClick={requestNotificationPermission}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl border backdrop-blur-xl transition-all ${notificationsEnabled ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-zinc-900/50 border-white/5 text-gray-500 hover:text-white'}`}
-            >
-              {notificationsEnabled ? <BellRing className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
-              <span className="text-[10px] font-black uppercase">{notificationsEnabled ? 'Alerts ON' : 'Enable Alerts'}</span>
-            </button>
+            {/* تم إزالة زر تفعيل الإشعارات بناءً على طلب المستخدم */}
           </div>
         </div>
 
