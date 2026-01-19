@@ -20,13 +20,15 @@ import {
   AlertTriangle,
   Zap,
   Calculator,
-  Activity
+  Activity,
+  Info
 } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
-import { doc, onSnapshot, updateDoc, collection } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import teamLogo from '../assets/team_logo.png';
+import { toast } from 'sonner';
 
 const Header = () => {
   const { t, i18n } = useTranslation();
@@ -106,7 +108,6 @@ const Header = () => {
     { name: 'Instagram', icon: <Instagram className="w-4 h-4" />, url: 'https://www.instagram.com/mohamed_chokry' }
   ];
 
-  // تعديل: الروابط تعتمد الآن على إعدادات الأدمن (siteSettings) لضمان الاختفاء عند التعطيل
   const navLinks = [
     { name: t('nav.home'), path: '/', icon: <Home className="w-4 h-4" />, show: true },
     { name: t('nav.news'), path: '/news', icon: <Newspaper className="w-4 h-4" />, show: true },
@@ -127,6 +128,56 @@ const Header = () => {
       });
       setShowWarning(false);
     }
+  };
+
+  // وظيفة تبديل حالة البوت مع تسجيل النشاط وإظهار إشعار
+  const toggleBot = async () => {
+    const newStatus = !isBotActive;
+    setIsBotActive(newStatus);
+    
+    // إغلاق القوائم الأخرى عند التفاعل
+    setIsLangOpen(false);
+    setIsNotificationsOpen(false);
+
+    // إظهار إشعار مؤقت
+    if (newStatus) {
+      toast.info(i18n.language === 'ar' ? 'تم تفعيل التحليل الخلفي. تنبيه: قد يزداد استهلاك موارد الجهاز.' : 'Background analysis activated. Warning: Resource usage may increase.', {
+        icon: <Activity className="w-4 h-4 text-yellow-500" />,
+        duration: 4000
+      });
+    } else {
+      toast.success(i18n.language === 'ar' ? 'تم إيقاف التحليل الخلفي لتوفير الموارد.' : 'Background analysis paused to save resources.', {
+        icon: <Info className="w-4 h-4 text-blue-500" />,
+        duration: 4000
+      });
+    }
+
+    // تسجيل النشاط في Firebase
+    if (user) {
+      try {
+        await addDoc(collection(db, 'activity_logs'), {
+          userId: user.uid,
+          userEmail: user.email,
+          action: newStatus ? 'ACTIVATE_BOT' : 'DEACTIVATE_BOT',
+          details: newStatus ? 'User enabled background analysis' : 'User disabled background analysis',
+          timestamp: serverTimestamp(),
+          platform: 'Web'
+        });
+      } catch (error) {
+        console.error("Error logging activity:", error);
+      }
+    }
+  };
+
+  // وظائف لفتح القوائم مع إغلاق الأخرى لمنع التداخل
+  const toggleLang = () => {
+    setIsLangOpen(!isLangOpen);
+    setIsNotificationsOpen(false);
+  };
+
+  const toggleNotifications = () => {
+    setIsNotificationsOpen(!isNotificationsOpen);
+    setIsLangOpen(false);
   };
 
   return (
@@ -185,7 +236,7 @@ const Header = () => {
           <div className="flex items-center gap-2 md:gap-4">
             {/* Bot Background Analysis Toggle */}
             <button 
-              onClick={() => setIsBotActive(!isBotActive)}
+              onClick={toggleBot}
               className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl border transition-all ${isBotActive ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500' : 'bg-zinc-800/50 border-white/5 text-gray-500'}`}
               title={isBotActive ? "Bot Analysis: Active" : "Bot Analysis: Paused"}
             >
@@ -196,7 +247,7 @@ const Header = () => {
             {user && (
               <div className="relative">
                 <button 
-                  onClick={() => setIsNotificationsOpen(!isNotificationsOpen)} 
+                  onClick={toggleNotifications} 
                   className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-yellow-500 transition-all relative"
                 >
                   <Bell className="w-4 h-4" />
@@ -237,7 +288,7 @@ const Header = () => {
 
             {/* Language Switcher */}
             <div className="relative">
-              <button onClick={() => setIsLangOpen(!isLangOpen)} className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all">
+              <button onClick={toggleLang} className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all">
                 <Globe className="w-4 h-4" />
               </button>
               <AnimatePresence>

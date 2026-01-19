@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { db, auth, storage } from '../lib/firebase';
+import { db, auth } from '../lib/firebase';
 import { 
   collection, 
   getDocs, 
@@ -10,180 +10,123 @@ import {
   query, 
   orderBy, 
   serverTimestamp,
-  where,
-  limit
+  limit,
+  onSnapshot
 } from 'firebase/firestore';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { useTranslation } from 'react-i18next';
 import { 
   Users, 
   Newspaper, 
-  Plus, 
   Trash2, 
-  UserX, 
   UserCheck, 
-  Edit3, 
   X,
   Search,
-  LayoutDashboard,
-  AlertCircle,
-  CheckCircle,
   ShieldAlert,
   Clock,
   Ban,
-  MessageSquare,
   History,
-  Download,
-  FileSpreadsheet,
-  TrendingUp,
-  TrendingDown,
-  RefreshCw,
-  Settings
+  Settings,
+  Zap,
+  Calculator,
+  AlertCircle,
+  UserX,
+  Activity
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { Textarea } from './ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from './Header';
-import Footer from './Footer';
+import { toast } from 'sonner';
 
 const AdminDashboard = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState('users');
   const [users, setUsers] = useState([]);
-  const [posts, setPosts] = useState([]);
-  const [botTrades, setBotTrades] = useState([]);
+  const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [siteSettings, setSiteSettings] = useState({ showAIBot: true, showPipCalculator: true });
-  
-  // User Detail State
   const [selectedUser, setSelectedUser] = useState(null);
   const [isBanModalOpen, setIsBanModalOpen] = useState(false);
-  const [banDuration, setBanDuration] = useState('permanent'); // permanent, 1day, 7days, 30days
-  const [warningMessage, setWarningMessage] = useState('');
+  const [banDuration, setBanDuration] = useState('permanent');
 
   useEffect(() => {
-    fetchData();
+    // جلب المستخدمين
+    const unsubscribeUsers = onSnapshot(collection(db, 'users'), (snapshot) => {
+      const usersList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setUsers(usersList);
+      setLoading(false);
+    });
+
+    // جلب سجل الأنشطة
+    const logsQ = query(collection(db, 'activity_logs'), orderBy('timestamp', 'desc'), limit(50));
+    const unsubscribeLogs = onSnapshot(logsQ, (snapshot) => {
+      const logsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setLogs(logsData);
+    });
+
+    // جلب إعدادات الموقع
+    const unsubscribeSettings = onSnapshot(collection(db, 'site_settings'), (snapshot) => {
+      if (!snapshot.empty) {
+        setSiteSettings({ id: snapshot.docs[0].id, ...snapshot.docs[0].data() });
+      }
+    });
+
+    return () => {
+      unsubscribeUsers();
+      unsubscribeLogs();
+      unsubscribeSettings();
+    };
   }, []);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const usersSnap = await getDocs(collection(db, 'users'));
-      const usersList = usersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setUsers(usersList);
-
-      const adminPostsSnap = await getDocs(query(collection(db, 'admin_posts'), orderBy('createdAt', 'desc')));
-      const userPostsSnap = await getDocs(query(collection(db, 'posts'), orderBy('createdAt', 'desc')));
-      
-      const adminPostsList = adminPostsSnap.docs.map(doc => ({ id: doc.id, ...doc.data(), isAdminPost: true }));
-      const userPostsList = userPostsSnap.docs.map(doc => ({ id: doc.id, ...doc.data(), isAdminPost: false }));
-      
-      setPosts([...adminPostsList, ...userPostsList]);
-
-      // جلب صفقات البوت من Firestore
-      const tradesSnap = await getDocs(query(collection(db, 'bot_trades'), orderBy('createdAt', 'desc'), limit(100)));
-      const tradesList = tradesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setBotTrades(tradesList);
-
-      // جلب إعدادات الموقع
-      const settingsSnap = await getDocs(collection(db, 'site_settings'));
-      if (!settingsSnap.empty) {
-        setSiteSettings(settingsSnap.docs[0].data());
-      }
-
-    } catch (error) {
-      console.error("Error fetching admin data:", error);
-    } finally {
-      setLoading(false);
+  const logAdminAction = async (action, details) => {
+    const user = auth.currentUser;
+    if (user) {
+      await addDoc(collection(db, 'activity_logs'), {
+        userId: user.uid,
+        userEmail: user.email,
+        action: action,
+        details: details,
+        timestamp: serverTimestamp(),
+        platform: 'Admin Panel'
+      });
     }
   };
 
-  const refreshTrades = async () => {
-    setRefreshing(true);
+  const toggleSetting = async (setting) => {
+    const newValue = !siteSettings[setting];
     try {
-      const tradesSnap = await getDocs(query(collection(db, 'bot_trades'), orderBy('createdAt', 'desc'), limit(100)));
-      const tradesList = tradesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setBotTrades(tradesList);
+      const settingsRef = doc(db, 'site_settings', siteSettings.id);
+      await updateDoc(settingsRef, { [setting]: newValue });
+      await logAdminAction('UPDATE_SETTING', `Admin changed ${setting} to ${newValue}`);
+      toast.success(i18n.language === 'ar' ? 'تم تحديث الإعدادات' : 'Settings updated');
     } catch (error) {
-      console.error("Error refreshing trades:", error);
-    } finally {
-      setRefreshing(false);
+      toast.error('Error updating settings');
     }
-  };
-
-  const exportToXLS = () => {
-    const headers = ['Asset', 'Type', 'Entry', 'TP', 'SL', 'Date'];
-    const rows = botTrades.map(t => [
-      t.asset,
-      t.type,
-      t.entryPrice || 'N/A',
-      t.tp || 'N/A',
-      t.sl || 'N/A',
-      t.createdAt ? new Date(t.createdAt.seconds * 1000).toLocaleString() : new Date(t.timestamp).toLocaleString()
-    ]);
-
-    let csvContent = "data:text/csv;charset=utf-8," 
-      + headers.join(",") + "\n"
-      + rows.map(e => e.join(",")).join("\n");
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `bot_trades_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   const handleBanUser = async () => {
     if (!selectedUser) return;
     try {
-      let banUntil = null;
-      if (banDuration !== 'permanent') {
-        const days = parseInt(banDuration);
-        banUntil = new Date();
-        banUntil.setDate(banUntil.getDate() + days);
-      }
-
       const banData = {
         isBanned: true,
         banType: banDuration,
-        banUntil: banUntil ? banUntil.toISOString() : null,
         bannedAt: new Date().toISOString()
       };
-
       await updateDoc(doc(db, 'users', selectedUser.id), banData);
-      setUsers(users.map(u => u.id === selectedUser.id ? { ...u, ...banData } : u));
+      await logAdminAction('BAN_USER', `Admin banned user ${selectedUser.email} (${banDuration})`);
       setIsBanModalOpen(false);
       setSelectedUser(null);
+      toast.success('User banned');
     } catch (error) {
-      console.error("Error banning user:", error);
-    }
-  };
-
-  const handleUnbanUser = async (userId) => {
-    try {
-      const unbanData = {
-        isBanned: false,
-        banType: null,
-        banUntil: null,
-        bannedAt: null
-      };
-      await updateDoc(doc(db, 'users', userId), unbanData);
-      setUsers(users.map(u => u.id === userId ? { ...u, ...unbanData } : u));
-    } catch (error) {
-      console.error("Error unbanning user:", error);
+      toast.error('Error banning user');
     }
   };
 
   const filteredUsers = users.filter(u => 
     u.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.numericUID?.includes(searchTerm)
+    u.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -196,264 +139,136 @@ const AdminDashboard = () => {
               <ShieldAlert className="w-4 h-4" />
               <span className="text-[10px] font-black uppercase tracking-[0.4em]">Admin Control</span>
             </div>
-            <h1 className="text-4xl font-black uppercase tracking-tighter">Management <span className="text-yellow-500">Center</span></h1>
+            <h1 className="text-4xl font-black uppercase tracking-tighter">
+              {i18n.language === 'ar' ? 'مركز' : 'Management'} <span className="text-yellow-500">{i18n.language === 'ar' ? 'الإدارة' : 'Center'}</span>
+            </h1>
           </div>
           
           <div className="flex flex-wrap bg-white/5 p-1 rounded-xl border border-white/10">
-            <button 
-              onClick={() => setActiveTab('users')}
-              className={`px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'users' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-white'}`}
-            >
-              <Users className="w-4 h-4 inline-block mr-2" /> Users
-            </button>
-            <button 
-              onClick={() => setActiveTab('posts')}
-              className={`px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'posts' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-white'}`}
-            >
-              <Newspaper className="w-4 h-4 inline-block mr-2" /> Posts
-            </button>
-            <button 
-              onClick={() => setActiveTab('bot_trades')}
-              className={`px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'bot_trades' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-white'}`}
-            >
-              <History className="w-4 h-4 inline-block mr-2" /> Bot Trades
-            </button>
-            <button 
-              onClick={() => setActiveTab('settings')}
-              className={`px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'settings' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-white'}`}
-            >
-              <Settings className="w-4 h-4 inline-block mr-2" /> Settings
-            </button>
+            {[
+              { id: 'users', icon: Users, label: i18n.language === 'ar' ? 'المستخدمين' : 'Users' },
+              { id: 'logs', icon: History, label: i18n.language === 'ar' ? 'السجلات' : 'Logs' },
+              { id: 'settings', icon: Settings, label: i18n.language === 'ar' ? 'الإعدادات' : 'Settings' }
+            ].map(tab => (
+              <button 
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-yellow-500 text-black shadow-lg shadow-yellow-500/20' : 'text-gray-400 hover:text-white'}`}
+              >
+                <tab.icon className="w-4 h-4 inline-block mr-2 mb-0.5" /> {tab.label}
+              </button>
+            ))}
           </div>
         </div>
 
-        {activeTab === 'users' && (
-          <div className="space-y-6">
-            <div className="relative max-w-md">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-              <Input 
-                placeholder="Search users..." 
-                className="pl-12 bg-white/5 border-white/10 h-12 rounded-xl"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-
-            <div className="grid gap-4">
-              {filteredUsers.map(user => (
-                <motion.div 
-                  key={user.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-zinc-900/40 border border-white/5 p-6 rounded-[2rem] flex flex-col md:flex-row justify-between items-center gap-6"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center overflow-hidden">
-                      {user.photoURL ? <img src={user.photoURL} className="w-full h-full object-cover" /> : <Users className="w-6 h-6 text-yellow-500" />}
+        <AnimatePresence mode="wait">
+          {activeTab === 'users' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
+              <div className="relative max-w-md">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Input 
+                  placeholder={i18n.language === 'ar' ? 'البحث عن مستخدم...' : 'Search users...'}
+                  className="pl-12 bg-white/5 border-white/10 h-12 rounded-xl"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <div className="grid gap-4">
+                {filteredUsers.map(user => (
+                  <div key={user.id} className="bg-zinc-900/40 border border-white/5 p-6 rounded-[2rem] flex flex-col md:flex-row justify-between items-center gap-6 hover:border-yellow-500/20 transition-all">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-yellow-500 font-bold">
+                        {user.fullName?.[0] || user.email?.[0]?.toUpperCase()}
+                      </div>
+                      <div>
+                        <h3 className="font-black uppercase tracking-tight flex items-center gap-2">
+                          {user.fullName || 'User'}
+                          {user.isBanned && <span className="text-[8px] bg-red-500 text-white px-2 py-0.5 rounded-full">BANNED</span>}
+                        </h3>
+                        <p className="text-xs text-gray-500">{user.email}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-black uppercase tracking-tight flex items-center gap-2">
-                        {user.fullName || 'Anonymous'}
-                        {user.isBanned && <span className="text-[8px] bg-red-500 text-white px-2 py-0.5 rounded-full">BANNED</span>}
-                      </h3>
-                      <p className="text-xs text-gray-500">{user.email}</p>
-                      <p className="text-[9px] font-black text-yellow-500/50 uppercase tracking-widest mt-1">UID: {user.numericUID || 'N/A'}</p>
+                    <div className="flex items-center gap-3">
+                      <Button className="bg-white/5 hover:bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                        <AlertCircle className="w-3 h-3 mr-2" /> {i18n.language === 'ar' ? 'تحذير' : 'Warn'}
+                      </Button>
+                      <Button onClick={() => { setSelectedUser(user); setIsBanModalOpen(true); }} className="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-black border border-red-500/20 h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                        <Ban className="w-3 h-3 mr-2" /> {i18n.language === 'ar' ? 'حظر' : 'Ban'}
+                      </Button>
                     </div>
                   </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
 
-                  <div className="flex items-center gap-3">
-                    <Button 
-                      onClick={() => { setSelectedUser(user); setWarningMessage(user.warning || ''); }}
-                      className="bg-white/5 hover:bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
-                    >
-                      <AlertCircle className="w-3 h-3 mr-2" /> Warn
-                    </Button>
-                    {user.isBanned ? (
-                      <Button 
-                        onClick={() => handleUnbanUser(user.id)}
-                        className="bg-green-500/10 hover:bg-green-500 text-green-500 hover:text-black border border-green-500/20 h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
-                      >
-                        <UserCheck className="w-3 h-3 mr-2" /> Unban
-                      </Button>
-                    ) : (
-                      <Button 
-                        onClick={() => { setSelectedUser(user); setIsBanModalOpen(true); }}
-                        className="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-black border border-red-500/20 h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
-                      >
-                        <Ban className="w-3 h-3 mr-2" /> Ban
-                      </Button>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        )}
+          {activeTab === 'logs' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-4">
+              <div className="bg-zinc-900/40 border border-white/5 rounded-[2rem] p-8">
+                <h3 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2 mb-8">
+                  <Clock className="w-4 h-4 text-yellow-500" /> {i18n.language === 'ar' ? 'سجل الأنشطة الأخير' : 'Recent Activity Logs'}
+                </h3>
+                <div className="space-y-3">
+                  {logs.map((log) => (
+                    <div key={log.id} className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-white/10 transition-all">
+                      <div className={`mt-1 w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${log.action.includes('BAN') ? 'bg-red-500/10 text-red-500' : 'bg-yellow-500/10 text-yellow-500'}`}>
+                        <Activity className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-4 mb-1">
+                          <p className="text-[10px] font-black text-white uppercase tracking-widest truncate">{log.userEmail}</p>
+                          <span className="text-[9px] text-gray-500 whitespace-nowrap">{log.timestamp?.toDate().toLocaleString()}</span>
+                        </div>
+                        <p className="text-[11px] text-gray-400 font-medium">{log.details}</p>
+                        <div className="mt-2 flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded-md bg-zinc-800 text-[8px] font-black text-gray-500 uppercase tracking-widest">{log.action}</span>
+                          <span className="px-2 py-0.5 rounded-md bg-zinc-800 text-[8px] font-black text-gray-500 uppercase tracking-widest">{log.platform}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
 
-        {activeTab === 'posts' && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {posts.map(post => (
-              <Card key={post.id} className="bg-zinc-900/40 border-white/5 rounded-[2rem] overflow-hidden">
-                <CardHeader className="p-6">
-                  <CardTitle className="text-sm font-black uppercase tracking-tight line-clamp-1">{post.title || post.text?.substring(0, 30)}</CardTitle>
-                  <p className="text-[9px] text-gray-500 uppercase font-black tracking-widest">By {post.author || post.userName}</p>
+          {activeTab === 'settings' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="max-w-2xl mx-auto space-y-8">
+              <Card className="bg-zinc-900/40 border-white/5 rounded-[2rem] overflow-hidden">
+                <CardHeader className="p-8 border-b border-white/5">
+                  <CardTitle className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
+                    <Settings className="w-6 h-6 text-yellow-500" /> {i18n.language === 'ar' ? 'إعدادات الظهور' : 'Page Visibility'}
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="px-6 pb-6">
-                  <p className="text-xs text-gray-400 line-clamp-3 mb-4">{post.content || post.text}</p>
-                  <Button 
-                    className="w-full bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-black border border-red-500/20 h-10 rounded-xl text-[10px] font-black uppercase tracking-widest"
-                  >
-                    <Trash2 className="w-3 h-3 mr-2" /> Delete Post
-                  </Button>
+                <CardContent className="p-8 space-y-6">
+                  {[
+                    { id: 'showAIBot', label: 'AI Trading Bot', icon: Zap, color: 'yellow' },
+                    { id: 'showPipCalculator', label: 'Pip Calculator', icon: Calculator, color: 'blue' }
+                  ].map(setting => (
+                    <div key={setting.id} className="flex items-center justify-between p-6 bg-white/5 rounded-2xl border border-white/5 hover:border-white/10 transition-all">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-10 h-10 rounded-xl bg-${setting.color}-500/10 flex items-center justify-center text-${setting.color}-500`}>
+                          <setting.icon className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h4 className="font-black uppercase tracking-widest text-sm">{setting.label}</h4>
+                          <p className="text-[10px] text-gray-500 mt-1">{i18n.language === 'ar' ? 'التحكم في ظهور الصفحة للمستخدمين' : 'Control page visibility for users'}</p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => toggleSetting(setting.id)}
+                        className={`w-14 h-8 rounded-full transition-all relative ${siteSettings[setting.id] ? 'bg-yellow-500' : 'bg-zinc-800'}`}
+                      >
+                        <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${siteSettings[setting.id] ? 'left-7' : 'left-1'}`} />
+                      </button>
+                    </div>
+                  ))}
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        )}
-
-        {activeTab === 'settings' && (
-          <div className="max-w-2xl mx-auto space-y-8">
-            <Card className="bg-zinc-900/40 border-white/5 rounded-[2rem] overflow-hidden">
-              <CardHeader className="p-8 border-b border-white/5">
-                <CardTitle className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
-                  <Settings className="w-6 h-6 text-yellow-500" /> Page Visibility
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-8 space-y-6">
-                <div className="flex items-center justify-between p-6 bg-white/5 rounded-2xl border border-white/5">
-                  <div>
-                    <h4 className="font-black uppercase tracking-widest text-sm">AI Trading Bot Page</h4>
-                    <p className="text-[10px] text-gray-500 mt-1">Enable or disable the AI Bot page for all users</p>
-                  </div>
-                  <button 
-                    onClick={async () => {
-                      const newStatus = !siteSettings.showAIBot;
-                      setSiteSettings({ ...siteSettings, showAIBot: newStatus });
-                      const settingsSnap = await getDocs(collection(db, 'site_settings'));
-                      if (!settingsSnap.empty) {
-                        await updateDoc(doc(db, 'site_settings', settingsSnap.docs[0].id), { showAIBot: newStatus });
-                      } else {
-                        await addDoc(collection(db, 'site_settings'), { showAIBot: newStatus, showPipCalculator: siteSettings.showPipCalculator });
-                      }
-                    }}
-                    className={`w-14 h-8 rounded-full transition-all relative ${siteSettings.showAIBot ? 'bg-yellow-500' : 'bg-zinc-800'}`}
-                  >
-                    <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${siteSettings.showAIBot ? 'left-7' : 'left-1'}`} />
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between p-6 bg-white/5 rounded-2xl border border-white/5">
-                  <div>
-                    <h4 className="font-black uppercase tracking-widest text-sm">Pip Calculator Page</h4>
-                    <p className="text-[10px] text-gray-500 mt-1">Enable or disable the Pip Calculator page for all users</p>
-                  </div>
-                  <button 
-                    onClick={async () => {
-                      const newStatus = !siteSettings.showPipCalculator;
-                      setSiteSettings({ ...siteSettings, showPipCalculator: newStatus });
-                      const settingsSnap = await getDocs(collection(db, 'site_settings'));
-                      if (!settingsSnap.empty) {
-                        await updateDoc(doc(db, 'site_settings', settingsSnap.docs[0].id), { showPipCalculator: newStatus });
-                      } else {
-                        await addDoc(collection(db, 'site_settings'), { showAIBot: siteSettings.showAIBot, showPipCalculator: newStatus });
-                      }
-                    }}
-                    className={`w-14 h-8 rounded-full transition-all relative ${siteSettings.showPipCalculator ? 'bg-yellow-500' : 'bg-zinc-800'}`}
-                  >
-                    <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${siteSettings.showPipCalculator ? 'left-7' : 'left-1'}`} />
-                  </button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {activeTab === 'bot_trades' && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <h2 className="text-xl font-black uppercase tracking-tight">Bot Trading History (Live)</h2>
-                <Button onClick={refreshTrades} className="bg-white/5 hover:bg-white/10 text-white p-2 rounded-xl">
-                  <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-                </Button>
-              </div>
-              <Button 
-                onClick={exportToXLS}
-                className="bg-green-500/10 hover:bg-green-500 text-green-500 hover:text-black border border-green-500/20 h-10 px-6 rounded-xl text-[10px] font-black uppercase tracking-widest"
-              >
-                <Download className="w-3 h-3 mr-2" /> Export CSV (XLS)
-              </Button>
-            </div>
-
-            <div className="bg-zinc-900/40 border border-white/5 rounded-[2.5rem] overflow-hidden">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-white/[0.02] border-b border-white/5">
-                    <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Asset</th>
-                    <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Type</th>
-                    <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Entry Price</th>
-                    <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">TP / SL</th>
-                    <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {botTrades.length > 0 ? botTrades.map((trade, idx) => (
-                    <tr key={trade.id || idx} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                      <td className="p-6 font-black uppercase text-xs">{trade.asset}</td>
-                      <td className="p-6">
-                        <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${trade.type === 'Buy' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
-                          {trade.type}
-                        </span>
-                      </td>
-                      <td className="p-6 font-black text-xs text-white">{trade.entryPrice?.toFixed(4)}</td>
-                      <td className="p-6">
-                        <div className="flex flex-col gap-1">
-                          <span className="text-[9px] font-black text-green-500 uppercase">TP: {trade.tp?.toFixed(4)}</span>
-                          <span className="text-[9px] font-black text-red-500 uppercase">SL: {trade.sl?.toFixed(4)}</span>
-                        </div>
-                      </td>
-                      <td className="p-6 text-[10px] text-gray-500 font-bold">
-                        {trade.createdAt ? new Date(trade.createdAt.seconds * 1000).toLocaleString() : new Date(trade.timestamp).toLocaleString()}
-                      </td>
-                    </tr>
-                  )) : (
-                    <tr>
-                      <td colSpan="5" className="p-20 text-center text-gray-500 font-black uppercase tracking-widest text-xs">No trades recorded in database yet</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Ban Modal */}
-        <AnimatePresence>
-          {isBanModalOpen && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsBanModalOpen(false)} className="absolute inset-0 bg-black/90 backdrop-blur-sm" />
-              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="relative w-full max-w-md bg-zinc-900 border border-white/10 rounded-[2.5rem] p-8">
-                <h2 className="text-2xl font-black uppercase tracking-tight mb-6">Ban <span className="text-red-500">User</span></h2>
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Duration</label>
-                  <select 
-                    value={banDuration} 
-                    onChange={(e) => setBanDuration(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl h-12 px-4 text-white outline-none focus:border-red-500/50"
-                  >
-                    <option value="permanent" className="bg-zinc-900">Permanent</option>
-                    <option value="1" className="bg-zinc-900">1 Day</option>
-                    <option value="7" className="bg-zinc-900">7 Days</option>
-                    <option value="30" className="bg-zinc-900">30 Days</option>
-                  </select>
-                  <Button onClick={handleBanUser} className="w-full bg-red-500 hover:bg-red-600 text-white h-12 rounded-xl font-black uppercase tracking-widest mt-4">Confirm Ban</Button>
-                </div>
-              </motion.div>
-            </div>
+            </motion.div>
           )}
         </AnimatePresence>
       </main>
-      <Footer />
     </div>
   );
 };
