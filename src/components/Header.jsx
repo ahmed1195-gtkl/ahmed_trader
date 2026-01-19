@@ -259,10 +259,10 @@ const Header = () => {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Link to="/login" className="px-4 md:px-6 py-2 md:py-2.5 rounded-xl bg-yellow-500 text-black text-[10px] font-black uppercase tracking-widest hover:bg-yellow-400 transition-all shadow-lg shadow-yellow-500/20">
+                <Link to="/auth" className="px-4 md:px-6 py-2 md:py-2.5 rounded-xl bg-yellow-500 text-black text-[10px] font-black uppercase tracking-widest hover:bg-yellow-400 transition-all shadow-lg shadow-yellow-500/20">
                   {t('nav.login')}
                 </Link>
-                <Link to="/signup" className="hidden md:flex px-4 md:px-6 py-2 md:py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">
+                <Link to="/auth" className="hidden md:flex px-4 md:px-6 py-2 md:py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">
                   {t('auth.signup')}
                 </Link>
               </div>
@@ -328,14 +328,14 @@ const Header = () => {
                   {!user && (
                     <>
                       <Link 
-                        to="/login" 
+                        to="/auth" 
                         onClick={() => setIsSidebarOpen(false)}
                         className="flex items-center gap-4 px-4 py-4 rounded-2xl text-xs font-black uppercase tracking-widest bg-yellow-500 text-black mt-4"
                       >
                         <LogIn className="w-4 h-4" /> {t('nav.login')}
                       </Link>
                       <Link 
-                        to="/signup" 
+                        to="/auth" 
                         onClick={() => setIsSidebarOpen(false)}
                         className="flex items-center gap-4 px-4 py-4 rounded-2xl text-xs font-black uppercase tracking-widest bg-white/5 text-white border border-white/10"
                       >
