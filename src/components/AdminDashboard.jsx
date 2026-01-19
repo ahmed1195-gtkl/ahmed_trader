@@ -355,7 +355,7 @@ const AdminDashboard = () => {
                       if (!settingsSnap.empty) {
                         await updateDoc(doc(db, 'site_settings', settingsSnap.docs[0].id), { showPipCalculator: newStatus });
                       } else {
-                        await addDoc(collection(db, 'site_settings'), { showPipCalculator: siteSettings.showAIBot, showPipCalculator: newStatus });
+                        await addDoc(collection(db, 'site_settings'), { showAIBot: siteSettings.showAIBot, showPipCalculator: newStatus });
                       }
                     }}
                     className={`w-14 h-8 rounded-full transition-all relative ${siteSettings.showPipCalculator ? 'bg-yellow-500' : 'bg-zinc-800'}`}
