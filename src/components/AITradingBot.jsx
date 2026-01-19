@@ -25,6 +25,31 @@ import { botBrain } from '../lib/bot/models/rl_model';
 import { getDecision } from '../lib/bot/models/decision_engine';
 import { fetchHistoricalData, getMarketSentiment } from '../lib/bot/analysis/market_intelligence';
 
+const AnimatedNumber = ({ value }) => {
+  const [displayValue, setDisplayValue] = useState(0);
+  
+  useEffect(() => {
+    let start = 0;
+    const end = parseFloat(value);
+    const duration = 1000;
+    const increment = end / (duration / 16);
+    
+    const timer = setInterval(() => {
+      start += increment;
+      if (start >= end) {
+        setDisplayValue(end.toFixed(1));
+        clearInterval(timer);
+      } else {
+        setDisplayValue(start.toFixed(1));
+      }
+    }, 16);
+    
+    return () => clearInterval(timer);
+  }, [value]);
+  
+  return <span>{displayValue}</span>;
+};
+
 const AITradingBot = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
@@ -551,7 +576,13 @@ const AITradingBot = () => {
                           </h2>
                         </div>
                         <div className="text-center bg-white/5 p-6 rounded-[2rem] border border-white/5 min-w-[140px]">
-                          <span className="text-5xl font-black tracking-tighter text-yellow-500">{analysis.confidence.toFixed(1)}%</span>
+                          <motion.span 
+                            initial={{ opacity: 0, scale: 0.5 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="text-5xl font-black tracking-tighter text-yellow-500 block"
+                          >
+                            <AnimatedNumber value={analysis.confidence} />%
+                          </motion.span>
                           <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.confidence')}</p>
                         </div>
                       </div>

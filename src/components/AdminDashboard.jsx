@@ -56,6 +56,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [siteSettings, setSiteSettings] = useState({ showAIBot: true, showPipCalculator: true });
   
   // User Detail State
   const [selectedUser, setSelectedUser] = useState(null);
@@ -86,6 +87,12 @@ const AdminDashboard = () => {
       const tradesSnap = await getDocs(query(collection(db, 'bot_trades'), orderBy('createdAt', 'desc'), limit(100)));
       const tradesList = tradesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setBotTrades(tradesList);
+
+      // جلب إعدادات الموقع
+      const settingsSnap = await getDocs(collection(db, 'site_settings'));
+      if (!settingsSnap.empty) {
+        setSiteSettings(settingsSnap.docs[0].data());
+      }
 
     } catch (error) {
       console.error("Error fetching admin data:", error);
@@ -210,6 +217,12 @@ const AdminDashboard = () => {
             >
               <History className="w-4 h-4 inline-block mr-2" /> Bot Trades
             </button>
+            <button 
+              onClick={() => setActiveTab('settings')}
+              className={`px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'settings' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-white'}`}
+            >
+              <Settings className="w-4 h-4 inline-block mr-2" /> Settings
+            </button>
           </div>
         </div>
 
@@ -294,6 +307,63 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        )}
+
+        {activeTab === 'settings' && (
+          <div className="max-w-2xl mx-auto space-y-8">
+            <Card className="bg-zinc-900/40 border-white/5 rounded-[2rem] overflow-hidden">
+              <CardHeader className="p-8 border-b border-white/5">
+                <CardTitle className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
+                  <Settings className="w-6 h-6 text-yellow-500" /> Page Visibility
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-8 space-y-6">
+                <div className="flex items-center justify-between p-6 bg-white/5 rounded-2xl border border-white/5">
+                  <div>
+                    <h4 className="font-black uppercase tracking-widest text-sm">AI Trading Bot Page</h4>
+                    <p className="text-[10px] text-gray-500 mt-1">Enable or disable the AI Bot page for all users</p>
+                  </div>
+                  <button 
+                    onClick={async () => {
+                      const newStatus = !siteSettings.showAIBot;
+                      setSiteSettings({ ...siteSettings, showAIBot: newStatus });
+                      const settingsSnap = await getDocs(collection(db, 'site_settings'));
+                      if (!settingsSnap.empty) {
+                        await updateDoc(doc(db, 'site_settings', settingsSnap.docs[0].id), { showAIBot: newStatus });
+                      } else {
+                        await addDoc(collection(db, 'site_settings'), { showAIBot: newStatus, showPipCalculator: siteSettings.showPipCalculator });
+                      }
+                    }}
+                    className={`w-14 h-8 rounded-full transition-all relative ${siteSettings.showAIBot ? 'bg-yellow-500' : 'bg-zinc-800'}`}
+                  >
+                    <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${siteSettings.showAIBot ? 'left-7' : 'left-1'}`} />
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between p-6 bg-white/5 rounded-2xl border border-white/5">
+                  <div>
+                    <h4 className="font-black uppercase tracking-widest text-sm">Pip Calculator Page</h4>
+                    <p className="text-[10px] text-gray-500 mt-1">Enable or disable the Pip Calculator page for all users</p>
+                  </div>
+                  <button 
+                    onClick={async () => {
+                      const newStatus = !siteSettings.showPipCalculator;
+                      setSiteSettings({ ...siteSettings, showPipCalculator: newStatus });
+                      const settingsSnap = await getDocs(collection(db, 'site_settings'));
+                      if (!settingsSnap.empty) {
+                        await updateDoc(doc(db, 'site_settings', settingsSnap.docs[0].id), { showPipCalculator: newStatus });
+                      } else {
+                        await addDoc(collection(db, 'site_settings'), { showPipCalculator: siteSettings.showAIBot, showPipCalculator: newStatus });
+                      }
+                    }}
+                    className={`w-14 h-8 rounded-full transition-all relative ${siteSettings.showPipCalculator ? 'bg-yellow-500' : 'bg-zinc-800'}`}
+                  >
+                    <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${siteSettings.showPipCalculator ? 'left-7' : 'left-1'}`} />
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
 

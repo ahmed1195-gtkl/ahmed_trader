@@ -37,6 +37,7 @@ const Header = () => {
   const [userData, setUserData] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
+  const [siteSettings, setSiteSettings] = useState({ showAIBot: true, showPipCalculator: true });
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -78,7 +79,16 @@ const Header = () => {
       }
     });
 
+    // جلب إعدادات الموقع
+    const settingsRef = collection(db, 'site_settings');
+    const unsubscribeSettings = onSnapshot(settingsRef, (snapshot) => {
+      if (!snapshot.empty) {
+        setSiteSettings(snapshot.docs[0].data());
+      }
+    });
+
     return () => {
+      unsubscribeSettings();
       window.removeEventListener('scroll', handleScroll);
       unsubscribe();
     };
@@ -99,13 +109,15 @@ const Header = () => {
   const navLinks = [
     { name: t('nav.home'), path: '/', icon: <Home className="w-4 h-4" /> },
     { name: t('nav.news'), path: '/news', icon: <Newspaper className="w-4 h-4" /> },
-    { name: 'AI Bot', path: '/ai-bot', icon: <Zap className="w-4 h-4" /> },
-    { name: 'Pips', path: '/pip-calculator', icon: <Calculator className="w-4 h-4" /> },
+    ...(siteSettings.showAIBot ? [{ name: 'AI Bot', path: '/ai-bot', icon: <Zap className="w-4 h-4" /> }] : []),
+    ...(siteSettings.showPipCalculator ? [{ name: 'Pips', path: '/pip-calculator', icon: <Calculator className="w-4 h-4" /> }] : []),
   ];
 
   const changeLanguage = (code) => {
     i18n.changeLanguage(code);
     setIsLangOpen(false);
+    // تحديث الصفحة تلقائياً عند تغيير اللغة لضمان مزامنة كافة المكونات
+    window.location.reload();
   };
 
   const markWarningAsRead = async () => {
