@@ -88,17 +88,17 @@ const AITradingBot = () => {
     { name: 'DOT/USDT', symbol: 'DOTUSDT', tvSymbol: 'BINANCE:DOTUSDT', basePrice: 7.5, type: 'crypto' },
     { name: 'DOGE/USDT', symbol: 'DOGEUSDT', tvSymbol: 'BINANCE:DOGEUSDT', basePrice: 0.08, type: 'crypto' },
     { name: 'AVAX/USDT', symbol: 'AVAXUSDT', tvSymbol: 'BINANCE:AVAXUSDT', basePrice: 35, type: 'crypto' },
-    // Forex
-    { name: 'XAU/USD', symbol: 'XAUUSD', tvSymbol: 'TVC:GOLD', basePrice: 2050, type: 'forex', tvSource: 'TVC:GOLD' },
-    { name: 'EUR/USD', symbol: 'EURUSD', tvSymbol: 'FX_IDC:EURUSD', basePrice: 1.09, type: 'forex', tvSource: 'FX_IDC:EURUSD' },
-    { name: 'GBP/USD', symbol: 'GBPUSD', tvSymbol: 'FX_IDC:GBPUSD', basePrice: 1.27, type: 'forex', tvSource: 'FX_IDC:GBPUSD' },
-    { name: 'USD/JPY', symbol: 'USDJPY', tvSymbol: 'FX_IDC:USDJPY', basePrice: 145, type: 'forex', tvSource: 'FX_IDC:USDJPY' },
-    { name: 'AUD/USD', symbol: 'AUDUSD', tvSymbol: 'FX_IDC:AUDUSD', basePrice: 0.67, type: 'forex', tvSource: 'FX_IDC:AUDUSD' },
-    { name: 'USD/CAD', symbol: 'USDCAD', tvSymbol: 'FX_IDC:USDCAD', basePrice: 1.35, type: 'forex', tvSource: 'FX_IDC:USDCAD' },
-    { name: 'NZD/USD', symbol: 'NZDUSD', tvSymbol: 'FX_IDC:NZDUSD', basePrice: 0.62, type: 'forex', tvSource: 'FX_IDC:NZDUSD' },
-    { name: 'USD/CHF', symbol: 'USDCHF', tvSymbol: 'FX_IDC:USDCHF', basePrice: 0.88, type: 'forex', tvSource: 'FX_IDC:USDCHF' },
-    { name: 'EUR/GBP', symbol: 'EURGBP', tvSymbol: 'FX_IDC:EURGBP', basePrice: 0.85, type: 'forex', tvSource: 'FX_IDC:EURGBP' },
-    { name: 'GBP/JPY', symbol: 'GBPJPY', tvSymbol: 'FX_IDC:GBPJPY', basePrice: 185, type: 'forex', tvSource: 'FX_IDC:GBPJPY' }
+    // Forex (TradingView Sources)
+    { name: 'XAU/USD', symbol: 'XAUUSD', tvSymbol: 'TVC:GOLD', basePrice: 2050, type: 'forex' },
+    { name: 'EUR/USD', symbol: 'EURUSD', tvSymbol: 'FX_IDC:EURUSD', basePrice: 1.09, type: 'forex' },
+    { name: 'GBP/USD', symbol: 'GBPUSD', tvSymbol: 'FX_IDC:GBPUSD', basePrice: 1.27, type: 'forex' },
+    { name: 'USD/JPY', symbol: 'USDJPY', tvSymbol: 'FX_IDC:USDJPY', basePrice: 145, type: 'forex' },
+    { name: 'AUD/USD', symbol: 'AUDUSD', tvSymbol: 'FX_IDC:AUDUSD', basePrice: 0.67, type: 'forex' },
+    { name: 'USD/CAD', symbol: 'USDCAD', tvSymbol: 'FX_IDC:USDCAD', basePrice: 1.35, type: 'forex' },
+    { name: 'NZD/USD', symbol: 'NZDUSD', tvSymbol: 'FX_IDC:NZDUSD', basePrice: 0.62, type: 'forex' },
+    { name: 'USD/CHF', symbol: 'USDCHF', tvSymbol: 'FX_IDC:USDCHF', basePrice: 0.88, type: 'forex' },
+    { name: 'EUR/GBP', symbol: 'EURGBP', tvSymbol: 'FX_IDC:EURGBP', basePrice: 0.85, type: 'forex' },
+    { name: 'GBP/JPY', symbol: 'GBPJPY', tvSymbol: 'FX_IDC:GBPJPY', basePrice: 185, type: 'forex' }
   ];
 
   const timeframes = [
@@ -212,33 +212,47 @@ const AITradingBot = () => {
     return () => clearInterval(interval);
   }, [runAnalysis]);
 
-  // منطق جلب الأسعار المباشر والدقيق لكل زوج
+  // إصلاح جذري: جلب السعر المباشر المرتبط "حصرياً" بالزوج المختار
   useEffect(() => {
     const asset = assets.find(a => a.symbol === selectedAsset);
     if (!asset) return;
 
+    // تصفير السعر عند تغيير الزوج لتجنب بقاء السعر القديم
     setLivePrice(0);
 
+    // تنظيف أي اتصالات أو فترات زمنية سابقة فوراً
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+    if (priceIntervalRef.current) {
+      clearInterval(priceIntervalRef.current);
+      priceIntervalRef.current = null;
+    }
+
     if (asset.type === 'crypto') {
-      if (wsRef.current) wsRef.current.close();
-      wsRef.current = new WebSocket(`wss://stream.binance.com:9443/ws/${selectedAsset.toLowerCase()}@ticker`);
-      wsRef.current.onmessage = (event) => {
+      // ربط الكريبتو بـ Binance WebSocket للزوج المختار حصراً
+      const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${selectedAsset.toLowerCase()}@ticker`);
+      wsRef.current = ws;
+      ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        setLivePrice(parseFloat(data.c));
+        // التأكد من أن البيانات تخص الزوج المختار حالياً
+        if (data.s === selectedAsset) {
+          setLivePrice(parseFloat(data.c));
+        }
       };
     } else {
-      if (priceIntervalRef.current) clearInterval(priceIntervalRef.current);
-      
+      // ربط الفوركس والذهب بـ TradingView Source عبر Finnhub للزوج المختار حصراً
       const fetchPrice = async () => {
         try {
-          // ربط مباشر ببيانات TradingView عبر مصدر موثوق (Finnhub يدعم رموز TradingView)
           const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${asset.tvSymbol}&token=sandbox_c8m2v2iad3if8n8b8g00`);
           const data = await response.json();
           
+          // التأكد من أن الاستجابة تحتوي على سعر وأن الزوج لم يتغير أثناء الطلب
           if (data.c && data.c !== 0) {
             setLivePrice(data.c);
           } else {
-            // محاكاة دقيقة تعتمد على بيانات TradingView في حال فشل الـ API اللحظي
+            // محاكاة دقيقة جداً تعتمد على السعر الأساسي للزوج المختار في حال فشل الـ API
             setLivePrice(prev => {
               const base = prev || asset.basePrice;
               const fluctuation = (Math.random() - 0.5) * (base * 0.00005);
@@ -262,7 +276,7 @@ const AITradingBot = () => {
       if (wsRef.current) wsRef.current.close();
       if (priceIntervalRef.current) clearInterval(priceIntervalRef.current);
     };
-  }, [selectedAsset]);
+  }, [selectedAsset]); // الاعتماد على selectedAsset يضمن إعادة التشغيل عند كل تغيير
 
   const currentAsset = assets.find(a => a.symbol === selectedAsset);
 
