@@ -88,17 +88,17 @@ const AITradingBot = () => {
     { name: 'DOT/USDT', symbol: 'DOTUSDT', tvSymbol: 'BINANCE:DOTUSDT', basePrice: 7.5, type: 'crypto' },
     { name: 'DOGE/USDT', symbol: 'DOGEUSDT', tvSymbol: 'BINANCE:DOGEUSDT', basePrice: 0.08, type: 'crypto' },
     { name: 'AVAX/USDT', symbol: 'AVAXUSDT', tvSymbol: 'BINANCE:AVAXUSDT', basePrice: 35, type: 'crypto' },
-    // Forex (TradingView Sources)
-    { name: 'XAU/USD', symbol: 'XAUUSD', tvSymbol: 'TVC:GOLD', basePrice: 2050, type: 'forex' },
-    { name: 'EUR/USD', symbol: 'EURUSD', tvSymbol: 'FX_IDC:EURUSD', basePrice: 1.09, type: 'forex' },
-    { name: 'GBP/USD', symbol: 'GBPUSD', tvSymbol: 'FX_IDC:GBPUSD', basePrice: 1.27, type: 'forex' },
-    { name: 'USD/JPY', symbol: 'USDJPY', tvSymbol: 'FX_IDC:USDJPY', basePrice: 145, type: 'forex' },
-    { name: 'AUD/USD', symbol: 'AUDUSD', tvSymbol: 'FX_IDC:AUDUSD', basePrice: 0.67, type: 'forex' },
-    { name: 'USD/CAD', symbol: 'USDCAD', tvSymbol: 'FX_IDC:USDCAD', basePrice: 1.35, type: 'forex' },
-    { name: 'NZD/USD', symbol: 'NZDUSD', tvSymbol: 'FX_IDC:NZDUSD', basePrice: 0.62, type: 'forex' },
-    { name: 'USD/CHF', symbol: 'USDCHF', tvSymbol: 'FX_IDC:USDCHF', basePrice: 0.88, type: 'forex' },
-    { name: 'EUR/GBP', symbol: 'EURGBP', tvSymbol: 'FX_IDC:EURGBP', basePrice: 0.85, type: 'forex' },
-    { name: 'GBP/JPY', symbol: 'GBPJPY', tvSymbol: 'FX_IDC:GBPJPY', basePrice: 185, type: 'forex' }
+    // Forex (Finnhub Compatible Symbols for WebSocket)
+    { name: 'XAU/USD', symbol: 'XAUUSD', tvSymbol: 'OANDA:XAU_USD', basePrice: 2050, type: 'forex' },
+    { name: 'EUR/USD', symbol: 'EURUSD', tvSymbol: 'OANDA:EUR_USD', basePrice: 1.09, type: 'forex' },
+    { name: 'GBP/USD', symbol: 'GBPUSD', tvSymbol: 'OANDA:GBP_USD', basePrice: 1.27, type: 'forex' },
+    { name: 'USD/JPY', symbol: 'USDJPY', tvSymbol: 'OANDA:USD_JPY', basePrice: 145, type: 'forex' },
+    { name: 'AUD/USD', symbol: 'AUDUSD', tvSymbol: 'OANDA:AUD_USD', basePrice: 0.67, type: 'forex' },
+    { name: 'USD/CAD', symbol: 'USDCAD', tvSymbol: 'OANDA:USD_CAD', basePrice: 1.35, type: 'forex' },
+    { name: 'NZD/USD', symbol: 'NZDUSD', tvSymbol: 'OANDA:NZD_USD', basePrice: 0.62, type: 'forex' },
+    { name: 'USD/CHF', symbol: 'USDCHF', tvSymbol: 'OANDA:USD_CHF', basePrice: 0.88, type: 'forex' },
+    { name: 'EUR/GBP', symbol: 'EURGBP', tvSymbol: 'OANDA:EUR_GBP', basePrice: 0.85, type: 'forex' },
+    { name: 'GBP/JPY', symbol: 'GBPJPY', tvSymbol: 'OANDA:GBP_JPY', basePrice: 185, type: 'forex' }
   ];
 
   const timeframes = [
@@ -223,7 +223,11 @@ const AITradingBot = () => {
 
     const updatePrice = (price) => {
       if (!price || isNaN(price)) return;
-      setLivePrice(price);
+      setLivePrice(prev => {
+        // تحديث السعر فقط إذا كان مختلفاً لتقليل عمليات إعادة الرندرة غير الضرورية
+        if (Math.abs(prev - price) < 0.0000001) return prev;
+        return price;
+      });
       
       // تخزين السعر في التاريخ (لأغراض التحليل الفني)
       if (!priceHistoryRef.current[selectedAsset]) {
@@ -232,6 +236,9 @@ const AITradingBot = () => {
       priceHistoryRef.current[selectedAsset].push(price);
       if (priceHistoryRef.current[selectedAsset].length > 150) priceHistoryRef.current[selectedAsset].shift();
     };
+
+    // تصفير السعر عند تغيير الزوج لإظهار حالة التحميل
+    setLivePrice(0);
 
     // ⭐⭐ ربط جميع الأصول عبر WebSocket حقيقي ومباشر ⭐⭐
     if (asset.type === 'crypto') {
