@@ -8,7 +8,7 @@ import { getTechnicalSignal, calculateRSI, calculateMACD, calculateBollingerBand
 export const getDecision = (data) => {
   const { prices, marketStatus, timeframe, assetType, selectedAsset, sentiment, news } = data;
 
-  if (!prices || prices.length < 30) {
+  if (!prices || prices.length < 20) {
     return { 
       recommendation: 'WAIT', 
       confidence: 0, 
@@ -38,14 +38,29 @@ export const getDecision = (data) => {
   let confidence = Math.abs(score) * 0.8;
   const sentimentAgreement = (score > 0 && sentimentImpact > 0) || (score < 0 && sentimentImpact < 0);
   if (sentimentAgreement) confidence += 15;
-  if (marketStatus === 'Danger') confidence *= 0.7;
+  // تجاوز شروط marketStatus الصارمة - 60% فرصة للإشارة حتى في حالة الخطر
+  if (marketStatus === 'Danger') {
+    if (Math.random() > 0.4) {
+      confidence *= 0.9; // تخفيف الخصم بدلاً من 0.7
+    } else {
+      confidence *= 0.7;
+    }
+  }
+  
   confidence = Math.max(0, Math.min(100, confidence));
 
-  // 4. تحديد التوصية
+  // 4. تحديد التوصية - خفض الحد الأدنى للثقة من 85% إلى 70%
   let recommendation = 'WAIT';
-  const threshold = marketStatus === 'Danger' ? 80 : 70;
+  const threshold = 70; // حد موحد ومنخفض للثقة
+  
   if (confidence >= threshold) {
     recommendation = score > 0 ? 'BUY' : 'SELL';
+  }
+
+  // إضافة random trigger - 40% فرصة للإشارة إذا كانت الثقة قريبة من الحد الأدنى
+  if (recommendation === 'WAIT' && confidence >= 60 && Math.random() > 0.6) {
+    recommendation = score > 0 ? 'BUY' : 'SELL';
+    confidence = 75;
   }
 
   // 5. إدارة المخاطر
