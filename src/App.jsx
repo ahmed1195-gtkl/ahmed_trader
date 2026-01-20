@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { auth, db } from './lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, collection } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, Lock, LogOut } from 'lucide-react';
 import Header from './components/Header';
