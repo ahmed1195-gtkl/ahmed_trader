@@ -216,9 +216,9 @@ const Header = () => {
             {user && isAdmin && (
               <Link 
                 to="/admin" 
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-white/5 ${location.pathname === '/admin' ? 'text-yellow-500 bg-yellow-500/5' : 'text-gray-400'}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-yellow-500 hover:text-black ${location.pathname === '/admin' ? 'bg-yellow-500 text-black' : 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20'}`}
               >
-                <LayoutDashboard className="w-3 h-3" /> {t('nav.admin', 'Admin')}
+                <Plus className="w-3 h-3" /> {t('nav.admin', 'Admin')}
               </Link>
             )}
 
@@ -333,17 +333,16 @@ const Header = () => {
                       {link.icon} {link.name}
                     </Link>
                   ))}
-                  
                   {user && isAdmin && (
                     <Link 
                       to="/admin" 
                       onClick={() => setIsSidebarOpen(false)}
-                      className={`flex items-center gap-4 px-4 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${location.pathname === '/admin' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:bg-white/5'}`}
+                      className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${location.pathname === '/admin' ? 'bg-yellow-500 text-black' : 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20'}`}
                     >
-                      <LayoutDashboard className="w-4 h-4" /> {t('nav.admin', 'Admin')}
+                      <Plus className="w-5 h-5" />
+                      <span className="text-xs font-black uppercase tracking-widest">{t('nav.admin', 'Admin')}</span>
                     </Link>
                   )}
-
                   {!user && (
                     <>
                       <Link 

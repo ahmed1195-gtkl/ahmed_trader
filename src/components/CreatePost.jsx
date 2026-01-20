@@ -32,6 +32,24 @@ const CreatePost = ({ onPostCreated }) => {
     }
   };
 
+  const uploadToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'ahmed_trader_preset'); // تأكد من استخدام الـ preset الصحيح الخاص بك
+    
+    try {
+      const response = await fetch(`https://api.cloudinary.com/v1_1/ahmed-trader/image/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
+      return data.secure_url;
+    } catch (error) {
+      console.error("Cloudinary upload error:", error);
+      return null;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const user = auth.currentUser;
@@ -39,16 +57,26 @@ const CreatePost = ({ onPostCreated }) => {
 
     setLoading(true);
     try {
+      let finalImageUrl = 'https://images.unsplash.com/photo-1611974714024-462cd297c8aa?q=80&w=800';
+      
+      // إذا كانت هناك صورة مختارة، نقوم برفعها إلى Cloudinary
+      if (fileInputRef.current?.files[0]) {
+        const uploadedUrl = await uploadToCloudinary(fileInputRef.current.files[0]);
+        if (uploadedUrl) {
+          finalImageUrl = uploadedUrl;
+        }
+      }
+
       const userDoc = await getDoc(doc(db, 'users', user.uid));
       const userData = userDoc.exists() ? userDoc.data() : {};
 
-      await addDoc(collection(db, 'posts'), {
+      await addDoc(collection(db, 'admin_posts'), {
         userId: user.uid,
         userName: userData.fullName || user.displayName || 'User',
         userNumericUID: userData.numericUID || 'N/A',
         title,
         content,
-        imageUrl: imagePreview || 'https://images.unsplash.com/photo-1611974714024-462cd297c8aa?q=80&w=800',
+        image: finalImageUrl,
         likes: [],
         createdAt: serverTimestamp()
       });

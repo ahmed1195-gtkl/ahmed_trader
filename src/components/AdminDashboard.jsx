@@ -30,13 +30,15 @@ import {
   Calculator,
   AlertCircle,
   UserX,
-  Activity
+  Activity,
+  Plus
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from './Header';
+import CreatePost from './CreatePost';
 import { toast } from 'sonner';
 
 const AdminDashboard = () => {
@@ -164,6 +166,7 @@ const AdminDashboard = () => {
           <div className="flex flex-wrap bg-white/5 p-1 rounded-xl border border-white/10">
             {[
               { id: 'users', icon: Users, label: i18n.language === 'ar' ? 'المستخدمين' : 'Users' },
+              { id: 'posts', icon: Newspaper, label: i18n.language === 'ar' ? 'المنشورات' : 'Posts' },
               { id: 'logs', icon: History, label: i18n.language === 'ar' ? 'السجلات' : 'Logs' },
               { id: 'settings', icon: Settings, label: i18n.language === 'ar' ? 'الإعدادات' : 'Settings' }
             ].map(tab => (
@@ -248,6 +251,20 @@ const AdminDashboard = () => {
                     </div>
                   ))}
                 </div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === 'posts' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-8">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
+                  <Newspaper className="w-6 h-6 text-yellow-500" /> {i18n.language === 'ar' ? 'إدارة المنشورات' : 'Manage Posts'}
+                </h3>
+              </div>
+              <div className="bg-zinc-900/40 border border-white/5 rounded-[2rem] p-8">
+                <p className="text-gray-400 text-sm mb-8">{i18n.language === 'ar' ? 'استخدم الزر العائم في الأسفل لإضافة منشور جديد.' : 'Use the floating button below to add a new post.'}</p>
+                <CreatePost onPostCreated={() => toast.success(i18n.language === 'ar' ? 'تم إضافة المنشور بنجاح' : 'Post created successfully')} />
               </div>
             </motion.div>
           )}

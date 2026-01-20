@@ -18,10 +18,12 @@ import {
 } from 'firebase/firestore';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
-import { Heart, MessageCircle, Plus, Image as ImageIcon, Send, X, Music, Video, Loader2, User } from 'lucide-react';
+import { Heart, MessageCircle, Plus, Image as ImageIcon, Send, X, Music, Video, Loader2, User, LayoutDashboard } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Feed = () => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState('');
   const [imageUrl, setImageUrl] = useState('');
@@ -64,9 +66,30 @@ const Feed = () => {
     };
   }, []);
 
+  const uploadToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'ahmed_trader_preset');
+    
+    try {
+      const response = await fetch(`https://api.cloudinary.com/v1_1/ahmed-trader/image/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
+      return data.secure_url;
+    } catch (error) {
+      console.error("Cloudinary upload error:", error);
+      return null;
+    }
+  };
+
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!user || (!newPost && !imageUrl)) return;
+    const fileInput = document.getElementById('feed-file-input');
+    const file = fileInput?.files[0];
+    
+    if (!user || (!newPost && !imageUrl && !file)) return;
 
     if (userData?.isBanned) {
       alert(i18n.language === 'ar' ? "تم حظر حسابك من النشر." : "Your account is banned from posting.");
@@ -75,10 +98,19 @@ const Feed = () => {
 
     setLoading(true);
     try {
+      let finalImageUrl = imageUrl;
+      
+      if (file) {
+        const uploadedUrl = await uploadToCloudinary(file);
+        if (uploadedUrl) {
+          finalImageUrl = uploadedUrl;
+        }
+      }
+
       await addDoc(collection(db, 'posts'), {
         text: newPost,
-        image: imageUrl || null,
-        mediaType: imageUrl ? mediaType : 'text',
+        image: finalImageUrl || null,
+        mediaType: finalImageUrl ? mediaType : 'text',
         author: userData?.fullName || user.displayName || 'User',
         authorId: user.uid,
         authorPhoto: userData?.photoURL || user.photoURL || null,
@@ -181,14 +213,25 @@ const Feed = () => {
             {i18n.language === 'ar' ? 'خلاصة' : 'Community'} <span className="text-yellow-500">{i18n.language === 'ar' ? 'المجتمع' : 'Feed'}</span>
           </h2>
           
-          {user && (
-            <Button 
-              onClick={() => setShowUpload(!showUpload)}
-              className="bg-yellow-500 hover:bg-yellow-400 text-black rounded-full w-12 h-12 p-0 shadow-lg shadow-yellow-500/20 transition-transform hover:scale-110"
-            >
-              {showUpload ? <X /> : <Plus />}
-            </Button>
-          )}
+          <div className="flex items-center gap-3">
+            {user && isAdmin && (
+              <Button 
+                onClick={() => navigate('/admin')}
+                className="bg-white/5 hover:bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded-full w-12 h-12 p-0 shadow-lg transition-transform hover:scale-110"
+                title={i18n.language === 'ar' ? 'لوحة الإدارة' : 'Admin Dashboard'}
+              >
+                <LayoutDashboard className="w-6 h-6" />
+              </Button>
+            )}
+            {user && (
+              <Button 
+                onClick={() => setShowUpload(!showUpload)}
+                className="bg-yellow-500 hover:bg-yellow-400 text-black rounded-full w-12 h-12 p-0 shadow-lg shadow-yellow-500/20 transition-transform hover:scale-110"
+              >
+                {showUpload ? <X /> : <Plus />}
+              </Button>
+            )}
+          </div>
         </div>
 
         <AnimatePresence>
@@ -227,11 +270,27 @@ const Feed = () => {
                     <ImageIcon className="w-4 h-4 text-gray-500" />
                     <input 
                       type="text" 
-                      placeholder={i18n.language === 'ar' ? 'الصق رابط الوسائط (https://...)' : "Paste Media URL (https://...)"}
+                      placeholder={i18n.language === 'ar' ? 'رابط الوسائط أو اختر ملفاً' : "Media URL or choose file"}
                       className="bg-transparent border-none outline-none text-white flex-1 text-xs"
                       value={imageUrl}
                       onChange={(e) => setImageUrl(e.target.value)}
                     />
+                    <input 
+                      type="file" 
+                      id="feed-file-input"
+                      className="hidden" 
+                      onChange={(e) => {
+                        if (e.target.files[0]) setImageUrl(e.target.files[0].name);
+                      }}
+                    />
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-[10px] text-yellow-500"
+                      onClick={() => document.getElementById('feed-file-input').click()}
+                    >
+                      {i18n.language === 'ar' ? 'اختر ملف' : 'File'}
+                    </Button>
                   </div>
                 </CardContent>
                 <CardFooter className="justify-end p-6 bg-white/[0.02]">

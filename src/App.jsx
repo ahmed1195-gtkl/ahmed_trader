@@ -126,6 +126,17 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [onboardingCompleted, setOnboardingCompleted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [siteSettings, setSiteSettings] = useState({ showAIBot: true, showPipCalculator: true });
+
+  useEffect(() => {
+    const settingsRef = collection(db, 'site_settings');
+    const unsubscribeSettings = onSnapshot(settingsRef, (snapshot) => {
+      if (!snapshot.empty) {
+        setSiteSettings(snapshot.docs[0].data());
+      }
+    });
+    return () => unsubscribeSettings();
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -190,8 +201,8 @@ function App() {
                 <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/" />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/ai-bot" element={<AITradingBot />} />
-                <Route path="/pip-calculator" element={<PipCalculator />} />
+                <Route path="/ai-bot" element={siteSettings.showAIBot ? <AITradingBot /> : <Navigate to="/" />} />
+                <Route path="/pip-calculator" element={siteSettings.showPipCalculator ? <PipCalculator /> : <Navigate to="/" />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </div>
