@@ -6,7 +6,7 @@
 import { getTechnicalSignal, calculateRSI, calculateMACD, calculateBollingerBands, calculateSupportResistance } from '../analysis/technical';
 
 export const getDecision = (data) => {
-  const { prices, marketStatus, timeframe, assetType, selectedAsset, sentiment, news } = data;
+  const { prices, marketStatus, timeframe, assetType, selectedAsset, sentiment, news, globalNews } = data;
 
   if (!prices || prices.length < 20) {
     return { 
@@ -30,11 +30,20 @@ export const getDecision = (data) => {
   // 1. دمج تحليل المشاعر (Sentiment Impact)
   const sentimentImpact = sentiment ? sentiment.impact * 20 : 0;
 
-  // 2. منطق القرار المطور
+  // 2. دمج تأثير الأخبار العالمية (Global News Impact)
+  let newsImpact = 0;
+  if (globalNews && globalNews.length > 0) {
+    const positiveNews = globalNews.filter(n => n.sentiment === 'Positive').length;
+    const negativeNews = globalNews.filter(n => n.sentiment === 'Negative').length;
+    newsImpact = (positiveNews - negativeNews) * 5; // كل خبر يؤثر بـ 5 نقاط
+  }
+
+  // 3. منطق القرار المطور
   let score = tech.score;
   score += sentimentImpact; 
+  score += newsImpact;
 
-  // 3. حساب الثقة
+  // 4. حساب الثقة
   let confidence = Math.abs(score) * 0.8;
   const sentimentAgreement = (score > 0 && sentimentImpact > 0) || (score < 0 && sentimentImpact < 0);
   if (sentimentAgreement) confidence += 15;

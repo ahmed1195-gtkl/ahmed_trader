@@ -57,3 +57,62 @@ export const getMarketSentiment = async (symbol) => {
     return { score: 50, sentiment: 'Neutral', impact: 0 };
   }
 };
+
+/**
+ * جلب الأخبار العالمية من GNews و Currents
+ */
+export const fetchGlobalNews = async (query = 'crypto') => {
+  const news = [];
+  
+  // 1. GNews API
+  try {
+    const gnewsKey = import.meta.env.VITE_GNEWS_API_KEY || 'demo';
+    const res = await fetch(`https://gnews.io/api/v4/search?q=${query}&lang=en&max=5&apikey=${gnewsKey}`);
+    const data = await res.json();
+    if (data.articles) {
+      data.articles.forEach(a => news.push({
+        source: 'GNews',
+        title: a.title,
+        description: a.description,
+        url: a.url,
+        publishedAt: a.publishedAt,
+        sentiment: analyzeTextSentiment(a.title + " " + a.description)
+      }));
+    }
+  } catch (e) { console.warn("GNews fetch failed"); }
+
+  // 2. Currents API
+  try {
+    const currentsKey = import.meta.env.VITE_CURRENTS_API_KEY || 'demo';
+    const res = await fetch(`https://api.currentsapi.services/v1/search?keywords=${query}&language=en&apiKey=${currentsKey}`);
+    const data = await res.json();
+    if (data.news) {
+      data.news.slice(0, 5).forEach(a => news.push({
+        source: 'Currents',
+        title: a.title,
+        description: a.description,
+        url: a.url,
+        publishedAt: a.published_at,
+        sentiment: analyzeTextSentiment(a.title + " " + a.description)
+      }));
+    }
+  } catch (e) { console.warn("Currents fetch failed"); }
+
+  return news.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+};
+
+/**
+ * تحليل بسيط لمشاعر النص (Sentiment Analysis)
+ */
+const analyzeTextSentiment = (text) => {
+  const positiveWords = ['bullish', 'surge', 'growth', 'gain', 'positive', 'breakout', 'adoption', 'high', 'profit'];
+  const negativeWords = ['bearish', 'crash', 'drop', 'negative', 'fall', 'risk', 'ban', 'scam', 'low', 'loss'];
+  
+  const lowerText = text.toLowerCase();
+  let score = 0;
+  
+  positiveWords.forEach(w => { if (lowerText.includes(w)) score += 1; });
+  negativeWords.forEach(w => { if (lowerText.includes(w)) score -= 1; });
+  
+  return score > 0 ? 'Positive' : score < 0 ? 'Negative' : 'Neutral';
+};

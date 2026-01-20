@@ -57,6 +57,7 @@ const AITradingBot = () => {
   const [selectedAsset, setSelectedAsset] = useState('BTCUSDT');
   const [selectedTimeframe, setSelectedTimeframe] = useState('1H');
   const [newsEvents, setNewsEvents] = useState([]);
+  const [globalNews, setGlobalNews] = useState([]);
   const [livePrice, setLivePrice] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [marketStatus, setMarketStatus] = useState('Stable');
@@ -145,39 +146,42 @@ const AITradingBot = () => {
     return () => clearInterval(timeIntervalRef.current);
   }, []);
 
-  useEffect(() => {
-    const fetchNews = async () => {
-      try {
-        const response = await fetch('https://nfs.faireconomy.media/ff_calendar_thisweek.json');
-        const data = await response.json();
-        const now = new Date();
-        // عرض الأخبار القريبة (قبل ساعة وبعد 24 ساعة) لضمان رؤية النتائج
-        const upcoming = data.filter(event => {
-          const eventDate = new Date(event.date);
-          const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
-          const next24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-          return eventDate > oneHourAgo && eventDate < next24Hours;
-        }).slice(0, 10);
+  const fetchNews = async () => {
+    try {
+      const response = await fetch('https://nfs.faireconomy.media/ff_calendar_thisweek.json');
+      const data = await response.json();
+      const now = new Date();
+      const upcoming = data.filter(event => {
+        const eventDate = new Date(event.date);
+        const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+        const next24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        return eventDate > oneHourAgo && eventDate < next24Hours;
+      }).slice(0, 10);
 
-        setNewsEvents(upcoming.map(e => ({
-          id: Math.random().toString(36).substr(2, 9),
-          displayTime: new Date(e.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          currency: e.country,
-          event: e.title,
-          impact: e.impact,
-          forecast: e.forecast || '-',
-          previous: e.previous || '-',
-          actual: e.actual || (new Date(e.date) < now ? 'Processing...' : '-')
-        })));
-      } catch (error) {
-        console.error("Error fetching news:", error);
-      }
-    };
+      setNewsEvents(upcoming.map(e => ({
+        id: Math.random().toString(36).substr(2, 9),
+        displayTime: new Date(e.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        currency: e.country,
+        event: e.title,
+        impact: e.impact,
+        forecast: e.forecast || '-',
+        previous: e.previous || '-',
+        actual: e.actual || (new Date(e.date) < now ? 'Processing...' : '-')
+      })));
+
+      // جلب الأخبار العالمية من GNews و Currents
+      const gNews = await fetchGlobalNews(selectedAsset.replace('USDT', ''));
+      setGlobalNews(gNews);
+    } catch (error) {
+      console.error("Error fetching news:", error);
+    }
+  };
+
+  useEffect(() => {
     fetchNews();
-    // تحديث كل دقيقة (60000ms) بناءً على طلب المستخدم
     newsIntervalRef.current = setInterval(fetchNews, 60000);
     return () => clearInterval(newsIntervalRef.current);
-  }, []);
+  }, [selectedAsset]);
 
   const runAnalysis = useCallback(async () => {
     if (isMarketClosed) return;
@@ -190,10 +194,11 @@ const AITradingBot = () => {
         prices: history,
         marketStatus,
         timeframe: selectedTimeframe,
-        assetType: assets.find(a => a.symbol === selectedAsset).type,
+        assetType: currentAsset.type,
         selectedAsset,
         sentiment: marketSentiment,
-        news: newsEvents
+        news: newsEvents,
+        globalNews: globalNews // تمرير الأخبار العالمية للتحليل
       });
 
       const chartData = history.slice(-20).map((p, i) => ({ time: i, price: p }));
@@ -536,8 +541,17 @@ const AITradingBot = () => {
                   <Calendar className="w-6 h-6 text-yellow-500" />
                   <CardTitle className="text-xl font-black uppercase tracking-tight">{t('aibot.newsCalendar')}</CardTitle>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-500 text-[9px] font-black uppercase tracking-widest">
-                  <RefreshCw className="w-3 h-3 animate-spin-slow" /> LIVE UPDATING
+                <div className="flex items-center gap-4">
+                  <Button 
+                    onClick={fetchNews}
+                    variant="ghost" 
+                    className="p-2 hover:bg-white/5 rounded-full transition-colors"
+                  >
+                    <RefreshCw className="w-4 h-4 text-yellow-500" />
+                  </Button>
+                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-500 text-[9px] font-black uppercase tracking-widest">
+                    <RefreshCw className="w-3 h-3 animate-spin-slow" /> LIVE UPDATING
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="p-0 overflow-x-auto">
