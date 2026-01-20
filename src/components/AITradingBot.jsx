@@ -146,37 +146,43 @@ const AITradingBot = () => {
     return () => clearInterval(timeIntervalRef.current);
   }, []);
 
+  const [isNewsLoading, setIsNewsLoading] = useState(false);
+
   const fetchNews = async () => {
+    setIsNewsLoading(true);
     try {
-      const response = await fetch('https://nfs.faireconomy.media/ff_calendar_thisweek.json');
-      const data = await response.json();
-      const now = new Date();
-      const upcoming = data.filter(event => {
-        const eventDate = new Date(event.date);
-        const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
-        const next24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-        return eventDate > oneHourAgo && eventDate < next24Hours;
-      }).slice(0, 10);
+      let calendarNews = [];
+      try {
+        const response = await fetch('https://nfs.faireconomy.media/ff_calendar_thisweek.json');
+        const data = await response.json();
+        const now = new Date();
+        const upcoming = data.filter(event => {
+          const eventDate = new Date(event.date);
+          const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+          const next24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+          return eventDate > oneHourAgo && eventDate < next24Hours;
+        }).slice(0, 10);
 
-      const calendarNews = upcoming.map(e => ({
-        id: Math.random().toString(36).substr(2, 9),
-        displayTime: new Date(e.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        currency: e.country,
-        event: e.title,
-        impact: e.impact,
-        forecast: e.forecast || '-',
-        previous: e.previous || '-',
-        actual: e.actual || (new Date(e.date) < now ? 'Processing...' : '-'),
-        source: 'Economic Calendar',
-        type: 'calendar'
-      }));
+        calendarNews = upcoming.map(e => ({
+          id: 'cal-' + Math.random().toString(36).substr(2, 9),
+          displayTime: new Date(e.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          currency: e.country,
+          event: e.title,
+          impact: e.impact,
+          forecast: e.forecast || '-',
+          previous: e.previous || '-',
+          actual: e.actual || (new Date(e.date) < now ? 'Processing...' : '-'),
+          source: 'Economic Calendar',
+          type: 'calendar'
+        }));
+      } catch (e) { console.warn("Calendar fetch failed"); }
 
-      // جلب الأخبار العالمية من GNews و Currents
+      // جلب الأخبار العالمية من GNews و Currents و CryptoPanic
       const gNewsData = await fetchGlobalNews(selectedAsset.replace('USDT', ''));
       setGlobalNews(gNewsData);
 
       const globalNewsFormatted = gNewsData.map(n => ({
-        id: Math.random().toString(36).substr(2, 9),
+        id: 'glob-' + Math.random().toString(36).substr(2, 9),
         displayTime: new Date(n.publishedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         currency: selectedAsset.replace('USDT', ''),
         event: n.title,
@@ -189,9 +195,12 @@ const AITradingBot = () => {
       }));
 
       // دمج كل الأخبار في مصفوفة واحدة وترتيبها حسب الوقت
-      setNewsEvents([...calendarNews, ...globalNewsFormatted].sort((a, b) => b.id.localeCompare(a.id)));
+      const allNews = [...calendarNews, ...globalNewsFormatted].sort((a, b) => b.id.localeCompare(a.id));
+      setNewsEvents(allNews);
     } catch (error) {
       console.error("Error fetching news:", error);
+    } finally {
+      setIsNewsLoading(false);
     }
   };
 
@@ -562,10 +571,11 @@ const AITradingBot = () => {
                 <div className="flex items-center gap-4">
                   <Button 
                     onClick={fetchNews}
+                    disabled={isNewsLoading}
                     variant="ghost" 
-                    className="p-2 hover:bg-white/5 rounded-full transition-colors"
+                    className="p-2 hover:bg-white/5 rounded-full transition-colors disabled:opacity-50"
                   >
-                    <RefreshCw className="w-4 h-4 text-yellow-500" />
+                    <RefreshCw className={`w-4 h-4 text-yellow-500 ${isNewsLoading ? 'animate-spin' : ''}`} />
                   </Button>
                   <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-500 text-[9px] font-black uppercase tracking-widest">
                     <RefreshCw className="w-3 h-3 animate-spin-slow" /> LIVE UPDATING
