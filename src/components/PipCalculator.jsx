@@ -18,6 +18,24 @@ const PipCalculator = () => {
   const [showCurrencyList, setShowCurrencyList] = useState(false);
 
   const assets = [
+    // Forex Majors
+    { name: 'EUR/USD', symbol: 'EURUSD', pipDecimal: 4, type: 'forex' },
+    { name: 'GBP/USD', symbol: 'GBPUSD', pipDecimal: 4, type: 'forex' },
+    { name: 'USD/JPY', symbol: 'USDJPY', pipDecimal: 2, type: 'forex' },
+    { name: 'AUD/USD', symbol: 'AUDUSD', pipDecimal: 4, type: 'forex' },
+    { name: 'USD/CHF', symbol: 'USDCHF', pipDecimal: 4, type: 'forex' },
+    { name: 'USD/CAD', symbol: 'USDCAD', pipDecimal: 4, type: 'forex' },
+    { name: 'NZD/USD', symbol: 'NZDUSD', pipDecimal: 4, type: 'forex' },
+    // Forex Crosses
+    { name: 'EUR/GBP', symbol: 'EURGBP', pipDecimal: 4, type: 'forex' },
+    { name: 'EUR/JPY', symbol: 'EURJPY', pipDecimal: 2, type: 'forex' },
+    { name: 'GBP/JPY', symbol: 'GBPJPY', pipDecimal: 2, type: 'forex' },
+    { name: 'AUD/JPY', symbol: 'AUDJPY', pipDecimal: 2, type: 'forex' },
+    { name: 'EUR/AUD', symbol: 'EURAUD', pipDecimal: 4, type: 'forex' },
+    // Metals
+    { name: 'XAU/USD (Gold)', symbol: 'XAUUSD', pipDecimal: 2, type: 'forex' },
+    { name: 'XAG/USD (Silver)', symbol: 'XAGUSD', pipDecimal: 3, type: 'forex' },
+    // Crypto
     { name: 'BTC/USDT', symbol: 'BTCUSDT', pipDecimal: 2, type: 'crypto' },
     { name: 'ETH/USDT', symbol: 'ETHUSDT', pipDecimal: 2, type: 'crypto' },
     { name: 'BNB/USDT', symbol: 'BNBUSDT', pipDecimal: 2, type: 'crypto' },
@@ -57,22 +75,32 @@ const PipCalculator = () => {
           const data = await res.json();
           setLivePrice(parseFloat(data.price));
         } else {
-          // استخدام Twelve Data API لجلب أسعار الفوركس والذهب بشكل موثوق
+          // جلب أسعار الفوركس والذهب
+          // نستخدم ExchangeRate-API كخيار أساسي للفوركس لضمان التحديث اليومي المستقر
+          const baseCurrency = asset.substring(0, 3);
+          const quoteCurrency = asset.substring(3);
+          
+          // محاولة جلب السعر من Twelve Data أولاً (للحصول على سعر أدق إذا توفر)
           const apiKey = import.meta.env.VITE_TWELVEDATA_API_KEY || 'demo';
           const symbol = selectedAsset.symbol === 'XAUUSD' ? 'GOLD' : selectedAsset.symbol;
-          const res = await fetch(`https://api.twelvedata.com/price?symbol=${symbol}&apikey=${apiKey}`);
-          const data = await res.json();
           
-          if (data && data.price) {
-            setLivePrice(parseFloat(data.price));
-          } else {
-            // نظام احتياطي في حال فشل Twelve Data (مثل انتهاء الحصة المجانية)
-            const fallbackRes = await fetch(`https://api.exchangerate-api.com/v4/latest/${asset.substring(0, 3)}`);
-            const fallbackData = await fallbackRes.json();
-            const quoteCurrency = asset.substring(3);
-            if (fallbackData && fallbackData.rates && fallbackData.rates[quoteCurrency]) {
-              setLivePrice(fallbackData.rates[quoteCurrency]);
+          try {
+            const res = await fetch(`https://api.twelvedata.com/price?symbol=${symbol}&apikey=${apiKey}`);
+            const data = await res.json();
+            if (data && data.price) {
+              setLivePrice(parseFloat(data.price));
+              setLoading(false);
+              return;
             }
+          } catch (e) {
+            console.warn("TwelveData fetch failed, trying fallback...");
+          }
+
+          // نظام احتياطي (Fallback) يضمن التحديث كل 24 ساعة على الأقل
+          const fallbackRes = await fetch(`https://api.exchangerate-api.com/v4/latest/${baseCurrency}`);
+          const fallbackData = await fallbackRes.json();
+          if (fallbackData && fallbackData.rates && fallbackData.rates[quoteCurrency]) {
+            setLivePrice(fallbackData.rates[quoteCurrency]);
           }
         }
       } catch (e) {
@@ -83,7 +111,9 @@ const PipCalculator = () => {
     };
 
     fetchPrice();
-    const interval = setInterval(fetchPrice, 15000);
+    // تحديث الكريبتو كل 15 ثانية، أما الفوركس فيكفي تحديثه عند تغيير الزوج أو كل ساعة لضمان استقرار السعر اليومي
+    const intervalTime = assets.find(a => a.symbol === asset).type === 'crypto' ? 15000 : 3600000;
+    const interval = setInterval(fetchPrice, intervalTime);
     return () => clearInterval(interval);
   }, [asset]);
 
