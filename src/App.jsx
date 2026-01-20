@@ -35,7 +35,9 @@ function MainLayout() {
       </div>
       <main>
         <Hero />
-        <Feed />
+        <div className="bg-black">
+          <Feed />
+        </div>
         <Benefits />
         <Coach />
         <Brokers />
@@ -133,7 +135,7 @@ function App() {
             const data = docSnap.data();
             setUserData(data);
             setOnboardingCompleted(data.onboardingCompleted);
-            setIsAdmin(['mchokri100@gmail.com', 'ahmed1195@gmail.com'].includes(currentUser.email?.toLowerCase()));
+            setIsAdmin(data.isAdmin || ['mchokri100@gmail.com', 'ahmed1195@gmail.com'].includes(currentUser.email?.toLowerCase()));
           }
           setLoading(false);
         });

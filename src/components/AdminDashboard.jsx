@@ -124,6 +124,23 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleWarnUser = async (user) => {
+    const warningMessage = prompt(i18n.language === 'ar' ? 'أدخل رسالة التحذير:' : 'Enter warning message:');
+    if (!warningMessage) return;
+
+    try {
+      await updateDoc(doc(db, 'users', user.id), {
+        warning: warningMessage,
+        warningRead: false,
+        warnedAt: serverTimestamp()
+      });
+      await logAdminAction('WARN_USER', `Admin warned user ${user.email}: ${warningMessage}`);
+      toast.success(i18n.language === 'ar' ? 'تم إرسال التحذير' : 'Warning sent');
+    } catch (error) {
+      toast.error('Error sending warning');
+    }
+  };
+
   const filteredUsers = users.filter(u => 
     u.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
     u.email?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -189,7 +206,10 @@ const AdminDashboard = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Button className="bg-white/5 hover:bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                      <Button 
+                        onClick={() => handleWarnUser(user)}
+                        className="bg-white/5 hover:bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
+                      >
                         <AlertCircle className="w-3 h-3 mr-2" /> {i18n.language === 'ar' ? 'تحذير' : 'Warn'}
                       </Button>
                       <Button onClick={() => { setSelectedUser(user); setIsBanModalOpen(true); }} className="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-black border border-red-500/20 h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest">

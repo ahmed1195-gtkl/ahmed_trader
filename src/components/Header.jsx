@@ -67,6 +67,7 @@ const Header = () => {
           if (docSnap.exists()) {
             const data = docSnap.data();
             setUserData(data);
+            setIsAdmin(data.isAdmin || adminEmails.includes(currentUser.email?.toLowerCase()));
             if (data.warning && !data.warningRead) {
               setShowWarning(true);
             } else {

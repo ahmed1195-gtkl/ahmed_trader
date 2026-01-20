@@ -88,6 +88,23 @@ const PipCalculator = () => {
     return () => clearInterval(interval);
   }, [asset]);
 
+  const [exchangeRates, setExchangeRates] = useState({ EUR: 0.92, GBP: 0.79, JPY: 145, USD: 1 });
+
+  useEffect(() => {
+    const fetchExchangeRates = async () => {
+      try {
+        const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+        const data = await res.json();
+        if (data && data.rates) {
+          setExchangeRates(data.rates);
+        }
+      } catch (e) {
+        console.error("Exchange rate fetch error", e);
+      }
+    };
+    fetchExchangeRates();
+  }, []);
+
   useEffect(() => {
     const selectedAsset = assets.find(a => a.symbol === asset);
     const pipSize = Math.pow(10, -selectedAsset.pipDecimal);
@@ -95,21 +112,33 @@ const PipCalculator = () => {
     
     if (selectedAsset.type === 'forex') {
       const lotUnits = 100000;
+      // If the quote currency is the same as account currency
       if (asset.endsWith(accountCurrency)) {
         value = pipSize * lotSize * lotUnits;
       } else {
+        // Standard formula: (Pip Size / Current Price) * Lot Size * Units
+        // This gives value in base currency, then we convert to account currency
         value = (pipSize / livePrice) * lotSize * lotUnits;
+        
+        // Convert from base currency to account currency
+        const baseCurrency = asset.substring(0, 3);
+        if (baseCurrency !== accountCurrency) {
+          const rateToBase = exchangeRates[baseCurrency] || 1;
+          const rateToAccount = exchangeRates[accountCurrency] || 1;
+          value = (value / rateToBase) * rateToAccount;
+        }
       }
     } else {
+      // For Crypto/Metals
       value = pipSize * lotSize;
+      // Convert USD value to account currency if needed
+      if (accountCurrency !== 'USD') {
+        value = value * (exchangeRates[accountCurrency] || 1);
+      }
     }
 
-    if (accountCurrency === 'EUR') value *= 0.92;
-    if (accountCurrency === 'GBP') value *= 0.79;
-    if (accountCurrency === 'JPY') value *= 145;
-
     setPipValue(value.toFixed(2));
-  }, [asset, lotSize, livePrice, accountCurrency]);
+  }, [asset, lotSize, livePrice, accountCurrency, exchangeRates]);
 
   const currentAsset = assets.find(a => a.symbol === asset);
   const currentCurrency = accountCurrencies.find(c => c.code === accountCurrency);

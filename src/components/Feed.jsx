@@ -20,7 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card'
 import { Heart, MessageCircle, Plus, Image as ImageIcon, Send, X, Music, Video, Loader2, User } from 'lucide-react';
 
 const Feed = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState('');
   const [imageUrl, setImageUrl] = useState('');
@@ -159,7 +159,7 @@ const Feed = () => {
       <div className="container mx-auto px-4 max-w-3xl">
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter">
-            Community <span className="text-yellow-500">Feed</span>
+            {i18n.language === 'ar' ? 'خلاصة' : 'Community'} <span className="text-yellow-500">{i18n.language === 'ar' ? 'المجتمع' : 'Feed'}</span>
           </h2>
           
           {user && (

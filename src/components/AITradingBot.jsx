@@ -267,7 +267,8 @@ const AITradingBot = () => {
       // نظام احتياطي (Fallback) في حال تأخر الـ WebSocket
       const fetchFallback = async () => {
         try {
-          const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${asset.tvSymbol}&token=sandbox_c8m2v2iad3if8n8b8g00`);
+          const apiKey = import.meta.env.VITE_FINNHUB_API_KEY || 'sandbox_c8m2v2iad3if8n8b8g00';
+          const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${asset.tvSymbol}&token=${apiKey}`);
           const data = await response.json();
           if (data.c && data.c !== 0) {
             updatePrice(data.c);
