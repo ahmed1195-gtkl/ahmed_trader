@@ -17,6 +17,7 @@ import Onboarding from './components/Onboarding';
 import Settings from './components/Settings';
 import MarketData from './components/MarketData';
 import NewsPage from './components/NewsPage';
+import GlobalNews from './components/GlobalNews';
 import Feed from './components/Feed';
 import AdminDashboard from './components/AdminDashboard';
 import PrivacyPolicy from './components/PrivacyPolicy';
@@ -183,6 +184,7 @@ function App() {
                 <Route path="/onboarding" element={user ? (onboardingCompleted ? <Navigate to="/" /> : <Onboarding />) : <Navigate to="/auth" />} />
                 <Route path="/settings" element={user ? <Settings /> : <Navigate to="/auth" />} />
                 <Route path="/news" element={<NewsPage />} />
+                <Route path="/global-news" element={<GlobalNews />} />
                 <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/" />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
