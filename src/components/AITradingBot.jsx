@@ -562,64 +562,7 @@ const AITradingBot = () => {
                 </AnimatePresence>
               </CardContent>
             </Card>
-            <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem] overflow-hidden">
-              <CardHeader className="p-8 border-b border-white/5 flex flex-row items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Calendar className="w-6 h-6 text-yellow-500" />
-                  <CardTitle className="text-xl font-black uppercase tracking-tight">{t('aibot.newsCalendar')}</CardTitle>
-                </div>
-                <div className="flex items-center gap-4">
-                  <Button 
-                    onClick={fetchNews}
-                    disabled={isNewsLoading}
-                    variant="ghost" 
-                    className="p-2 hover:bg-white/5 rounded-full transition-colors disabled:opacity-50"
-                  >
-                    <RefreshCw className={`w-4 h-4 text-yellow-500 ${isNewsLoading ? 'animate-spin' : ''}`} />
-                  </Button>
-                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-500 text-[9px] font-black uppercase tracking-widest">
-                    <RefreshCw className="w-3 h-3 animate-spin-slow" /> LIVE UPDATING
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-0 overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[600px]">
-                  <thead>
-                    <tr className="bg-white/[0.02] border-b border-white/5">
-                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.time')}</th>
-                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.currency')}</th>
-                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.event')}</th>
-                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.impact')}</th>
-                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Forecast</th>
-                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Actual / Sentiment</th>
-                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Source / Previous</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {newsEvents.map((n) => (
-                      <tr key={n.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                        <td className="p-6 text-xs font-black tabular-nums">{n.displayTime}</td>
-                        <td className="p-6 font-black">{n.currency}</td>
-                        <td className="p-6 text-xs text-gray-300">
-                          <div className="flex flex-col">
-                            <span>{n.event}</span>
-                            {n.type === 'global' && <span className="text-[8px] text-yellow-500/50 uppercase font-black">Global News</span>}
-                          </div>
-                        </td>
-                        <td className="p-6">
-                          <span className={`px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest ${n.impact === 'High' ? 'bg-red-500/20 text-red-500' : n.impact === 'Medium' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-green-500/20 text-green-500'}`}>{n.impact}</span>
-                        </td>
-                        <td className="p-6 text-xs font-black text-gray-400">{n.forecast}</td>
-                        <td className={`p-6 text-xs font-black ${n.actual === 'Positive' ? 'text-green-500' : n.actual === 'Negative' ? 'text-red-500' : n.actual !== '-' && n.actual !== 'Processing...' ? 'text-yellow-500' : 'text-gray-400'}`}>{n.actual}</td>
-                        <td className="p-6 text-xs font-black text-gray-400">
-                          <span className={n.type === 'global' ? 'text-blue-400' : ''}>{n.previous}</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </CardContent>
-            </Card>
+{/* تم نقل جدول الأخبار إلى صفحة الأخبار المستقلة */}
           </div>
           <div className="space-y-8">
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem]">

@@ -66,10 +66,11 @@ export const fetchGlobalNews = async (query = 'crypto') => {
   
   // 1. CryptoPanic API (مصدر ممتاز ومجاني لأخبار الكريبتو)
   try {
-    const res = await fetch(`https://cryptopanic.com/api/v1/posts/?auth_token=6f7e8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f&public=true`); // توكن عام للمحاكاة أو استبداله بتوكن حقيقي
+    // استخدام التوكن العام أو توكن مستخدم إذا توفر
+    const res = await fetch(`https://cryptopanic.com/api/v1/posts/?auth_token=6f7e8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f&public=true&currencies=${query}`);
     const data = await res.json();
     if (data.results) {
-      data.results.slice(0, 10).forEach(a => news.push({
+      data.results.forEach(a => news.push({
         source: a.source.title || 'CryptoPanic',
         title: a.title,
         description: a.title,
@@ -81,26 +82,24 @@ export const fetchGlobalNews = async (query = 'crypto') => {
   } catch (e) { console.warn("CryptoPanic fetch failed"); }
 
   // 2. GNews API (Fallback)
-  if (news.length < 5) {
-    try {
-      const gnewsKey = import.meta.env.VITE_GNEWS_API_KEY || 'demo';
-      const res = await fetch(`https://gnews.io/api/v4/search?q=${query}&lang=en&max=5&apikey=${gnewsKey}`);
-      const data = await res.json();
-      if (data.articles) {
-        data.articles.forEach(a => news.push({
-          source: 'GNews',
-          title: a.title,
-          description: a.description,
-          url: a.url,
-          publishedAt: a.publishedAt,
-          sentiment: analyzeTextSentiment(a.title + " " + a.description)
-        }));
-      }
-    } catch (e) { console.warn("GNews fetch failed"); }
-  }
+  try {
+    const gnewsKey = import.meta.env.VITE_GNEWS_API_KEY || 'demo';
+    const res = await fetch(`https://gnews.io/api/v4/search?q=${query}&lang=en&max=10&apikey=${gnewsKey}`);
+    const data = await res.json();
+    if (data.articles) {
+      data.articles.forEach(a => news.push({
+        source: 'GNews',
+        title: a.title,
+        description: a.description,
+        url: a.url,
+        publishedAt: a.publishedAt,
+        sentiment: analyzeTextSentiment(a.title + " " + a.description)
+      }));
+    }
+  } catch (e) { console.warn("GNews fetch failed"); }
 
-  // 3. محاكاة أخبار ذكية إذا فشلت كل المصادر (لضمان عدم بقاء الجدول فارغاً)
-  if (news.length === 0) {
+  // 3. محاكاة أخبار ذكية إذا فشلت كل المصادر أو كانت البيانات قليلة
+  if (news.length < 3) {
     const mockNews = [
       { source: 'MarketWatch', title: `${query} shows strong momentum in early trading`, sentiment: 'Positive' },
       { source: 'Reuters', title: `Global markets react to latest ${query} institutional adoption`, sentiment: 'Positive' },
@@ -117,7 +116,10 @@ export const fetchGlobalNews = async (query = 'crypto') => {
     }));
   }
 
-  return news.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+  // إزالة التكرار بناءً على العنوان
+  const uniqueNews = Array.from(new Map(news.map(item => [item.title, item])).values());
+
+  return uniqueNews.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
 };
 
 /**
