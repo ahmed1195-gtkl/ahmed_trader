@@ -38,36 +38,35 @@ export const getDecision = (data) => {
   let confidence = Math.abs(score) * 0.8;
   const sentimentAgreement = (score > 0 && sentimentImpact > 0) || (score < 0 && sentimentImpact < 0);
   if (sentimentAgreement) confidence += 15;
-  // تجاوز شروط marketStatus الصارمة - 60% فرصة للإشارة حتى في حالة الخطر
+  // ضبط الثقة بناءً على حالة السوق بشكل معتدل
   if (marketStatus === 'Danger') {
-    if (Math.random() > 0.4) {
-      confidence *= 0.9; // تخفيف الخصم بدلاً من 0.7
-    } else {
-      confidence *= 0.7;
-    }
+    confidence *= 0.8; // خصم معتدل في حالة الخطر لضمان الحذر
+  } else if (marketStatus === 'Stable') {
+    confidence *= 1.1; // تعزيز طفيف في حالة الاستقرار
   }
   
   confidence = Math.max(0, Math.min(100, confidence));
 
-  // 4. تحديد التوصية - خفض الحد الأدنى للثقة من 85% إلى 70%
+  // 4. تحديد التوصية - وضع معتدل (75% كحد أدنى للثقة)
   let recommendation = 'WAIT';
-  const threshold = 70; // حد موحد ومنخفض للثقة
+  const threshold = 75; 
   
   if (confidence >= threshold) {
     recommendation = score > 0 ? 'BUY' : 'SELL';
   }
 
-  // إضافة random trigger - 40% فرصة للإشارة إذا كانت الثقة قريبة من الحد الأدنى
-  if (recommendation === 'WAIT' && confidence >= 60 && Math.random() > 0.6) {
+  // إضافة محفز مرن للصفقات الواعدة التي تقترب من الحد الأدنى
+  if (recommendation === 'WAIT' && confidence >= 70 && Math.abs(score) > 25) {
     recommendation = score > 0 ? 'BUY' : 'SELL';
-    confidence = 75;
+    confidence = 72;
   }
 
   // 5. إدارة المخاطر
   const volatility = (bb.upper - bb.lower) / currentPrice;
   const tfMultiplier = timeframe === '15M' ? 0.6 : timeframe === '4H' ? 1.8 : timeframe === '1D' ? 3.5 : 1;
-  const smartSL = Math.max(volatility * 0.6, 0.0015) * tfMultiplier;
-  const smartTP = smartSL * 2.2;
+  // إدارة مخاطر معتدلة ومتوازنة
+  const smartSL = Math.max(volatility * 0.8, 0.0020) * tfMultiplier;
+  const smartTP = smartSL * 1.8; // نسبة ربح إلى مخاطرة معتدلة (1:1.8) لضمان استمرارية الأرباح
 
   const levels = {
     entry: currentPrice,
