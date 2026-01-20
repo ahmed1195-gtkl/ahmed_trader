@@ -9,18 +9,22 @@ export const fetchHistoricalData = async (symbol, timeframe) => {
     const intervalMap = { '15M': '15m', '1H': '1h', '4H': '4h', '1D': '1d' };
     const interval = intervalMap[timeframe] || '1h';
     
-    // إذا كان الزوج فوركس، نستخدم مصدر بيانات مختلف أو محاكاة دقيقة بناءً على السعر الحالي
-    // ملاحظة: Binance لا تدعم الفوركس، لذا سنحاول جلبها من مصدر بديل أو استخدام محاكاة ذكية
-    if (!symbol.endsWith('USDT') && symbol !== 'BTCUSDT' && symbol !== 'ETHUSDT') {
-      // محاكاة بيانات فوركس واقعية بناءً على السعر المرجعي إذا فشل جلب البيانات الحقيقية
-      // في الإنتاج يفضل استخدام Alpha Vantage أو Polygon.io
-      const basePrices = {
-        'XAUUSD': 2050, 'EURUSD': 1.09, 'GBPUSD': 1.27, 'USDJPY': 145,
-        'AUDUSD': 0.67, 'USDCAD': 1.35, 'NZDUSD': 0.62, 'USDCHF': 0.88,
-        'EURGBP': 0.85, 'GBPJPY': 185
-      };
-      const base = basePrices[symbol] || 1.0;
-      return Array.from({ length: 100 }, () => base + (Math.random() - 0.5) * (base * 0.01));
+    // جلب بيانات حقيقية للفوركس والذهب إذا لم يكن الزوج كريبتو
+    if (!symbol.endsWith('USDT')) {
+      const apiKey = import.meta.env.VITE_TWELVEDATA_API_KEY || 'demo';
+      const tdSymbol = symbol === 'XAUUSD' ? 'GOLD' : symbol;
+      const intervalMap = { '15M': '15min', '1H': '1h', '4H': '4h', '1D': '1day' };
+      const tdInterval = intervalMap[timeframe] || '1h';
+      
+      try {
+        const res = await fetch(`https://api.twelvedata.com/time_series?symbol=${tdSymbol}&interval=${tdInterval}&outputsize=100&apikey=${apiKey}`);
+        const data = await res.json();
+        if (data && data.values) {
+          return data.values.map(v => parseFloat(v.close)).reverse();
+        }
+      } catch (e) {
+        console.warn("TwelveData historical fetch failed, using fallback simulation");
+      }
     }
 
     const response = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=100`);
