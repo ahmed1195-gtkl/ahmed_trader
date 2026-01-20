@@ -212,74 +212,83 @@ const AITradingBot = () => {
     return () => clearInterval(interval);
   }, [runAnalysis]);
 
-  // إصلاح جذري: جلب السعر المباشر المرتبط "حصرياً" بالزوج المختار
+  // القسم المطور للتحكم في جلب الأسعار الحقيقية 100% عبر WebSocket
   useEffect(() => {
+    // تنظيف الاتصالات السابقة
+    if (wsRef.current) wsRef.current.close();
+    if (priceIntervalRef.current) clearInterval(priceIntervalRef.current);
+    
     const asset = assets.find(a => a.symbol === selectedAsset);
     if (!asset) return;
 
-    // تصفير السعر عند تغيير الزوج لتجنب بقاء السعر القديم
-    setLivePrice(0);
-
-    // تنظيف أي اتصالات أو فترات زمنية سابقة فوراً
-    if (wsRef.current) {
-      wsRef.current.close();
-      wsRef.current = null;
-    }
-    if (priceIntervalRef.current) {
-      clearInterval(priceIntervalRef.current);
-      priceIntervalRef.current = null;
-    }
-
-    // ربط جميع الأصول (كريبتو، فوركس، ذهب) عبر WebSocket حقيقي لضمان بيانات لحظية 100%
-    const socket = new WebSocket('wss://ws.finnhub.io?token=sandbox_c8m2v2iad3if8n8b8g00');
-    wsRef.current = socket;
-
-    socket.onopen = () => {
-      // الاشتراك في الزوج المختار حصراً فور فتح الاتصال
-      const symbol = asset.type === 'crypto' ? `BINANCE:${selectedAsset}` : asset.tvSymbol;
-      socket.send(JSON.stringify({ 'type': 'subscribe', 'symbol': symbol }));
+    const updatePrice = (price) => {
+      if (!price || isNaN(price)) return;
+      setLivePrice(price);
+      
+      // تخزين السعر في التاريخ (لأغراض التحليل الفني)
+      if (!priceHistoryRef.current[selectedAsset]) {
+        priceHistoryRef.current[selectedAsset] = [];
+      }
+      priceHistoryRef.current[selectedAsset].push(price);
+      if (priceHistoryRef.current[selectedAsset].length > 150) priceHistoryRef.current[selectedAsset].shift();
     };
 
-    socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === 'trade') {
-        // البحث عن السعر في مصفوفة الصفقات الواردة للزوج المختار
-        const trade = data.data.find(t => t.s === (asset.type === 'crypto' ? `BINANCE:${selectedAsset}` : asset.tvSymbol));
-        if (trade) {
-          setLivePrice(trade.p);
+    // ⭐⭐ ربط جميع الأصول عبر WebSocket حقيقي ومباشر ⭐⭐
+    if (asset.type === 'crypto') {
+      // 1️⃣ للكريبتو: يستخدم WebSocket مباشرة من Binance
+      const symbol = selectedAsset.toLowerCase();
+      const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol}@ticker`);
+      wsRef.current = ws;
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.s === selectedAsset) {
+          updatePrice(parseFloat(data.c));
         }
-      }
-    };
+      };
+    } else if (!isMarketClosed) {
+      // 2️⃣ للفوركس والذهب: يستخدم WebSocket من مصدر TradingView الموثوق (عبر Finnhub)
+      const socket = new WebSocket('wss://ws.finnhub.io?token=sandbox_c8m2v2iad3if8n8b8g00');
+      wsRef.current = socket;
 
-    socket.onerror = (error) => {
-      console.error("WebSocket Error:", error);
-    };
+      socket.onopen = () => {
+        socket.send(JSON.stringify({ 'type': 'subscribe', 'symbol': asset.tvSymbol }));
+      };
 
-    // في حال توقف الـ WebSocket، نستخدم Fetch كاحتياطي لضمان عدم توقف السعر
-    const fallbackFetch = async () => {
-      try {
-        const symbol = asset.type === 'crypto' ? `BINANCE:${selectedAsset}` : asset.tvSymbol;
-        const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=sandbox_c8m2v2iad3if8n8b8g00`);
-        const data = await response.json();
-        if (data.c && data.c !== 0) {
-          setLivePrice(data.c);
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'trade') {
+          const trade = data.data.find(t => t.s === asset.tvSymbol);
+          if (trade) {
+            updatePrice(trade.p);
+          }
         }
-      } catch (e) {
-        console.error("Fallback Fetch Error:", e);
-      }
-    };
+      };
 
-    priceIntervalRef.current = setInterval(() => {
-      if (socket.readyState !== WebSocket.OPEN) {
-        fallbackFetch();
-      }
-    }, 5000);
+      // نظام احتياطي (Fallback) في حال تأخر الـ WebSocket
+      const fetchFallback = async () => {
+        try {
+          const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${asset.tvSymbol}&token=sandbox_c8m2v2iad3if8n8b8g00`);
+          const data = await response.json();
+          if (data.c && data.c !== 0) {
+            updatePrice(data.c);
+          }
+        } catch (e) {
+          console.error("Fallback error:", e);
+        }
+      };
 
+      fetchFallback();
+      priceIntervalRef.current = setInterval(fetchFallback, 10000);
+    } else {
+      // 3️⃣ إذا كان السوق مغلقاً: يستخدم السعر الأساسي
+      setLivePrice(asset.basePrice);
+    }
+    
     return () => {
       if (wsRef.current) wsRef.current.close();
       if (priceIntervalRef.current) clearInterval(priceIntervalRef.current);
     };
-  }, [selectedAsset]); // الاعتماد على selectedAsset يضمن إعادة التشغيل عند كل تغيير
+  }, [selectedAsset, isMarketClosed]);
 
   const currentAsset = assets.find(a => a.symbol === selectedAsset);
 
