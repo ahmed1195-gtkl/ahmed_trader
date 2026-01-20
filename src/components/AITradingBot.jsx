@@ -79,26 +79,26 @@ const AITradingBot = () => {
   const lastNotificationTimeRef = useRef({});
 
   const assets = [
-    // Crypto
     { name: 'BTC/USDT', symbol: 'BTCUSDT', tvSymbol: 'BINANCE:BTCUSDT', basePrice: 45000, type: 'crypto' },
     { name: 'ETH/USDT', symbol: 'ETHUSDT', tvSymbol: 'BINANCE:ETHUSDT', basePrice: 2400, type: 'crypto' },
+    { name: 'BNB/USDT', symbol: 'BNBUSDT', tvSymbol: 'BINANCE:BNBUSDT', basePrice: 300, type: 'crypto' },
     { name: 'SOL/USDT', symbol: 'SOLUSDT', tvSymbol: 'BINANCE:SOLUSDT', basePrice: 95, type: 'crypto' },
     { name: 'XRP/USDT', symbol: 'XRPUSDT', tvSymbol: 'BINANCE:XRPUSDT', basePrice: 0.55, type: 'crypto' },
     { name: 'ADA/USDT', symbol: 'ADAUSDT', tvSymbol: 'BINANCE:ADAUSDT', basePrice: 0.50, type: 'crypto' },
-    { name: 'DOT/USDT', symbol: 'DOTUSDT', tvSymbol: 'BINANCE:DOTUSDT', basePrice: 7.5, type: 'crypto' },
-    { name: 'DOGE/USDT', symbol: 'DOGEUSDT', tvSymbol: 'BINANCE:DOGEUSDT', basePrice: 0.08, type: 'crypto' },
     { name: 'AVAX/USDT', symbol: 'AVAXUSDT', tvSymbol: 'BINANCE:AVAXUSDT', basePrice: 35, type: 'crypto' },
-    // Forex (Finnhub Compatible Symbols for WebSocket)
-    { name: 'XAU/USD', symbol: 'XAUUSD', tvSymbol: 'OANDA:XAU_USD', basePrice: 2050, type: 'forex' },
-    { name: 'EUR/USD', symbol: 'EURUSD', tvSymbol: 'OANDA:EUR_USD', basePrice: 1.09, type: 'forex' },
-    { name: 'GBP/USD', symbol: 'GBPUSD', tvSymbol: 'OANDA:GBP_USD', basePrice: 1.27, type: 'forex' },
-    { name: 'USD/JPY', symbol: 'USDJPY', tvSymbol: 'OANDA:USD_JPY', basePrice: 145, type: 'forex' },
-    { name: 'AUD/USD', symbol: 'AUDUSD', tvSymbol: 'OANDA:AUD_USD', basePrice: 0.67, type: 'forex' },
-    { name: 'USD/CAD', symbol: 'USDCAD', tvSymbol: 'OANDA:USD_CAD', basePrice: 1.35, type: 'forex' },
-    { name: 'NZD/USD', symbol: 'NZDUSD', tvSymbol: 'OANDA:NZD_USD', basePrice: 0.62, type: 'forex' },
-    { name: 'USD/CHF', symbol: 'USDCHF', tvSymbol: 'OANDA:USD_CHF', basePrice: 0.88, type: 'forex' },
-    { name: 'EUR/GBP', symbol: 'EURGBP', tvSymbol: 'OANDA:EUR_GBP', basePrice: 0.85, type: 'forex' },
-    { name: 'GBP/JPY', symbol: 'GBPJPY', tvSymbol: 'OANDA:GBP_JPY', basePrice: 185, type: 'forex' }
+    { name: 'DOGE/USDT', symbol: 'DOGEUSDT', tvSymbol: 'BINANCE:DOGEUSDT', basePrice: 0.08, type: 'crypto' },
+    { name: 'DOT/USDT', symbol: 'DOTUSDT', tvSymbol: 'BINANCE:DOTUSDT', basePrice: 7.5, type: 'crypto' },
+    { name: 'LINK/USDT', symbol: 'LINKUSDT', tvSymbol: 'BINANCE:LINKUSDT', basePrice: 15, type: 'crypto' },
+    { name: 'MATIC/USDT', symbol: 'MATICUSDT', tvSymbol: 'BINANCE:MATICUSDT', basePrice: 0.80, type: 'crypto' },
+    { name: 'SHIB/USDT', symbol: 'SHIBUSDT', tvSymbol: 'BINANCE:SHIBUSDT', basePrice: 0.00001, type: 'crypto' },
+    { name: 'LTC/USDT', symbol: 'LTCUSDT', tvSymbol: 'BINANCE:LTCUSDT', basePrice: 70, type: 'crypto' },
+    { name: 'BCH/USDT', symbol: 'BCHUSDT', tvSymbol: 'BINANCE:BCHUSDT', basePrice: 250, type: 'crypto' },
+    { name: 'UNI/USDT', symbol: 'UNIUSDT', tvSymbol: 'BINANCE:UNIUSDT', basePrice: 6, type: 'crypto' },
+    { name: 'ATOM/USDT', symbol: 'ATOMUSDT', tvSymbol: 'BINANCE:ATOMUSDT', basePrice: 10, type: 'crypto' },
+    { name: 'NEAR/USDT', symbol: 'NEARUSDT', tvSymbol: 'BINANCE:NEARUSDT', basePrice: 3, type: 'crypto' },
+    { name: 'APT/USDT', symbol: 'APTUSDT', tvSymbol: 'BINANCE:APTUSDT', basePrice: 9, type: 'crypto' },
+    { name: 'OP/USDT', symbol: 'OPUSDT', tvSymbol: 'BINANCE:OPUSDT', basePrice: 3.5, type: 'crypto' },
+    { name: 'ARB/USDT', symbol: 'ARBUSDT', tvSymbol: 'BINANCE:ARBUSDT', basePrice: 1.8, type: 'crypto' }
   ];
 
   const timeframes = [

@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 const PipCalculator = () => {
   const { t } = useTranslation();
-  const [asset, setAsset] = useState('EURUSD');
+  const [asset, setAsset] = useState('BTCUSDT');
   const [accountCurrency, setAccountCurrency] = useState('USD');
   const [lotSize, setLotSize] = useState(1);
   const [pipValue, setPipValue] = useState(0);
@@ -18,31 +18,26 @@ const PipCalculator = () => {
   const [showCurrencyList, setShowCurrencyList] = useState(false);
 
   const assets = [
-    // Forex Majors
-    { name: 'EUR/USD', symbol: 'EURUSD', pipDecimal: 4, type: 'forex', fxcmSymbol: 'EURUSD' },
-    { name: 'GBP/USD', symbol: 'GBPUSD', pipDecimal: 4, type: 'forex', fxcmSymbol: 'GBPUSD' },
-    { name: 'USD/JPY', symbol: 'USDJPY', pipDecimal: 2, type: 'forex', fxcmSymbol: 'USDJPY' },
-    { name: 'AUD/USD', symbol: 'AUDUSD', pipDecimal: 4, type: 'forex', fxcmSymbol: 'AUDUSD' },
-    { name: 'USD/CHF', symbol: 'USDCHF', pipDecimal: 4, type: 'forex', fxcmSymbol: 'USDCHF' },
-    { name: 'USD/CAD', symbol: 'USDCAD', pipDecimal: 4, type: 'forex', fxcmSymbol: 'USDCAD' },
-    { name: 'NZD/USD', symbol: 'NZDUSD', pipDecimal: 4, type: 'forex', fxcmSymbol: 'NZDUSD' },
-    // Forex Crosses
-    { name: 'EUR/GBP', symbol: 'EURGBP', pipDecimal: 4, type: 'forex', fxcmSymbol: 'EURGBP' },
-    { name: 'EUR/JPY', symbol: 'EURJPY', pipDecimal: 2, type: 'forex', fxcmSymbol: 'EURJPY' },
-    { name: 'GBP/JPY', symbol: 'GBPJPY', pipDecimal: 2, type: 'forex', fxcmSymbol: 'GBPJPY' },
-    { name: 'AUD/JPY', symbol: 'AUDJPY', pipDecimal: 2, type: 'forex', fxcmSymbol: 'AUDJPY' },
-    { name: 'EUR/AUD', symbol: 'EURAUD', pipDecimal: 4, type: 'forex', fxcmSymbol: 'EURAUD' },
-    // Metals & Commodities
-    { name: 'XAU/USD (Gold)', symbol: 'XAUUSD', pipDecimal: 2, type: 'forex', fxcmSymbol: 'XAUUSD' },
-    { name: 'XAG/USD (Silver)', symbol: 'XAGUSD', pipDecimal: 3, type: 'forex', fxcmSymbol: 'XAGUSD' },
-    { name: 'USOil (WTI)', symbol: 'USOil', pipDecimal: 2, type: 'forex', fxcmSymbol: 'USOil' },
-    { name: 'UKOil (Brent)', symbol: 'UKOil', pipDecimal: 2, type: 'forex', fxcmSymbol: 'UKOil' },
-    // Crypto
     { name: 'BTC/USDT', symbol: 'BTCUSDT', pipDecimal: 2, type: 'crypto' },
     { name: 'ETH/USDT', symbol: 'ETHUSDT', pipDecimal: 2, type: 'crypto' },
-    { name: 'SOL/USDT', symbol: 'SOLUSDT', pipDecimal: 2, type: 'crypto' },
     { name: 'BNB/USDT', symbol: 'BNBUSDT', pipDecimal: 2, type: 'crypto' },
-    { name: 'XRP/USDT', symbol: 'XRPUSDT', pipDecimal: 4, type: 'crypto' }
+    { name: 'SOL/USDT', symbol: 'SOLUSDT', pipDecimal: 2, type: 'crypto' },
+    { name: 'XRP/USDT', symbol: 'XRPUSDT', pipDecimal: 4, type: 'crypto' },
+    { name: 'ADA/USDT', symbol: 'ADAUSDT', pipDecimal: 4, type: 'crypto' },
+    { name: 'AVAX/USDT', symbol: 'AVAXUSDT', pipDecimal: 2, type: 'crypto' },
+    { name: 'DOGE/USDT', symbol: 'DOGEUSDT', pipDecimal: 5, type: 'crypto' },
+    { name: 'DOT/USDT', symbol: 'DOTUSDT', pipDecimal: 2, type: 'crypto' },
+    { name: 'LINK/USDT', symbol: 'LINKUSDT', pipDecimal: 3, type: 'crypto' },
+    { name: 'MATIC/USDT', symbol: 'MATICUSDT', pipDecimal: 4, type: 'crypto' },
+    { name: 'SHIB/USDT', symbol: 'SHIBUSDT', pipDecimal: 8, type: 'crypto' },
+    { name: 'LTC/USDT', symbol: 'LTCUSDT', pipDecimal: 2, type: 'crypto' },
+    { name: 'BCH/USDT', symbol: 'BCHUSDT', pipDecimal: 2, type: 'crypto' },
+    { name: 'UNI/USDT', symbol: 'UNIUSDT', pipDecimal: 3, type: 'crypto' },
+    { name: 'ATOM/USDT', symbol: 'ATOMUSDT', pipDecimal: 3, type: 'crypto' },
+    { name: 'NEAR/USDT', symbol: 'NEARUSDT', pipDecimal: 3, type: 'crypto' },
+    { name: 'APT/USDT', symbol: 'APTUSDT', pipDecimal: 2, type: 'crypto' },
+    { name: 'OP/USDT', symbol: 'OPUSDT', pipDecimal: 3, type: 'crypto' },
+    { name: 'ARB/USDT', symbol: 'ARBUSDT', pipDecimal: 4, type: 'crypto' }
   ];
 
   const accountCurrencies = [
