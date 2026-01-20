@@ -19,6 +19,7 @@ import MarketData from './components/MarketData';
 import NewsPage from './components/NewsPage';
 import GlobalNews from './components/GlobalNews';
 import Feed from './components/Feed';
+import CourseRegistration from './components/CourseRegistration';
 import AdminDashboard from './components/AdminDashboard';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import ResetPassword from './components/ResetPassword';
@@ -185,6 +186,7 @@ function App() {
                 <Route path="/settings" element={user ? <Settings /> : <Navigate to="/auth" />} />
                 <Route path="/news" element={<NewsPage />} />
                 <Route path="/global-news" element={<GlobalNews />} />
+                <Route path="/course-registration" element={<CourseRegistration />} />
                 <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/" />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />

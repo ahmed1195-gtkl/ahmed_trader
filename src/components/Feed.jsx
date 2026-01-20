@@ -13,7 +13,8 @@ import {
   doc,
   arrayUnion,
   arrayRemove,
-  getDoc
+  getDoc,
+  deleteDoc
 } from 'firebase/firestore';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
@@ -30,6 +31,7 @@ const Feed = () => {
   const [commentText, setCommentText] = useState({});
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged(async (u) => {
@@ -37,8 +39,13 @@ const Feed = () => {
       if (u) {
         const docSnap = await getDoc(doc(db, 'users', u.uid));
         if (docSnap.exists()) {
-          setUserData(docSnap.data());
+          const data = docSnap.data();
+          setUserData(data);
+          setIsAdmin(data.isAdmin === true);
         }
+      } else {
+        setUserData(null);
+        setIsAdmin(false);
       }
     });
     
@@ -62,7 +69,7 @@ const Feed = () => {
     if (!user || (!newPost && !imageUrl)) return;
 
     if (userData?.isBanned) {
-      alert("Your account is banned from posting.");
+      alert(i18n.language === 'ar' ? "تم حظر حسابك من النشر." : "Your account is banned from posting.");
       return;
     }
 
@@ -108,7 +115,7 @@ const Feed = () => {
   const handleComment = async (postId) => {
     if (!user || !commentText[postId]) return;
     if (userData?.isBanned) {
-      alert("Your account is banned from commenting.");
+      alert(i18n.language === 'ar' ? "تم حظر حسابك من التعليق." : "Your account is banned from commenting.");
       return;
     }
 
@@ -129,6 +136,18 @@ const Feed = () => {
     } catch (error) {
       console.error("Error adding comment: ", error);
       alert("Failed to add comment. Please try again.");
+    }
+  };
+
+  const handleDeletePost = async (postId) => {
+    if (!isAdmin) return;
+    if (window.confirm(i18n.language === 'ar' ? 'هل أنت متأكد من حذف هذا المنشور؟' : 'Are you sure you want to delete this post?')) {
+      try {
+        await deleteDoc(doc(db, 'posts', postId));
+      } catch (error) {
+        console.error("Error deleting post: ", error);
+        alert("Failed to delete post.");
+      }
     }
   };
 
@@ -183,13 +202,13 @@ const Feed = () => {
               <Card className="bg-zinc-900/50 border-white/10 backdrop-blur-xl rounded-[2rem] overflow-hidden">
                 <CardHeader>
                   <CardTitle className="text-sm font-bold text-yellow-500 uppercase flex items-center gap-2">
-                    <Plus className="w-4 h-4" /> Create New Post
+                    <Plus className="w-4 h-4" /> {i18n.language === 'ar' ? 'إنشاء منشور جديد' : 'Create New Post'}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <textarea 
                     className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:border-yellow-500/50 outline-none min-h-[120px] transition-all resize-none"
-                    placeholder="What's on your mind? (Image URL optional)"
+                    placeholder={i18n.language === 'ar' ? 'بماذا تفكر؟ (رابط الصورة اختياري)' : "What's on your mind? (Image URL optional)"}
                     value={newPost}
                     onChange={(e) => setNewPost(e.target.value)}
                   />
@@ -208,7 +227,7 @@ const Feed = () => {
                     <ImageIcon className="w-4 h-4 text-gray-500" />
                     <input 
                       type="text" 
-                      placeholder="Paste Media URL (https://...)" 
+                      placeholder={i18n.language === 'ar' ? 'الصق رابط الوسائط (https://...)' : "Paste Media URL (https://...)"}
                       className="bg-transparent border-none outline-none text-white flex-1 text-xs"
                       value={imageUrl}
                       onChange={(e) => setImageUrl(e.target.value)}
@@ -221,7 +240,7 @@ const Feed = () => {
                     disabled={loading || (!newPost && !imageUrl)}
                     className="bg-yellow-500 hover:bg-yellow-600 text-black font-black uppercase tracking-widest px-10 h-12 rounded-xl transition-all"
                   >
-                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Post Now'}
+                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (i18n.language === 'ar' ? 'انشر الآن' : 'Post Now')}
                   </Button>
                 </CardFooter>
               </Card>
@@ -232,7 +251,9 @@ const Feed = () => {
         <div className="space-y-10">
           {posts.length === 0 ? (
             <div className="text-center py-20 bg-zinc-900/20 rounded-[3rem] border border-white/5">
-              <p className="text-gray-500 font-black uppercase tracking-[0.2em] text-xs">No posts yet. Be the first to share!</p>
+              <p className="text-gray-500 font-black uppercase tracking-[0.2em] text-xs">
+                {i18n.language === 'ar' ? 'لا توجد منشورات بعد. كن أول من يشارك!' : 'No posts yet. Be the first to share!'}
+              </p>
             </div>
           ) : (
             posts.map((post) => (
@@ -249,6 +270,15 @@ const Feed = () => {
                           <p className="text-gray-500 text-[9px] font-black uppercase tracking-[0.2em]">{post.createdAt?.toDate().toLocaleDateString()}</p>
                         </div>
                       </div>
+                      {isAdmin && (
+                        <Button 
+                          onClick={() => handleDeletePost(post.id)}
+                          variant="ghost"
+                          className="text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-full w-8 h-8 p-0"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                   </CardHeader>
                   
@@ -276,11 +306,11 @@ const Feed = () => {
                     <div className="flex items-center gap-8 w-full mb-6">
                       <button onClick={() => handleLike(post.id, post.likes || [])} className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-colors ${post.likes?.includes(user?.uid) ? 'text-red-500' : 'text-gray-500 hover:text-white'}`}>
                         <Heart className={`w-4 h-4 ${post.likes?.includes(user?.uid) ? 'fill-current' : ''}`} />
-                        {post.likes?.length || 0} Likes
+                        {post.likes?.length || 0} {i18n.language === 'ar' ? 'إعجاب' : 'Likes'}
                       </button>
                       <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500">
                         <MessageCircle className="w-4 h-4" />
-                        {post.comments?.length || 0} Comments
+                        {post.comments?.length || 0} {i18n.language === 'ar' ? 'تعليق' : 'Comments'}
                       </div>
                     </div>
 
@@ -288,7 +318,7 @@ const Feed = () => {
                       <div className="flex gap-3 w-full">
                         <input 
                           type="text"
-                          placeholder="Write a comment..."
+                          placeholder={i18n.language === 'ar' ? 'اكتب تعليقاً...' : "Write a comment..."}
                           className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:border-yellow-500/50 outline-none transition-all"
                           value={commentText[post.id] || ''}
                           onChange={(e) => setCommentText({ ...commentText, [post.id]: e.target.value })}
