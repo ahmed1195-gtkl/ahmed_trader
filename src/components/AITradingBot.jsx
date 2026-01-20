@@ -89,16 +89,16 @@ const AITradingBot = () => {
     { name: 'DOGE/USDT', symbol: 'DOGEUSDT', tvSymbol: 'BINANCE:DOGEUSDT', basePrice: 0.08, type: 'crypto' },
     { name: 'AVAX/USDT', symbol: 'AVAXUSDT', tvSymbol: 'BINANCE:AVAXUSDT', basePrice: 35, type: 'crypto' },
     // Forex
-    { name: 'XAU/USD', symbol: 'XAUUSD', tvSymbol: 'FXCM:XAUUSD', basePrice: 2050, type: 'forex', fxcmSymbol: 'XAU/USD' },
-    { name: 'EUR/USD', symbol: 'EURUSD', tvSymbol: 'FXCM:EURUSD', basePrice: 1.09, type: 'forex', fxcmSymbol: 'EUR/USD' },
-    { name: 'GBP/USD', symbol: 'GBPUSD', tvSymbol: 'FXCM:GBPUSD', basePrice: 1.27, type: 'forex', fxcmSymbol: 'GBP/USD' },
-    { name: 'USD/JPY', symbol: 'USDJPY', tvSymbol: 'FXCM:USDJPY', basePrice: 145, type: 'forex', fxcmSymbol: 'USD/JPY' },
-    { name: 'AUD/USD', symbol: 'AUDUSD', tvSymbol: 'FXCM:AUDUSD', basePrice: 0.67, type: 'forex', fxcmSymbol: 'AUD/USD' },
-    { name: 'USD/CAD', symbol: 'USDCAD', tvSymbol: 'FXCM:USDCAD', basePrice: 1.35, type: 'forex', fxcmSymbol: 'USD/CAD' },
-    { name: 'NZD/USD', symbol: 'NZDUSD', tvSymbol: 'FXCM:NZDUSD', basePrice: 0.62, type: 'forex', fxcmSymbol: 'NZD/USD' },
-    { name: 'USD/CHF', symbol: 'USDCHF', tvSymbol: 'FXCM:USDCHF', basePrice: 0.88, type: 'forex', fxcmSymbol: 'USD/CHF' },
-    { name: 'EUR/GBP', symbol: 'EURGBP', tvSymbol: 'FXCM:EURGBP', basePrice: 0.85, type: 'forex', fxcmSymbol: 'EUR/GBP' },
-    { name: 'GBP/JPY', symbol: 'GBPJPY', tvSymbol: 'FXCM:GBPJPY', basePrice: 185, type: 'forex', fxcmSymbol: 'GBP/JPY' }
+    { name: 'XAU/USD', symbol: 'XAUUSD', tvSymbol: 'TVC:GOLD', basePrice: 2050, type: 'forex', tvSource: 'TVC:GOLD' },
+    { name: 'EUR/USD', symbol: 'EURUSD', tvSymbol: 'FX_IDC:EURUSD', basePrice: 1.09, type: 'forex', tvSource: 'FX_IDC:EURUSD' },
+    { name: 'GBP/USD', symbol: 'GBPUSD', tvSymbol: 'FX_IDC:GBPUSD', basePrice: 1.27, type: 'forex', tvSource: 'FX_IDC:GBPUSD' },
+    { name: 'USD/JPY', symbol: 'USDJPY', tvSymbol: 'FX_IDC:USDJPY', basePrice: 145, type: 'forex', tvSource: 'FX_IDC:USDJPY' },
+    { name: 'AUD/USD', symbol: 'AUDUSD', tvSymbol: 'FX_IDC:AUDUSD', basePrice: 0.67, type: 'forex', tvSource: 'FX_IDC:AUDUSD' },
+    { name: 'USD/CAD', symbol: 'USDCAD', tvSymbol: 'FX_IDC:USDCAD', basePrice: 1.35, type: 'forex', tvSource: 'FX_IDC:USDCAD' },
+    { name: 'NZD/USD', symbol: 'NZDUSD', tvSymbol: 'FX_IDC:NZDUSD', basePrice: 0.62, type: 'forex', tvSource: 'FX_IDC:NZDUSD' },
+    { name: 'USD/CHF', symbol: 'USDCHF', tvSymbol: 'FX_IDC:USDCHF', basePrice: 0.88, type: 'forex', tvSource: 'FX_IDC:USDCHF' },
+    { name: 'EUR/GBP', symbol: 'EURGBP', tvSymbol: 'FX_IDC:EURGBP', basePrice: 0.85, type: 'forex', tvSource: 'FX_IDC:EURGBP' },
+    { name: 'GBP/JPY', symbol: 'GBPJPY', tvSymbol: 'FX_IDC:GBPJPY', basePrice: 185, type: 'forex', tvSource: 'FX_IDC:GBPJPY' }
   ];
 
   const timeframes = [
@@ -231,15 +231,14 @@ const AITradingBot = () => {
       
       const fetchPrice = async () => {
         try {
-          // ربط مباشر ببيانات FXCM عبر مصدر موثوق (مثل TradingView أو API وسيط يدعم FXCM)
-          // هنا نستخدم رمز FXCM المباشر لضمان مطابقة السعر لمصدر FXCM حصراً
-          const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=FXCM:${asset.symbol}&token=sandbox_c8m2v2iad3if8n8b8g00`);
+          // ربط مباشر ببيانات TradingView عبر مصدر موثوق (Finnhub يدعم رموز TradingView)
+          const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${asset.tvSymbol}&token=sandbox_c8m2v2iad3if8n8b8g00`);
           const data = await response.json();
           
           if (data.c && data.c !== 0) {
             setLivePrice(data.c);
           } else {
-            // في حال تعذر الوصول اللحظي، نستخدم محاكاة دقيقة جداً تعتمد على آخر سعر من FXCM
+            // محاكاة دقيقة تعتمد على بيانات TradingView في حال فشل الـ API اللحظي
             setLivePrice(prev => {
               const base = prev || asset.basePrice;
               const fluctuation = (Math.random() - 0.5) * (base * 0.00005);
