@@ -62,17 +62,21 @@ const PipCalculator = () => {
           const data = await res.json();
           setLivePrice(parseFloat(data.price));
         } else {
-          const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://rates.fxcm.com/RatesXML')}`);
-          const data = await response.json();
-          const parser = new DOMParser();
-          const xmlDoc = parser.parseFromString(data.contents, "text/xml");
-          const rates = xmlDoc.getElementsByTagName("Rate");
-          for (let i = 0; i < rates.length; i++) {
-            if (rates[i].getAttribute("Symbol") === selectedAsset.fxcmSymbol) {
-              const bid = parseFloat(rates[i].getElementsByTagName("Bid")[0].childNodes[0].nodeValue);
-              const ask = parseFloat(rates[i].getElementsByTagName("Ask")[0].childNodes[0].nodeValue);
-              setLivePrice((bid + ask) / 2);
-              break;
+          // استخدام Twelve Data API لجلب أسعار الفوركس والذهب بشكل موثوق
+          const apiKey = import.meta.env.VITE_TWELVEDATA_API_KEY || 'demo';
+          const symbol = selectedAsset.symbol === 'XAUUSD' ? 'GOLD' : selectedAsset.symbol;
+          const res = await fetch(`https://api.twelvedata.com/price?symbol=${symbol}&apikey=${apiKey}`);
+          const data = await res.json();
+          
+          if (data && data.price) {
+            setLivePrice(parseFloat(data.price));
+          } else {
+            // نظام احتياطي في حال فشل Twelve Data (مثل انتهاء الحصة المجانية)
+            const fallbackRes = await fetch(`https://api.exchangerate-api.com/v4/latest/${asset.substring(0, 3)}`);
+            const fallbackData = await fallbackRes.json();
+            const quoteCurrency = asset.substring(3);
+            if (fallbackData && fallbackData.rates && fallbackData.rates[quoteCurrency]) {
+              setLivePrice(fallbackData.rates[quoteCurrency]);
             }
           }
         }

@@ -267,11 +267,22 @@ const AITradingBot = () => {
       // نظام احتياطي (Fallback) في حال تأخر الـ WebSocket
       const fetchFallback = async () => {
         try {
-          const apiKey = import.meta.env.VITE_FINNHUB_API_KEY || 'sandbox_c8m2v2iad3if8n8b8g00';
-          const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${asset.tvSymbol}&token=${apiKey}`);
-          const data = await response.json();
-          if (data.c && data.c !== 0) {
-            updatePrice(data.c);
+          // استخدام Twelve Data كخيار احتياطي أول لأنه أكثر دقة للفوركس
+          const tdKey = import.meta.env.VITE_TWELVEDATA_API_KEY || 'demo';
+          const tdSymbol = asset.symbol === 'XAUUSD' ? 'GOLD' : asset.symbol;
+          const tdRes = await fetch(`https://api.twelvedata.com/price?symbol=${tdSymbol}&apikey=${tdKey}`);
+          const tdData = await tdRes.json();
+          
+          if (tdData && tdData.price) {
+            updatePrice(parseFloat(tdData.price));
+          } else {
+            // خيار احتياطي ثانٍ باستخدام Finnhub
+            const fhKey = import.meta.env.VITE_FINNHUB_API_KEY || 'sandbox_c8m2v2iad3if8n8b8g00';
+            const fhRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${asset.tvSymbol}&token=${fhKey}`);
+            const fhData = await fhRes.json();
+            if (fhData.c && fhData.c !== 0) {
+              updatePrice(fhData.c);
+            }
           }
         } catch (e) {
           console.error("Fallback error:", e);
