@@ -114,7 +114,6 @@ const AITradingBot = () => {
       const sentiment = await getMarketSentiment(selectedAsset);
       setMarketSentiment(sentiment);
       
-      const asset = assets.find(a => a.symbol === selectedAsset);
       const history = await fetchHistoricalData(selectedAsset, selectedTimeframe);
       if (history) {
         priceHistoryRef.current[selectedAsset] = history;
@@ -214,7 +213,7 @@ const AITradingBot = () => {
   }, [runAnalysis]);
 
   useEffect(() => {
-    const connectWS = () => {
+    const connectPriceSource = () => {
       if (wsRef.current) wsRef.current.close();
       if (priceIntervalRef.current) clearInterval(priceIntervalRef.current);
 
@@ -226,17 +225,18 @@ const AITradingBot = () => {
           setLivePrice(parseFloat(data.c));
         };
       } else {
-        // جلب السعر الحقيقي للفوركس عبر API أو محاكاة دقيقة بناءً على السعر المرجعي
-        const updateForexPrice = () => {
-          const base = asset.basePrice;
-          const fluctuation = (Math.random() - 0.5) * (base * 0.0002);
-          setLivePrice(prev => prev === 0 ? base : prev + fluctuation);
-        };
-        updateForexPrice();
-        priceIntervalRef.current = setInterval(updateForexPrice, 2000);
+        // محاكاة سعر فوركس حي بناءً على السعر المرجعي لضمان الحركة الدائمة
+        const base = asset.basePrice;
+        setLivePrice(base);
+        priceIntervalRef.current = setInterval(() => {
+          setLivePrice(prev => {
+            const fluctuation = (Math.random() - 0.5) * (base * 0.0001);
+            return prev + fluctuation;
+          });
+        }, 1000);
       }
     };
-    connectWS();
+    connectPriceSource();
     return () => {
       if (wsRef.current) wsRef.current.close();
       if (priceIntervalRef.current) clearInterval(priceIntervalRef.current);
@@ -296,7 +296,6 @@ const AITradingBot = () => {
                 </AnimatePresence>
               </div>
             </div>
-            {/* إعادة عرض الوقت الفعلي */}
             <div className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl w-fit">
               <Clock className="w-3 h-3 text-yellow-500" />
               <span className="text-[10px] font-black tabular-nums text-gray-400 uppercase tracking-widest">
