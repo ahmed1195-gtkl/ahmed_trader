@@ -158,7 +158,7 @@ const AITradingBot = () => {
         return eventDate > oneHourAgo && eventDate < next24Hours;
       }).slice(0, 10);
 
-      setNewsEvents(upcoming.map(e => ({
+      const calendarNews = upcoming.map(e => ({
         id: Math.random().toString(36).substr(2, 9),
         displayTime: new Date(e.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         currency: e.country,
@@ -166,12 +166,30 @@ const AITradingBot = () => {
         impact: e.impact,
         forecast: e.forecast || '-',
         previous: e.previous || '-',
-        actual: e.actual || (new Date(e.date) < now ? 'Processing...' : '-')
-      })));
+        actual: e.actual || (new Date(e.date) < now ? 'Processing...' : '-'),
+        source: 'Economic Calendar',
+        type: 'calendar'
+      }));
 
       // جلب الأخبار العالمية من GNews و Currents
-      const gNews = await fetchGlobalNews(selectedAsset.replace('USDT', ''));
-      setGlobalNews(gNews);
+      const gNewsData = await fetchGlobalNews(selectedAsset.replace('USDT', ''));
+      setGlobalNews(gNewsData);
+
+      const globalNewsFormatted = gNewsData.map(n => ({
+        id: Math.random().toString(36).substr(2, 9),
+        displayTime: new Date(n.publishedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        currency: selectedAsset.replace('USDT', ''),
+        event: n.title,
+        impact: n.sentiment === 'Positive' ? 'High' : n.sentiment === 'Negative' ? 'High' : 'Medium',
+        forecast: 'News',
+        actual: n.sentiment,
+        previous: n.source,
+        source: n.source,
+        type: 'global'
+      }));
+
+      // دمج كل الأخبار في مصفوفة واحدة وترتيبها حسب الوقت
+      setNewsEvents([...calendarNews, ...globalNewsFormatted].sort((a, b) => b.id.localeCompare(a.id)));
     } catch (error) {
       console.error("Error fetching news:", error);
     }
@@ -563,8 +581,8 @@ const AITradingBot = () => {
                       <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.event')}</th>
                       <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.impact')}</th>
                       <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Forecast</th>
-                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Actual</th>
-                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Previous</th>
+                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Actual / Sentiment</th>
+                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Source / Previous</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -572,13 +590,20 @@ const AITradingBot = () => {
                       <tr key={n.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                         <td className="p-6 text-xs font-black tabular-nums">{n.displayTime}</td>
                         <td className="p-6 font-black">{n.currency}</td>
-                        <td className="p-6 text-xs text-gray-300">{n.event}</td>
+                        <td className="p-6 text-xs text-gray-300">
+                          <div className="flex flex-col">
+                            <span>{n.event}</span>
+                            {n.type === 'global' && <span className="text-[8px] text-yellow-500/50 uppercase font-black">Global News</span>}
+                          </div>
+                        </td>
                         <td className="p-6">
                           <span className={`px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest ${n.impact === 'High' ? 'bg-red-500/20 text-red-500' : n.impact === 'Medium' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-green-500/20 text-green-500'}`}>{n.impact}</span>
                         </td>
                         <td className="p-6 text-xs font-black text-gray-400">{n.forecast}</td>
-                        <td className={`p-6 text-xs font-black ${n.actual !== '-' && n.actual !== 'Processing...' ? 'text-yellow-500' : 'text-gray-400'}`}>{n.actual}</td>
-                        <td className="p-6 text-xs font-black text-gray-400">{n.previous}</td>
+                        <td className={`p-6 text-xs font-black ${n.actual === 'Positive' ? 'text-green-500' : n.actual === 'Negative' ? 'text-red-500' : n.actual !== '-' && n.actual !== 'Processing...' ? 'text-yellow-500' : 'text-gray-400'}`}>{n.actual}</td>
+                        <td className="p-6 text-xs font-black text-gray-400">
+                          <span className={n.type === 'global' ? 'text-blue-400' : ''}>{n.previous}</span>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
