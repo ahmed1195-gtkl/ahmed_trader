@@ -151,7 +151,14 @@ const AITradingBot = () => {
         const response = await fetch('https://nfs.faireconomy.media/ff_calendar_thisweek.json');
         const data = await response.json();
         const now = new Date();
-        const upcoming = data.filter(event => new Date(event.date) > now).slice(0, 10);
+        // عرض الأخبار القريبة (قبل ساعة وبعد 24 ساعة) لضمان رؤية النتائج
+        const upcoming = data.filter(event => {
+          const eventDate = new Date(event.date);
+          const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+          const next24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+          return eventDate > oneHourAgo && eventDate < next24Hours;
+        }).slice(0, 10);
+
         setNewsEvents(upcoming.map(e => ({
           id: Math.random().toString(36).substr(2, 9),
           displayTime: new Date(e.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -159,14 +166,16 @@ const AITradingBot = () => {
           event: e.title,
           impact: e.impact,
           forecast: e.forecast || '-',
-          previous: e.previous || '-'
+          previous: e.previous || '-',
+          actual: e.actual || (new Date(e.date) < now ? 'Processing...' : '-')
         })));
       } catch (error) {
         console.error("Error fetching news:", error);
       }
     };
     fetchNews();
-    newsIntervalRef.current = setInterval(fetchNews, 300000);
+    // تحديث كل دقيقة (60000ms) بناءً على طلب المستخدم
+    newsIntervalRef.current = setInterval(fetchNews, 60000);
     return () => clearInterval(newsIntervalRef.current);
   }, []);
 
@@ -540,6 +549,7 @@ const AITradingBot = () => {
                       <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.event')}</th>
                       <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.impact')}</th>
                       <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Forecast</th>
+                      <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Actual</th>
                       <th className="p-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">Previous</th>
                     </tr>
                   </thead>
@@ -553,6 +563,7 @@ const AITradingBot = () => {
                           <span className={`px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest ${n.impact === 'High' ? 'bg-red-500/20 text-red-500' : n.impact === 'Medium' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-green-500/20 text-green-500'}`}>{n.impact}</span>
                         </td>
                         <td className="p-6 text-xs font-black text-gray-400">{n.forecast}</td>
+                        <td className={`p-6 text-xs font-black ${n.actual !== '-' && n.actual !== 'Processing...' ? 'text-yellow-500' : 'text-gray-400'}`}>{n.actual}</td>
                         <td className="p-6 text-xs font-black text-gray-400">{n.previous}</td>
                       </tr>
                     ))}
