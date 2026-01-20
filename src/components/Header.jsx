@@ -22,7 +22,8 @@ import {
   Calculator,
   Activity,
   Info,
-  GraduationCap
+  GraduationCap,
+  Plus
 } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
