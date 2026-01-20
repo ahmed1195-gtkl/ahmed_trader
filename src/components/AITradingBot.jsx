@@ -230,47 +230,50 @@ const AITradingBot = () => {
       priceIntervalRef.current = null;
     }
 
-    if (asset.type === 'crypto') {
-      // ربط الكريبتو بـ Binance WebSocket للزوج المختار حصراً
-      const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${selectedAsset.toLowerCase()}@ticker`);
-      wsRef.current = ws;
-      ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        // التأكد من أن البيانات تخص الزوج المختار حالياً
-        if (data.s === selectedAsset) {
-          setLivePrice(parseFloat(data.c));
-        }
-      };
-    } else {
-      // ربط الفوركس والذهب بـ TradingView Source عبر Finnhub للزوج المختار حصراً
-      const fetchPrice = async () => {
-        try {
-          const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${asset.tvSymbol}&token=sandbox_c8m2v2iad3if8n8b8g00`);
-          const data = await response.json();
-          
-          // التأكد من أن الاستجابة تحتوي على سعر وأن الزوج لم يتغير أثناء الطلب
-          if (data.c && data.c !== 0) {
-            setLivePrice(data.c);
-          } else {
-            // محاكاة دقيقة جداً تعتمد على السعر الأساسي للزوج المختار في حال فشل الـ API
-            setLivePrice(prev => {
-              const base = prev || asset.basePrice;
-              const fluctuation = (Math.random() - 0.5) * (base * 0.00005);
-              return base + fluctuation;
-            });
-          }
-        } catch (e) {
-          setLivePrice(prev => {
-            const base = prev || asset.basePrice;
-            const fluctuation = (Math.random() - 0.5) * (base * 0.00005);
-            return base + fluctuation;
-          });
-        }
-      };
+    // ربط جميع الأصول (كريبتو، فوركس، ذهب) عبر WebSocket حقيقي لضمان بيانات لحظية 100%
+    const socket = new WebSocket('wss://ws.finnhub.io?token=sandbox_c8m2v2iad3if8n8b8g00');
+    wsRef.current = socket;
 
-      fetchPrice();
-      priceIntervalRef.current = setInterval(fetchPrice, 3000);
-    }
+    socket.onopen = () => {
+      // الاشتراك في الزوج المختار حصراً فور فتح الاتصال
+      const symbol = asset.type === 'crypto' ? `BINANCE:${selectedAsset}` : asset.tvSymbol;
+      socket.send(JSON.stringify({ 'type': 'subscribe', 'symbol': symbol }));
+    };
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === 'trade') {
+        // البحث عن السعر في مصفوفة الصفقات الواردة للزوج المختار
+        const trade = data.data.find(t => t.s === (asset.type === 'crypto' ? `BINANCE:${selectedAsset}` : asset.tvSymbol));
+        if (trade) {
+          setLivePrice(trade.p);
+        }
+      }
+    };
+
+    socket.onerror = (error) => {
+      console.error("WebSocket Error:", error);
+    };
+
+    // في حال توقف الـ WebSocket، نستخدم Fetch كاحتياطي لضمان عدم توقف السعر
+    const fallbackFetch = async () => {
+      try {
+        const symbol = asset.type === 'crypto' ? `BINANCE:${selectedAsset}` : asset.tvSymbol;
+        const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=sandbox_c8m2v2iad3if8n8b8g00`);
+        const data = await response.json();
+        if (data.c && data.c !== 0) {
+          setLivePrice(data.c);
+        }
+      } catch (e) {
+        console.error("Fallback Fetch Error:", e);
+      }
+    };
+
+    priceIntervalRef.current = setInterval(() => {
+      if (socket.readyState !== WebSocket.OPEN) {
+        fallbackFetch();
+      }
+    }, 5000);
 
     return () => {
       if (wsRef.current) wsRef.current.close();
