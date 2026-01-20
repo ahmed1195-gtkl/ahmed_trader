@@ -64,11 +64,11 @@ export default function NewsPage() {
 
     // تصفية حسب الفترة
     if (activeTab === 'daily') {
-      const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-      filtered = filtered.filter(n => n.publishedAt > oneDayAgo);
+      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      filtered = filtered.filter(n => n.publishedAt >= startOfDay);
     } else {
       const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      filtered = filtered.filter(n => n.publishedAt > oneWeekAgo);
+      filtered = filtered.filter(n => n.publishedAt >= oneWeekAgo);
     }
 
     // تصفية حسب البحث
@@ -252,7 +252,10 @@ export default function NewsPage() {
                               className="border-b border-white/5 hover:bg-white/[0.02] transition-all group"
                             >
                               <td className="p-8 text-xs font-black tabular-nums text-gray-400 group-hover:text-white transition-colors">
-                                {news.publishedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                <div className="flex flex-col">
+                                  <span>{news.publishedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                  <span className="text-[8px] opacity-50">{news.publishedAt.toLocaleDateString([], { month: 'short', day: 'numeric' })}</span>
+                                </div>
                               </td>
                               <td className="p-8 max-w-md">
                                 <a 

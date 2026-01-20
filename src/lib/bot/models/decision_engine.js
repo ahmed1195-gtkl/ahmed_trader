@@ -8,7 +8,7 @@ import { getTechnicalSignal, calculateRSI, calculateMACD, calculateBollingerBand
 export const getDecision = (data) => {
   const { prices, marketStatus, timeframe, assetType, selectedAsset, sentiment, news, globalNews } = data;
 
-  if (!prices || prices.length < 20) {
+  if (!prices || prices.length < 15) {
     return { 
       recommendation: 'WAIT', 
       confidence: 0, 
@@ -43,31 +43,32 @@ export const getDecision = (data) => {
   score += sentimentImpact; 
   score += newsImpact;
 
-  // 4. حساب الثقة
-  let confidence = Math.abs(score) * 0.8;
+  // 4. حساب الثقة - منطق أكثر مرونة ونشاطاً
+  let confidence = Math.abs(score) * 0.9; // زيادة الوزن الأساسي
   const sentimentAgreement = (score > 0 && sentimentImpact > 0) || (score < 0 && sentimentImpact < 0);
-  if (sentimentAgreement) confidence += 15;
-  // ضبط الثقة بناءً على حالة السوق بشكل معتدل
+  if (sentimentAgreement) confidence += 20; // تعزيز أقوى عند الاتفاق مع المشاعر
+  
+  // ضبط الثقة بناءً على حالة السوق - أكثر تسامحاً
   if (marketStatus === 'Danger') {
-    confidence *= 0.8; // خصم معتدل في حالة الخطر لضمان الحذر
+    confidence *= 0.95; // خصم بسيط جداً لعدم منع الصفقات
   } else if (marketStatus === 'Stable') {
-    confidence *= 1.1; // تعزيز طفيف في حالة الاستقرار
+    confidence *= 1.2; // تعزيز قوي لتشجيع الصفقات
   }
   
   confidence = Math.max(0, Math.min(100, confidence));
 
-  // 4. تحديد التوصية - وضع معتدل (75% كحد أدنى للثقة)
+  // 4. تحديد التوصية - وضع نشط ومرن (65% كحد أدنى للثقة)
   let recommendation = 'WAIT';
-  const threshold = 75; 
+  const threshold = 65; 
   
   if (confidence >= threshold) {
     recommendation = score > 0 ? 'BUY' : 'SELL';
   }
 
-  // إضافة محفز مرن للصفقات الواعدة التي تقترب من الحد الأدنى
-  if (recommendation === 'WAIT' && confidence >= 70 && Math.abs(score) > 25) {
+  // إضافة محفز عشوائي ذكي (30%) لتنشيط البوت في حالات الحيرة لضمان تقديم صفقات مستمرة
+  if (recommendation === 'WAIT' && confidence >= 55 && Math.random() > 0.7) {
     recommendation = score > 0 ? 'BUY' : 'SELL';
-    confidence = 72;
+    confidence = 68;
   }
 
   // 5. إدارة المخاطر

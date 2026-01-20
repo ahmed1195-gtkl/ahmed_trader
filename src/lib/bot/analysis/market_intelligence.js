@@ -67,7 +67,7 @@ export const fetchGlobalNews = async (query = 'crypto') => {
   // 1. CryptoPanic API (مصدر ممتاز ومجاني لأخبار الكريبتو)
   try {
     // استخدام التوكن العام أو توكن مستخدم إذا توفر
-    const res = await fetch(`https://cryptopanic.com/api/v1/posts/?auth_token=6f7e8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f&public=true&currencies=${query}`);
+    const res = await fetch(`https://cryptopanic.com/api/v1/posts/?auth_token=6f7e8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f&public=true&currencies=${query}&filter=important`);
     const data = await res.json();
     if (data.results) {
       data.results.forEach(a => news.push({
