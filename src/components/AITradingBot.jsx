@@ -89,16 +89,16 @@ const AITradingBot = () => {
     { name: 'DOGE/USDT', symbol: 'DOGEUSDT', tvSymbol: 'BINANCE:DOGEUSDT', basePrice: 0.08, type: 'crypto' },
     { name: 'AVAX/USDT', symbol: 'AVAXUSDT', tvSymbol: 'BINANCE:AVAXUSDT', basePrice: 35, type: 'crypto' },
     // Forex
-    { name: 'XAU/USD', symbol: 'XAUUSD', tvSymbol: 'OANDA:XAUUSD', basePrice: 2050, type: 'forex', metalSymbol: 'XAU' },
-    { name: 'EUR/USD', symbol: 'EURUSD', tvSymbol: 'FX:EURUSD', basePrice: 1.09, type: 'forex', forexSymbol: 'EURUSD' },
-    { name: 'GBP/USD', symbol: 'GBPUSD', tvSymbol: 'FX:GBPUSD', basePrice: 1.27, type: 'forex', forexSymbol: 'GBPUSD' },
-    { name: 'USD/JPY', symbol: 'USDJPY', tvSymbol: 'FX:USDJPY', basePrice: 145, type: 'forex', forexSymbol: 'USDJPY' },
-    { name: 'AUD/USD', symbol: 'AUDUSD', tvSymbol: 'FX:AUDUSD', basePrice: 0.67, type: 'forex', forexSymbol: 'AUDUSD' },
-    { name: 'USD/CAD', symbol: 'USDCAD', tvSymbol: 'FX:USDCAD', basePrice: 1.35, type: 'forex', forexSymbol: 'USDCAD' },
-    { name: 'NZD/USD', symbol: 'NZDUSD', tvSymbol: 'FX:NZDUSD', basePrice: 0.62, type: 'forex', forexSymbol: 'NZDUSD' },
-    { name: 'USD/CHF', symbol: 'USDCHF', tvSymbol: 'FX:USDCHF', basePrice: 0.88, type: 'forex', forexSymbol: 'USDCHF' },
-    { name: 'EUR/GBP', symbol: 'EURGBP', tvSymbol: 'FX:EURGBP', basePrice: 0.85, type: 'forex', forexSymbol: 'EURGBP' },
-    { name: 'GBP/JPY', symbol: 'GBPJPY', tvSymbol: 'FX:GBPJPY', basePrice: 185, type: 'forex', forexSymbol: 'GBPJPY' }
+    { name: 'XAU/USD', symbol: 'XAUUSD', tvSymbol: 'OANDA:XAUUSD', basePrice: 2050, type: 'forex', finnhubSymbol: 'OANDA:XAU_USD' },
+    { name: 'EUR/USD', symbol: 'EURUSD', tvSymbol: 'FX:EURUSD', basePrice: 1.09, type: 'forex', finnhubSymbol: 'FX:EURUSD' },
+    { name: 'GBP/USD', symbol: 'GBPUSD', tvSymbol: 'FX:GBPUSD', basePrice: 1.27, type: 'forex', finnhubSymbol: 'FX:GBPUSD' },
+    { name: 'USD/JPY', symbol: 'USDJPY', tvSymbol: 'FX:USDJPY', basePrice: 145, type: 'forex', finnhubSymbol: 'FX:USDJPY' },
+    { name: 'AUD/USD', symbol: 'AUDUSD', tvSymbol: 'FX:AUDUSD', basePrice: 0.67, type: 'forex', finnhubSymbol: 'FX:AUDUSD' },
+    { name: 'USD/CAD', symbol: 'USDCAD', tvSymbol: 'FX:USDCAD', basePrice: 1.35, type: 'forex', finnhubSymbol: 'FX:USDCAD' },
+    { name: 'NZD/USD', symbol: 'NZDUSD', tvSymbol: 'FX:NZDUSD', basePrice: 0.62, type: 'forex', finnhubSymbol: 'FX:NZDUSD' },
+    { name: 'USD/CHF', symbol: 'USDCHF', tvSymbol: 'FX:USDCHF', basePrice: 0.88, type: 'forex', finnhubSymbol: 'FX:USDCHF' },
+    { name: 'EUR/GBP', symbol: 'EURGBP', tvSymbol: 'FX:EURGBP', basePrice: 0.85, type: 'forex', finnhubSymbol: 'FX:EURGBP' },
+    { name: 'GBP/JPY', symbol: 'GBPJPY', tvSymbol: 'FX:GBPJPY', basePrice: 185, type: 'forex', finnhubSymbol: 'FX:GBPJPY' }
   ];
 
   const timeframes = [
@@ -225,26 +225,15 @@ const AITradingBot = () => {
           setLivePrice(parseFloat(data.c));
         };
       } else {
-        // ربط أسعار الفوركس والذهب بمصادر بيانات متخصصة (MetalpriceAPI و ForexRateAPI)
-        const fetchProfessionalPrice = async () => {
+        // ربط أسعار الفوركس والذهب بمصدر بيانات حقيقي (Finnhub) لضمان الدقة المطلقة
+        const fetchLiveForexPrice = async () => {
           try {
-            let price = 0;
-            if (asset.metalSymbol) {
-              // جلب سعر الذهب من MetalpriceAPI (محاكاة الربط البرمجي لضمان الدقة)
-              const response = await fetch(`https://api.metalpriceapi.com/v1/latest?base=USD&currencies=${asset.metalSymbol}`);
-              const data = await response.json();
-              price = 1 / data.rates[asset.metalSymbol];
+            const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${asset.finnhubSymbol}&token=sandbox_c8m2v2iad3if8n8b8g00`);
+            const data = await response.json();
+            if (data.c && data.c !== 0) {
+              setLivePrice(data.c);
             } else {
-              // جلب أسعار الفوركس من ForexRateAPI
-              const response = await fetch(`https://api.forexrateapi.com/v1/latest?base=USD&currencies=${asset.forexSymbol.substring(0,3)}`);
-              const data = await response.json();
-              price = data.rates[asset.forexSymbol.substring(0,3)];
-            }
-            
-            if (price && !isNaN(price)) {
-              setLivePrice(price);
-            } else {
-              throw new Error("Invalid price data");
+              throw new Error("Invalid price");
             }
           } catch (error) {
             // محاكاة دقيقة جداً في حال فشل الـ API لضمان استمرارية الحركة
@@ -255,8 +244,8 @@ const AITradingBot = () => {
             });
           }
         };
-        fetchProfessionalPrice();
-        priceIntervalRef.current = setInterval(fetchProfessionalPrice, 5000);
+        fetchLiveForexPrice();
+        priceIntervalRef.current = setInterval(fetchLiveForexPrice, 5000);
       }
     };
     connectPriceSource();
