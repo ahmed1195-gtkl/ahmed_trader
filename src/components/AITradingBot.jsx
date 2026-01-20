@@ -322,9 +322,14 @@ const AITradingBot = () => {
                   <CardTitle className="text-xl font-black uppercase tracking-tight">{t('aibot.live_analysis')}</CardTitle>
                   <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">{selectedAsset} | {selectedTimeframe}</span>
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
-                  <div className={`w-1.5 h-1.5 rounded-full ${isMarketClosed ? 'bg-red-500' : 'bg-green-500 animate-pulse'}`} />
-                  <span className="text-xs font-black text-yellow-500 tabular-nums">{livePrice.toFixed(selectedAsset.includes('JPY') || selectedAsset.includes('XAU') ? 2 : 5)}</span>
+                <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10">
+                  <div className="flex items-center gap-2 border-r border-white/10 pr-3">
+                    <div className={`w-1.5 h-1.5 rounded-full ${isMarketClosed ? 'bg-red-500' : 'bg-green-500 animate-pulse'}`} />
+                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.price')}</span>
+                  </div>
+                  <span className="text-xs font-black text-yellow-500 tabular-nums">
+                    {livePrice > 0 ? livePrice.toFixed(selectedAsset.includes('JPY') || selectedAsset.includes('XAU') ? 2 : 5) : '---'}
+                  </span>
                 </div>
               </CardHeader>
               <CardContent className="p-8">
