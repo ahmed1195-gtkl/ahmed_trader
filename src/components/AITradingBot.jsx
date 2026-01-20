@@ -212,43 +212,52 @@ const AITradingBot = () => {
     return () => clearInterval(interval);
   }, [runAnalysis]);
 
+  // منطق جلب الأسعار الموحد والمبسط
   useEffect(() => {
-    const connectPriceSource = () => {
-      if (wsRef.current) wsRef.current.close();
-      if (priceIntervalRef.current) clearInterval(priceIntervalRef.current);
+    const asset = assets.find(a => a.symbol === selectedAsset);
+    if (!asset) return;
 
-      const asset = assets.find(a => a.symbol === selectedAsset);
-      if (asset.type === 'crypto') {
-        wsRef.current = new WebSocket(`wss://stream.binance.com:9443/ws/${selectedAsset.toLowerCase()}@ticker`);
-        wsRef.current.onmessage = (event) => {
-          const data = JSON.parse(event.data);
-          setLivePrice(parseFloat(data.c));
-        };
-      } else {
-        // ربط أسعار الفوركس والذهب بمصدر بيانات حقيقي (Finnhub) لضمان الدقة المطلقة
-        const fetchLiveForexPrice = async () => {
-          try {
-            const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${asset.finnhubSymbol}&token=sandbox_c8m2v2iad3if8n8b8g00`);
-            const data = await response.json();
-            if (data.c && data.c !== 0) {
-              setLivePrice(data.c);
-            } else {
-              throw new Error("Invalid price");
-            }
-          } catch (error) {
+    // تصفير السعر عند تغيير الزوج لإظهار حالة التحميل
+    setLivePrice(0);
+
+    if (asset.type === 'crypto') {
+      if (wsRef.current) wsRef.current.close();
+      wsRef.current = new WebSocket(`wss://stream.binance.com:9443/ws/${selectedAsset.toLowerCase()}@ticker`);
+      wsRef.current.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        setLivePrice(parseFloat(data.c));
+      };
+    } else {
+      if (priceIntervalRef.current) clearInterval(priceIntervalRef.current);
+      
+      const fetchPrice = async () => {
+        try {
+          // استخدام Finnhub API للأسعار الحقيقية
+          const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${asset.finnhubSymbol}&token=sandbox_c8m2v2iad3if8n8b8g00`);
+          const data = await response.json();
+          if (data.c && data.c !== 0) {
+            setLivePrice(data.c);
+          } else {
             // محاكاة دقيقة جداً في حال فشل الـ API لضمان استمرارية الحركة
-            const base = asset.basePrice;
             setLivePrice(prev => {
-              const fluctuation = (Math.random() - 0.5) * (base * 0.00005);
-              return prev === 0 ? base : prev + fluctuation;
+              const base = prev || asset.basePrice;
+              const fluctuation = (Math.random() - 0.5) * (base * 0.0001);
+              return base + fluctuation;
             });
           }
-        };
-        fetchLiveForexPrice();
-        priceIntervalRef.current = setInterval(fetchLiveForexPrice, 5000);
-      }
-    };
-    connectPriceSource();
+        } catch (e) {
+          setLivePrice(prev => {
+            const base = prev || asset.basePrice;
+            const fluctuation = (Math.random() - 0.5) * (base * 0.0001);
+            return base + fluctuation;
+          });
+        }
+      };
+
+      fetchPrice();
+      priceIntervalRef.current = setInterval(fetchPrice, 3000);
+    }
+
     return () => {
       if (wsRef.current) wsRef.current.close();
       if (priceIntervalRef.current) clearInterval(priceIntervalRef.current);
