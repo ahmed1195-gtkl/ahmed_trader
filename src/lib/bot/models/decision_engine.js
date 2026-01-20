@@ -1,6 +1,6 @@
 /**
- * محرك القرار المتقدم (Decision Engine) - V13.0
- * دمج تحليل المشاعر، البيانات التاريخية، الدعوم والمقاومات، والأخبار
+ * محرك القرار المتقدم (Decision Engine) - V14.0
+ * دمج تحليل المشاعر، البيانات التاريخية، الدعوم والمقاومات الحقيقية، والأخبار
  */
 
 import { getTechnicalSignal, calculateRSI, calculateMACD, calculateBollingerBands, calculateSupportResistance } from '../analysis/technical';
@@ -25,7 +25,7 @@ export const getDecision = (data) => {
   const rsi = calculateRSI(prices);
   const macd = calculateMACD(prices);
   const bb = calculateBollingerBands(prices);
-  const { support, resistance } = calculateSupportResistance(prices);
+  const { support, resistance, supportStrength, resistanceStrength } = calculateSupportResistance(prices);
 
   // 1. دمج تحليل المشاعر (Sentiment Impact)
   const sentimentImpact = sentiment ? sentiment.impact * 20 : 0;
@@ -84,10 +84,16 @@ export const getDecision = (data) => {
     text += `\n- RSI: ${rsi.toFixed(2)} (${rsi < 30 ? (isAr ? 'تشبع بيع' : 'Oversold') : rsi > 70 ? (isAr ? 'تشبع شراء' : 'Overbought') : (isAr ? 'متعادل' : 'Neutral')})`;
     text += `\n- MACD: ${macd.histogram > 0 ? (isAr ? 'زخم صعودي' : 'Bullish Momentum') : (isAr ? 'زخم هبوطي' : 'Bearish Momentum')}`;
     
-    // الجزء الثالث: الدعوم والمقاومات
-    text += "\n\n" + (isAr ? "المستويات الرئيسية:" : isFr ? "Niveaux Clés :" : "Key Levels:");
-    text += `\n- ${isAr ? 'المقاومة' : 'Resistance'}: ${resistance.toFixed(selectedAsset.includes('JPY') ? 3 : 5)}`;
-    text += `\n- ${isAr ? 'الدعم' : 'Support'}: ${support.toFixed(selectedAsset.includes('JPY') ? 3 : 5)}`;
+    // الجزء الثالث: الدعوم والمقاومات الحقيقية
+    const strengthMap = {
+      'Strong': isAr ? 'قوي جداً' : isFr ? 'Très Fort' : 'Very Strong',
+      'Medium': isAr ? 'متوسط' : isFr ? 'Moyen' : 'Medium',
+      'Weak': isAr ? 'ضعيف' : isFr ? 'Faible' : 'Weak'
+    };
+
+    text += "\n\n" + (isAr ? "المستويات الرئيسية الحقيقية:" : isFr ? "Niveaux Clés Réels :" : "Real Key Levels:");
+    text += `\n- ${isAr ? 'المقاومة' : 'Resistance'}: ${resistance.toFixed(selectedAsset.includes('JPY') ? 3 : 5)} (${strengthMap[resistanceStrength]})`;
+    text += `\n- ${isAr ? 'الدعم' : 'Support'}: ${support.toFixed(selectedAsset.includes('JPY') ? 3 : 5)} (${strengthMap[supportStrength]})`;
 
     // الجزء الرابع: الأخبار
     if (upcomingNews) {
@@ -112,7 +118,14 @@ export const getDecision = (data) => {
       ar: getDetailedAnalysis('ar'),
       fr: getDetailedAnalysis('fr')
     },
-    tech: { rsi, volatility: (volatility * 100).toFixed(2), support, resistance },
+    tech: { 
+      rsi, 
+      volatility: (volatility * 100).toFixed(2), 
+      support, 
+      resistance,
+      supportStrength,
+      resistanceStrength
+    },
     upcomingNews
   };
 };

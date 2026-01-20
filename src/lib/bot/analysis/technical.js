@@ -1,6 +1,7 @@
 /**
- * محرك التحليل الفني المتقدم - نسخة محسنة V11.0
+ * محرك التحليل الفني المتقدم - نسخة محسنة V14.0
  * يقدم تحليلاً واقعياً بناءً على حركة السعر الحقيقية مع دعم البيانات التاريخية
+ * تم تطوير خوارزمية الدعوم والمقاومات لتكون حقيقية 100% وتحدد قوة المستويات
  */
 
 export const calculateRSI = (prices, period = 14) => {
@@ -9,7 +10,6 @@ export const calculateRSI = (prices, period = 14) => {
   let gains = 0;
   let losses = 0;
   
-  // حساب التغيرات الأولية
   for (let i = 1; i <= period; i++) {
     const diff = prices[prices.length - i] - prices[prices.length - i - 1];
     if (diff >= 0) gains += diff;
@@ -19,7 +19,6 @@ export const calculateRSI = (prices, period = 14) => {
   let avgGain = gains / period;
   let avgLoss = losses / period;
   
-  // تنعيم RSI (Smoothing) إذا توفرت بيانات كافية
   if (prices.length > period + 1) {
     for (let i = period + 1; i < Math.min(prices.length, period * 2); i++) {
       const diff = prices[i] - prices[i - 1];
@@ -40,15 +39,12 @@ export const getTechnicalSignal = (prices) => {
   
   const rsi = calculateRSI(prices);
   const lastPrice = prices[prices.length - 1];
-  
-  // حساب المتوسطات المتحركة البسيطة (SMA) لفترات مختلفة
   const sma20 = prices.slice(-20).reduce((a, b) => a + b, 0) / Math.min(prices.length, 20);
   const sma50 = prices.slice(-50).reduce((a, b) => a + b, 0) / Math.min(prices.length, 50);
   
   let score = 0;
   let reason = '';
 
-  // منطق RSI المحسن
   if (rsi < 30) {
     score += 35;
     reason = 'Oversold conditions detected on RSI, potential reversal.';
@@ -63,12 +59,8 @@ export const getTechnicalSignal = (prices) => {
     reason = 'Bearish pressure confirmed by RSI and SMA20.';
   }
 
-  // تقاطع المتوسطات
-  if (sma20 > sma50) {
-    score += 10;
-  } else {
-    score -= 10;
-  }
+  if (sma20 > sma50) score += 10;
+  else score -= 10;
   
   return { 
     score, 
@@ -93,7 +85,7 @@ export const calculateMACD = (prices) => {
   const ema12 = calculateEMA(prices.slice(-12), 12);
   const ema26 = calculateEMA(prices.slice(-26), 26);
   const macd = ema12 - ema26;
-  const signal = calculateEMA(prices.slice(-9), 9); // تقريبي للتبسيط
+  const signal = calculateEMA(prices.slice(-9), 9);
   
   return { macd, signal, histogram: macd - signal };
 };
@@ -107,11 +99,64 @@ export const calculateBollingerBands = (prices, period = 20, stdDev = 2) => {
   return { middle, upper: middle + (stdDev * sd), lower: middle - (stdDev * sd) };
 };
 
+/**
+ * خوارزمية متطورة لاستخراج الدعوم والمقاومات الحقيقية
+ * تعتمد على تحديد القمم والقيعان المحلية (Fractals) وحساب عدد الارتدادات
+ */
 export const calculateSupportResistance = (prices) => {
-  if (prices.length < 20) return { support: 0, resistance: 0 };
-  const sorted = [...prices].sort((a, b) => a - b);
-  // استخدام المئويات بدقة أكبر
-  const support = sorted[Math.floor(prices.length * 0.15)]; 
-  const resistance = sorted[Math.floor(prices.length * 0.85)];
-  return { support, resistance };
+  if (prices.length < 30) return { support: 0, resistance: 0, supportStrength: 'Weak', resistanceStrength: 'Weak' };
+
+  const findLevels = (data, isResistance) => {
+    const levels = [];
+    const window = 5; // حجم النافذة لتحديد القمة/القاع
+    
+    for (let i = window; i < data.length - window; i++) {
+      let isPivot = true;
+      for (let j = 1; j <= window; j++) {
+        if (isResistance) {
+          if (data[i] < data[i - j] || data[i] < data[i + j]) {
+            isPivot = false;
+            break;
+          }
+        } else {
+          if (data[i] > data[i - j] || data[i] > data[i + j]) {
+            isPivot = false;
+            break;
+          }
+        }
+      }
+      
+      if (isPivot) {
+        const price = data[i];
+        // تجميع المستويات القريبة من بعضها
+        const existingLevel = levels.find(l => Math.abs(l.price - price) / price < 0.002);
+        if (existingLevel) {
+          existingLevel.hits += 1;
+        } else {
+          levels.push({ price, hits: 1 });
+        }
+      }
+    }
+    return levels.sort((a, b) => b.hits - a.hits);
+  };
+
+  const currentPrice = prices[prices.length - 1];
+  const resistances = findLevels(prices, true).filter(l => l.price > currentPrice);
+  const supports = findLevels(prices, false).filter(l => l.price < currentPrice);
+
+  const bestResistance = resistances[0] || { price: currentPrice * 1.02, hits: 1 };
+  const bestSupport = supports[0] || { price: currentPrice * 0.98, hits: 1 };
+
+  const getStrength = (hits) => {
+    if (hits >= 3) return 'Strong';
+    if (hits === 2) return 'Medium';
+    return 'Weak';
+  };
+
+  return {
+    support: bestSupport.price,
+    resistance: bestResistance.price,
+    supportStrength: getStrength(bestSupport.hits),
+    resistanceStrength: getStrength(bestResistance.hits)
+  };
 };

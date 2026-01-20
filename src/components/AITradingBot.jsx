@@ -432,11 +432,17 @@ const AITradingBot = () => {
                               </div>
                               <div>
                                 <p className="text-[8px] text-gray-500 uppercase font-black mb-1">{t('aibot.support')}</p>
-                                <p className="text-xs font-black text-green-500">{analysis.tech.support.toFixed(selectedAsset.includes('JPY') ? 3 : 5)}</p>
+                                <p className="text-xs font-black text-green-500">
+                                  {analysis.tech.support.toFixed(selectedAsset.includes('JPY') ? 3 : 5)}
+                                  <span className="ml-1 text-[8px] opacity-50">({analysis.tech.supportStrength})</span>
+                                </p>
                               </div>
                               <div>
                                 <p className="text-[8px] text-gray-500 uppercase font-black mb-1">{t('aibot.resistance')}</p>
-                                <p className="text-xs font-black text-red-500">{analysis.tech.resistance.toFixed(selectedAsset.includes('JPY') ? 3 : 5)}</p>
+                                <p className="text-xs font-black text-red-500">
+                                  {analysis.tech.resistance.toFixed(selectedAsset.includes('JPY') ? 3 : 5)}
+                                  <span className="ml-1 text-[8px] opacity-50">({analysis.tech.resistanceStrength})</span>
+                                </p>
                               </div>
                             </div>
                           </div>
