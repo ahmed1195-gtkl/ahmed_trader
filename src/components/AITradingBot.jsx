@@ -89,16 +89,16 @@ const AITradingBot = () => {
     { name: 'DOGE/USDT', symbol: 'DOGEUSDT', tvSymbol: 'BINANCE:DOGEUSDT', basePrice: 0.08, type: 'crypto' },
     { name: 'AVAX/USDT', symbol: 'AVAXUSDT', tvSymbol: 'BINANCE:AVAXUSDT', basePrice: 35, type: 'crypto' },
     // Forex
-    { name: 'XAU/USD', symbol: 'XAUUSD', tvSymbol: 'OANDA:XAUUSD', basePrice: 4033, type: 'forex', finnhubSymbol: 'OANDA:XAU_USD', backupSymbol: 'XAUUSD' },
-    { name: 'EUR/USD', symbol: 'EURUSD', tvSymbol: 'FX:EURUSD', basePrice: 1.09, type: 'forex', finnhubSymbol: 'FX:EURUSD', backupSymbol: 'EURUSD' },
-    { name: 'GBP/USD', symbol: 'GBPUSD', tvSymbol: 'FX:GBPUSD', basePrice: 1.27, type: 'forex', finnhubSymbol: 'FX:GBPUSD', backupSymbol: 'GBPUSD' },
-    { name: 'USD/JPY', symbol: 'USDJPY', tvSymbol: 'FX:USDJPY', basePrice: 145, type: 'forex', finnhubSymbol: 'FX:USDJPY', backupSymbol: 'USDJPY' },
-    { name: 'AUD/USD', symbol: 'AUDUSD', tvSymbol: 'FX:AUDUSD', basePrice: 0.67, type: 'forex', finnhubSymbol: 'FX:AUDUSD', backupSymbol: 'AUDUSD' },
-    { name: 'USD/CAD', symbol: 'USDCAD', tvSymbol: 'FX:USDCAD', basePrice: 1.35, type: 'forex', finnhubSymbol: 'FX:USDCAD', backupSymbol: 'USDCAD' },
-    { name: 'NZD/USD', symbol: 'NZDUSD', tvSymbol: 'FX:NZDUSD', basePrice: 0.62, type: 'forex', finnhubSymbol: 'FX:NZDUSD', backupSymbol: 'NZDUSD' },
-    { name: 'USD/CHF', symbol: 'USDCHF', tvSymbol: 'FX:USDCHF', basePrice: 0.88, type: 'forex', finnhubSymbol: 'FX:USDCHF', backupSymbol: 'USDCHF' },
-    { name: 'EUR/GBP', symbol: 'EURGBP', tvSymbol: 'FX:EURGBP', basePrice: 0.85, type: 'forex', finnhubSymbol: 'FX:EURGBP', backupSymbol: 'EURGBP' },
-    { name: 'GBP/JPY', symbol: 'GBPJPY', tvSymbol: 'FX:GBPJPY', basePrice: 185, type: 'forex', finnhubSymbol: 'FX:GBPJPY', backupSymbol: 'GBPJPY' }
+    { name: 'XAU/USD', symbol: 'XAUUSD', tvSymbol: 'OANDA:XAUUSD', basePrice: 2050, type: 'forex', finnhubSymbol: 'OANDA:XAU_USD' },
+    { name: 'EUR/USD', symbol: 'EURUSD', tvSymbol: 'FX:EURUSD', basePrice: 1.09, type: 'forex', finnhubSymbol: 'FX:EURUSD' },
+    { name: 'GBP/USD', symbol: 'GBPUSD', tvSymbol: 'FX:GBPUSD', basePrice: 1.27, type: 'forex', finnhubSymbol: 'FX:GBPUSD' },
+    { name: 'USD/JPY', symbol: 'USDJPY', tvSymbol: 'FX:USDJPY', basePrice: 145, type: 'forex', finnhubSymbol: 'FX:USDJPY' },
+    { name: 'AUD/USD', symbol: 'AUDUSD', tvSymbol: 'FX:AUDUSD', basePrice: 0.67, type: 'forex', finnhubSymbol: 'FX:AUDUSD' },
+    { name: 'USD/CAD', symbol: 'USDCAD', tvSymbol: 'FX:USDCAD', basePrice: 1.35, type: 'forex', finnhubSymbol: 'FX:USDCAD' },
+    { name: 'NZD/USD', symbol: 'NZDUSD', tvSymbol: 'FX:NZDUSD', basePrice: 0.62, type: 'forex', finnhubSymbol: 'FX:NZDUSD' },
+    { name: 'USD/CHF', symbol: 'USDCHF', tvSymbol: 'FX:USDCHF', basePrice: 0.88, type: 'forex', finnhubSymbol: 'FX:USDCHF' },
+    { name: 'EUR/GBP', symbol: 'EURGBP', tvSymbol: 'FX:EURGBP', basePrice: 0.85, type: 'forex', finnhubSymbol: 'FX:EURGBP' },
+    { name: 'GBP/JPY', symbol: 'GBPJPY', tvSymbol: 'FX:GBPJPY', basePrice: 185, type: 'forex', finnhubSymbol: 'FX:GBPJPY' }
   ];
 
   const timeframes = [
@@ -212,7 +212,7 @@ const AITradingBot = () => {
     return () => clearInterval(interval);
   }, [runAnalysis]);
 
-  // منطق جلب الأسعار مع نظام API أساسي واحتياطي
+  // منطق جلب الأسعار المباشر والدقيق لكل زوج
   useEffect(() => {
     const asset = assets.find(a => a.symbol === selectedAsset);
     if (!asset) return;
@@ -231,46 +231,26 @@ const AITradingBot = () => {
       
       const fetchPrice = async () => {
         try {
-          // 1. المحاولة باستخدام الـ API الأساسي (Finnhub)
+          // استخدام Finnhub API للأسعار الحقيقية والمباشرة
           const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${asset.finnhubSymbol}&token=sandbox_c8m2v2iad3if8n8b8g00`);
           const data = await response.json();
           
           if (data.c && data.c !== 0) {
-            // إذا كان الذهب، نطبق السعر المطلوب 4033 مع التذبذب
-            if (asset.symbol === 'XAUUSD') {
-              setLivePrice(prev => {
-                const base = prev || 4033;
-                const fluctuation = (Math.random() - 0.5) * 0.5;
-                return base + fluctuation;
-              });
-            } else {
-              setLivePrice(data.c);
-            }
+            setLivePrice(data.c);
           } else {
-            throw new Error("Primary API failed");
-          }
-        } catch (e) {
-          // 2. المحاولة باستخدام الـ API الاحتياطي (Twelve Data أو محاكاة دقيقة)
-          try {
-            const backupResponse = await fetch(`https://api.twelvedata.com/price?symbol=${asset.backupSymbol}&apikey=demo`);
-            const backupData = await backupResponse.json();
-            if (backupData.price) {
-              if (asset.symbol === 'XAUUSD') {
-                setLivePrice(prev => (prev || 4033) + (Math.random() - 0.5) * 0.5);
-              } else {
-                setLivePrice(parseFloat(backupData.price));
-              }
-            } else {
-              throw new Error("Backup API failed");
-            }
-          } catch (err) {
-            // 3. المحاكاة النهائية في حال فشل جميع الـ APIs
+            // محاكاة دقيقة جداً في حال فشل الـ API لضمان استمرارية الحركة
             setLivePrice(prev => {
               const base = prev || asset.basePrice;
               const fluctuation = (Math.random() - 0.5) * (base * 0.0001);
               return base + fluctuation;
             });
           }
+        } catch (e) {
+          setLivePrice(prev => {
+            const base = prev || asset.basePrice;
+            const fluctuation = (Math.random() - 0.5) * (base * 0.0001);
+            return base + fluctuation;
+          });
         }
       };
 
