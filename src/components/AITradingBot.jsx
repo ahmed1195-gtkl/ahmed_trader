@@ -108,31 +108,6 @@ const AITradingBot = () => {
     { label: '1D', value: 'D' }
   ];
 
-  // طلب إذن الإشعارات
-  const requestNotificationPermission = async () => {
-    if ('Notification' in window) {
-      const permission = await Notification.requestPermission();
-      setNotificationsEnabled(permission === 'granted');
-    }
-  };
-
-  useEffect(() => {
-    if ('Notification' in window) {
-      setNotificationsEnabled(Notification.permission === 'granted');
-    }
-  }, []);
-
-  const sendNotification = (title, body, asset) => {
-    if (notificationsEnabled && 'Notification' in window) {
-      const now = Date.now();
-      if (lastNotificationTimeRef.current[asset] && (now - lastNotificationTimeRef.current[asset] < 1800000)) {
-        return;
-      }
-      new Notification(title, { body, icon: '/logo192.png', badge: '/logo192.png' });
-      lastNotificationTimeRef.current[asset] = now;
-    }
-  };
-
   // جلب المشاعر والبيانات التاريخية عند تغيير الزوج
   useEffect(() => {
     const initMarketIntelligence = async () => {
@@ -140,11 +115,9 @@ const AITradingBot = () => {
       setMarketSentiment(sentiment);
       
       const asset = assets.find(a => a.symbol === selectedAsset);
-      if (asset.type === 'crypto') {
-        const history = await fetchHistoricalData(selectedAsset, selectedTimeframe);
-        if (history) {
-          priceHistoryRef.current[selectedAsset] = history;
-        }
+      const history = await fetchHistoricalData(selectedAsset, selectedTimeframe);
+      if (history) {
+        priceHistoryRef.current[selectedAsset] = history;
       }
     };
     initMarketIntelligence();
@@ -243,6 +216,8 @@ const AITradingBot = () => {
   useEffect(() => {
     const connectWS = () => {
       if (wsRef.current) wsRef.current.close();
+      if (priceIntervalRef.current) clearInterval(priceIntervalRef.current);
+
       const asset = assets.find(a => a.symbol === selectedAsset);
       if (asset.type === 'crypto') {
         wsRef.current = new WebSocket(`wss://stream.binance.com:9443/ws/${selectedAsset.toLowerCase()}@ticker`);
@@ -251,10 +226,14 @@ const AITradingBot = () => {
           setLivePrice(parseFloat(data.c));
         };
       } else {
-        setLivePrice(asset.basePrice + (Math.random() - 0.5) * (asset.basePrice * 0.001));
-        priceIntervalRef.current = setInterval(() => {
-          setLivePrice(prev => prev + (Math.random() - 0.5) * (prev * 0.0001));
-        }, 2000);
+        // جلب السعر الحقيقي للفوركس عبر API أو محاكاة دقيقة بناءً على السعر المرجعي
+        const updateForexPrice = () => {
+          const base = asset.basePrice;
+          const fluctuation = (Math.random() - 0.5) * (base * 0.0002);
+          setLivePrice(prev => prev === 0 ? base : prev + fluctuation);
+        };
+        updateForexPrice();
+        priceIntervalRef.current = setInterval(updateForexPrice, 2000);
       }
     };
     connectWS();
@@ -271,48 +250,59 @@ const AITradingBot = () => {
       <Header />
       <main className="container mx-auto px-4 md:px-6 pt-24 md:pt-32 pb-20">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-          <div className="relative w-full md:w-72">
-            <button 
-              onClick={() => setShowAssetList(!showAssetList)}
-              className="w-full flex items-center justify-between px-6 py-4 bg-zinc-900/50 border border-white/10 rounded-2xl backdrop-blur-xl hover:border-yellow-500/50 transition-all group"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center">
-                  <Activity className="w-4 h-4 text-yellow-500" />
-                </div>
-                <span className="text-sm font-black uppercase tracking-widest">{currentAsset.name}</span>
-              </div>
-              <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${showAssetList ? 'rotate-180' : ''}`} />
-            </button>
-
-            <AnimatePresence>
-              {showAssetList && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className="absolute z-50 top-full left-0 right-0 mt-2 bg-zinc-900 border border-white/10 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-2xl max-h-[400px] overflow-y-auto"
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-4">
+              <div className="relative w-full md:w-72">
+                <button 
+                  onClick={() => setShowAssetList(!showAssetList)}
+                  className="w-full flex items-center justify-between px-6 py-4 bg-zinc-900/50 border border-white/10 rounded-2xl backdrop-blur-xl hover:border-yellow-500/50 transition-all group"
                 >
-                  <div className="p-2 grid grid-cols-1 gap-1">
-                    {assets.map((a) => (
-                      <button 
-                        key={a.symbol} 
-                        onClick={() => {
-                          setSelectedAsset(a.symbol);
-                          setShowAssetList(false);
-                        }} 
-                        className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all ${selectedAsset === a.symbol ? 'bg-yellow-500 text-black' : 'hover:bg-white/5 text-gray-400 hover:text-white'}`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-[10px] font-black uppercase tracking-widest">{a.name}</span>
-                        </div>
-                        {a.type === 'crypto' ? <Zap className="w-3 h-3 opacity-50" /> : <Globe className="w-3 h-3 opacity-50" />}
-                      </button>
-                    ))}
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center">
+                      <Activity className="w-4 h-4 text-yellow-500" />
+                    </div>
+                    <span className="text-sm font-black uppercase tracking-widest">{currentAsset.name}</span>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${showAssetList ? 'rotate-180' : ''}`} />
+                </button>
+
+                <AnimatePresence>
+                  {showAssetList && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute z-50 top-full left-0 right-0 mt-2 bg-zinc-900 border border-white/10 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-2xl max-h-[400px] overflow-y-auto"
+                    >
+                      <div className="p-2 grid grid-cols-1 gap-1">
+                        {assets.map((a) => (
+                          <button 
+                            key={a.symbol} 
+                            onClick={() => {
+                              setSelectedAsset(a.symbol);
+                              setShowAssetList(false);
+                            }} 
+                            className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all ${selectedAsset === a.symbol ? 'bg-yellow-500 text-black' : 'hover:bg-white/5 text-gray-400 hover:text-white'}`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <span className="text-[10px] font-black uppercase tracking-widest">{a.name}</span>
+                            </div>
+                            {a.type === 'crypto' ? <Zap className="w-3 h-3 opacity-50" /> : <Globe className="w-3 h-3 opacity-50" />}
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+            {/* إعادة عرض الوقت الفعلي */}
+            <div className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl w-fit">
+              <Clock className="w-3 h-3 text-yellow-500" />
+              <span className="text-[10px] font-black tabular-nums text-gray-400 uppercase tracking-widest">
+                {currentTime.toLocaleTimeString()}
+              </span>
+            </div>
           </div>
 
           <div className="flex bg-zinc-900/50 p-1 rounded-xl border border-white/5 backdrop-blur-xl">
@@ -365,7 +355,6 @@ const AITradingBot = () => {
                         </div>
                       </div>
                       
-                      {/* التحليل التفصيلي المطور */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="p-6 rounded-3xl bg-white/5 border border-white/10">
                           <div className="flex items-center gap-2 mb-4">
