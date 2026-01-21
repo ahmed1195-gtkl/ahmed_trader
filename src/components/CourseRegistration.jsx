@@ -77,13 +77,13 @@ const CourseRegistration = () => {
     params.append('activation_code', code);
 
     try {
-      // تم استخدام الرابط المزود مع التأكد من أنه ينتهي بـ /exec للعمل في البيئة الحقيقية
-      const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbx11hyzsi0QHuOoJke4ToGrlfBpsI0Em4Xy-6ngSBBU/exec';
+      // تحديث الرابط إلى الرابط الجديد المزود من قبل المستخدم
+      const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwoBwLPAHdMGr7Ls6VPaImIuCRGFyAh0suhlbsqGQQFefl4We8vtCnG7tMjVCTY7jVZmg/exec';
       
-      // إرسال البيانات في وضع no-cors لضمان عدم حدوث مشاكل مع المتصفح
+      // تغيير وضع الإرسال إلى cors لضمان معالجة أفضل للاستجابة
       await fetch(GOOGLE_SHEET_URL, {
         method: 'POST',
-        mode: 'no-cors',
+        mode: 'cors',
         cache: 'no-cache',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
