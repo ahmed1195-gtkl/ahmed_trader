@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
+import { countries } from '../data/countries';
 import { 
   User, 
   Globe, 
@@ -16,7 +17,8 @@ import {
   Send,
   Loader2,
   ChevronRight,
-  ChevronLeft
+  ChevronLeft,
+  AlertCircle
 } from 'lucide-react';
 
 const CourseRegistration = () => {
@@ -28,7 +30,8 @@ const CourseRegistration = () => {
   
   const [formData, setFormData] = useState({
     name: '',
-    country: '',
+    country: 'Egypt',
+    countryCode: '+20',
     number: '',
     deposit: '',
     broker: '',
@@ -36,6 +39,15 @@ const CourseRegistration = () => {
     learning_goal: '',
     level: 'beginner'
   });
+
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const selectedCountry = countries.find(c => c.name === formData.country);
+    if (selectedCountry) {
+      setFormData(prev => ({ ...prev, countryCode: selectedCountry.phone }));
+    }
+  }, [formData.country]);
 
   const generateCode = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -56,7 +68,7 @@ const CourseRegistration = () => {
     // تجهيز البيانات للإرسال إلى Google Sheets حسب الترتيب المطلوب
     const dataToSubmit = {
       name: formData.name,
-      number: formData.number,
+      number: `${formData.countryCode} ${formData.number}`,
       deposit: formData.deposit,
       country: formData.country,
       broker: formData.broker,
@@ -67,20 +79,26 @@ const CourseRegistration = () => {
     };
 
     try {
+      setError(null);
       const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbx11hyzsi0QHuOoJke4ToGrlfBpsI0Em4Xy-6ngSBBU/exec';
       
-      const response = await fetch(GOOGLE_SHEET_URL, {
+      // ملاحظة: في وضع no-cors لا يمكننا قراءة الاستجابة، ولكننا سنفترض النجاح إذا لم يحدث خطأ في الشبكة
+      await fetch(GOOGLE_SHEET_URL, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToSubmit)
       });
 
-      setSubmitted(true);
-    } catch (error) {
-      console.error("Error submitting to Google Sheets:", error);
-      setSubmitted(true);
-    } finally {
+      // تأخير بسيط لمحاكاة معالجة البيانات وضمان وصولها
+      setTimeout(() => {
+        setSubmitted(true);
+        setLoading(false);
+      }, 1500);
+      
+    } catch (err) {
+      console.error("Error submitting to Google Sheets:", err);
+      setError(isAr ? 'حدث خطأ أثناء الإرسال، يرجى المحاولة مرة أخرى.' : 'Error submitting, please try again.');
       setLoading(false);
     }
   };
@@ -144,8 +162,18 @@ const CourseRegistration = () => {
 
             <CardContent className="p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
-                <AnimatePresence mode="wait">
-                  {step === 1 && (
+	                <AnimatePresence mode="wait">
+	                  {error && (
+	                    <motion.div 
+	                      initial={{ opacity: 0, y: -10 }}
+	                      animate={{ opacity: 1, y: 0 }}
+	                      className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-center gap-3 text-red-500 text-xs font-bold mb-6"
+	                    >
+	                      <AlertCircle className="w-4 h-4" />
+	                      {error}
+	                    </motion.div>
+	                  )}
+	                  {step === 1 && (
                     <motion.div 
                       key="step1"
                       initial={{ opacity: 0, x: isAr ? 20 : -20 }}
@@ -168,36 +196,50 @@ const CourseRegistration = () => {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'البلد' : 'Country'}</label>
-                          <div className="relative">
-                            <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50" />
-                            <input 
-                              required
-                              type="text"
-                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
-                              placeholder={isAr ? 'بلد الإقامة' : 'Country of residence'}
-                              value={formData.country}
-                              onChange={(e) => setFormData({...formData, country: e.target.value})}
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'رقم الهاتف' : 'Phone Number'}</label>
-                          <div className="relative">
-                            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50" />
-	                            <input 
+	                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+	                        <div className="space-y-2">
+	                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'البلد' : 'Country'}</label>
+	                          <div className="relative">
+	                            <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50 z-10" />
+	                            <select 
 	                              required
-	                              type="tel"
-	                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
-	                              placeholder="+123..."
-	                              value={formData.number}
-	                              onChange={(e) => setFormData({...formData, number: e.target.value})}
-	                            />
-                          </div>
-                        </div>
-                      </div>
+	                              className="w-full bg-zinc-900 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all appearance-none cursor-pointer"
+	                              value={formData.country}
+	                              onChange={(e) => setFormData({...formData, country: e.target.value})}
+	                            >
+	                              {countries.map((c) => (
+	                                <option key={c.code} value={c.name} className="bg-zinc-900 text-white">
+	                                  {c.name}
+	                                </option>
+	                              ))}
+	                            </select>
+	                          </div>
+	                        </div>
+	                        <div className="space-y-2">
+	                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'رقم الهاتف' : 'Phone Number'}</label>
+	                          <div className="flex gap-2">
+	                            <div className="relative w-24 shrink-0">
+	                              <input 
+	                                readOnly
+	                                type="text"
+	                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-3 text-center text-yellow-500 font-bold outline-none"
+	                                value={formData.countryCode}
+	                              />
+	                            </div>
+	                            <div className="relative flex-1">
+	                              <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50" />
+	                              <input 
+	                                required
+	                                type="tel"
+	                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
+	                                placeholder="123456789"
+	                                value={formData.number}
+	                                onChange={(e) => setFormData({...formData, number: e.target.value.replace(/\D/g, '')})}
+	                              />
+	                            </div>
+	                          </div>
+	                        </div>
+	                      </div>
                     </motion.div>
                   )}
 
