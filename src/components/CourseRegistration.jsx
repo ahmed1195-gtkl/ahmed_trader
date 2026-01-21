@@ -66,17 +66,18 @@ const CourseRegistration = () => {
 
     // تجهيز البيانات للإرسال إلى Google Sheets باستخدام URLSearchParams لضمان التوافق
     const params = new URLSearchParams();
-    params.append('name', formData.name);
-    params.append('number', `${formData.countryCode} ${formData.number}`);
-    params.append('deposit', formData.deposit || '0');
+    params.append('name', formData.name.trim());
+    params.append('number', `${formData.countryCode}${formData.number.trim()}`);
+    params.append('deposit', formData.deposit.trim() || 'No Deposit');
     params.append('country', formData.country);
-    params.append('broker', formData.broker || 'N/A');
-    params.append('learning_goal', formData.learning_goal);
-    params.append('registration_date', new Date().toLocaleString('en-GB'));
-    params.append('experience', formData.experience);
+    params.append('broker', formData.broker.trim() || 'No Broker');
+    params.append('learning_goal', formData.learning_goal.trim());
+    params.append('registration_date', new Date().toLocaleString('en-GB', { timeZone: 'UTC' }));
+    params.append('experience', formData.experience === 'yes' ? 'Experienced' : 'Beginner');
     params.append('activation_code', code);
 
     try {
+      // تم استخدام الرابط المزود مع التأكد من أنه ينتهي بـ /exec للعمل في البيئة الحقيقية
       const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbx11hyzsi0QHuOoJke4ToGrlfBpsI0Em4Xy-6ngSBBU/exec';
       
       // إرسال البيانات في وضع no-cors لضمان عدم حدوث مشاكل مع المتصفح
