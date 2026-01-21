@@ -64,31 +64,27 @@ const CourseRegistration = () => {
     const code = generateCode();
     setRegCode(code);
 
-    // تجهيز البيانات للإرسال إلى Google Sheets باستخدام URLSearchParams لضمان التوافق
-    const params = new URLSearchParams();
-    params.append('name', formData.name.trim());
-    params.append('number', `${formData.countryCode}${formData.number.trim()}`);
-    params.append('deposit', formData.deposit.trim() || 'No Deposit');
-    params.append('country', formData.country);
-    params.append('broker', formData.broker.trim() || 'No Broker');
-    params.append('learning_goal', formData.learning_goal.trim());
-    params.append('registration_date', new Date().toLocaleString('en-GB', { timeZone: 'UTC' }));
-    params.append('experience', formData.experience === 'yes' ? 'Experienced' : 'Beginner');
-    params.append('activation_code', code);
+    // تجهيز البيانات للإرسال إلى Google Sheets باستخدام FormData لضمان التوافق مع Apps Script
+    const formDataToSend = new FormData();
+    formDataToSend.append('name', formData.name.trim());
+    formDataToSend.append('number', `${formData.countryCode}${formData.number.trim()}`);
+    formDataToSend.append('deposit', formData.deposit.trim() || 'No Deposit');
+    formDataToSend.append('country', formData.country);
+    formDataToSend.append('broker', formData.broker.trim() || 'No Broker');
+    formDataToSend.append('learning_goal', formData.learning_goal.trim());
+    formDataToSend.append('registration_date', new Date().toLocaleString('en-GB', { timeZone: 'UTC' }));
+    formDataToSend.append('experience', formData.experience === 'yes' ? 'Experienced' : 'Beginner');
+    formDataToSend.append('activation_code', code);
 
     try {
-      // تحديث الرابط إلى الرابط الجديد المزود من قبل المستخدم
       const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwoBwLPAHdMGr7Ls6VPaImIuCRGFyAh0suhlbsqGQQFefl4We8vtCnG7tMjVCTY7jVZmg/exec';
       
-      // تغيير وضع الإرسال إلى cors لضمان معالجة أفضل للاستجابة
+      // استخدام mode: 'no-cors' لتجنب مشاكل الـ CORS مع Google Apps Script عند الإرسال المباشر
+      // واستخدام FormData مباشرة في الـ body
       await fetch(GOOGLE_SHEET_URL, {
         method: 'POST',
-        mode: 'cors',
-        cache: 'no-cache',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: params.toString()
+        mode: 'no-cors',
+        body: formDataToSend
       });
 
       // ننتظر ثانية واحدة لضمان وصول البيانات قبل عرض صفحة النجاح
