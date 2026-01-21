@@ -27,13 +27,13 @@ const CourseRegistration = () => {
   const [regCode, setRegCode] = useState('');
   
   const [formData, setFormData] = useState({
-    fullName: '',
+    name: '',
     country: '',
-    phone: '',
-    initialDeposit: '',
-    brokerUsed: '',
-    hasTradedBefore: 'no',
-    learningGoal: '',
+    number: '',
+    deposit: '',
+    broker: '',
+    experience: 'no',
+    learning_goal: '',
     level: 'beginner'
   });
 
@@ -53,19 +53,23 @@ const CourseRegistration = () => {
     const code = generateCode();
     setRegCode(code);
 
-    // تجهيز البيانات للإرسال إلى Google Sheets
+    // تجهيز البيانات للإرسال إلى Google Sheets حسب الترتيب المطلوب
     const dataToSubmit = {
-      ...formData,
-      registrationCode: code,
-      timestamp: new Date().toLocaleString(),
-      language: i18n.language
+      name: formData.name,
+      number: formData.number,
+      deposit: formData.deposit,
+      country: formData.country,
+      broker: formData.broker,
+      learning_goal: formData.learning_goal,
+      registration_date: new Date().toLocaleString('en-GB'),
+      experience: formData.experience,
+      activation_code: code
     };
 
     try {
-      // سيتم استبدال هذا الرابط برابط Google Apps Script الخاص بالمستخدم
-      const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbz_REPLACE_WITH_YOUR_ID/exec';
+      const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbx11hyzsi0QHuOoJke4ToGrlfBpsI0Em4Xy-6ngSBBU/exec';
       
-      await fetch(GOOGLE_SHEET_URL, {
+      const response = await fetch(GOOGLE_SHEET_URL, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
@@ -75,7 +79,6 @@ const CourseRegistration = () => {
       setSubmitted(true);
     } catch (error) {
       console.error("Error submitting to Google Sheets:", error);
-      // حتى لو فشل الاتصال (بسبب CORS)، سنعتبره ناجحاً للمستخدم ونعرض الكود
       setSubmitted(true);
     } finally {
       setLoading(false);
@@ -154,14 +157,14 @@ const CourseRegistration = () => {
                         <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'الاسم الكامل' : 'Full Name'}</label>
                         <div className="relative">
                           <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50" />
-                          <input 
-                            required
-                            type="text"
-                            className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
-                            placeholder={isAr ? 'أدخل اسمك بالكامل' : 'Enter your full name'}
-                            value={formData.fullName}
-                            onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                          />
+	                          <input 
+	                            required
+	                            type="text"
+	                            className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
+	                            placeholder={isAr ? 'أدخل اسمك بالكامل' : 'Enter your full name'}
+	                            value={formData.name}
+	                            onChange={(e) => setFormData({...formData, name: e.target.value})}
+	                          />
                         </div>
                       </div>
 
@@ -184,14 +187,14 @@ const CourseRegistration = () => {
                           <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'رقم الهاتف' : 'Phone Number'}</label>
                           <div className="relative">
                             <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50" />
-                            <input 
-                              required
-                              type="tel"
-                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
-                              placeholder="+123..."
-                              value={formData.phone}
-                              onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                            />
+	                            <input 
+	                              required
+	                              type="tel"
+	                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
+	                              placeholder="+123..."
+	                              value={formData.number}
+	                              onChange={(e) => setFormData({...formData, number: e.target.value})}
+	                            />
                           </div>
                         </div>
                       </div>
@@ -211,26 +214,26 @@ const CourseRegistration = () => {
                           <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'أول إيداع (إن وجد)' : 'Initial Deposit (if any)'}</label>
                           <div className="relative">
                             <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50" />
-                            <input 
-                              type="text"
-                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
-                              placeholder="e.g. $500"
-                              value={formData.initialDeposit}
-                              onChange={(e) => setFormData({...formData, initialDeposit: e.target.value})}
-                            />
+	                            <input 
+	                              type="text"
+	                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
+	                              placeholder="e.g. $500"
+	                              value={formData.deposit}
+	                              onChange={(e) => setFormData({...formData, deposit: e.target.value})}
+	                            />
                           </div>
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'البروكر المستعمل' : 'Broker Used'}</label>
                           <div className="relative">
                             <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50" />
-                            <input 
-                              type="text"
-                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
-                              placeholder="e.g. Exness, XM"
-                              value={formData.brokerUsed}
-                              onChange={(e) => setFormData({...formData, brokerUsed: e.target.value})}
-                            />
+	                            <input 
+	                              type="text"
+	                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
+	                              placeholder="e.g. Exness, XM"
+	                              value={formData.broker}
+	                              onChange={(e) => setFormData({...formData, broker: e.target.value})}
+	                            />
                           </div>
                         </div>
                       </div>
@@ -242,8 +245,8 @@ const CourseRegistration = () => {
                             <button
                               key={opt}
                               type="button"
-                              onClick={() => setFormData({...formData, hasTradedBefore: opt})}
-                              className={`py-4 rounded-2xl font-black uppercase text-xs transition-all border ${formData.hasTradedBefore === opt ? 'bg-yellow-500 text-black border-yellow-500' : 'bg-white/5 text-gray-500 border-white/10 hover:border-white/20'}`}
+	                              onClick={() => setFormData({...formData, experience: opt})}
+	                              className={`py-4 rounded-2xl font-black uppercase text-xs transition-all border ${formData.experience === opt ? 'bg-yellow-500 text-black border-yellow-500' : 'bg-white/5 text-gray-500 border-white/10 hover:border-white/20'}`}
                             >
                               {opt === 'yes' ? (isAr ? 'نعم' : 'Yes') : (isAr ? 'لا' : 'No')}
                             </button>
@@ -265,13 +268,13 @@ const CourseRegistration = () => {
                         <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'هدفك من التعلم' : 'Learning Goal'}</label>
                         <div className="relative">
                           <Target className="absolute left-4 top-4 w-4 h-4 text-yellow-500/50" />
-                          <textarea 
-                            required
-                            className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all min-h-[100px] resize-none"
-                            placeholder={isAr ? 'ماذا تريد أن تحقق؟' : 'What do you want to achieve?'}
-                            value={formData.learningGoal}
-                            onChange={(e) => setFormData({...formData, learningGoal: e.target.value})}
-                          />
+	                          <textarea 
+	                            required
+	                            className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all min-h-[100px] resize-none"
+	                            placeholder={isAr ? 'ماذا تريد أن تحقق؟' : 'What do you want to achieve?'}
+	                            value={formData.learning_goal}
+	                            onChange={(e) => setFormData({...formData, learning_goal: e.target.value})}
+	                          />
                         </div>
                       </div>
 
@@ -314,19 +317,19 @@ const CourseRegistration = () => {
 
               {step < 3 ? (
                 <Button 
-                  onClick={() => setStep(step + 1)}
-                  disabled={step === 1 && (!formData.fullName || !formData.country || !formData.phone)}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-black font-black uppercase tracking-widest px-8 h-12 rounded-xl gap-2"
+	                  onClick={() => setStep(step + 1)}
+	                  disabled={step === 1 && (!formData.name || !formData.country || !formData.number)}
+	                  className="bg-yellow-500 hover:bg-yellow-600 text-black font-black uppercase tracking-widest px-8 h-12 rounded-xl gap-2"
                 >
                   {isAr ? 'التالي' : 'Next'}
                   {isAr ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                 </Button>
               ) : (
-                <Button 
-                  onClick={handleSubmit}
-                  disabled={loading || !formData.learningGoal}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-black font-black uppercase tracking-widest px-10 h-12 rounded-xl gap-2 shadow-lg shadow-yellow-500/20"
-                >
+	                <Button 
+	                  onClick={handleSubmit}
+	                  disabled={loading || !formData.learning_goal}
+	                  className="bg-yellow-500 hover:bg-yellow-600 text-black font-black uppercase tracking-widest px-10 h-12 rounded-xl gap-2 shadow-lg shadow-yellow-500/20"
+	                >
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (isAr ? 'إرسال الطلب' : 'Submit Request')}
                 </Button>
               )}
