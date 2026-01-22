@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
 import { countries } from '../data/countries';
-import { brokersData } from '../data/brokers';
 import { 
   User, 
   Globe, 
@@ -47,12 +46,14 @@ const CourseRegistration = () => {
 
   const isAr = i18n.language === 'ar';
 
-  // Get all unique brokers from all languages to ensure "all brokers" are shown
-  const allBrokers = Array.from(new Set([
-    ...brokersData.en.map(b => b.name),
-    ...brokersData.ar.map(b => b.name),
-    ...brokersData.fr.map(b => b.name)
-  ])).sort();
+  // Updated Brokers List as requested
+  const allBrokers = [
+    "AvaTrade", "Capital.com", "CMC Markets", "eToro", "FP Markets", 
+    "Forex.com", "Fusion Markets", "FxPro", "HFM", "IC Markets", 
+    "IG", "InstaForex", "Interactive Brokers", "Libertex", "NinjaTrader", 
+    "OANDA", "Pepperstone", "Saxo Bank", "Swissquote", "Tickmill", 
+    "TradeStation", "Vantage Markets", "XTB", "XM", "ONE ROYAL", "equite"
+  ].sort();
 
   useEffect(() => {
     const selectedCountry = countries.find(c => c.name === formData.country);
@@ -78,27 +79,37 @@ const CourseRegistration = () => {
     const code = generateCode();
     setRegCode(code);
 
-    const formDataToSend = new FormData();
-    formDataToSend.append('name', formData.name.trim());
-    formDataToSend.append('number', `${formData.countryCode}${formData.number.trim()}`);
-    formDataToSend.append('deposit', formData.deposit.trim() || 'No Deposit');
-    formDataToSend.append('country', formData.country);
-    formDataToSend.append('broker', formData.broker.trim() || 'None Selected');
-    formDataToSend.append('learning_goal', formData.learning_goal.trim());
-    formDataToSend.append('registration_date', new Date().toLocaleString('en-GB', { timeZone: 'UTC' }));
-    formDataToSend.append('experience', formData.experience === 'yes' ? 'Experienced' : 'Beginner');
-    formDataToSend.append('activation_code', code);
+    // Prepare data as JSON for flexibility and compatibility
+    const payload = {
+      name: formData.name.trim(),
+      number: `${formData.countryCode}${formData.number.trim()}`,
+      deposit: formData.deposit.trim() || 'No Deposit',
+      country: formData.country,
+      broker: formData.broker.trim() || 'None Selected',
+      learning_goal: formData.learning_goal.trim(),
+      registration_date: new Date().toLocaleString('en-GB', { timeZone: 'UTC' }),
+      experience: formData.experience === 'yes' ? 'Experienced' : 'Beginner',
+      level: formData.level,
+      activation_code: code,
+      userAgent: navigator.userAgent, // For debugging browser/device compatibility
+      platform: navigator.platform
+    };
 
     try {
       const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwoBwLPAHdMGr7Ls6VPaImIuCRGFyAh0suhlbsqGQQFefl4We8vtCnG7tMjVCTY7jVZmg/exec';
       
-      await fetch(GOOGLE_SHEET_URL, {
+      // Using fetch with JSON and POST for maximum flexibility across Firefox, Safari, Android, iPhone, WebView, VPN
+      const response = await fetch(GOOGLE_SHEET_URL, {
         method: 'POST',
-        mode: 'no-cors',
-        body: formDataToSend
+        mode: 'no-cors', // Keep no-cors for Google Apps Script compatibility if needed, or change to 'cors' if backend supports it
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
       });
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Since mode is 'no-cors', we won't get a readable response, so we simulate success after a delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
       setSubmitted(true);
     } catch (err) {
       console.error("Submission error:", err);
@@ -109,8 +120,22 @@ const CourseRegistration = () => {
   };
 
   const copyCode = () => {
-    navigator.clipboard.writeText(regCode);
-    alert(isAr ? 'تم نسخ الكود!' : 'Code copied!');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(regCode).then(() => {
+        alert(isAr ? 'تم نسخ الكود!' : 'Code copied!');
+      }).catch(() => {
+        // Fallback for older browsers/WebViews
+        const textArea = document.createElement("textarea");
+        textArea.value = regCode;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert(isAr ? 'تم نسخ الكود!' : 'Code copied!');
+      });
+    } else {
+      alert(isAr ? `كود التسجيل: ${regCode}` : `Registration Code: ${regCode}`);
+    }
   };
 
   const steps = [
@@ -125,7 +150,7 @@ const CourseRegistration = () => {
 
   return (
     <section className="py-20 min-h-screen bg-black relative overflow-y-auto">
-      {/* Background elements with fixed positioning to prevent layout shifts */}
+      {/* Background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-yellow-500/5 blur-[120px] rounded-full" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-yellow-500/5 blur-[120px] rounded-full" />
@@ -168,7 +193,7 @@ const CourseRegistration = () => {
             </CardHeader>
 
             <CardContent className="p-8">
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
                 <AnimatePresence mode="wait">
                   {error && (
                     <motion.div 
@@ -234,7 +259,7 @@ const CourseRegistration = () => {
                               <div className="overflow-y-auto flex-1">
                                 {filteredCountries.map((c) => (
                                   <div 
-                                    key={c.code}
+                                    key={c.name}
                                     className="px-4 py-3 hover:bg-yellow-500 hover:text-black cursor-pointer transition-colors text-sm"
                                     onClick={() => {
                                       setFormData({...formData, country: c.name});
