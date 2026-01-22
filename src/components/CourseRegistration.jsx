@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
 import { countries } from '../data/countries';
+import { brokersData } from '../data/brokers';
 import { 
   User, 
   Globe, 
@@ -17,7 +18,9 @@ import {
   Loader2,
   ChevronRight,
   ChevronLeft,
-  AlertCircle
+  AlertCircle,
+  Search,
+  ChevronDown
 } from 'lucide-react';
 
 const CourseRegistration = () => {
@@ -27,6 +30,8 @@ const CourseRegistration = () => {
   const [submitted, setSubmitted] = useState(false);
   const [regCode, setRegCode] = useState('');
   const [error, setError] = useState(null);
+  const [countrySearch, setCountrySearch] = useState('');
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -39,6 +44,15 @@ const CourseRegistration = () => {
     learning_goal: '',
     level: 'beginner'
   });
+
+  const isAr = i18n.language === 'ar';
+
+  // Get all unique brokers from all languages to ensure "all brokers" are shown
+  const allBrokers = Array.from(new Set([
+    ...brokersData.en.map(b => b.name),
+    ...brokersData.ar.map(b => b.name),
+    ...brokersData.fr.map(b => b.name)
+  ])).sort();
 
   useEffect(() => {
     const selectedCountry = countries.find(c => c.name === formData.country);
@@ -64,13 +78,12 @@ const CourseRegistration = () => {
     const code = generateCode();
     setRegCode(code);
 
-    // تجهيز البيانات للإرسال إلى Google Sheets باستخدام FormData لضمان التوافق مع Apps Script
     const formDataToSend = new FormData();
     formDataToSend.append('name', formData.name.trim());
     formDataToSend.append('number', `${formData.countryCode}${formData.number.trim()}`);
     formDataToSend.append('deposit', formData.deposit.trim() || 'No Deposit');
     formDataToSend.append('country', formData.country);
-    formDataToSend.append('broker', formData.broker.trim() || 'No Broker');
+    formDataToSend.append('broker', formData.broker.trim() || 'None Selected');
     formDataToSend.append('learning_goal', formData.learning_goal.trim());
     formDataToSend.append('registration_date', new Date().toLocaleString('en-GB', { timeZone: 'UTC' }));
     formDataToSend.append('experience', formData.experience === 'yes' ? 'Experienced' : 'Beginner');
@@ -79,15 +92,12 @@ const CourseRegistration = () => {
     try {
       const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwoBwLPAHdMGr7Ls6VPaImIuCRGFyAh0suhlbsqGQQFefl4We8vtCnG7tMjVCTY7jVZmg/exec';
       
-      // استخدام mode: 'no-cors' لتجنب مشاكل الـ CORS مع Google Apps Script عند الإرسال المباشر
-      // واستخدام FormData مباشرة في الـ body
       await fetch(GOOGLE_SHEET_URL, {
         method: 'POST',
         mode: 'no-cors',
         body: formDataToSend
       });
 
-      // ننتظر ثانية واحدة لضمان وصول البيانات قبل عرض صفحة النجاح
       await new Promise(resolve => setTimeout(resolve, 1000));
       setSubmitted(true);
     } catch (err) {
@@ -103,17 +113,20 @@ const CourseRegistration = () => {
     alert(isAr ? 'تم نسخ الكود!' : 'Code copied!');
   };
 
-  const isAr = i18n.language === 'ar';
-
   const steps = [
     { id: 1, title: isAr ? 'المعلومات الشخصية' : 'Personal Info' },
     { id: 2, title: isAr ? 'الخبرة المالية' : 'Financial Experience' },
     { id: 3, title: isAr ? 'أهداف التعلم' : 'Learning Goals' }
   ];
 
+  const filteredCountries = countries.filter(c => 
+    c.name.toLowerCase().includes(countrySearch.toLowerCase())
+  );
+
   return (
-    <section className="py-20 min-h-screen bg-black relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+    <section className="py-20 min-h-screen bg-black relative overflow-y-auto">
+      {/* Background elements with fixed positioning to prevent layout shifts */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-yellow-500/5 blur-[120px] rounded-full" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-yellow-500/5 blur-[120px] rounded-full" />
       </div>
@@ -138,7 +151,7 @@ const CourseRegistration = () => {
         </div>
 
         {!submitted ? (
-          <Card className="bg-zinc-900/40 border-white/5 backdrop-blur-xl rounded-[2.5rem] overflow-hidden shadow-2xl">
+          <Card className="bg-zinc-900/60 border-white/10 backdrop-blur-2xl rounded-[2.5rem] overflow-hidden shadow-2xl border">
             <CardHeader className="border-b border-white/5 p-8">
               <div className="flex justify-between items-center">
                 {steps.map((s) => (
@@ -192,23 +205,49 @@ const CourseRegistration = () => {
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
+                        <div className="space-y-2 relative">
                           <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'البلد' : 'Country'}</label>
-                          <div className="relative">
+                          <div 
+                            className="relative cursor-pointer"
+                            onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                          >
                             <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50 z-10" />
-                            <select 
-                              required
-                              className="w-full bg-zinc-900 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all appearance-none cursor-pointer"
-                              value={formData.country}
-                              onChange={(e) => setFormData({...formData, country: e.target.value})}
-                            >
-                              {countries.map((c) => (
-                                <option key={c.code} value={c.name} className="bg-zinc-900 text-white">
-                                  {c.name}
-                                </option>
-                              ))}
-                            </select>
+                            <div className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all flex justify-between items-center">
+                              <span>{formData.country}</span>
+                              <ChevronDown className={`w-4 h-4 transition-transform ${showCountryDropdown ? 'rotate-180' : ''}`} />
+                            </div>
                           </div>
+                          
+                          {showCountryDropdown && (
+                            <div className="absolute top-full left-0 w-full mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl z-50 max-h-60 overflow-hidden flex flex-col">
+                              <div className="p-3 border-b border-white/5 flex items-center gap-2 bg-white/5">
+                                <Search className="w-4 h-4 text-gray-500" />
+                                <input 
+                                  type="text"
+                                  className="bg-transparent border-none outline-none text-sm text-white w-full"
+                                  placeholder={isAr ? 'بحث عن بلد...' : 'Search country...'}
+                                  value={countrySearch}
+                                  onChange={(e) => setCountrySearch(e.target.value)}
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              </div>
+                              <div className="overflow-y-auto flex-1">
+                                {filteredCountries.map((c) => (
+                                  <div 
+                                    key={c.code}
+                                    className="px-4 py-3 hover:bg-yellow-500 hover:text-black cursor-pointer transition-colors text-sm"
+                                    onClick={() => {
+                                      setFormData({...formData, country: c.name});
+                                      setShowCountryDropdown(false);
+                                      setCountrySearch('');
+                                    }}
+                                  >
+                                    {c.name}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'رقم الهاتف' : 'Phone Number'}</label>
@@ -261,16 +300,25 @@ const CourseRegistration = () => {
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'البروكر المستعمل' : 'Broker Used'}</label>
+                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
+                            {isAr ? 'البروكر المستعمل (اختياري)' : 'Broker Used (Optional)'}
+                          </label>
                           <div className="relative">
-                            <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50" />
-                            <input 
-                              type="text"
-                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
-                              placeholder="e.g. Exness, XM"
+                            <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50 z-10" />
+                            <select 
+                              className="w-full bg-zinc-900 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all appearance-none cursor-pointer"
                               value={formData.broker}
                               onChange={(e) => setFormData({...formData, broker: e.target.value})}
-                            />
+                            >
+                              <option value="">{isAr ? 'اختر بروكر (اختياري)' : 'Select Broker (Optional)'}</option>
+                              {allBrokers.map((name) => (
+                                <option key={name} value={name} className="bg-zinc-900 text-white">
+                                  {name}
+                                </option>
+                              ))}
+                              <option value="Other">{isAr ? 'آخر' : 'Other'}</option>
+                            </select>
+                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
                           </div>
                         </div>
                       </div>
@@ -377,7 +425,7 @@ const CourseRegistration = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
           >
-            <Card className="bg-zinc-900/40 border-yellow-500/20 backdrop-blur-xl rounded-[3rem] overflow-hidden text-center p-12 shadow-2xl">
+            <Card className="bg-zinc-900/60 border-yellow-500/20 backdrop-blur-2xl rounded-[3rem] overflow-hidden text-center p-12 shadow-2xl border">
               <div className="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg shadow-yellow-500/20">
                 <CheckCircle2 className="w-10 h-10 text-black" />
               </div>
