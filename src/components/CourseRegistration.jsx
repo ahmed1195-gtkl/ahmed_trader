@@ -22,7 +22,8 @@ import {
   ChevronDown,
   Mail,
   Calendar,
-  MapPin
+  MapPin,
+  Info
 } from 'lucide-react';
 
 const CourseRegistration = () => {
@@ -101,9 +102,9 @@ const CourseRegistration = () => {
     };
 
     try {
-      const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwujUQoa2D-_s_GrDail2lq0T0F-CaxcofH33cQUAxKoB3Kv6DKXTclN9bmxqBF1291XQ/exec';
+      const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbyqz3Xvm-N55dN48bDW57TCuKZnvV66VBAOwJ_iDM4wMu57nn2T30Am1sQ8C8c-cjPUBw/exec';
       
-      const response = await fetch(GOOGLE_SHEET_URL, {
+      await fetch(GOOGLE_SHEET_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'text/plain;charset=utf-8',
@@ -343,6 +344,16 @@ const CourseRegistration = () => {
                             </div>
                           </div>
                         </div>
+                      </div>
+                      
+                      {/* الملاحظة التوضيحية */}
+                      <div className="mt-4 p-4 bg-yellow-500/5 border border-yellow-500/20 rounded-2xl flex gap-3 items-start">
+                        <Info className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
+                        <p className="text-[11px] text-gray-400 leading-relaxed">
+                          {isAr 
+                            ? "يرجى التأكد من إدخال بياناتك الصحيحة (البريد الإلكتروني، رقم الهاتف، والمدينة). دقة هذه البيانات تصب في مصلحتك لضمان تواصلنا معك بنجاح وتفعيل حسابك في الكورس دون تأخير."
+                            : "Please ensure you enter your correct details (Email, Phone, and City). Accuracy of this data is in your best interest to ensure successful communication and course activation without delay."}
+                        </p>
                       </div>
                     </motion.div>
                   )}
