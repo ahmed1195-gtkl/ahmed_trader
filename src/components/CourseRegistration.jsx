@@ -101,7 +101,7 @@ const CourseRegistration = () => {
     };
 
     try {
-      const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwujUQoa2D-_s_GrDail2lq0T0F-CaxcofH33cQUAxKoB3Kv6DKXTclN9bmxqBF1291XQ/exec';
+      const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwmPi76_Yh-I9kldwWv7ycWOEfzHr54zzdzgOtJ-TX5nNWejBgNhN19XlB5fW7zQsNHtg/exec';
       
       const response = await fetch(GOOGLE_SHEET_URL, {
         method: 'POST',
