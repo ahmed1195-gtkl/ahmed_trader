@@ -19,7 +19,10 @@ import {
   ChevronLeft,
   AlertCircle,
   Search,
-  ChevronDown
+  ChevronDown,
+  Mail,
+  Calendar,
+  MapPin
 } from 'lucide-react';
 
 const CourseRegistration = () => {
@@ -34,6 +37,9 @@ const CourseRegistration = () => {
   
   const [formData, setFormData] = useState({
     name: '',
+    email: '',
+    age: '',
+    city: '',
     country: 'Egypt',
     countryCode: '+20',
     number: '',
@@ -81,6 +87,9 @@ const CourseRegistration = () => {
     // Use URLSearchParams for maximum compatibility with Google Apps Script
     const params = new URLSearchParams();
     params.append('name', formData.name.trim());
+    params.append('email', formData.email.trim());
+    params.append('age', formData.age.trim());
+    params.append('city', formData.city.trim());
     params.append('phone', `${formData.countryCode}${formData.number.trim()}`);
     params.append('deposit', formData.deposit.trim() || 'No Deposit');
     params.append('country', formData.country);
@@ -223,6 +232,52 @@ const CourseRegistration = () => {
                         </div>
                       </div>
 
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'البريد الإلكتروني' : 'Email Address'}</label>
+                        <div className="relative">
+                          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50" />
+                          <input 
+                            required
+                            type="email"
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
+                            placeholder={isAr ? 'example@mail.com' : 'example@mail.com'}
+                            value={formData.email}
+                            onChange={(e) => setFormData({...formData, email: e.target.value})}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'العمر' : 'Age'}</label>
+                          <div className="relative">
+                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50" />
+                            <input 
+                              required
+                              type="number"
+                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
+                              placeholder={isAr ? 'عمرك' : 'Your age'}
+                              value={formData.age}
+                              onChange={(e) => setFormData({...formData, age: e.target.value})}
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'المدينة' : 'City'}</label>
+                          <div className="relative">
+                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50" />
+                            <input 
+                              required
+                              type="text"
+                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
+                              placeholder={isAr ? 'مدينتك' : 'Your city'}
+                              value={formData.city}
+                              onChange={(e) => setFormData({...formData, city: e.target.value})}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2 relative">
                           <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'البلد' : 'Country'}</label>
@@ -238,8 +293,8 @@ const CourseRegistration = () => {
                           </div>
                           
                           {showCountryDropdown && (
-                            <div className="absolute top-full left-0 w-full mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl z-50 max-h-60 overflow-hidden flex flex-col">
-                              <div className="p-3 border-b border-white/5 flex items-center gap-2 bg-white/5">
+                            <div className="absolute top-full left-0 w-full mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl z-50 max-h-60 flex flex-col overflow-hidden">
+                              <div className="p-3 border-b border-white/5 flex items-center gap-2">
                                 <Search className="w-4 h-4 text-gray-500" />
                                 <input 
                                   type="text"
@@ -422,7 +477,7 @@ const CourseRegistration = () => {
               {step < 3 ? (
                 <Button 
                   onClick={() => setStep(step + 1)}
-                  disabled={step === 1 && (!formData.name || !formData.country || !formData.number)}
+                  disabled={step === 1 && (!formData.name || !formData.email || !formData.age || !formData.city || !formData.country || !formData.number)}
                   className="bg-yellow-500 hover:bg-yellow-600 text-black font-black uppercase tracking-widest px-8 h-12 rounded-xl gap-2"
                 >
                   {isAr ? 'التالي' : 'Next'}
@@ -454,7 +509,7 @@ const CourseRegistration = () => {
               <p className="text-gray-400 mb-10 font-medium">
                 {isAr 
                   ? 'شكراً لتسجيلك. يرجى حفظ الكود التالي وإرساله لنا عبر قنوات التواصل لتأكيد تسجيلك.' 
-                  : 'Thank you for registering. Please save the following code and send it to us via our contact channels to confirm your registration.'}
+                  : 'Thank you for registering. Please save the following code and send it to us via communication channels to confirm your registration.'}
               </p>
               
               <div className="bg-white/5 border border-white/10 rounded-[2rem] p-8 mb-10 relative group">
