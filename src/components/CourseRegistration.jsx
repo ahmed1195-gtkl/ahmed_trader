@@ -84,40 +84,36 @@ const CourseRegistration = () => {
     const code = generateCode();
     setRegCode(code);
 
-    // Use URLSearchParams for maximum compatibility with Google Apps Script
-    const params = new URLSearchParams();
-    params.append('name', formData.name.trim());
-    params.append('email', formData.email.trim());
-    params.append('age', formData.age.trim());
-    params.append('city', formData.city.trim());
-    params.append('phone', `${formData.countryCode}${formData.number.trim()}`);
-    params.append('deposit', formData.deposit.trim() || 'No Deposit');
-    params.append('country', formData.country);
-    params.append('broker', formData.broker.trim() || 'None Selected');
-    params.append('goal', formData.learning_goal.trim());
-    params.append('experience', formData.experience === 'yes' ? 'Experienced' : 'Beginner');
-    params.append('level', formData.level);
-    params.append('code', code);
-    params.append('date', new Date().toLocaleString('en-GB', { timeZone: 'UTC' }));
+    const payload = {
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      age: formData.age.trim(),
+      city: formData.city.trim(),
+      phone: `${formData.countryCode}${formData.number.trim()}`,
+      deposit: formData.deposit.trim() || 'No Deposit',
+      country: formData.country,
+      broker: formData.broker.trim() || 'None Selected',
+      goal: formData.learning_goal.trim(),
+      experience: formData.experience === 'yes' ? 'Experienced' : 'Beginner',
+      level: formData.level,
+      code: code,
+      date: new Date().toLocaleString('en-GB', { timeZone: 'UTC' })
+    };
 
     try {
       const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbyqz3Xvm-N55dN48bDW57TCuKZnvV66VBAOwJ_iDM4wMu57nn2T30Am1sQ8C8c-cjPUBw/exec';
       
-      // Sending as application/x-www-form-urlencoded via URLSearchParams
-      await fetch(GOOGLE_SHEET_URL, {
+      const response = await fetch(GOOGLE_SHEET_URL, {
         method: 'POST',
-        mode: 'no-cors', // Essential for Google Apps Script to avoid CORS issues
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'text/plain;charset=utf-8',
         },
-        body: params.toString()
+        body: JSON.stringify(payload)
       });
 
-      // Since we use 'no-cors', we can't read the response, but we assume success if no error thrown
       setSubmitted(true);
     } catch (err) {
       console.error("Submission error:", err);
-      // Fallback: Google Scripts often trigger catch even on success due to redirects
       setSubmitted(true);
     } finally {
       setLoading(false);
