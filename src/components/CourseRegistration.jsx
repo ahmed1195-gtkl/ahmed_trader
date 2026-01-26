@@ -92,7 +92,7 @@ const CourseRegistration = () => {
     params.append('date', new Date().toLocaleString('en-GB', { timeZone: 'UTC' }));
 
     try {
-      const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzGzhmohjOJLePYX8qnArI2vWZam2_HJGbdyhzcD6jzdVJip1lMEnmj6KUdwtPN9mEX/exec';
+      const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbyqz3Xvm-N55dN48bDW57TCuKZnvV66VBAOwJ_iDM4wMu57nn2T30Am1sQ8C8c-cjPUBw/exec';
       
       // Sending as application/x-www-form-urlencoded via URLSearchParams
       await fetch(GOOGLE_SHEET_URL, {
