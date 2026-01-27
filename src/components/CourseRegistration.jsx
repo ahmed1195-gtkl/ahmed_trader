@@ -86,19 +86,19 @@ const CourseRegistration = () => {
     setRegCode(code);
 
     const payload = {
-      date: new Date().toLocaleString('en-GB', { timeZone: 'UTC' }),
-      name: formData.name.trim(),
-      email: formData.email.trim(),
-      age: formData.age.trim(),
-      city: formData.city.trim(),
-      phone: `${formData.countryCode}${formData.number.trim()}`,
-      deposit: formData.deposit.trim() || 'No Deposit',
-      country: formData.country,
-      broker: formData.broker.trim() || 'None Selected',
-      experience: formData.experience === 'yes' ? 'Experienced' : 'Beginner',
-      level: formData.level,
-      goal: formData.learning_goal.trim(),
-      code: code
+      date: new Date().toLocaleString('en-GB', { timeZone: 'UTC' }), // Column A
+      name: formData.name.trim(),                                   // Column B
+      email: formData.email.trim(),                                  // Column C
+      age: formData.age.trim(),                                    // Column D
+      city: formData.city.trim(),                                   // Column E
+      phone: `${formData.countryCode}${formData.number.trim()}`,    // Column F
+      deposit: formData.deposit.trim() || 'No Deposit',             // Column G
+      country: formData.country,                                    // Column H
+      broker: formData.broker.trim() || 'None Selected',            // Column I
+      experience: formData.experience === 'yes' ? 'Experienced' : 'Beginner', // Column J
+      level: formData.level,                                        // Column K
+      goal: formData.learning_goal.trim(),                          // Column L
+      code: code                                                    // Column M
     };
 
     try {
