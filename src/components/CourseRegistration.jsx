@@ -86,6 +86,7 @@ const CourseRegistration = () => {
     setRegCode(code);
 
     const payload = {
+      date: new Date().toLocaleString('en-GB', { timeZone: 'UTC' }),
       name: formData.name.trim(),
       email: formData.email.trim(),
       age: formData.age.trim(),
@@ -94,11 +95,10 @@ const CourseRegistration = () => {
       deposit: formData.deposit.trim() || 'No Deposit',
       country: formData.country,
       broker: formData.broker.trim() || 'None Selected',
-      goal: formData.learning_goal.trim(),
       experience: formData.experience === 'yes' ? 'Experienced' : 'Beginner',
       level: formData.level,
-      code: code,
-      date: new Date().toLocaleString('en-GB', { timeZone: 'UTC' })
+      goal: formData.learning_goal.trim(),
+      code: code
     };
 
     try {
