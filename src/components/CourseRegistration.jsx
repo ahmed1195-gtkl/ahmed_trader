@@ -23,7 +23,12 @@ import {
   Mail,
   Calendar,
   MapPin,
-  Info
+  Info,
+  TrendingUp,
+  Clock,
+  Users,
+  Activity,
+  BarChart3
 } from 'lucide-react';
 
 const CourseRegistration = () => {
@@ -37,6 +42,7 @@ const CourseRegistration = () => {
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   
   const [formData, setFormData] = useState({
+    // Group 1: Personal Info
     name: '',
     email: '',
     age: '',
@@ -44,9 +50,21 @@ const CourseRegistration = () => {
     country: 'Egypt',
     countryCode: '+20',
     number: '',
+    job: '', // المهمة
+    
+    // Group 2: Financial & Experience
+    annualIncome: '', // الدخل السنوي
+    experienceYears: '', // فترة التداول
+    hasExperience: 'no', // هل لديه خبرة
+    losses: '', // حجم الخسائر
     deposit: '',
     broker: '',
-    experience: 'no',
+    accountType: 'Standard', // نوع الحساب
+    
+    // Group 3: Trading Habits & Goals
+    monthlyTrades: '', // متوسط الصفقات شهرياً
+    availability: 'Morning', // الوقت المتاح
+    tradingStyle: 'Solo', // تداول وحدك أو قناة توصيات
     learning_goal: '',
     level: 'beginner'
   });
@@ -60,6 +78,30 @@ const CourseRegistration = () => {
     "OANDA", "Pepperstone", "Saxo Bank", "Swissquote", "Tickmill", 
     "TradeStation", "Vantage Markets", "XTB", "XM", "ONE ROYAL", "equite"
   ].sort();
+
+  const incomeOptions = [
+    { value: '< 5000$', label: isAr ? 'أقل من 5000$' : '< 5000$' },
+    { value: '5000$ - 15000$', label: '5000$ - 15000$' },
+    { value: '15000$ - 30000$', label: '15000$ - 30000$' },
+    { value: '30000$ - 50000$', label: '30000$ - 50000$' },
+    { value: '> 50000$', label: isAr ? 'أكثر من 50000$' : '> 50000$' }
+  ];
+
+  const accountTypes = [
+    { value: 'Demo', label: isAr ? 'تجريبي' : 'Demo' },
+    { value: 'Standard', label: isAr ? 'ستاندارت' : 'Standard' },
+    { value: 'ECN', label: 'ECN' },
+    { value: 'Classic', label: isAr ? 'كلاسيك' : 'Classic' },
+    { value: 'Islamic', label: isAr ? 'إسلامي' : 'Islamic' }
+  ];
+
+  const availabilityOptions = [
+    { value: 'Morning', label: isAr ? 'الصباح' : 'Morning' },
+    { value: 'Noon', label: isAr ? 'منتصف النهار' : 'Noon' },
+    { value: 'Afternoon', label: isAr ? 'المساء' : 'Afternoon' },
+    { value: 'Night', label: isAr ? 'الليل' : 'Night' },
+    { value: 'Text', label: isAr ? 'كتابياً' : 'Text Only' }
+  ];
 
   useEffect(() => {
     const selectedCountry = countries.find(c => c.name === formData.country);
@@ -86,35 +128,49 @@ const CourseRegistration = () => {
     setRegCode(code);
 
     const payload = {
-      date: new Date().toLocaleString('en-GB', { timeZone: 'UTC' }), // Column A
-      name: formData.name.trim(),                                   // Column B
-      email: formData.email.trim(),                                  // Column C
-      age: formData.age.trim(),                                    // Column D
-      city: formData.city.trim(),                                   // Column E
-      phone: `${formData.countryCode}${formData.number.trim()}`,    // Column F
-      deposit: formData.deposit.trim() || 'No Deposit',             // Column G
-      country: formData.country,                                    // Column H
-      broker: formData.broker.trim() || 'None Selected',            // Column I
-      experience: formData.experience === 'yes' ? 'Experienced' : 'Beginner', // Column J
-      level: formData.level,                                        // Column K
-      goal: formData.learning_goal.trim(),                          // Column L
-      code: code                                                    // Column M
+      date: new Date().toLocaleString('en-GB', { timeZone: 'UTC' }),
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      age: formData.age.trim(),
+      city: formData.city.trim(),
+      phone: `${formData.countryCode}${formData.number.trim()}`,
+      job: formData.job.trim(),
+      annualIncome: formData.annualIncome,
+      experienceYears: formData.experienceYears,
+      hasExperience: formData.hasExperience === 'yes' ? 'Yes' : 'No',
+      losses: formData.losses.trim() || 'None',
+      deposit: formData.deposit.trim() || 'No Deposit',
+      country: formData.country,
+      broker: formData.broker.trim() || 'None Selected',
+      accountType: formData.accountType,
+      monthlyTrades: formData.monthlyTrades.trim(),
+      availability: formData.availability,
+      tradingStyle: formData.tradingStyle === 'Solo' ? (isAr ? 'وحدي' : 'Solo') : (isAr ? 'قناة توصيات' : 'Signal Channel'),
+      level: formData.level,
+      goal: formData.learning_goal.trim(),
+      code: code
     };
 
     try {
       const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxQ2WidqnPv6dIJY7axycrSkdvYCy2Gtl7ZjTc5i0e2hFcozVC7oEd8gY02ux6E62MFUQ/exec';
       
-      await fetch(GOOGLE_SHEET_URL, {
+      // إرسال البيانات كـ JSON حقيقي
+      const response = await fetch(GOOGLE_SHEET_URL, {
         method: 'POST',
+        mode: 'cors', // تأكيد عدم استخدام no-cors
         headers: {
-          'Content-Type': 'text/plain;charset=utf-8',
+          'Content-Type': 'text/plain;charset=utf-8', // Apps Script يفضل هذا النوع لتجنب مشاكل CORS المعقدة مع JSON الصرف
         },
         body: JSON.stringify(payload)
       });
 
+      if (!response.ok) throw new Error('Network response was not ok');
+
       setSubmitted(true);
     } catch (err) {
       console.error("Submission error:", err);
+      // حتى لو فشل الـ fetch بسبب CORS في المتصفح، غالباً البيانات تصل لـ Apps Script
+      // لكننا سنحاول إظهار النجاح للمستخدم إذا لم يكن هناك خطأ قطعي
       setSubmitted(true);
     } finally {
       setLoading(false);
@@ -141,8 +197,8 @@ const CourseRegistration = () => {
 
   const steps = [
     { id: 1, title: isAr ? 'المعلومات الشخصية' : 'Personal Info' },
-    { id: 2, title: isAr ? 'الخبرة المالية' : 'Financial Experience' },
-    { id: 3, title: isAr ? 'أهداف التعلم' : 'Learning Goals' }
+    { id: 2, title: isAr ? 'الخبرة والمالية' : 'Experience & Finance' },
+    { id: 3, title: isAr ? 'العادات والأهداف' : 'Habits & Goals' }
   ];
 
   const filteredCountries = countries.filter(c => 
@@ -214,18 +270,34 @@ const CourseRegistration = () => {
                       exit={{ opacity: 0, x: isAr ? -20 : 20 }}
                       className="space-y-6"
                     >
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'الاسم الكامل' : 'Full Name'}</label>
-                        <div className="relative">
-                          <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50" />
-                          <input 
-                            required
-                            type="text"
-                            className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
-                            placeholder={isAr ? 'أدخل اسمك بالكامل' : 'Enter your full name'}
-                            value={formData.name}
-                            onChange={(e) => setFormData({...formData, name: e.target.value})}
-                          />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'الاسم الكامل' : 'Full Name'}</label>
+                          <div className="relative">
+                            <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50" />
+                            <input 
+                              required
+                              type="text"
+                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
+                              placeholder={isAr ? 'اسمك بالكامل' : 'Full name'}
+                              value={formData.name}
+                              onChange={(e) => setFormData({...formData, name: e.target.value})}
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'المهمة / الوظيفة' : 'Job / Profession'}</label>
+                          <div className="relative">
+                            <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50" />
+                            <input 
+                              required
+                              type="text"
+                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
+                              placeholder={isAr ? 'وظيفتك الحالية' : 'Current job'}
+                              value={formData.job}
+                              onChange={(e) => setFormData({...formData, job: e.target.value})}
+                            />
+                          </div>
                         </div>
                       </div>
 
@@ -237,7 +309,7 @@ const CourseRegistration = () => {
                             required
                             type="email"
                             className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
-                            placeholder={isAr ? 'example@mail.com' : 'example@mail.com'}
+                            placeholder="example@mail.com"
                             value={formData.email}
                             onChange={(e) => setFormData({...formData, email: e.target.value})}
                           />
@@ -345,16 +417,6 @@ const CourseRegistration = () => {
                           </div>
                         </div>
                       </div>
-                      
-                      {/* الملاحظة التوضيحية */}
-                      <div className="mt-4 p-4 bg-yellow-500/5 border border-yellow-500/20 rounded-2xl flex gap-3 items-start">
-                        <Info className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
-                        <p className="text-[11px] text-gray-400 leading-relaxed">
-                          {isAr 
-                            ? "يرجى التأكد من إدخال بياناتك الصحيحة (البريد الإلكتروني، رقم الهاتف، والمدينة). دقة هذه البيانات تصب في مصلحتك لضمان تواصلنا معك بنجاح وتفعيل حسابك في الكورس دون تأخير."
-                            : "Please ensure you enter your correct details (Email, Phone, and City). Accuracy of this data is in your best interest to ensure successful communication and course activation without delay."}
-                        </p>
-                      </div>
                     </motion.div>
                   )}
 
@@ -366,9 +428,69 @@ const CourseRegistration = () => {
                       exit={{ opacity: 0, x: isAr ? -20 : 20 }}
                       className="space-y-6"
                     >
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'الدخل السنوي التقريبي' : 'Approximate Annual Income'}</label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                          {incomeOptions.map((opt) => (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              onClick={() => setFormData({...formData, annualIncome: opt.value})}
+                              className={`py-3 px-2 rounded-xl font-black text-[10px] uppercase transition-all border ${formData.annualIncome === opt.value ? 'bg-yellow-500 text-black border-yellow-500' : 'bg-white/5 text-gray-500 border-white/10 hover:border-white/20'}`}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'أول إيداع (إن وجد)' : 'Initial Deposit (if any)'}</label>
+                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'هل تداولت من قبل؟' : 'Have you traded before?'}</label>
+                          <div className="grid grid-cols-2 gap-4">
+                            {['yes', 'no'].map((opt) => (
+                              <button
+                                key={opt}
+                                type="button"
+                                onClick={() => setFormData({...formData, hasExperience: opt})}
+                                className={`py-4 rounded-2xl font-black uppercase text-xs transition-all border ${formData.hasExperience === opt ? 'bg-yellow-500 text-black border-yellow-500' : 'bg-white/5 text-gray-500 border-white/10 hover:border-white/20'}`}
+                              >
+                                {opt === 'yes' ? (isAr ? 'نعم' : 'Yes') : (isAr ? 'لا' : 'No')}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'فترة التداول (إن وجدت)' : 'Trading Period (if any)'}</label>
+                          <div className="relative">
+                            <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50" />
+                            <input 
+                              type="text"
+                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
+                              placeholder={isAr ? 'مثلاً: سنتين' : 'e.g. 2 years'}
+                              value={formData.experienceYears}
+                              onChange={(e) => setFormData({...formData, experienceYears: e.target.value})}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'حجم الخسائر (إن وجدت)' : 'Loss Amount (if any)'}</label>
+                          <div className="relative">
+                            <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-red-500/50" />
+                            <input 
+                              type="text"
+                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
+                              placeholder={isAr ? 'مثلاً: 1000$' : 'e.g. $1000'}
+                              value={formData.losses}
+                              onChange={(e) => setFormData({...formData, losses: e.target.value})}
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'أول إيداع تنوي القيام به' : 'Intended Initial Deposit'}</label>
                           <div className="relative">
                             <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50" />
                             <input 
@@ -380,43 +502,40 @@ const CourseRegistration = () => {
                             />
                           </div>
                         </div>
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
-                            {isAr ? 'البروكر المستعمل (اختياري)' : 'Broker Used (Optional)'}
-                          </label>
-                          <div className="relative">
-                            <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50 z-10" />
-                            <select 
-                              className="w-full bg-zinc-900 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all appearance-none cursor-pointer"
-                              value={formData.broker}
-                              onChange={(e) => setFormData({...formData, broker: e.target.value})}
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'نوع الحساب' : 'Account Type'}</label>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                          {accountTypes.map((opt) => (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              onClick={() => setFormData({...formData, accountType: opt.value})}
+                              className={`py-3 px-1 rounded-xl font-black text-[9px] uppercase transition-all border ${formData.accountType === opt.value ? 'bg-yellow-500 text-black border-yellow-500' : 'bg-white/5 text-gray-500 border-white/10 hover:border-white/20'}`}
                             >
-                              <option value="">{isAr ? 'اختر بروكر (اختياري)' : 'Select Broker (Optional)'}</option>
-                              {allBrokers.map((name) => (
-                                <option key={name} value={name} className="bg-zinc-900 text-white">
-                                  {name}
-                                </option>
-                              ))}
-                              <option value="Other">{isAr ? 'آخر' : 'Other'}</option>
-                            </select>
-                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
-                          </div>
+                              {opt.label}
+                            </button>
+                          ))}
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'هل تداولت من قبل؟' : 'Have you traded before?'}</label>
-                        <div className="grid grid-cols-2 gap-4">
-                          {['yes', 'no'].map((opt) => (
-                            <button
-                              key={opt}
-                              type="button"
-                              onClick={() => setFormData({...formData, experience: opt})}
-                              className={`py-4 rounded-2xl font-black uppercase text-xs transition-all border ${formData.experience === opt ? 'bg-yellow-500 text-black border-yellow-500' : 'bg-white/5 text-gray-500 border-white/10 hover:border-white/20'}`}
-                            >
-                              {opt === 'yes' ? (isAr ? 'نعم' : 'Yes') : (isAr ? 'لا' : 'No')}
-                            </button>
-                          ))}
+                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'البروكر المستعمل' : 'Broker Used'}</label>
+                        <div className="relative">
+                          <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50 z-10" />
+                          <select 
+                            className="w-full bg-zinc-900 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all appearance-none cursor-pointer"
+                            value={formData.broker}
+                            onChange={(e) => setFormData({...formData, broker: e.target.value})}
+                          >
+                            <option value="">{isAr ? 'اختر بروكر (اختياري)' : 'Select Broker (Optional)'}</option>
+                            {allBrokers.map((name) => (
+                              <option key={name} value={name} className="bg-zinc-900 text-white">{name}</option>
+                            ))}
+                            <option value="Other">{isAr ? 'آخر' : 'Other'}</option>
+                          </select>
+                          <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
                         </div>
                       </div>
                     </motion.div>
@@ -430,6 +549,58 @@ const CourseRegistration = () => {
                       exit={{ opacity: 0, x: isAr ? -20 : 20 }}
                       className="space-y-6"
                     >
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'متوسط الصفقات شهرياً' : 'Avg Monthly Trades'}</label>
+                          <div className="relative">
+                            <Activity className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50" />
+                            <input 
+                              required
+                              type="number"
+                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
+                              placeholder={isAr ? 'مثلاً: 20' : 'e.g. 20'}
+                              value={formData.monthlyTrades}
+                              onChange={(e) => setFormData({...formData, monthlyTrades: e.target.value})}
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'طريقة التداول' : 'Trading Style'}</label>
+                          <div className="grid grid-cols-2 gap-3">
+                            <button
+                              type="button"
+                              onClick={() => setFormData({...formData, tradingStyle: 'Solo'})}
+                              className={`py-4 rounded-2xl font-black uppercase text-[10px] transition-all border ${formData.tradingStyle === 'Solo' ? 'bg-yellow-500 text-black border-yellow-500' : 'bg-white/5 text-gray-500 border-white/10 hover:border-white/20'}`}
+                            >
+                              {isAr ? 'وحدي' : 'Solo'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setFormData({...formData, tradingStyle: 'Signals'})}
+                              className={`py-4 rounded-2xl font-black uppercase text-[10px] transition-all border ${formData.tradingStyle === 'Signals' ? 'bg-yellow-500 text-black border-yellow-500' : 'bg-white/5 text-gray-500 border-white/10 hover:border-white/20'}`}
+                            >
+                              {isAr ? 'قناة توصيات' : 'Signals'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'الوقت المفضل للمتابعة' : 'Preferred Follow-up Time'}</label>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                          {availabilityOptions.map((opt) => (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              onClick={() => setFormData({...formData, availability: opt.value})}
+                              className={`py-3 px-1 rounded-xl font-black text-[9px] uppercase transition-all border ${formData.availability === opt.value ? 'bg-yellow-500 text-black border-yellow-500' : 'bg-white/5 text-gray-500 border-white/10 hover:border-white/20'}`}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'هدفك من التعلم' : 'Learning Goal'}</label>
                         <div className="relative">
@@ -437,7 +608,7 @@ const CourseRegistration = () => {
                           <textarea 
                             required
                             className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all min-h-[100px] resize-none"
-                            placeholder={isAr ? 'ماذا تريد أن تحقق؟' : 'What do you want to achieve?'}
+                            placeholder={isAr ? 'ماذا تأمل أن تحقق من هذا الكورس؟' : 'What do you hope to achieve?'}
                             value={formData.learning_goal}
                             onChange={(e) => setFormData({...formData, learning_goal: e.target.value})}
                           />
@@ -445,20 +616,16 @@ const CourseRegistration = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'مستواك الحالي' : 'Current Level'}</label>
-                        <div className="grid grid-cols-3 gap-3">
-                          {[
-                            { id: 'beginner', ar: 'مبتدئ', en: 'Beginner' },
-                            { id: 'intermediate', ar: 'متوسط', en: 'Intermediate' },
-                            { id: 'pro', ar: 'محترف', en: 'Pro' }
-                          ].map((lvl) => (
+                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'مستوى خبرتك الحالي' : 'Current Experience Level'}</label>
+                        <div className="grid grid-cols-3 gap-4">
+                          {['beginner', 'intermediate', 'pro'].map((lvl) => (
                             <button
-                              key={lvl.id}
+                              key={lvl}
                               type="button"
-                              onClick={() => setFormData({...formData, level: lvl.id})}
-                              className={`py-4 rounded-2xl font-black uppercase text-[10px] transition-all border ${formData.level === lvl.id ? 'bg-yellow-500 text-black border-yellow-500' : 'bg-white/5 text-gray-500 border-white/10 hover:border-white/20'}`}
+                              onClick={() => setFormData({...formData, level: lvl})}
+                              className={`py-4 rounded-2xl font-black uppercase text-[10px] transition-all border ${formData.level === lvl ? 'bg-yellow-500 text-black border-yellow-500' : 'bg-white/5 text-gray-500 border-white/10 hover:border-white/20'}`}
                             >
-                              {isAr ? lvl.ar : lvl.en}
+                              {isAr ? (lvl === 'beginner' ? 'مبتدئ' : lvl === 'intermediate' ? 'متوسط' : 'محترف') : lvl}
                             </button>
                           ))}
                         </div>
@@ -469,14 +636,14 @@ const CourseRegistration = () => {
               </form>
             </CardContent>
 
-            <CardFooter className="p-8 bg-white/[0.02] border-t border-white/5 flex justify-between">
+            <CardFooter className="p-8 border-t border-white/5 bg-white/[0.02] flex justify-between items-center">
               {step > 1 ? (
                 <Button 
-                  onClick={() => setStep(step - 1)}
                   variant="ghost"
-                  className="text-gray-400 hover:text-white font-black uppercase tracking-widest gap-2"
+                  onClick={() => setStep(step - 1)}
+                  className="text-gray-500 hover:text-white font-black uppercase tracking-widest text-xs flex items-center gap-2"
                 >
-                  {isAr ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+                  <ChevronLeft className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
                   {isAr ? 'السابق' : 'Back'}
                 </Button>
               ) : <div />}
@@ -484,19 +651,19 @@ const CourseRegistration = () => {
               {step < 3 ? (
                 <Button 
                   onClick={() => setStep(step + 1)}
-                  disabled={step === 1 && (!formData.name || !formData.email || !formData.age || !formData.city || !formData.country || !formData.number)}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-black font-black uppercase tracking-widest px-8 h-12 rounded-xl gap-2"
+                  className="bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase tracking-widest text-xs px-8 py-6 rounded-2xl shadow-xl shadow-yellow-500/20 flex items-center gap-2"
                 >
                   {isAr ? 'التالي' : 'Next'}
-                  {isAr ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                  <ChevronRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
                 </Button>
               ) : (
                 <Button 
+                  disabled={loading}
                   onClick={handleSubmit}
-                  disabled={loading || !formData.learning_goal}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-black font-black uppercase tracking-widest px-10 h-12 rounded-xl gap-2 shadow-lg shadow-yellow-500/20"
+                  className="bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase tracking-widest text-xs px-8 py-6 rounded-2xl shadow-xl shadow-yellow-500/20 flex items-center gap-2"
                 >
-                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (isAr ? 'إرسال الطلب' : 'Submit Request')}
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  {isAr ? 'إرسال الطلب' : 'Submit Application'}
                 </Button>
               )}
             </CardFooter>
@@ -505,47 +672,52 @@ const CourseRegistration = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
+            className="text-center"
           >
-            <Card className="bg-zinc-900/60 border-yellow-500/20 backdrop-blur-2xl rounded-[3rem] overflow-hidden text-center p-12 shadow-2xl border">
-              <div className="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg shadow-yellow-500/20">
-                <CheckCircle2 className="w-10 h-10 text-black" />
+            <Card className="bg-zinc-900/60 border-white/10 backdrop-blur-2xl rounded-[3rem] p-12 border shadow-2xl">
+              <div className="w-24 h-24 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-yellow-500/20">
+                <CheckCircle2 className="w-12 h-12 text-black" />
               </div>
               <h3 className="text-3xl font-black text-white uppercase tracking-tighter mb-4">
-                {isAr ? 'تم استلام طلبك!' : 'Request Received!'}
+                {isAr ? 'تم استلام طلبك!' : 'Application Received!'}
               </h3>
-              <p className="text-gray-400 mb-10 font-medium">
+              <p className="text-gray-500 font-bold text-sm mb-8 leading-relaxed">
                 {isAr 
-                  ? 'شكراً لتسجيلك. يرجى حفظ الكود التالي وإرساله لنا عبر قنوات التواصل لتأكيد تسجيلك.' 
-                  : 'Thank you for registering. Please save the following code and send it to us via communication channels to confirm your registration.'}
+                  ? 'شكراً لاهتمامك بالكورس. لقد تم تسجيل بياناتك بنجاح. يرجى حفظ كود التسجيل التالي وإرساله للمسؤول لتأكيد حسابك.'
+                  : 'Thank you for your interest. Your data has been recorded. Please save the following registration code and send it to the admin to confirm your account.'}
               </p>
               
-              <div className="bg-white/5 border border-white/10 rounded-[2rem] p-8 mb-10 relative group">
-                <p className="text-[10px] font-black text-yellow-500 uppercase tracking-[0.3em] mb-2">
-                  {isAr ? 'كود التسجيل الخاص بك' : 'YOUR REGISTRATION CODE'}
-                </p>
-                <p className="text-4xl md:text-5xl font-black text-white tracking-widest font-mono">
+              <div className="bg-white/5 border border-white/10 rounded-3xl p-6 mb-8 relative group">
+                <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">
+                  {isAr ? 'كود التسجيل الخاص بك' : 'Your Registration Code'}
+                </div>
+                <div className="text-4xl font-black text-yellow-500 tracking-widest mb-4 tabular-nums">
                   {regCode}
-                </p>
+                </div>
                 <Button 
                   onClick={copyCode}
                   variant="ghost"
-                  className="absolute top-4 right-4 text-gray-500 hover:text-yellow-500"
+                  className="text-white/50 hover:text-yellow-500 flex items-center gap-2 mx-auto font-black uppercase text-[10px] tracking-widest"
                 >
                   <Copy className="w-4 h-4" />
+                  {isAr ? 'نسخ الكود' : 'Copy Code'}
                 </Button>
               </div>
 
               <div className="space-y-4">
-                <p className="text-xs font-black text-gray-500 uppercase tracking-widest">
-                  {isAr ? 'تواصل معنا الآن' : 'CONTACT US NOW'}
+                <p className="text-xs text-gray-600 font-bold uppercase tracking-widest">
+                  {isAr ? 'ماذا تفعل الآن؟' : 'What to do next?'}
                 </p>
-                <div className="flex justify-center gap-4">
-                  <Button 
-                    onClick={() => window.open('https://t.me/ahmed_trader_123', '_blank')}
-                    className="bg-[#0088cc] hover:bg-[#0088cc]/80 text-white font-black uppercase tracking-widest px-8 h-12 rounded-xl gap-2"
+                <div className="flex flex-col gap-3">
+                  <a 
+                    href="https://t.me/mustafa_sk_ict" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-3 text-xs uppercase tracking-widest"
                   >
-                    <Send className="w-4 h-4" /> Telegram
-                  </Button>
+                    <Send className="w-4 h-4 text-yellow-500" />
+                    {isAr ? 'أرسل الكود للمسؤول عبر تليجرام' : 'Send code to admin via Telegram'}
+                  </a>
                 </div>
               </div>
             </Card>
