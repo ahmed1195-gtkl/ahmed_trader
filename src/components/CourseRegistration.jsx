@@ -152,7 +152,7 @@ const CourseRegistration = () => {
     };
 
     try {
-      const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxQ2WidqnPv6dIJY7axycrSkdvYCy2Gtl7ZjTc5i0e2hFcozVC7oEd8gY02ux6E62MFUQ/exec';
+      const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzU7giZJy_k4nWfvkU1k3qrA8TjRoWFmk23q6dHsbDfZ8WabiBvArtl4tIQAwtvdAPPqQ/exec';
       
       // إرسال البيانات كـ JSON حقيقي
       const response = await fetch(GOOGLE_SHEET_URL, {
