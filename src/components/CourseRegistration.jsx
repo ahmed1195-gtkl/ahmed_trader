@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, Mail, Phone, Globe, MapPin, Calendar, Briefcase, 
@@ -20,7 +20,10 @@ const CourseRegistration = () => {
   const [error, setError] = useState(null);
   const [regCode, setRegCode] = useState('');
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [showBrokerDropdown, setShowBrokerDropdown] = useState(false);
   const [countrySearch, setCountrySearch] = useState('');
+  const countryRef = useRef(null);
+  const brokerRef = useRef(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -108,6 +111,19 @@ const CourseRegistration = () => {
   const allBrokers = [
     'Exness', 'XM', 'IC Markets', 'Pepperstone', 'FBS', 'HotForex', 'AvaTrade', 'OctaFX'
   ];
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (countryRef.current && !countryRef.current.contains(event.target)) {
+        setShowCountryDropdown(false);
+      }
+      if (brokerRef.current && !brokerRef.current.contains(event.target)) {
+        setShowBrokerDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const selectedCountry = countries.find(c => c.name === formData.country);
@@ -333,7 +349,7 @@ const CourseRegistration = () => {
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2 relative">
+                        <div className="space-y-2 relative" ref={countryRef}>
                           <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'البلد' : 'Country'}</label>
                           <div 
                             className="relative cursor-pointer"
@@ -341,41 +357,48 @@ const CourseRegistration = () => {
                           >
                             <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50 z-10" />
                             <div className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all flex justify-between items-center">
-                              <span>{formData.country}</span>
+                              <span className="text-sm font-bold">{formData.country}</span>
                               <ChevronDown className={`w-4 h-4 transition-transform ${showCountryDropdown ? 'rotate-180' : ''}`} />
                             </div>
                           </div>
                           
-                          {showCountryDropdown && (
-                            <div className="absolute top-full left-0 w-full mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl z-[100] max-h-60 flex flex-col overflow-hidden">
-                              <div className="p-3 border-b border-white/5 flex items-center gap-2">
-                                <Search className="w-4 h-4 text-gray-500" />
-                                <input 
-                                  type="text"
-                                  className="bg-transparent border-none outline-none text-sm text-white w-full"
-                                  placeholder={isAr ? 'بحث عن بلد...' : 'Search country...'}
-                                  value={countrySearch}
-                                  onChange={(e) => setCountrySearch(e.target.value)}
-                                  onClick={(e) => e.stopPropagation()}
-                                />
-                              </div>
-                              <div className="overflow-y-auto flex-1">
-                                {filteredCountries.map((c) => (
-                                  <div 
-                                    key={c.name}
-                                    className="px-4 py-3 hover:bg-yellow-500 hover:text-black cursor-pointer transition-colors text-sm"
-                                    onClick={() => {
-                                      setFormData({...formData, country: c.name});
-                                      setShowCountryDropdown(false);
-                                      setCountrySearch('');
-                                    }}
-                                  >
-                                    {c.name}
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
+                          <AnimatePresence>
+                            {showCountryDropdown && (
+                              <motion.div 
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 10 }}
+                                className="absolute top-full left-0 w-full mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl z-[100] max-h-60 flex flex-col overflow-hidden backdrop-blur-xl"
+                              >
+                                <div className="p-3 border-b border-white/5 flex items-center gap-2 sticky top-0 bg-zinc-900/90 backdrop-blur-md">
+                                  <Search className="w-4 h-4 text-gray-500" />
+                                  <input 
+                                    type="text"
+                                    className="bg-transparent border-none outline-none text-sm text-white w-full"
+                                    placeholder={isAr ? 'بحث عن بلد...' : 'Search country...'}
+                                    value={countrySearch}
+                                    onChange={(e) => setCountrySearch(e.target.value)}
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                </div>
+                                <div className="overflow-y-auto flex-1 custom-scrollbar">
+                                  {filteredCountries.map((c) => (
+                                    <div 
+                                      key={c.name}
+                                      className="px-4 py-3 hover:bg-yellow-500 hover:text-black cursor-pointer transition-colors text-sm font-bold"
+                                      onClick={() => {
+                                        setFormData({...formData, country: c.name});
+                                        setShowCountryDropdown(false);
+                                        setCountrySearch('');
+                                      }}
+                                    >
+                                      {c.name}
+                                    </div>
+                                  ))}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'رقم الهاتف' : 'Phone Number'}</label>
@@ -464,24 +487,25 @@ const CourseRegistration = () => {
                         <div className="space-y-2">
                           <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'حجم الخسائر (إن وجدت)' : 'Loss Amount (if any)'}</label>
                           <div className="relative">
-                            <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-red-500/50" />
+                            <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50" />
                             <input 
                               type="text"
                               className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
-                              placeholder={isAr ? 'مثلاً: 1000$' : 'e.g. $1000'}
+                              placeholder={isAr ? 'مثلاً: 500$' : 'e.g. $500'}
                               value={formData.losses}
                               onChange={(e) => setFormData({...formData, losses: e.target.value})}
                             />
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'أول إيداع تنوي القيام به' : 'Intended Initial Deposit'}</label>
+                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'مبلغ الإيداع المتوقع' : 'Expected Deposit'}</label>
                           <div className="relative">
                             <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50" />
                             <input 
+                              required
                               type="text"
                               className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all"
-                              placeholder="e.g. $500"
+                              placeholder={isAr ? 'مثلاً: 1000$' : 'e.g. $1000'}
                               value={formData.deposit}
                               onChange={(e) => setFormData({...formData, deposit: e.target.value})}
                             />
@@ -490,7 +514,7 @@ const CourseRegistration = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'نوع الحساب' : 'Account Type'}</label>
+                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'نوع الحساب المفضل' : 'Preferred Account Type'}</label>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                           {accountTypes.map((opt) => (
                             <button
@@ -505,23 +529,51 @@ const CourseRegistration = () => {
                         </div>
                       </div>
 
-                      <div className="space-y-2">
+                      <div className="space-y-2 relative" ref={brokerRef}>
                         <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'البروكر المستعمل' : 'Broker Used'}</label>
-                        <div className="relative">
+                        <div 
+                          className="relative cursor-pointer"
+                          onClick={() => setShowBrokerDropdown(!showBrokerDropdown)}
+                        >
                           <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/50 z-10" />
-                          <select 
-                            className="w-full bg-zinc-900 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all appearance-none cursor-pointer"
-                            value={formData.broker}
-                            onChange={(e) => setFormData({...formData, broker: e.target.value})}
-                          >
-                            <option value="">{isAr ? 'اختر بروكر (اختياري)' : 'Select Broker (Optional)'}</option>
-                            {allBrokers.map((name) => (
-                              <option key={name} value={name} className="bg-zinc-900 text-white">{name}</option>
-                            ))}
-                            <option value="Other">{isAr ? 'آخر' : 'Other'}</option>
-                          </select>
-                          <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                          <div className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all flex justify-between items-center">
+                            <span className="text-sm font-bold">{formData.broker || (isAr ? 'اختر بروكر' : 'Select Broker')}</span>
+                            <ChevronDown className={`w-4 h-4 transition-transform ${showBrokerDropdown ? 'rotate-180' : ''}`} />
+                          </div>
                         </div>
+                        
+                        <AnimatePresence>
+                          {showBrokerDropdown && (
+                            <motion.div 
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: 10 }}
+                              className="absolute top-full left-0 w-full mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl z-[100] max-h-60 overflow-y-auto backdrop-blur-xl custom-scrollbar"
+                            >
+                              {allBrokers.map((name) => (
+                                <div 
+                                  key={name}
+                                  className="px-4 py-3 hover:bg-yellow-500 hover:text-black cursor-pointer transition-colors text-sm font-bold"
+                                  onClick={() => {
+                                    setFormData({...formData, broker: name});
+                                    setShowBrokerDropdown(false);
+                                  }}
+                                >
+                                  {name}
+                                </div>
+                              ))}
+                              <div 
+                                className="px-4 py-3 hover:bg-yellow-500 hover:text-black cursor-pointer transition-colors text-sm font-bold border-t border-white/5"
+                                onClick={() => {
+                                  setFormData({...formData, broker: 'Other'});
+                                  setShowBrokerDropdown(false);
+                                }}
+                              >
+                                {isAr ? 'آخر' : 'Other'}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
                     </motion.div>
                   )}
@@ -705,43 +757,31 @@ const CourseRegistration = () => {
               </h3>
               <p className="text-gray-500 font-bold text-sm mb-8 leading-relaxed">
                 {isAr 
-                  ? 'شكراً لاهتمامك بالكورس. لقد تم تسجيل بياناتك بنجاح. يرجى حفظ كود التسجيل التالي وإرساله للمسؤول لتأكيد حسابك.'
-                  : 'Thank you for your interest. Your data has been recorded. Please save the following registration code and send it to the admin to confirm your account.'}
+                  ? 'شكراً لاهتمامك بالكورس. سيقوم فريقنا بمراجعة بياناتك والتواصل معك قريباً عبر الواتساب أو البريد الإلكتروني.' 
+                  : 'Thank you for your interest. Our team will review your data and contact you soon via WhatsApp or Email.'}
               </p>
               
-              <div className="bg-white/5 border border-white/10 rounded-3xl p-6 mb-8 relative group">
-                <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">
+              <div className="bg-white/5 border border-white/10 rounded-[2rem] p-8 mb-8">
+                <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">
                   {isAr ? 'كود التسجيل الخاص بك' : 'Your Registration Code'}
+                </p>
+                <div className="flex items-center justify-center gap-4">
+                  <span className="text-4xl font-black text-yellow-500 tracking-widest">{regCode}</span>
+                  <button 
+                    onClick={copyCode}
+                    className="p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-all text-yellow-500"
+                  >
+                    <Copy className="w-5 h-5" />
+                  </button>
                 </div>
-                <div className="text-4xl font-black text-yellow-500 tracking-widest mb-4 tabular-nums">
-                  {regCode}
-                </div>
-                <Button 
-                  onClick={copyCode}
-                  variant="ghost"
-                  className="text-white/50 hover:text-yellow-500 flex items-center gap-2 mx-auto font-black uppercase text-[10px] tracking-widest"
-                >
-                  <Copy className="w-4 h-4" />
-                  {isAr ? 'نسخ الكود' : 'Copy Code'}
-                </Button>
               </div>
 
-              <div className="space-y-4">
-                <p className="text-xs text-gray-600 font-bold uppercase tracking-widest">
-                  {isAr ? 'ماذا تفعل الآن؟' : 'What to do next?'}
-                </p>
-                <div className="flex flex-col gap-3">
-                  <a 
-                    href="https://t.me/mustafa_sk_ict" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-3 text-xs uppercase tracking-widest"
-                  >
-                    <Send className="w-4 h-4 text-yellow-500" />
-                    {isAr ? 'أرسل الكود للمسؤول عبر تليجرام' : 'Send code to admin via Telegram'}
-                  </a>
-                </div>
-              </div>
+              <Button 
+                onClick={() => window.location.href = '/'}
+                className="w-full bg-white text-black hover:bg-gray-200 font-black uppercase tracking-widest py-6 rounded-2xl"
+              >
+                {isAr ? 'العودة للرئيسية' : 'Back to Home'}
+              </Button>
             </Card>
           </motion.div>
         )}
