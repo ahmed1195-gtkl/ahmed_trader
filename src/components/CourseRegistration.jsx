@@ -1,165 +1,152 @@
-import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
-import { countries } from '../data/countries';
 import { 
-  User, 
-  Globe, 
-  Phone, 
-  DollarSign, 
-  Briefcase, 
-  Target, 
-  CheckCircle2, 
-  Copy, 
-  Send,
-  Loader2,
-  ChevronRight,
-  ChevronLeft,
-  AlertCircle,
-  Search,
-  ChevronDown,
-  Mail,
-  Calendar,
-  MapPin,
-  Info,
-  TrendingUp,
-  Clock,
-  Users,
-  Activity,
-  BarChart3
+  User, Mail, Phone, Globe, MapPin, Calendar, Briefcase, 
+  TrendingUp, DollarSign, Clock, Target, Activity, 
+  ChevronRight, ChevronLeft, Send, CheckCircle2, AlertCircle,
+  Loader2, Copy, Search, ChevronDown
 } from 'lucide-react';
+import { Card, CardHeader, CardContent, CardFooter } from './ui/card';
+import { Button } from './ui/button';
+import { useTranslation } from 'react-i18next';
 
 const CourseRegistration = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+  
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [regCode, setRegCode] = useState('');
   const [error, setError] = useState(null);
-  const [countrySearch, setCountrySearch] = useState('');
+  const [regCode, setRegCode] = useState('');
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
-  
+  const [countrySearch, setCountrySearch] = useState('');
+
   const [formData, setFormData] = useState({
-    // Group 1: Personal Info
     name: '',
     email: '',
+    phone: '',
     age: '',
     city: '',
-    country: 'Egypt',
-    countryCode: '+20',
+    country: 'Select Country',
+    countryCode: '+1',
     number: '',
-    job: '', // المهمة
-    
-    // Group 2: Financial & Experience
-    annualIncome: '', // الدخل السنوي
-    experienceYears: '', // فترة التداول
-    hasExperience: 'no', // هل لديه خبرة
-    losses: '', // حجم الخسائر
+    job: '',
+    annualIncome: '',
+    hasExperience: '',
+    experienceYears: '',
+    losses: '',
     deposit: '',
+    accountType: '',
     broker: '',
-    accountType: 'Standard', // نوع الحساب
-    
-    // Group 3: Trading Habits & Goals
-    monthlyTrades: '', // متوسط الصفقات شهرياً
-    availability: 'Morning', // الوقت المتاح
-    tradingStyle: 'Solo', // تداول وحدك أو قناة توصيات
-    learning_goal: '',
-    level: 'beginner'
+    monthlyTrades: '',
+    tradingStyle: '',
+    availability: '',
+    availabilityDetails: '',
+    level: '',
+    learning_goal: ''
   });
 
-  const isAr = i18n.language === 'ar';
-
-  const allBrokers = [
-    "AvaTrade", "Capital.com", "CMC Markets", "eToro", "FP Markets", 
-    "Forex.com", "Fusion Markets", "FxPro", "HFM", "IC Markets", 
-    "IG", "InstaForex", "Interactive Brokers", "Libertex", "NinjaTrader", 
-    "OANDA", "Pepperstone", "Saxo Bank", "Swissquote", "Tickmill", 
-    "TradeStation", "Vantage Markets", "XTB", "XM", "ONE ROYAL", "equite"
-  ].sort();
+  const countries = [
+    { name: 'Algeria', code: '+213' },
+    { name: 'Egypt', code: '+20' },
+    { name: 'Morocco', code: '+212' },
+    { name: 'Saudi Arabia', code: '+966' },
+    { name: 'UAE', code: '+971' },
+    { name: 'Jordan', code: '+962' },
+    { name: 'Kuwait', code: '+965' },
+    { name: 'Qatar', code: '+974' },
+    { name: 'Oman', code: '+968' },
+    { name: 'Bahrain', code: '+973' },
+    { name: 'Tunisia', code: '+216' },
+    { name: 'Libya', code: '+218' },
+    { name: 'Iraq', code: '+964' },
+    { name: 'Lebanon', code: '+961' },
+    { name: 'Palestine', code: '+970' },
+    { name: 'Syria', code: '+963' },
+    { name: 'Yemen', code: '+967' },
+    { name: 'Sudan', code: '+249' },
+    { name: 'Mauritania', code: '+222' },
+    { name: 'Somalia', code: '+252' },
+    { name: 'Djibouti', code: '+253' },
+    { name: 'Comoros', code: '+269' },
+    { name: 'Turkey', code: '+90' },
+    { name: 'USA', code: '+1' },
+    { name: 'UK', code: '+44' },
+    { name: 'France', code: '+33' },
+    { name: 'Germany', code: '+49' },
+    { name: 'Spain', code: '+34' },
+    { name: 'Italy', code: '+39' },
+    { name: 'Canada', code: '+1' },
+    { name: 'Australia', code: '+61' }
+  ];
 
   const incomeOptions = [
-    { value: '< 5000$', label: isAr ? 'أقل من 5000$' : '< 5000$' },
-    { value: '5000$ - 15000$', label: '5000$ - 15000$' },
-    { value: '15000$ - 30000$', label: '15000$ - 30000$' },
-    { value: '30000$ - 50000$', label: '30000$ - 50000$' },
-    { value: '> 50000$', label: isAr ? 'أكثر من 50000$' : '> 50000$' }
+    { label: isAr ? 'أقل من 5000$' : '< $5,000', value: 'under_5k' },
+    { label: '$5,000 - $15,000', value: '5k_15k' },
+    { label: '$15,000 - $30,000', value: '15k_30k' },
+    { label: '$30,000 - $60,000', value: '30k_60k' },
+    { label: isAr ? 'أكثر من 60,000$' : '> $60,000', value: 'over_60k' }
   ];
 
   const accountTypes = [
-    { value: 'Demo', label: isAr ? 'تجريبي' : 'Demo' },
-    { value: 'Standard', label: isAr ? 'ستاندارت' : 'Standard' },
-    { value: 'ECN', label: 'ECN' },
-    { value: 'Classic', label: isAr ? 'كلاسيك' : 'Classic' },
-    { value: 'Islamic', label: isAr ? 'إسلامي' : 'Islamic' }
+    { label: isAr ? 'تجريبي' : 'Demo', value: 'Demo' },
+    { label: isAr ? 'ستاندارت' : 'Standard', value: 'Standard' },
+    { label: 'ECN', value: 'ECN' },
+    { label: isAr ? 'كلاسيك' : 'Classic', value: 'Classic' },
+    { label: isAr ? 'إسلامي' : 'Islamic', value: 'Islamic' }
   ];
 
   const availabilityOptions = [
-    { value: 'Morning', label: isAr ? 'الصباح' : 'Morning' },
-    { value: 'Noon', label: isAr ? 'منتصف النهار' : 'Noon' },
-    { value: 'Afternoon', label: isAr ? 'المساء' : 'Afternoon' },
-    { value: 'Night', label: isAr ? 'الليل' : 'Night' },
-    { value: 'Text', label: isAr ? 'كتابياً' : 'Text Only' }
+    { label: isAr ? 'الصباح' : 'Morning', value: 'morning' },
+    { label: isAr ? 'منتصف النهار' : 'Noon', value: 'noon' },
+    { label: isAr ? 'المساء' : 'Evening', value: 'evening' },
+    { label: isAr ? 'الليل' : 'Night', value: 'night' },
+    { label: isAr ? 'كتابياً' : 'Written', value: 'written' }
+  ];
+
+  const allBrokers = [
+    'Exness', 'XM', 'IC Markets', 'Pepperstone', 'FBS', 'HotForex', 'AvaTrade', 'OctaFX'
   ];
 
   useEffect(() => {
     const selectedCountry = countries.find(c => c.name === formData.country);
     if (selectedCountry) {
-      setFormData(prev => ({ ...prev, countryCode: selectedCountry.phone }));
+      setFormData(prev => ({ ...prev, countryCode: selectedCountry.code }));
     }
   }, [formData.country]);
 
   const generateCode = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let code = 'AT-';
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let result = '';
     for (let i = 0; i < 6; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    return code;
+    return result;
   };
 
-  const handleSubmit = async (e) => {
-    if (e) e.preventDefault();
-    setLoading(true);
+  const handleSubmit = async () => {
     setError(null);
+    setLoading(true);
     
     const code = generateCode();
     setRegCode(code);
-
+    
     const payload = {
-      date: new Date().toLocaleString('en-GB', { timeZone: 'UTC' }),
-      name: formData.name.trim(),
-      email: formData.email.trim(),
-      age: formData.age.trim(),
-      city: formData.city.trim(),
-      phone: `${formData.countryCode}${formData.number.trim()}`,
-      job: formData.job.trim(),
-      annualIncome: formData.annualIncome,
-      experienceYears: formData.experienceYears,
-      hasExperience: formData.hasExperience === 'yes' ? 'Yes' : 'No',
-      losses: formData.losses.trim() || 'None',
-      deposit: formData.deposit.trim() || 'No Deposit',
-      country: formData.country,
-      broker: formData.broker.trim() || 'None Selected',
-      accountType: formData.accountType,
-      monthlyTrades: formData.monthlyTrades.trim(),
-      availability: formData.availability,
-      tradingStyle: formData.tradingStyle === 'Solo' ? (isAr ? 'وحدي' : 'Solo') : (isAr ? 'قناة توصيات' : 'Signal Channel'),
-      level: formData.level,
-      goal: formData.learning_goal.trim(),
+      ...formData,
+      phone: `${formData.countryCode}${formData.number}`,
+      date: new Date().toLocaleString(),
       code: code
     };
 
     try {
       const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzU7giZJy_k4nWfvkU1k3qrA8TjRoWFmk23q6dHsbDfZ8WabiBvArtl4tIQAwtvdAPPqQ/exec';
       
-      // إرسال البيانات كـ JSON حقيقي
       const response = await fetch(GOOGLE_SHEET_URL, {
         method: 'POST',
-        mode: 'cors', // تأكيد عدم استخدام no-cors
+        mode: 'cors',
         headers: {
-          'Content-Type': 'text/plain;charset=utf-8', // Apps Script يفضل هذا النوع لتجنب مشاكل CORS المعقدة مع JSON الصرف
+          'Content-Type': 'text/plain;charset=utf-8',
         },
         body: JSON.stringify(payload)
       });
@@ -169,8 +156,6 @@ const CourseRegistration = () => {
       setSubmitted(true);
     } catch (err) {
       console.error("Submission error:", err);
-      // حتى لو فشل الـ fetch بسبب CORS في المتصفح، غالباً البيانات تصل لـ Apps Script
-      // لكننا سنحاول إظهار النجاح للمستخدم إذا لم يكن هناك خطأ قطعي
       setSubmitted(true);
     } finally {
       setLoading(false);
@@ -362,7 +347,7 @@ const CourseRegistration = () => {
                           </div>
                           
                           {showCountryDropdown && (
-                            <div className="absolute top-full left-0 w-full mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl z-50 max-h-60 flex flex-col overflow-hidden">
+                            <div className="absolute top-full left-0 w-full mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl z-[100] max-h-60 flex flex-col overflow-hidden">
                               <div className="p-3 border-b border-white/5 flex items-center gap-2">
                                 <Search className="w-4 h-4 text-gray-500" />
                                 <input 
@@ -601,6 +586,28 @@ const CourseRegistration = () => {
                         </div>
                       </div>
 
+                      {formData.availability === 'written' && (
+                        <motion.div 
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          className="space-y-2"
+                        >
+                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
+                            {isAr ? 'تفاصيل التواصل الكتابي' : 'Written Contact Details'}
+                          </label>
+                          <div className="relative">
+                            <Mail className="absolute left-4 top-4 w-4 h-4 text-yellow-500/50" />
+                            <textarea 
+                              required
+                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-yellow-500/50 outline-none transition-all min-h-[80px] resize-none"
+                              placeholder={isAr ? 'اكتب وسيلة التواصل المفضلة (تليجرام، واتساب...)' : 'Write preferred contact method...'}
+                              value={formData.availabilityDetails}
+                              onChange={(e) => setFormData({...formData, availabilityDetails: e.target.value})}
+                            />
+                          </div>
+                        </motion.div>
+                      )}
+
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">{isAr ? 'هدفك من التعلم' : 'Learning Goal'}</label>
                         <div className="relative">
@@ -636,36 +643,51 @@ const CourseRegistration = () => {
               </form>
             </CardContent>
 
-            <CardFooter className="p-8 border-t border-white/5 bg-white/[0.02] flex justify-between items-center">
-              {step > 1 ? (
-                <Button 
-                  variant="ghost"
-                  onClick={() => setStep(step - 1)}
-                  className="text-gray-500 hover:text-white font-black uppercase tracking-widest text-xs flex items-center gap-2"
-                >
-                  <ChevronLeft className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
-                  {isAr ? 'السابق' : 'Back'}
-                </Button>
-              ) : <div />}
+            <CardFooter className="p-8 border-t border-white/5 bg-white/[0.02] flex flex-col gap-6">
+              <div className="flex justify-between items-center w-full">
+                {step > 1 ? (
+                  <Button 
+                    variant="ghost"
+                    onClick={() => setStep(step - 1)}
+                    className="text-gray-500 hover:text-white font-black uppercase tracking-widest text-xs flex items-center gap-2"
+                  >
+                    <ChevronLeft className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
+                    {isAr ? 'السابق' : 'Back'}
+                  </Button>
+                ) : <div />}
 
-              {step < 3 ? (
-                <Button 
-                  onClick={() => setStep(step + 1)}
-                  className="bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase tracking-widest text-xs px-8 py-6 rounded-2xl shadow-xl shadow-yellow-500/20 flex items-center gap-2"
-                >
-                  {isAr ? 'التالي' : 'Next'}
-                  <ChevronRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
-                </Button>
-              ) : (
-                <Button 
-                  disabled={loading}
-                  onClick={handleSubmit}
-                  className="bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase tracking-widest text-xs px-8 py-6 rounded-2xl shadow-xl shadow-yellow-500/20 flex items-center gap-2"
-                >
-                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                  {isAr ? 'إرسال الطلب' : 'Submit Application'}
-                </Button>
-              )}
+                {step < 3 ? (
+                  <Button 
+                    onClick={() => setStep(step + 1)}
+                    className="bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase tracking-widest text-xs px-8 py-6 rounded-2xl shadow-xl shadow-yellow-500/20 flex items-center gap-2"
+                  >
+                    {isAr ? 'التالي' : 'Next'}
+                    <ChevronRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
+                  </Button>
+                ) : (
+                  <Button 
+                    disabled={loading}
+                    onClick={handleSubmit}
+                    className="bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase tracking-widest text-xs px-8 py-6 rounded-2xl shadow-xl shadow-yellow-500/20 flex items-center gap-2"
+                  >
+                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                    {isAr ? 'إرسال الطلب' : 'Submit Application'}
+                  </Button>
+                )}
+              </div>
+
+              <div className="text-center space-y-2">
+                <p className="text-[10px] text-gray-600 font-bold uppercase tracking-widest italic">
+                  {isAr 
+                    ? "* يرجى التأكد من صحة جميع المعلومات المدخلة لضمان تواصل الفريق معك بنجاح." 
+                    : "* Please ensure all entered information is correct to ensure the team can contact you successfully."}
+                </p>
+                <p className="text-xs font-black text-yellow-500/80 uppercase tracking-tighter">
+                  {isAr 
+                    ? "خطوة واحدة تفصلك عن احتراف التداول، أكمل بياناتك وانضم إلينا الآن." 
+                    : "One step separates you from professional trading, complete your data and join us now."}
+                </p>
+              </div>
             </CardFooter>
           </Card>
         ) : (
