@@ -4,7 +4,7 @@ import {
   User, Mail, Phone, Globe, MapPin, Calendar, Briefcase, 
   TrendingUp, DollarSign, Clock, Target, Activity, 
   ChevronRight, ChevronLeft, Send, CheckCircle2, AlertCircle,
-  Loader2, Copy, Search, ChevronDown
+  Loader2, Copy, Search, ChevronDown, MessageCircle
 } from 'lucide-react';
 import { Card, CardHeader, CardContent, CardFooter } from './ui/card';
 import { Button } from './ui/button';
@@ -139,7 +139,7 @@ const CourseRegistration = () => {
     { label: isAr ? 'منتصف النهار' : 'Noon', value: 'noon' },
     { label: isAr ? 'المساء' : 'Evening', value: 'evening' },
     { label: isAr ? 'الليل' : 'Night', value: 'night' },
-    { label: isAr ? 'كتابياً' : 'Written', value: 'written' }
+    { label: isAr ? 'كتابياً' : 'written' }
   ];
 
   const allBrokers = [
@@ -172,15 +172,36 @@ const CourseRegistration = () => {
   }, [formData.country]);
 
   const generateCode = () => {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let result = '';
-    for (let i = 0; i < 6; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    return 'AT-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+  };
+
+  const validateStep = (currentStep) => {
+    if (currentStep === 1) {
+      return formData.name && formData.email && formData.number && formData.age && formData.city && formData.country !== 'Select Country';
     }
-    return result;
+    if (currentStep === 2) {
+      const baseValid = formData.job && formData.annualIncome && formData.hasExperience && formData.deposit && formData.accountType && formData.broker;
+      if (formData.hasExperience === 'Yes') {
+        return baseValid && formData.experienceYears && formData.losses;
+      }
+      return baseValid;
+    }
+    if (currentStep === 3) {
+      const baseValid = formData.monthlyTrades && formData.tradingStyle && formData.availability && formData.learning_goal;
+      if (formData.availability === 'written') {
+        return baseValid && formData.availabilityDetails;
+      }
+      return baseValid;
+    }
+    return false;
   };
 
   const handleSubmit = async () => {
+    if (!validateStep(3)) {
+      setError(isAr ? 'يرجى ملء جميع الحقول المطلوبة' : 'Please fill in all required fields');
+      return;
+    }
+
     setError(null);
     setLoading(true);
     
@@ -250,62 +271,68 @@ const CourseRegistration = () => {
   );
 
   return (
-    <section className="py-20 min-h-screen bg-black relative overflow-y-auto">
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-yellow-500/5 blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-yellow-500/5 blur-[120px] rounded-full" />
-      </div>
-
-      <div className="container mx-auto px-4 max-w-2xl relative z-10">
+    <section className="min-h-screen bg-black pt-32 pb-20 px-4 relative overflow-hidden">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(234,179,8,0.05)_0%,transparent_70%)] pointer-events-none" />
+      
+      <div className="max-w-4xl mx-auto relative z-10">
         <div className="text-center mb-12">
-          <motion.h2 
+          <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 mb-6"
           >
-            {isAr ? 'التسجيل في' : 'Register for'} <span className="text-yellow-500">{isAr ? 'الكورس' : 'The Course'}</span>
-          </motion.h2>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-gray-500 font-bold uppercase tracking-widest text-xs"
-          >
-            {isAr ? 'ابدأ رحلتك في عالم التداول الاحترافي' : 'Start your journey in professional trading'}
-          </motion.p>
+            <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
+            <span className="text-yellow-500 text-[10px] font-black uppercase tracking-[0.2em]">
+              {isAr ? 'التسجيل في الكورس الاحترافي' : 'Professional Course Registration'}
+            </span>
+          </motion.div>
+          <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4">
+            {isAr ? 'ابدأ رحلتك' : 'Start Your'} <span className="text-yellow-500">{isAr ? 'الآن' : 'Journey'}</span>
+          </h2>
         </div>
 
         {!submitted ? (
-          <Card className="bg-zinc-900/60 border-white/10 backdrop-blur-2xl rounded-[2.5rem] overflow-hidden shadow-2xl border">
-            <CardHeader className="border-b border-white/5 p-8">
-              <div className="flex justify-between items-center">
-                {steps.map((s) => (
-                  <div key={s.id} className="flex flex-col items-center gap-2">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm transition-all duration-500 ${step >= s.id ? 'bg-yellow-500 text-black shadow-lg shadow-yellow-500/20' : 'bg-white/5 text-gray-500 border border-white/10'}`}>
-                      {step > s.id ? <CheckCircle2 className="w-5 h-5" /> : s.id}
+          <Card className="bg-zinc-900/60 border-white/10 backdrop-blur-2xl rounded-[2.5rem] overflow-hidden border shadow-2xl">
+            <CardHeader className="p-8 border-b border-white/5">
+              <div className="flex items-center justify-between mb-8">
+                {steps.map((s, idx) => (
+                  <React.Fragment key={s.id}>
+                    <div className="flex flex-col items-center gap-3 relative">
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black transition-all duration-500 ${step >= s.id ? 'bg-yellow-500 text-black shadow-lg shadow-yellow-500/20' : 'bg-white/5 text-gray-500 border border-white/10'}`}>
+                        {step > s.id ? <CheckCircle2 className="w-6 h-6" /> : s.id}
+                      </div>
+                      <span className={`text-[10px] font-black uppercase tracking-widest ${step >= s.id ? 'text-white' : 'text-gray-500'}`}>
+                        {s.title}
+                      </span>
                     </div>
-                    <span className={`text-[10px] font-black uppercase tracking-tighter ${step >= s.id ? 'text-white' : 'text-gray-600'}`}>
-                      {s.title}
-                    </span>
-                  </div>
+                    {idx < steps.length - 1 && (
+                      <div className="flex-1 h-[2px] bg-white/5 mx-4 mb-8">
+                        <motion.div 
+                          className="h-full bg-yellow-500"
+                          initial={{ width: '0%' }}
+                          animate={{ width: step > s.id ? '100%' : '0%' }}
+                        />
+                      </div>
+                    )}
+                  </React.Fragment>
                 ))}
               </div>
             </CardHeader>
 
             <CardContent className="p-8">
-              <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
+              {error && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3 text-red-500 text-xs font-bold"
+                >
+                  <AlertCircle className="w-4 h-4" />
+                  {error}
+                </motion.div>
+              )}
+
+              <form onSubmit={(e) => e.preventDefault()}>
                 <AnimatePresence mode="wait">
-                  {error && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-center gap-3 text-red-500 text-xs font-bold mb-6"
-                    >
-                      <AlertCircle className="w-4 h-4" />
-                      {error}
-                    </motion.div>
-                  )}
-                  
                   {step === 1 && (
                     <motion.div 
                       key="step1"
@@ -325,8 +352,8 @@ const CourseRegistration = () => {
                               type="text"
                               value={formData.name}
                               onChange={(e) => setFormData({...formData, name: e.target.value})}
-                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 focus:ring-4 focus:ring-yellow-500/10 transition-all"
-                              placeholder={isAr ? 'أدخل اسمك' : 'Enter your name'}
+                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all"
+                              placeholder={isAr ? 'أدخل اسمك الكامل' : 'Enter your full name'}
                             />
                           </div>
                         </div>
@@ -341,7 +368,7 @@ const CourseRegistration = () => {
                               type="email"
                               value={formData.email}
                               onChange={(e) => setFormData({...formData, email: e.target.value})}
-                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 focus:ring-4 focus:ring-yellow-500/10 transition-all"
+                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all"
                               placeholder="name@example.com"
                             />
                           </div>
@@ -352,63 +379,16 @@ const CourseRegistration = () => {
                             {isAr ? 'رقم الهاتف' : 'Phone Number'}
                           </label>
                           <div className="flex gap-2">
-                            <div className="relative w-32" ref={countryRef}>
-                              <button
-                                type="button"
-                                onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white text-sm font-bold flex items-center justify-between focus:outline-none focus:border-yellow-500/50 transition-all"
-                              >
-                                <span>{formData.countryCode}</span>
-                                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showCountryDropdown ? 'rotate-180' : ''}`} />
-                              </button>
-                              
-                              <AnimatePresence>
-                                {showCountryDropdown && (
-                                  <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: 10 }}
-                                    className="absolute left-0 top-full mt-2 w-64 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-[100]"
-                                  >
-                                    <div className="p-2 border-b border-white/5">
-                                      <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500" />
-                                        <input
-                                          type="text"
-                                          value={countrySearch}
-                                          onChange={(e) => setCountrySearch(e.target.value)}
-                                          className="w-full bg-white/5 border border-white/5 rounded-xl py-2 pl-8 pr-3 text-xs text-white focus:outline-none focus:border-yellow-500/30"
-                                          placeholder={isAr ? 'ابحث عن دولة...' : 'Search country...'}
-                                        />
-                                      </div>
-                                    </div>
-                                    <div className="max-h-60 overflow-y-auto custom-scrollbar">
-                                      {filteredCountries.map((c) => (
-                                        <button
-                                          key={c.name}
-                                          type="button"
-                                          onClick={() => {
-                                            setFormData({ ...formData, country: c.name, countryCode: c.code });
-                                            setShowCountryDropdown(false);
-                                          }}
-                                          className="w-full px-4 py-3 text-left text-xs font-bold text-gray-400 hover:bg-yellow-500 hover:text-black transition-colors flex items-center justify-between"
-                                        >
-                                          <span>{c.name}</span>
-                                          <span className="opacity-50">{c.code}</span>
-                                        </button>
-                                      ))}
-                                    </div>
-                                  </motion.div>
-                                )}
-                              </AnimatePresence>
+                            <div className="w-24 bg-white/5 border border-white/10 rounded-2xl py-4 px-3 text-white text-sm font-bold text-center">
+                              {formData.countryCode}
                             </div>
-                            <div className="relative flex-1 group">
+                            <div className="flex-1 relative group">
                               <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-yellow-500 transition-colors" />
                               <input 
                                 type="tel"
                                 value={formData.number}
                                 onChange={(e) => setFormData({...formData, number: e.target.value})}
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 focus:ring-4 focus:ring-yellow-500/10 transition-all"
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all"
                                 placeholder="000 000 000"
                               />
                             </div>
@@ -425,9 +405,68 @@ const CourseRegistration = () => {
                               type="number"
                               value={formData.age}
                               onChange={(e) => setFormData({...formData, age: e.target.value})}
-                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 focus:ring-4 focus:ring-yellow-500/10 transition-all"
-                              placeholder={isAr ? 'أدخل عمرك' : 'Enter your age'}
+                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all"
+                              placeholder="25"
                             />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">
+                            {isAr ? 'الدولة' : 'Country'}
+                          </label>
+                          <div className="relative" ref={countryRef}>
+                            <button
+                              type="button"
+                              onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white text-sm font-bold flex items-center justify-between focus:outline-none focus:border-yellow-500/50 transition-all"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Globe className="w-4 h-4 text-gray-500" />
+                                <span>{formData.country === 'Select Country' ? (isAr ? 'اختر الدولة' : 'Select Country') : formData.country}</span>
+                              </div>
+                              <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showCountryDropdown ? 'rotate-180' : ''}`} />
+                            </button>
+                            
+                            <AnimatePresence>
+                              {showCountryDropdown && (
+                                <motion.div
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  exit={{ opacity: 0, y: 10 }}
+                                  className="absolute left-0 top-full mt-2 w-full bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-[100]"
+                                >
+                                  <div className="p-2 border-b border-white/5">
+                                    <div className="relative">
+                                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500" />
+                                      <input
+                                        type="text"
+                                        value={countrySearch}
+                                        onChange={(e) => setCountrySearch(e.target.value)}
+                                        className="w-full bg-white/5 border border-white/5 rounded-xl py-2 pl-8 pr-3 text-xs text-white focus:outline-none focus:border-yellow-500/30"
+                                        placeholder={isAr ? 'ابحث عن دولة...' : 'Search country...'}
+                                      />
+                                    </div>
+                                  </div>
+                                  <div className="max-h-60 overflow-y-auto custom-scrollbar">
+                                    {filteredCountries.map((c) => (
+                                      <button
+                                        key={c.name}
+                                        type="button"
+                                        onClick={() => {
+                                          setFormData({ ...formData, country: c.name });
+                                          setShowCountryDropdown(false);
+                                        }}
+                                        className="w-full px-4 py-3 text-left text-xs font-bold text-gray-400 hover:bg-yellow-500 hover:text-black transition-colors flex items-center justify-between"
+                                      >
+                                        <span>{c.name}</span>
+                                        <span className="opacity-50">{c.code}</span>
+                                      </button>
+                                    ))}
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
                           </div>
                         </div>
 
@@ -441,24 +480,8 @@ const CourseRegistration = () => {
                               type="text"
                               value={formData.city}
                               onChange={(e) => setFormData({...formData, city: e.target.value})}
-                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 focus:ring-4 focus:ring-yellow-500/10 transition-all"
+                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all"
                               placeholder={isAr ? 'أدخل مدينتك' : 'Enter your city'}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">
-                            {isAr ? 'المهمة / الوظيفة' : 'Job / Occupation'}
-                          </label>
-                          <div className="relative group">
-                            <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-yellow-500 transition-colors" />
-                            <input 
-                              type="text"
-                              value={formData.job}
-                              onChange={(e) => setFormData({...formData, job: e.target.value})}
-                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 focus:ring-4 focus:ring-yellow-500/10 transition-all"
-                              placeholder={isAr ? 'أدخل وظيفتك' : 'Enter your job'}
                             />
                           </div>
                         </div>
@@ -477,15 +500,31 @@ const CourseRegistration = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">
+                            {isAr ? 'الوظيفة الحالية' : 'Current Job'}
+                          </label>
+                          <div className="relative group">
+                            <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-yellow-500 transition-colors" />
+                            <input 
+                              type="text"
+                              value={formData.job}
+                              onChange={(e) => setFormData({...formData, job: e.target.value})}
+                              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all"
+                              placeholder={isAr ? 'أدخل وظيفتك' : 'Enter your job'}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">
                             {isAr ? 'الدخل السنوي التقريبي' : 'Approx. Annual Income'}
                           </label>
-                          <div className="grid grid-cols-1 gap-2">
+                          <div className="grid grid-cols-2 gap-2">
                             {incomeOptions.map((opt) => (
                               <button
                                 key={opt.value}
                                 type="button"
                                 onClick={() => setFormData({...formData, annualIncome: opt.value})}
-                                className={`px-4 py-3 rounded-xl text-xs font-bold border transition-all ${formData.annualIncome === opt.value ? 'bg-yellow-500 border-yellow-500 text-black' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'}`}
+                                className={`px-3 py-3 rounded-xl text-[10px] font-black border transition-all ${formData.annualIncome === opt.value ? 'bg-yellow-500 border-yellow-500 text-black' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'}`}
                               >
                                 {opt.label}
                               </button>
@@ -493,10 +532,10 @@ const CourseRegistration = () => {
                           </div>
                         </div>
 
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                           <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">
-                              {isAr ? 'هل تداولت من قبل؟' : 'Have you traded before?'}
+                              {isAr ? 'هل لديك خبرة سابقة؟' : 'Previous Experience?'}
                             </label>
                             <div className="flex gap-2">
                               {['Yes', 'No'].map((opt) => (
@@ -690,7 +729,7 @@ const CourseRegistration = () => {
                                 key={opt.value}
                                 type="button"
                                 onClick={() => setFormData({...formData, availability: opt.value})}
-                                className={`py-3 rounded-xl text-[10px] font-black border transition-all ${formData.availability === opt.value ? 'bg-yellow-500 border-yellow-500 text-black' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'}`}
+                                className={`px-2 py-3 rounded-xl text-[10px] font-black border transition-all ${formData.availability === opt.value ? 'bg-yellow-500 border-yellow-500 text-black' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'}`}
                               >
                                 {opt.label}
                               </button>
@@ -751,8 +790,13 @@ const CourseRegistration = () => {
                 
                 <Button 
                   onClick={() => {
-                    if (step < 3) setStep(step + 1);
-                    else handleSubmit();
+                    if (validateStep(step)) {
+                      setError(null);
+                      if (step < 3) setStep(step + 1);
+                      else handleSubmit();
+                    } else {
+                      setError(isAr ? 'يرجى ملء جميع الحقول المطلوبة قبل الانتقال' : 'Please fill in all required fields before proceeding');
+                    }
                   }}
                   disabled={loading}
                   className="flex-[2] bg-yellow-500 hover:bg-yellow-400 text-black rounded-2xl py-6 font-black uppercase tracking-widest text-xs shadow-xl shadow-yellow-500/20"
@@ -793,8 +837,8 @@ const CourseRegistration = () => {
             </h3>
             <p className="text-gray-400 font-bold text-sm mb-8 leading-relaxed">
               {isAr 
-                ? 'شكراً لتسجيلك. لقد تم إرسال بياناتك بنجاح وسيتواصل معك فريقنا قريباً. يرجى حفظ كود التسجيل الخاص بك.' 
-                : 'Thank you for registering. Your data has been sent successfully and our team will contact you soon. Please save your registration code.'}
+                ? 'شكراً لتسجيلك. لقد تم إرسال بياناتك بنجاح. يرجى الانضمام لقناة التلجرام، وسيتم التواصل معك فور الانضمام.' 
+                : 'Thank you for registering. Your data has been sent successfully. Please join the Telegram channel, and you will be contacted after joining.'}
             </p>
             
             <div className="bg-black/40 border border-white/10 rounded-3xl p-6 mb-8 relative group overflow-hidden">
@@ -813,12 +857,22 @@ const CourseRegistration = () => {
               </div>
             </div>
 
-            <Button 
-              onClick={() => window.location.href = '/'}
-              className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl py-6 font-black uppercase tracking-widest text-xs"
-            >
-              {isAr ? 'العودة للرئيسية' : 'Back to Home'}
-            </Button>
+            <div className="space-y-4">
+              <Button 
+                onClick={() => window.open('https://t.me/+EbG7ymIbwwJlNjA0', '_blank')}
+                className="w-full bg-yellow-500 hover:bg-yellow-400 text-black rounded-2xl py-6 font-black uppercase tracking-widest text-xs shadow-xl shadow-yellow-500/20 flex items-center justify-center gap-2"
+              >
+                <MessageCircle className="w-5 h-5" />
+                {isAr ? 'انضم لقناة التلجرام' : 'Join Telegram Channel'}
+              </Button>
+
+              <Button 
+                onClick={() => window.location.href = '/'}
+                className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl py-6 font-black uppercase tracking-widest text-xs"
+              >
+                {isAr ? 'العودة للرئيسية' : 'Back to Home'}
+              </Button>
+            </div>
           </motion.div>
         )}
       </div>
