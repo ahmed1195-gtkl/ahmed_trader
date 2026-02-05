@@ -22,12 +22,14 @@ const CourseRegistration = () => {
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [showBrokerDropdown, setShowBrokerDropdown] = useState(false);
+  const [showLangDropdown, setShowLangDropdown] = useState(false);
   const [countrySearch, setCountrySearch] = useState('');
   const [citySearch, setCitySearch] = useState('');
   const [brokerSearch, setBrokerSearch] = useState('');
   const countryRef = useRef(null);
   const cityRef = useRef(null);
   const brokerRef = useRef(null);
+  const langRef = useRef(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -136,11 +138,18 @@ const CourseRegistration = () => {
     'FXCM', 'Windsor Brokers', 'Orbex', 'BDSwiss', 'HYCM', 'Amana Capital', 'MultiBank Group'
   ];
 
+  const languages = [
+    { code: 'ar', label: 'العربية' },
+    { code: 'en', label: 'English' },
+    { code: 'fr', label: 'Français' }
+  ];
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (countryRef.current && !countryRef.current.contains(event.target)) setShowCountryDropdown(false);
       if (cityRef.current && !cityRef.current.contains(event.target)) setShowCityDropdown(false);
       if (brokerRef.current && !brokerRef.current.contains(event.target)) setShowBrokerDropdown(false);
+      if (langRef.current && !langRef.current.contains(event.target)) setShowLangDropdown(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -239,9 +248,9 @@ const CourseRegistration = () => {
     }
   };
 
-  const toggleLanguage = () => {
-    const newLang = i18n.language === 'ar' ? 'en' : 'ar';
-    i18n.changeLanguage(newLang);
+  const changeLanguage = (code) => {
+    i18n.changeLanguage(code);
+    setShowLangDropdown(false);
   };
 
   const steps = [
@@ -259,16 +268,38 @@ const CourseRegistration = () => {
   return (
     <section className="min-h-screen bg-black pt-32 pb-20 px-4 relative overflow-hidden">
       {/* Language Toggle Button */}
-      <div className="absolute top-8 right-8 z-50">
+      <div className="absolute top-8 right-8 z-50" ref={langRef}>
         <button 
-          onClick={toggleLanguage}
+          onClick={() => setShowLangDropdown(!showLangDropdown)}
           className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-yellow-500 hover:text-black transition-all duration-300 backdrop-blur-xl group"
         >
           <Languages className="w-4 h-4 group-hover:rotate-12 transition-transform" />
           <span className="text-[10px] font-black uppercase tracking-widest">
-            {i18n.language === 'ar' ? 'English' : 'العربية'}
+            {languages.find(l => l.code === i18n.language)?.label || 'Language'}
           </span>
+          <ChevronDown className={`w-3 h-3 transition-transform ${showLangDropdown ? 'rotate-180' : ''}`} />
         </button>
+        
+        <AnimatePresence>
+          {showLangDropdown && (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              exit={{ opacity: 0, y: 10 }}
+              className="absolute right-0 mt-2 w-32 bg-zinc-900 border border-white/10 rounded-xl shadow-2xl overflow-hidden z-[100]"
+            >
+              {languages.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => changeLanguage(lang.code)}
+                  className={`w-full px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest transition-colors ${i18n.language === lang.code ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
+                >
+                  {lang.label}
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(234,179,8,0.05)_0%,transparent_70%)] pointer-events-none" />
