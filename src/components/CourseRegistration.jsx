@@ -4,7 +4,7 @@ import {
   User, Mail, Phone, Globe, MapPin, Calendar, Briefcase, 
   TrendingUp, DollarSign, Clock, Target, Activity, 
   ChevronRight, ChevronLeft, Send, CheckCircle2, AlertCircle,
-  Loader2, Copy, Search, ChevronDown, MessageCircle, Edit3
+  Loader2, Copy, Search, ChevronDown, MessageCircle, Edit3, Languages
 } from 'lucide-react';
 import { Card, CardHeader, CardContent, CardFooter } from './ui/card';
 import { Button } from './ui/button';
@@ -239,6 +239,11 @@ const CourseRegistration = () => {
     }
   };
 
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'ar' ? 'en' : 'ar';
+    i18n.changeLanguage(newLang);
+  };
+
   const steps = [
     { id: 1, title: isAr ? 'المعلومات الشخصية' : 'Personal Info' },
     { id: 2, title: isAr ? 'الخبرة والمالية' : 'Experience & Finance' },
@@ -253,6 +258,19 @@ const CourseRegistration = () => {
 
   return (
     <section className="min-h-screen bg-black pt-32 pb-20 px-4 relative overflow-hidden">
+      {/* Language Toggle Button */}
+      <div className="absolute top-8 right-8 z-50">
+        <button 
+          onClick={toggleLanguage}
+          className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-yellow-500 hover:text-black transition-all duration-300 backdrop-blur-xl group"
+        >
+          <Languages className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+          <span className="text-[10px] font-black uppercase tracking-widest">
+            {i18n.language === 'ar' ? 'English' : 'العربية'}
+          </span>
+        </button>
+      </div>
+
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(234,179,8,0.05)_0%,transparent_70%)] pointer-events-none" />
       <div className="max-w-4xl mx-auto relative z-10">
         <div className="text-center mb-12">
@@ -378,26 +396,30 @@ const CourseRegistration = () => {
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'الدخل السنوي التقريبي' : 'Approx. Annual Income'}</label>
-                          <div className="grid grid-cols-2 gap-2">{incomeOptions.map((opt) => (<button key={opt.value} type="button" onClick={() => setFormData({...formData, annualIncome: opt.value})} className={`px-3 py-3 rounded-xl text-[10px] font-black border transition-all ${formData.annualIncome === opt.value ? 'bg-yellow-500 border-yellow-500 text-black' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'}`}>{opt.label}</button>))}</div>
+                          <div className="grid grid-cols-1 gap-2">{incomeOptions.map((opt) => (<button key={opt.value} type="button" onClick={() => setFormData({...formData, annualIncome: opt.value})} className={`px-3 py-3 rounded-xl text-[10px] font-black border transition-all ${formData.annualIncome === opt.value ? 'bg-yellow-500 border-yellow-500 text-black' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'}`}>{opt.label}</button>))}</div>
                         </div>
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'هل لديك خبرة سابقة؟' : 'Previous Experience?'}</label>
-                            <div className="flex gap-2">{['Yes', 'No'].map((opt) => (<button key={opt} type="button" onClick={() => setFormData({...formData, hasExperience: opt})} className={`flex-1 py-3 rounded-xl text-xs font-bold border transition-all ${formData.hasExperience === opt ? 'bg-yellow-500 border-yellow-500 text-black' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'}`}>{isAr ? (opt === 'Yes' ? 'نعم' : 'لا') : opt}</button>))}</div>
-                          </div>
-                          {formData.hasExperience === 'Yes' && (
-                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                              <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'فترة التداول' : 'Trading Period'}</label>
-                                <input type="text" value={formData.experienceYears} onChange={(e) => setFormData({...formData, experienceYears: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all" placeholder={isAr ? 'مثال: سنتين' : 'e.g. 2 years'} />
-                              </div>
-                              <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'حجم الخسائر إن وجدت' : 'Losses if any'}</label>
-                                <input type="text" value={formData.losses} onChange={(e) => setFormData({...formData, losses: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all" placeholder={isAr ? 'أدخل المبلغ' : 'Enter amount'} />
-                              </div>
-                            </motion.div>
-                          )}
+                        <div className="space-y-2 md:col-span-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'هل لديك خبرة سابقة في التداول؟' : 'Do you have trading experience?'}</label>
+                          <div className="flex gap-4">{[{ label: isAr ? 'نعم' : 'Yes', value: 'Yes' }, { label: isAr ? 'لا' : 'No', value: 'No' }].map((opt) => (<button key={opt.value} type="button" onClick={() => setFormData({...formData, hasExperience: opt.value})} className={`flex-1 py-4 rounded-2xl text-sm font-black border transition-all ${formData.hasExperience === opt.value ? 'bg-yellow-500 border-yellow-500 text-black shadow-lg shadow-yellow-500/20' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'}`}>{opt.label}</button>))}</div>
                         </div>
+                        {formData.hasExperience === 'Yes' && (
+                          <>
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'سنوات الخبرة' : 'Years of Experience'}</label>
+                              <div className="relative group">
+                                <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-yellow-500 transition-colors" />
+                                <input type="number" value={formData.experienceYears} onChange={(e) => setFormData({...formData, experienceYears: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all" placeholder="0" />
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'إجمالي الخسائر التقريبية' : 'Approx. Total Losses'}</label>
+                              <div className="relative group">
+                                <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-yellow-500 transition-colors" />
+                                <input type="text" value={formData.losses} onChange={(e) => setFormData({...formData, losses: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all" placeholder="0.00" />
+                              </div>
+                            </div>
+                          </>
+                        )}
                         {formData.hasExperience === 'Yes' && (
                           <>
                             <div className="space-y-2">
@@ -496,7 +518,8 @@ const CourseRegistration = () => {
             <p className="text-gray-400 font-bold text-sm mb-8 leading-relaxed">{isAr ? 'شكراً لتسجيلك. لقد تم إرسال بياناتك بنجاح. يرجى الانضمام لقناة التلجرام، وسيتم التواصل معك فور الانضمام.' : 'Thank you for registering. Your data has been sent successfully. Please join the Telegram channel, and you will be contacted after joining.'}</p>
             <div className="bg-black/40 border border-white/10 rounded-3xl p-6 mb-8 relative group overflow-hidden"><div className="absolute inset-0 bg-yellow-500/5 opacity-0 group-hover:opacity-100 transition-opacity" /><span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-2">{isAr ? 'كود التسجيل الخاص بك' : 'Your Registration Code'}</span><div className="flex items-center justify-center gap-4"><span className="text-4xl font-black text-yellow-500 tracking-[0.2em]">{regCode}</span><button onClick={copyCode} className="p-2 hover:bg-white/5 rounded-xl transition-colors text-gray-500 hover:text-yellow-500"><Copy className="w-5 h-5" /></button></div></div>
             <div className="space-y-4">
-              <Button onClick={() => window.open('https://t.me/+EbG7ymIbwwJlNjA0', '_blank')} className="w-full bg-yellow-500 hover:bg-yellow-400 text-black rounded-2xl py-6 font-black uppercase tracking-widest text-xs shadow-xl shadow-yellow-500/20 flex items-center justify-center gap-2"><MessageCircle className="w-5 h-5" />{isAr ? 'انضم لقناة التلجرام' : 'Join Telegram Channel'}</Button>
+              <Button onClick={() => window.open('https://t.me/+CADMeIVdMDQ2Nzg0', '_blank')} className="w-full bg-yellow-500 hover:bg-yellow-400 text-black rounded-2xl py-6 font-black uppercase tracking-widest text-xs shadow-xl shadow-yellow-500/20 flex items-center justify-center gap-2"><MessageCircle className="w-5 h-5" />{isAr ? 'انضم لقناة الكورس' : 'Join Course Channel'}</Button>
+              <Button onClick={() => window.open('https://t.me/Ahmed_trader_support', '_blank')} className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl py-6 font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2"><User className="w-5 h-5" />{isAr ? 'تواصل مع الكوتش أحمد' : 'Contact Coach Ahmed'}</Button>
               <Button onClick={() => window.location.href = '/'} className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl py-6 font-black uppercase tracking-widest text-xs">{isAr ? 'العودة للرئيسية' : 'Back to Home'}</Button>
             </div>
           </motion.div>
