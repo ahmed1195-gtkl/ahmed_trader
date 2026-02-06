@@ -45,6 +45,7 @@ const AdminDashboard = () => {
   const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState('users');
   const [users, setUsers] = useState([]);
+  const [posts, setPosts] = useState([]);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -59,6 +60,13 @@ const AdminDashboard = () => {
       const usersList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setUsers(usersList);
       setLoading(false);
+    });
+
+    // جلب المنشورات
+    const postsQ = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
+    const unsubscribePosts = onSnapshot(postsQ, (snapshot) => {
+      const postsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setPosts(postsData);
     });
 
     // جلب سجل الأنشطة
@@ -77,6 +85,7 @@ const AdminDashboard = () => {
 
     return () => {
       unsubscribeUsers();
+      unsubscribePosts();
       unsubscribeLogs();
       unsubscribeSettings();
     };
@@ -265,6 +274,58 @@ const AdminDashboard = () => {
               <div className="bg-zinc-900/40 border border-white/5 rounded-[2rem] p-8">
                 <p className="text-gray-400 text-sm mb-8">{i18n.language === 'ar' ? 'استخدم الزر العائم في الأسفل لإضافة منشور جديد.' : 'Use the floating button below to add a new post.'}</p>
                 <CreatePost onPostCreated={() => toast.success(i18n.language === 'ar' ? 'تم إضافة المنشور بنجاح' : 'Post created successfully')} />
+              </div>
+              <div className="space-y-4">
+                {posts.length === 0 ? (
+                  <div className="text-center py-12 bg-zinc-900/20 rounded-[2rem] border border-white/5">
+                    <p className="text-gray-500 text-sm">{i18n.language === 'ar' ? 'لا توجد منشورات بعد' : 'No posts yet'}</p>
+                  </div>
+                ) : (
+                  posts.map((post) => (
+                    <Card key={post.id} className="bg-zinc-900/40 border-white/5 rounded-[2rem] overflow-hidden">
+                      <CardContent className="p-6">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex-1">
+                            <p className="text-white font-bold text-sm mb-2">{post.author}</p>
+                            <p className="text-gray-400 text-xs">{post.createdAt?.toDate ? post.createdAt.toDate().toLocaleDateString() : 'Just now'}</p>
+                          </div>
+                          <Button 
+                            onClick={async () => {
+                              if (window.confirm(i18n.language === 'ar' ? 'هل أنت متأكد من حذف هذا المنشور؟' : 'Are you sure you want to delete this post?')) {
+                                try {
+                                  await deleteDoc(doc(db, 'posts', post.id));
+                                  toast.success(i18n.language === 'ar' ? 'تم حذف المنشور' : 'Post deleted');
+                                } catch (error) {
+                                  toast.error(i18n.language === 'ar' ? 'فشل الحذف' : 'Failed to delete');
+                                }
+                              }
+                            }}
+                            variant="ghost"
+                            className="text-red-500 hover:bg-red-500/10 rounded-full w-8 h-8 p-0"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        <p className="text-gray-300 text-sm mb-4 whitespace-pre-wrap">{post.text}</p>
+                        {post.image && (
+                          <div className="rounded-xl overflow-hidden">
+                            {post.mediaType === 'video' ? (
+                              <video src={post.image} controls className="w-full" />
+                            ) : post.mediaType === 'audio' ? (
+                              <audio src={post.image} controls className="w-full" />
+                            ) : (
+                              <img src={post.image} alt="Post" className="w-full object-cover max-h-[300px]" />
+                            )}
+                          </div>
+                        )}
+                        <div className="flex gap-4 mt-4 text-xs text-gray-500">
+                          <span>{post.likes?.length || 0} {i18n.language === 'ar' ? 'إعجاب' : 'Likes'}</span>
+                          <span>{post.comments?.length || 0} {i18n.language === 'ar' ? 'تعليق' : 'Comments'}</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
               </div>
             </motion.div>
           )}
