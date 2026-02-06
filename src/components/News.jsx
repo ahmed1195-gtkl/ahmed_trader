@@ -7,6 +7,8 @@ import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import Header from './Header';
 import Footer from './Footer';
 import Comments from './Comments';
+import AuthGuardPopup from './AuthGuardPopup';
+import { auth } from '../lib/firebase';
 
 const News = () => {
   const { t } = useTranslation();
@@ -14,6 +16,7 @@ const News = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState(true);
 
   const fetchNews = useCallback(async () => {
     setLoading(true);
@@ -68,7 +71,15 @@ const News = () => {
   useEffect(() => {
     fetchNews();
     const interval = setInterval(fetchNews, 600000); // Update every 10 minutes
-    return () => clearInterval(interval);
+    
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setIsUserAuthenticated(!!user);
+    });
+
+    return () => {
+      clearInterval(interval);
+      unsubscribe();
+    };
   }, [fetchNews]);
 
   return (
@@ -270,6 +281,7 @@ const News = () => {
         </AnimatePresence>
       </main>
       <Footer />
+      <AuthGuardPopup isOpen={!isUserAuthenticated} />
     </div>
   );
 };

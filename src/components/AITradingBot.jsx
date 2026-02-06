@@ -16,6 +16,8 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import Header from './Header';
 import Footer from './Footer';
+import AuthGuardPopup from './AuthGuardPopup';
+import { auth } from '../lib/firebase';
 import { db } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp, query, where, orderBy, limit, onSnapshot } from 'firebase/firestore';
 
@@ -70,6 +72,7 @@ const AITradingBot = () => {
   const [marketSentiment, setMarketSentiment] = useState(null);
   const [showAssetList, setShowAssetList] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState(true);
   
   const priceIntervalRef = useRef(null);
   const timeIntervalRef = useRef(null);
@@ -143,7 +146,15 @@ const AITradingBot = () => {
 
   useEffect(() => {
     timeIntervalRef.current = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timeIntervalRef.current);
+    
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setIsUserAuthenticated(!!user);
+    });
+
+    return () => {
+      clearInterval(timeIntervalRef.current);
+      unsubscribe();
+    };
   }, []);
 
   const [isNewsLoading, setIsNewsLoading] = useState(false);
@@ -615,6 +626,7 @@ const AITradingBot = () => {
         </div>
       </main>
       <Footer />
+      <AuthGuardPopup isOpen={!isUserAuthenticated} />
     </div>
   );
 };

@@ -5,6 +5,8 @@ import { Calculator, Globe, BarChart3, RefreshCw, Info, ChevronDown, Zap, Target
 import Header from './Header';
 import Footer from './Footer';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import AuthGuardPopup from './AuthGuardPopup';
+import { auth } from '../lib/firebase';
 
 const PipCalculator = () => {
   const { t } = useTranslation();
@@ -16,6 +18,7 @@ const PipCalculator = () => {
   const [loading, setLoading] = useState(false);
   const [showAssetList, setShowAssetList] = useState(false);
   const [showCurrencyList, setShowCurrencyList] = useState(false);
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState(true);
 
   const assets = [
     // Forex Majors
@@ -118,6 +121,13 @@ const PipCalculator = () => {
   }, [asset]);
 
   const [exchangeRates, setExchangeRates] = useState({ EUR: 0.92, GBP: 0.79, JPY: 145, USD: 1 });
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setIsUserAuthenticated(!!user);
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const fetchExchangeRates = async () => {
@@ -341,6 +351,7 @@ const PipCalculator = () => {
         </div>
       </main>
       <Footer />
+      <AuthGuardPopup isOpen={!isUserAuthenticated} />
     </div>
   );
 };

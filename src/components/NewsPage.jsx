@@ -7,6 +7,8 @@ import { fetchGlobalNews } from '@/lib/bot/analysis/market_intelligence';
 import { useTranslation } from 'react-i18next';
 import Header from './Header';
 import Footer from './Footer';
+import AuthGuardPopup from './AuthGuardPopup';
+import { auth } from '@/lib/firebase';
 
 export default function NewsPage() {
   const { t, i18n } = useTranslation();
@@ -15,6 +17,7 @@ export default function NewsPage() {
   const [activeTab, setActiveTab] = useState('daily'); // daily or weekly
   const [selectedAsset, setSelectedAsset] = useState('BTC');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState(true);
   const newsIntervalRef = useRef(null);
 
   // قائمة الأصول المدمجة (عملات رقمية + فوركس)
@@ -54,7 +57,15 @@ export default function NewsPage() {
   useEffect(() => {
     fetchNews();
     newsIntervalRef.current = setInterval(fetchNews, 120000); // تحديث كل دقيقتين
-    return () => clearInterval(newsIntervalRef.current);
+    
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setIsUserAuthenticated(!!user);
+    });
+
+    return () => {
+      clearInterval(newsIntervalRef.current);
+      unsubscribe();
+    };
   }, [selectedAsset]);
 
   // تصفية الأخبار حسب الفترة الزمنية والبحث
@@ -350,6 +361,7 @@ export default function NewsPage() {
       </main>
       
       <Footer />
+      <AuthGuardPopup isOpen={!isUserAuthenticated} />
     </div>
   );
 }
