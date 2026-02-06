@@ -70,15 +70,16 @@ const CreatePost = ({ onPostCreated }) => {
       const userDoc = await getDoc(doc(db, 'users', user.uid));
       const userData = userDoc.exists() ? userDoc.data() : {};
 
-      await addDoc(collection(db, 'admin_posts'), {
-        userId: user.uid,
-        userName: userData.fullName || user.displayName || 'User',
-        userNumericUID: userData.numericUID || 'N/A',
-        title,
-        content,
+      await addDoc(collection(db, 'posts'), {
+        text: `${title}\n\n${content}`,
         image: finalImageUrl,
+        mediaType: 'image',
+        author: userData.fullName || user.displayName || 'User',
+        authorId: user.uid,
+        authorPhoto: userData.photoURL || user.photoURL || null,
+        createdAt: serverTimestamp(),
         likes: [],
-        createdAt: serverTimestamp()
+        comments: []
       });
 
       setTitle('');
