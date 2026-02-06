@@ -91,6 +91,11 @@ const Feed = () => {
     
     if (!user || (!newPost && !imageUrl && !file)) return;
 
+    if (!isAdmin) {
+      alert(i18n.language === 'ar' ? "النشر متاح للإدارة فقط." : "Posting is only available for admins.");
+      return;
+    }
+
     if (userData?.isBanned) {
       alert(i18n.language === 'ar' ? "تم حظر حسابك من النشر." : "Your account is banned from posting.");
       return;
@@ -223,7 +228,7 @@ const Feed = () => {
                 <LayoutDashboard className="w-6 h-6" />
               </Button>
             )}
-            {user && (
+            {user && isAdmin && (
               <Button 
                 onClick={() => setShowUpload(!showUpload)}
                 className="bg-yellow-500 hover:bg-yellow-400 text-black rounded-full w-12 h-12 p-0 shadow-lg shadow-yellow-500/20 transition-transform hover:scale-110"
@@ -235,7 +240,7 @@ const Feed = () => {
         </div>
 
         <AnimatePresence>
-          {showUpload && user && (
+          {showUpload && user && isAdmin && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -326,7 +331,7 @@ const Feed = () => {
                         </div>
                         <div>
                           <p className="text-white font-black text-sm uppercase tracking-tight">{post.author}</p>
-                          <p className="text-gray-500 text-[9px] font-black uppercase tracking-[0.2em]">{post.createdAt?.toDate().toLocaleDateString()}</p>
+                          <p className="text-gray-500 text-[9px] font-black uppercase tracking-[0.2em]">{post.createdAt?.toDate ? post.createdAt.toDate().toLocaleDateString() : 'Just now'}</p>
                         </div>
                       </div>
                       {isAdmin && (
