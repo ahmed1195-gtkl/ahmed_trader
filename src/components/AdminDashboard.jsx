@@ -77,9 +77,20 @@ const AdminDashboard = () => {
     });
 
     // جلب إعدادات الموقع
-    const unsubscribeSettings = onSnapshot(collection(db, 'site_settings'), (snapshot) => {
+    const unsubscribeSettings = onSnapshot(collection(db, 'site_settings'), async (snapshot) => {
       if (!snapshot.empty) {
         setSiteSettings({ id: snapshot.docs[0].id, ...snapshot.docs[0].data() });
+      } else {
+        // إنشاء مستند إعدادات افتراضي
+        try {
+          const docRef = await addDoc(collection(db, 'site_settings'), {
+            showAIBot: true,
+            showPipCalculator: true
+          });
+          setSiteSettings({ id: docRef.id, showAIBot: true, showPipCalculator: true });
+        } catch (error) {
+          console.error('Error creating default settings:', error);
+        }
       }
     });
 
@@ -108,12 +119,22 @@ const AdminDashboard = () => {
   const toggleSetting = async (setting) => {
     const newValue = !siteSettings[setting];
     try {
-      const settingsRef = doc(db, 'site_settings', siteSettings.id);
-      await updateDoc(settingsRef, { [setting]: newValue });
+      if (siteSettings.id) {
+        // تحديث مستند موجود
+        const settingsRef = doc(db, 'site_settings', siteSettings.id);
+        await updateDoc(settingsRef, { [setting]: newValue });
+      } else {
+        // إنشاء مستند جديد
+        await addDoc(collection(db, 'site_settings'), {
+          showAIBot: setting === 'showAIBot' ? newValue : true,
+          showPipCalculator: setting === 'showPipCalculator' ? newValue : true
+        });
+      }
       await logAdminAction('UPDATE_SETTING', `Admin changed ${setting} to ${newValue}`);
       toast.success(i18n.language === 'ar' ? 'تم تحديث الإعدادات' : 'Settings updated');
     } catch (error) {
-      toast.error('Error updating settings');
+      console.error('Error updating settings:', error);
+      toast.error(i18n.language === 'ar' ? 'فشل التحديث' : 'Error updating settings');
     }
   };
 
