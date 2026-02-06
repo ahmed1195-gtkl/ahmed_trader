@@ -72,7 +72,7 @@ const Feed = () => {
     formData.append('upload_preset', 'ahmed_trader_preset');
     
     try {
-      const response = await fetch(`https://api.cloudinary.com/v1_1/ahmed-trader/image/upload`, {
+      const response = await fetch(`https://api.cloudinary.com/v1_1/dmrrj3rpl/image/upload`, {
         method: 'POST',
         body: formData,
       });
