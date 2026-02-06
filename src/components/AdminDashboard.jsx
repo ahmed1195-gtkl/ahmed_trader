@@ -118,6 +118,10 @@ const AdminDashboard = () => {
 
   const toggleSetting = async (setting) => {
     const newValue = !siteSettings[setting];
+    
+    // تحديث فوري للحالة المحلية
+    setSiteSettings(prev => ({ ...prev, [setting]: newValue }));
+    
     try {
       if (siteSettings.id) {
         // تحديث مستند موجود
@@ -125,15 +129,18 @@ const AdminDashboard = () => {
         await updateDoc(settingsRef, { [setting]: newValue });
       } else {
         // إنشاء مستند جديد
-        await addDoc(collection(db, 'site_settings'), {
+        const docRef = await addDoc(collection(db, 'site_settings'), {
           showAIBot: setting === 'showAIBot' ? newValue : true,
           showPipCalculator: setting === 'showPipCalculator' ? newValue : true
         });
+        setSiteSettings(prev => ({ ...prev, id: docRef.id }));
       }
       await logAdminAction('UPDATE_SETTING', `Admin changed ${setting} to ${newValue}`);
       toast.success(i18n.language === 'ar' ? 'تم تحديث الإعدادات' : 'Settings updated');
     } catch (error) {
       console.error('Error updating settings:', error);
+      // إرجاع التغيير في حالة الفشل
+      setSiteSettings(prev => ({ ...prev, [setting]: !newValue }));
       toast.error(i18n.language === 'ar' ? 'فشل التحديث' : 'Error updating settings');
     }
   };
@@ -376,9 +383,9 @@ const AdminDashboard = () => {
                       </div>
                       <button 
                         onClick={() => toggleSetting(setting.id)}
-                        className={`w-14 h-8 rounded-full transition-all relative ${siteSettings[setting.id] ? 'bg-yellow-500' : 'bg-zinc-800'}`}
+                        className={`w-16 h-9 rounded-full transition-all duration-300 relative shadow-lg ${siteSettings[setting.id] ? 'bg-yellow-500 shadow-yellow-500/20' : 'bg-zinc-800/80 shadow-black/20'}`}
                       >
-                        <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${siteSettings[setting.id] ? 'left-7' : 'left-1'}`} />
+                        <div className={`absolute top-1 w-7 h-7 rounded-full bg-white shadow-md transition-all duration-300 ${siteSettings[setting.id] ? 'left-8' : 'left-1'}`} />
                       </button>
                     </div>
                   ))}
