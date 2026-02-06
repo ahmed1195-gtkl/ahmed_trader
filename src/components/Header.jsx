@@ -23,7 +23,8 @@ import {
   Activity,
   Info,
   GraduationCap,
-  Plus
+  Plus,
+  TrendingUp
 } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
@@ -113,6 +114,7 @@ const Header = () => {
 
   const navLinks = [
     { name: t('nav.home'), path: '/', icon: <Home className="w-4 h-4" />, show: true },
+    { name: i18n.language === 'ar' ? 'الوسطاء' : i18n.language === 'fr' ? 'Courtiers' : 'Brokers', path: '/brokers', icon: <TrendingUp className="w-4 h-4" />, show: true },
     { name: i18n.language === 'ar' ? 'الأخبار' : 'Market News', path: '/news', icon: <Activity className="w-4 h-4" />, show: true },
     { name: i18n.language === 'ar' ? 'أخبار عالمية' : 'Global News', path: '/global-news', icon: <Newspaper className="w-4 h-4" />, show: true },
     { name: i18n.language === 'ar' ? 'الكورس' : 'Course', path: '/course-registration', icon: <GraduationCap className="w-4 h-4" />, show: true },

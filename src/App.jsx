@@ -11,6 +11,7 @@ import Hero from './components/Hero';
 import Benefits from './components/Benefits';
 import Coach from './components/Coach';
 import Brokers from './components/Brokers';
+import BrokersPage from './components/BrokersPage';
 import Footer from './components/Footer';
 import Auth from './components/Auth';
 import Onboarding from './components/Onboarding';
@@ -198,6 +199,7 @@ function App() {
                 <Route path="/news" element={<NewsPage />} />
                 <Route path="/global-news" element={<GlobalNews />} />
                 <Route path="/course-registration" element={<CourseRegistration />} />
+                <Route path="/brokers" element={<BrokersPage />} />
                 <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/" />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
