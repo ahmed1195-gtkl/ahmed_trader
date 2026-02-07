@@ -136,9 +136,25 @@ const Feed = () => {
   };
 
   const handleLike = async (postId, likes) => {
-    if (!user) return;
+    if (!user) {
+      alert(i18n.language === 'ar' ? 'يجب تسجيل الدخول للإعجاب' : 'Please login to like posts');
+      return;
+    }
+    
     const postRef = doc(db, 'posts', postId);
     const isLiked = likes.includes(user.uid);
+
+    // تحديث فوري للحالة المحلية
+    setPosts(prevPosts => 
+      prevPosts.map(post => 
+        post.id === postId 
+          ? { ...post, likes: isLiked 
+              ? post.likes.filter(uid => uid !== user.uid) 
+              : [...post.likes, user.uid] 
+            }
+          : post
+      )
+    );
 
     try {
       await updateDoc(postRef, {
@@ -146,11 +162,29 @@ const Feed = () => {
       });
     } catch (error) {
       console.error("Error liking post: ", error);
+      // إرجاع التغيير في حالة الفشل
+      setPosts(prevPosts => 
+        prevPosts.map(post => 
+          post.id === postId 
+            ? { ...post, likes: isLiked 
+                ? [...post.likes, user.uid] 
+                : post.likes.filter(uid => uid !== user.uid) 
+              }
+            : post
+        )
+      );
+      alert(i18n.language === 'ar' ? 'فشل الإعجاب' : 'Failed to like post');
     }
   };
 
   const handleComment = async (postId) => {
-    if (!user || !commentText[postId]) return;
+    if (!user) {
+      alert(i18n.language === 'ar' ? 'يجب تسجيل الدخول للتعليق' : 'Please login to comment');
+      return;
+    }
+    
+    if (!commentText[postId]?.trim()) return;
+    
     if (userData?.isBanned) {
       alert(i18n.language === 'ar' ? "تم حظر حسابك من التعليق." : "Your account is banned from commenting.");
       return;
@@ -158,21 +192,40 @@ const Feed = () => {
 
     const postRef = doc(db, 'posts', postId);
     const text = commentText[postId];
+    const newComment = {
+      userId: user.uid,
+      userName: userData?.fullName || user.displayName || 'User',
+      userPhoto: userData?.photoURL || user.photoURL || null,
+      text: text,
+      createdAt: new Date().toISOString()
+    };
+    
+    // تحديث فوري للحالة المحلية
+    setPosts(prevPosts => 
+      prevPosts.map(post => 
+        post.id === postId 
+          ? { ...post, comments: [...(post.comments || []), newComment] }
+          : post
+      )
+    );
+    
     setCommentText({ ...commentText, [postId]: '' });
 
     try {
       await updateDoc(postRef, {
-        comments: arrayUnion({
-          userId: user.uid,
-          userName: userData?.fullName || user.displayName || 'User',
-          userPhoto: userData?.photoURL || user.photoURL || null,
-          text: text,
-          createdAt: new Date().toISOString()
-        })
+        comments: arrayUnion(newComment)
       });
     } catch (error) {
       console.error("Error adding comment: ", error);
-      alert("Failed to add comment. Please try again.");
+      // إرجاع التغيير في حالة الفشل
+      setPosts(prevPosts => 
+        prevPosts.map(post => 
+          post.id === postId 
+            ? { ...post, comments: post.comments.filter(c => c !== newComment) }
+            : post
+        )
+      );
+      alert(i18n.language === 'ar' ? 'فشل إضافة التعليق' : "Failed to add comment. Please try again.");
     }
   };
 

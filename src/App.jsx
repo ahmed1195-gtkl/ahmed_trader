@@ -43,7 +43,6 @@ function MainLayout() {
         </div>
         <Benefits />
         <Coach />
-        <Brokers />
       </main>
       <Footer />
     </>
