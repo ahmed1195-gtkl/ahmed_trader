@@ -19,6 +19,7 @@ import {
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
 import { Heart, MessageCircle, Plus, Image as ImageIcon, Send, X, Music, Video, Loader2, User, LayoutDashboard } from 'lucide-react';
+import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
 const Feed = () => {
@@ -92,12 +93,12 @@ const Feed = () => {
     if (!user || (!newPost && !imageUrl && !file)) return;
 
     if (!isAdmin) {
-      alert(i18n.language === 'ar' ? "النشر متاح للإدارة فقط." : "Posting is only available for admins.");
+      toast.error(i18n.language === 'ar' ? "النشر متاح للإدارة فقط." : "Posting is only available for admins.");
       return;
     }
 
     if (userData?.isBanned) {
-      alert(i18n.language === 'ar' ? "تم حظر حسابك من النشر." : "Your account is banned from posting.");
+      toast.error(i18n.language === 'ar' ? "تم حظر حسابك من النشر." : "Your account is banned from posting.");
       return;
     }
 
@@ -129,7 +130,7 @@ const Feed = () => {
       setShowUpload(false);
     } catch (error) {
       console.error("Error adding post: ", error);
-      alert("Error adding post: " + error.message);
+      toast.error(i18n.language === 'ar' ? 'فشل إضافة المنشور' : "Error adding post");
     } finally {
       setLoading(false);
     }
@@ -137,7 +138,7 @@ const Feed = () => {
 
   const handleLike = async (postId, likes) => {
     if (!user) {
-      alert(i18n.language === 'ar' ? 'يجب تسجيل الدخول للإعجاب' : 'Please login to like posts');
+      toast.error(i18n.language === 'ar' ? 'يجب تسجيل الدخول للإعجاب' : 'Please login to like posts');
       return;
     }
     
@@ -173,20 +174,20 @@ const Feed = () => {
             : post
         )
       );
-      alert(i18n.language === 'ar' ? 'فشل الإعجاب' : 'Failed to like post');
+      toast.error(i18n.language === 'ar' ? 'فشل الإعجاب' : 'Failed to like post');
     }
   };
 
   const handleComment = async (postId) => {
     if (!user) {
-      alert(i18n.language === 'ar' ? 'يجب تسجيل الدخول للتعليق' : 'Please login to comment');
+      toast.error(i18n.language === 'ar' ? 'يجب تسجيل الدخول للتعليق' : 'Please login to comment');
       return;
     }
     
     if (!commentText[postId]?.trim()) return;
     
     if (userData?.isBanned) {
-      alert(i18n.language === 'ar' ? "تم حظر حسابك من التعليق." : "Your account is banned from commenting.");
+      toast.error(i18n.language === 'ar' ? "تم حظر حسابك من التعليق." : "Your account is banned from commenting.");
       return;
     }
 
@@ -225,19 +226,22 @@ const Feed = () => {
             : post
         )
       );
-      alert(i18n.language === 'ar' ? 'فشل إضافة التعليق' : "Failed to add comment. Please try again.");
+      toast.error(i18n.language === 'ar' ? 'فشل إضافة التعليق' : "Failed to add comment. Please try again.");
     }
   };
 
   const handleDeletePost = async (postId) => {
     if (!isAdmin) return;
-    if (window.confirm(i18n.language === 'ar' ? 'هل أنت متأكد من حذف هذا المنشور؟' : 'Are you sure you want to delete this post?')) {
-      try {
-        await deleteDoc(doc(db, 'posts', postId));
-      } catch (error) {
-        console.error("Error deleting post: ", error);
-        alert("Failed to delete post.");
-      }
+    
+    const confirmed = window.confirm(i18n.language === 'ar' ? 'هل أنت متأكد من حذف هذا المنشور؟' : 'Are you sure you want to delete this post?');
+    if (!confirmed) return;
+    
+    try {
+      await deleteDoc(doc(db, 'posts', postId));
+      toast.success(i18n.language === 'ar' ? 'تم حذف المنشور بنجاح' : "Post deleted successfully");
+    } catch (error) {
+      console.error("Error deleting post: ", error);
+      toast.error(i18n.language === 'ar' ? 'فشل حذف المنشور' : "Failed to delete post.");
     }
   };
 

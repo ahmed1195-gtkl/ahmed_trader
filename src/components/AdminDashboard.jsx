@@ -395,6 +395,90 @@ const AdminDashboard = () => {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Ban Modal */}
+      <AnimatePresence>
+        {isBanModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setIsBanModalOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-zinc-900 border border-red-500/20 rounded-[2rem] p-8 max-w-md w-full shadow-2xl shadow-red-500/10"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-black uppercase tracking-tight text-white flex items-center gap-3">
+                  <Ban className="w-6 h-6 text-red-500" />
+                  {i18n.language === 'ar' ? 'حظر المستخدم' : 'Ban User'}
+                </h3>
+                <button
+                  onClick={() => setIsBanModalOpen(false)}
+                  className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
+                >
+                  <X className="w-4 h-4 text-gray-400" />
+                </button>
+              </div>
+
+              {selectedUser && (
+                <div className="mb-6 p-4 bg-white/5 rounded-xl border border-white/5">
+                  <p className="text-sm text-gray-400 mb-1">{i18n.language === 'ar' ? 'المستخدم' : 'User'}</p>
+                  <p className="text-white font-bold">{selectedUser.fullName || selectedUser.email}</p>
+                  <p className="text-xs text-gray-500 mt-1">{selectedUser.email}</p>
+                </div>
+              )}
+
+              <div className="space-y-4 mb-6">
+                <label className="text-sm font-bold text-gray-300 block">
+                  {i18n.language === 'ar' ? 'مدة الحظر' : 'Ban Duration'}
+                </label>
+                <div className="space-y-2">
+                  {[
+                    { value: '1day', label: i18n.language === 'ar' ? 'يوم واحد' : '1 Day' },
+                    { value: '7days', label: i18n.language === 'ar' ? '7 أيام' : '7 Days' },
+                    { value: '30days', label: i18n.language === 'ar' ? '30 يوم' : '30 Days' },
+                    { value: 'permanent', label: i18n.language === 'ar' ? 'دائم' : 'Permanent' }
+                  ].map(option => (
+                    <button
+                      key={option.value}
+                      onClick={() => setBanDuration(option.value)}
+                      className={`w-full p-3 rounded-xl text-sm font-bold transition-all ${
+                        banDuration === option.value
+                          ? 'bg-red-500 text-black'
+                          : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => setIsBanModalOpen(false)}
+                  className="flex-1 bg-white/5 hover:bg-white/10 text-white border-0 h-12 rounded-xl font-black uppercase tracking-widest"
+                >
+                  {i18n.language === 'ar' ? 'إلغاء' : 'Cancel'}
+                </Button>
+                <Button
+                  onClick={handleBanUser}
+                  className="flex-1 bg-red-500 hover:bg-red-600 text-black border-0 h-12 rounded-xl font-black uppercase tracking-widest"
+                >
+                  <Ban className="w-4 h-4 mr-2" />
+                  {i18n.language === 'ar' ? 'حظر' : 'Ban'}
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
