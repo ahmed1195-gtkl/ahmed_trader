@@ -10,7 +10,7 @@ import {
   where,
   getDocs
 } from 'firebase/firestore';
-import { useAuthState } from 'react-firebase-hooks/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { useTranslation } from 'react-i18next';
 import { Send, MessageCircle, User, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -21,12 +21,20 @@ import { toast } from 'sonner';
 
 const Messages = () => {
   const { t, i18n } = useTranslation();
-  const [user] = useAuthState(auth);
+  const [user, setUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const messagesEndRef = useRef(null);
+
+  // مراقبة حالة المستخدم
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // التحقق من صلاحيات الأدمن
   useEffect(() => {
