@@ -24,7 +24,8 @@ import {
   Info,
   GraduationCap,
   Plus,
-  TrendingUp
+  TrendingUp,
+  MessageCircle
 } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
@@ -118,6 +119,7 @@ const Header = () => {
     { name: i18n.language === 'ar' ? 'الأخبار' : 'Market News', path: '/news', icon: <Activity className="w-4 h-4" />, show: true },
     { name: i18n.language === 'ar' ? 'أخبار عالمية' : 'Global News', path: '/global-news', icon: <Newspaper className="w-4 h-4" />, show: true },
     { name: i18n.language === 'ar' ? 'الكورس' : 'Course', path: '/course-registration', icon: <GraduationCap className="w-4 h-4" />, show: true },
+    { name: i18n.language === 'ar' ? 'الرسائل' : 'Messages', path: '/messages', icon: <MessageCircle className="w-4 h-4" />, show: true },
     { name: 'AI Bot', path: '/ai-bot', icon: <Zap className="w-4 h-4" />, show: siteSettings.showAIBot },
     { name: 'Pips', path: '/pip-calculator', icon: <Calculator className="w-4 h-4" />, show: siteSettings.showPipCalculator },
   ].filter(link => link.show);

@@ -26,6 +26,7 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 import ResetPassword from './components/ResetPassword';
 import AITradingBot from './components/AITradingBot';
 import PipCalculator from './components/PipCalculator';
+import Messages from './components/Messages';
 import CookieConsent from './components/CookieConsent';
 import './App.css';
 
@@ -204,6 +205,7 @@ function App() {
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route path="/ai-bot" element={siteSettings.showAIBot ? <AITradingBot /> : <Navigate to="/" />} />
                 <Route path="/pip-calculator" element={siteSettings.showPipCalculator ? <PipCalculator /> : <Navigate to="/" />} />
+                <Route path="/messages" element={<Messages />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </div>
