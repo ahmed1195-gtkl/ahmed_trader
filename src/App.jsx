@@ -27,6 +27,9 @@ import ResetPassword from './components/ResetPassword';
 import AITradingBot from './components/AITradingBot';
 import PipCalculator from './components/PipCalculator';
 import Messages from './components/Messages';
+import ChatWidget from './components/ChatWidget';
+import UserProfile from './components/UserProfile';
+import Friends from './components/Friends';
 import CookieConsent from './components/CookieConsent';
 import './App.css';
 
@@ -206,9 +209,12 @@ function App() {
                 <Route path="/ai-bot" element={siteSettings.showAIBot ? <AITradingBot /> : <Navigate to="/" />} />
                 <Route path="/pip-calculator" element={siteSettings.showPipCalculator ? <PipCalculator /> : <Navigate to="/" />} />
                 <Route path="/messages" element={<Messages />} />
+                <Route path="/profile/:userId" element={<UserProfile />} />
+                <Route path="/friends" element={<Friends />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </div>
+            <ChatWidget />
             <CookieConsent />
           </div>
         </Router>

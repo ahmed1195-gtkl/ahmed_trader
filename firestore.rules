@@ -102,5 +102,28 @@ service cloud.firestore {
       // الكتابة: متاحة للأدمن فقط
       allow write: if isAdmin();
     }
+
+    // قواعد طلبات الصداقة (Friend Requests)
+    match /friend_requests/{requestId} {
+      // القراءة: المستخدم يرى الطلبات المرسلة منه أو إليه
+      allow read: if isSignedIn() && (
+        resource.data.senderId == request.auth.uid || 
+        resource.data.receiverId == request.auth.uid
+      );
+      
+      // الإنشاء: المستخدم يمكنه إرسال طلب صداقة
+      allow create: if isSignedIn() && 
+                       request.resource.data.senderId == request.auth.uid;
+      
+      // التحديث: المستقبل يمكنه قبول الطلب
+      allow update: if isSignedIn() && 
+                       resource.data.receiverId == request.auth.uid;
+      
+      // الحذف: المرسل أو المستقبل يمكنهما حذف الطلب
+      allow delete: if isSignedIn() && (
+        resource.data.senderId == request.auth.uid || 
+        resource.data.receiverId == request.auth.uid
+      );
+    }
   }
 }
