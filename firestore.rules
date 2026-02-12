@@ -1,0 +1,106 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // وظيفة للتحقق مما إذا كان المستخدم هو أدمن
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == 'mchokri100@gmail.com' || 
+        request.auth.token.email == 'ahmed1195@gmail.com'
+      );
+    }
+
+    // وظيفة للتحقق مما إذا كان المستخدم مسجل دخول
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // قواعد مجموعة المستخدمين
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
+      allow delete: if isAdmin();
+    }
+
+    // قواعد صفقات البوت (Bot Trades)
+    match /bot_trades/{tradeId} {
+      allow read: if true;
+      allow create: if true; 
+      allow update, delete: if isAdmin();
+    }
+
+    // قواعد إعدادات وأوزان البوت (Bot Settings)
+    match /bot_settings/{settingId} {
+      allow read: if true;
+      allow write: if true; 
+    }
+
+    // قواعد المنشورات (Posts)
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if isAdmin();
+      allow update: if isSignedIn();
+      allow delete: if isAdmin();
+    }
+
+    // قواعد منشورات الأدمن (Admin Posts)
+    match /admin_posts/{postId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // قواعد التعليقات (Comments)
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+    }
+
+    // قواعد الرسائل (Messages) - فقط بين المستخدم والأدمن
+    match /messages/{messageId} {
+      // القراءة:
+      // - الأدمن يرى جميع الرسائل
+      // - المستخدم يرى رسائله فقط (التي أرسلها أو استقبلها من الأدمن)
+      allow read: if isAdmin() || 
+                     (isSignedIn() && resource.data.userId == request.auth.uid);
+      
+      // الإنشاء: متاح لأي مستخدم مسجل
+      allow create: if isSignedIn() && 
+                       request.resource.data.userId == request.auth.uid;
+      
+      // التحديث والحذف: متاح للأدمن فقط
+      allow update, delete: if isAdmin();
+    }
+
+    // قواعد إعدادات الموقع (Site Settings) - تعطيل الصفحات
+    match /site_settings/{settingId} {
+      // القراءة: متاحة للجميع المسجلين
+      allow read: if isSignedIn();
+      
+      // الكتابة: متاحة للأدمن فقط
+      allow write: if isAdmin();
+    }
+
+    // قواعد سجل النشاط (Activity Logs)
+    match /activity_logs/{logId} {
+      // القراءة: متاحة للأدمن فقط
+      allow read: if isAdmin();
+      
+      // الإنشاء: متاح للأدمن فقط
+      allow create: if isAdmin();
+      
+      // التحديث والحذف: ممنوع (السجلات لا تُعدل)
+      allow update, delete: if false;
+    }
+
+    // قواعد الوسطاء (Brokers)
+    match /brokers/{brokerId} {
+      // القراءة: متاحة للجميع
+      allow read: if true;
+      
+      // الكتابة: متاحة للأدمن فقط
+      allow write: if isAdmin();
+    }
+  }
+}
