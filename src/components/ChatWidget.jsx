@@ -11,7 +11,7 @@ import {
   getDocs
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
-import { useTranslation } from 'react-i18n';
+import { useTranslation } from 'react-i18next';
 import { MessageCircle, Send, X, Minimize2, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
