@@ -6,7 +6,8 @@ service cloud.firestore {
     function isAdmin() {
       return request.auth != null && (
         request.auth.token.email == 'mchokri100@gmail.com' || 
-        request.auth.token.email == 'ahmed1195@gmail.com'
+        request.auth.token.email == 'ahmed1195@gmail.com' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
       );
     }
 
@@ -17,9 +18,16 @@ service cloud.firestore {
 
     // قواعد مجموعة المستخدمين
     match /users/{userId} {
+      // القراءة: متاحة لجميع المستخدمين المسجلين
       allow read: if isSignedIn();
+      
+      // الإنشاء: المستخدم يمكنه إنشاء ملفه الشخصي فقط
       allow create: if isSignedIn() && request.auth.uid == userId;
+      
+      // التحديث: الأدمن أو المستخدم نفسه
       allow update: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
+      
+      // الحذف: الأدمن فقط
       allow delete: if isAdmin();
     }
 
@@ -38,13 +46,20 @@ service cloud.firestore {
 
     // قواعد المنشورات (Posts)
     match /posts/{postId} {
+      // القراءة: متاحة للجميع
       allow read: if true;
+      
+      // الإنشاء: الأدمن فقط
       allow create: if isAdmin();
+      
+      // التحديث: متاح للمستخدمين المسجلين (للإعجابات والتعليقات)
       allow update: if isSignedIn();
+      
+      // الحذف: الأدمن فقط
       allow delete: if isAdmin();
     }
 
-    // قواعد منشورات الأدمن (Admin Posts)
+    // قواعد منشورات الأدمن (Admin Posts) - للتوافق مع الإصدارات القديمة
     match /admin_posts/{postId} {
       allow read: if true;
       allow write: if isAdmin();
@@ -52,42 +67,80 @@ service cloud.firestore {
 
     // قواعد التعليقات (Comments)
     match /comments/{commentId} {
+      // القراءة: متاحة للجميع
       allow read: if true;
+      
+      // الإنشاء: متاح للمستخدمين المسجلين
       allow create: if isSignedIn();
+      
+      // التحديث والحذف: الأدمن أو صاحب التعليق
       allow update, delete: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
     }
 
-    // قواعد الرسائل (Messages) - فقط بين المستخدم والأدمن
+    // قواعد الرسائل القديمة (Messages) - للتوافق مع الإصدارات القديمة
     match /messages/{messageId} {
-      // القراءة:
-      // - الأدمن يرى جميع الرسائل
-      // - المستخدم يرى رسائله فقط (التي أرسلها أو استقبلها من الأدمن)
-      allow read: if isAdmin() || 
-                     (isSignedIn() && resource.data.userId == request.auth.uid);
+      // القراءة: الأدمن يرى جميع الرسائل، المستخدم يرى رسائله فقط
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
       
       // الإنشاء: متاح لأي مستخدم مسجل
-      allow create: if isSignedIn() && 
-                       request.resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
       
-      // التحديث والحذف: متاح للأدمن فقط
+      // التحديث والحذف: الأدمن فقط
       allow update, delete: if isAdmin();
     }
 
-    // قواعد إعدادات الموقع (Site Settings) - تعطيل الصفحات
+    // قواعد المحادثات الجديدة (Conversations)
+    match /conversations/{conversationId} {
+      // القراءة: الأدمن أو المشاركين في المحادثة
+      allow read: if isAdmin() || 
+                     (isSignedIn() && request.auth.uid in resource.data.participants);
+      
+      // الإنشاء: المستخدم المسجل يمكنه إنشاء محادثة إذا كان أحد المشاركين
+      allow create: if isSignedIn() && 
+                       request.auth.uid in request.resource.data.participants;
+      
+      // التحديث: المشاركين في المحادثة (لتحديث آخر رسالة)
+      allow update: if isSignedIn() && 
+                       request.auth.uid in resource.data.participants;
+      
+      // الحذف: الأدمن فقط
+      allow delete: if isAdmin();
+
+      // قواعد الرسائل داخل المحادثة
+      match /messages/{messageId} {
+        // القراءة: الأدمن أو المشاركين في المحادثة
+        allow read: if isAdmin() || 
+                       (isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants);
+        
+        // الإنشاء: المشاركين في المحادثة فقط
+        allow create: if isSignedIn() && 
+                         request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants &&
+                         request.resource.data.senderId == request.auth.uid;
+        
+        // التحديث: ممنوع (الرسائل لا تُعدل)
+        allow update: if false;
+        
+        // الحذف: الأدمن أو مرسل الرسالة
+        allow delete: if isAdmin() || 
+                         (isSignedIn() && resource.data.senderId == request.auth.uid);
+      }
+    }
+
+    // قواعد إعدادات الموقع (Site Settings)
     match /site_settings/{settingId} {
       // القراءة: متاحة للجميع المسجلين
       allow read: if isSignedIn();
       
-      // الكتابة: متاحة للأدمن فقط
+      // الكتابة: الأدمن فقط
       allow write: if isAdmin();
     }
 
     // قواعد سجل النشاط (Activity Logs)
     match /activity_logs/{logId} {
-      // القراءة: متاحة للأدمن فقط
+      // القراءة: الأدمن فقط
       allow read: if isAdmin();
       
-      // الإنشاء: متاح للأدمن فقط
+      // الإنشاء: الأدمن فقط
       allow create: if isAdmin();
       
       // التحديث والحذف: ممنوع (السجلات لا تُعدل)
@@ -99,7 +152,7 @@ service cloud.firestore {
       // القراءة: متاحة للجميع
       allow read: if true;
       
-      // الكتابة: متاحة للأدمن فقط
+      // الكتابة: الأدمن فقط
       allow write: if isAdmin();
     }
 

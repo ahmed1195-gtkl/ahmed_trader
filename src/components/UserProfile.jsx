@@ -233,16 +233,9 @@ const UserProfile = () => {
               </div>
             )}
 
-            {/* معلومات الاتصال (للأدمن أو المالك فقط) */}
-            {(isOwnProfile || currentUser?.email === 'mchokri100@gmail.com') && (
+            {/* معلومات الاتصال (للمالك فقط) */}
+            {isOwnProfile && (
               <div className="mb-6 space-y-3">
-                {profileUser.email && (
-                  <div className="flex items-center gap-3 text-zinc-400">
-                    <Mail className="w-5 h-5" />
-                    <span>{profileUser.email}</span>
-                  </div>
-                )}
-                
                 {profileUser.phone && (
                   <div className="flex items-center gap-3 text-zinc-400">
                     <Phone className="w-5 h-5" />
