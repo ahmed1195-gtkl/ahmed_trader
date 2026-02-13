@@ -383,11 +383,18 @@ const Feed = () => {
                   <CardHeader className="p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center overflow-hidden">
+                        <div 
+                          className="w-12 h-12 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center overflow-hidden cursor-pointer hover:border-yellow-500/50 transition-colors"
+                          onClick={() => navigate(`/profile/${post.authorId}`)}
+                          title={i18n.language === 'ar' ? 'عرض الملف الشخصي' : 'View Profile'}
+                        >
                           {post.authorPhoto ? <img src={post.authorPhoto} alt="" className="w-full h-full object-cover" /> : <User className="w-6 h-6 text-yellow-500" />}
                         </div>
                         <div>
-                          <p className="text-white font-black text-sm uppercase tracking-tight">{post.author}</p>
+                          <p 
+                            className="text-white font-black text-sm uppercase tracking-tight cursor-pointer hover:text-yellow-500 transition-colors"
+                            onClick={() => navigate(`/profile/${post.authorId}`)}
+                          >{post.author}</p>
                           <p className="text-gray-500 text-[9px] font-black uppercase tracking-[0.2em]">{post.createdAt?.toDate ? post.createdAt.toDate().toLocaleDateString() : 'Just now'}</p>
                         </div>
                       </div>
@@ -455,11 +462,18 @@ const Feed = () => {
                       <div className="mt-6 space-y-4 w-full">
                         {post.comments.map((comment, idx) => (
                           <div key={idx} className="flex gap-3 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
-                            <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden shrink-0">
+                            <div 
+                              className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden shrink-0 cursor-pointer hover:ring-2 hover:ring-yellow-500/50 transition-all"
+                              onClick={() => navigate(`/profile/${comment.userId}`)}
+                              title={i18n.language === 'ar' ? 'عرض الملف الشخصي' : 'View Profile'}
+                            >
                               {comment.userPhoto ? <img src={comment.userPhoto} alt="" className="w-full h-full object-cover" /> : <User className="w-4 h-4 text-gray-500" />}
                             </div>
                             <div className="flex-1">
-                              <p className="text-[10px] font-black text-white uppercase tracking-tight mb-0.5">{comment.userName}</p>
+                              <p 
+                                className="text-[10px] font-black text-white uppercase tracking-tight mb-0.5 cursor-pointer hover:text-yellow-500 transition-colors"
+                                onClick={() => navigate(`/profile/${comment.userId}`)}
+                              >{comment.userName}</p>
                               <p className="text-xs text-gray-400 leading-relaxed">
                                 {renderTextWithLinks(comment.text)}
                               </p>

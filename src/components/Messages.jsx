@@ -12,6 +12,7 @@ import {
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { Send, MessageCircle, User, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
@@ -21,6 +22,7 @@ import { toast } from 'sonner';
 
 const Messages = () => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -158,15 +160,19 @@ const Messages = () => {
                 className={`flex gap-3 ${msg.userId === user.uid ? 'flex-row-reverse' : 'flex-row'}`}
               >
                 {/* Avatar */}
-                <div className="flex-shrink-0">
+                <div 
+                  className="flex-shrink-0 cursor-pointer hover:scale-110 transition-transform"
+                  onClick={() => navigate(`/profile/${msg.userId}`)}
+                  title={i18n.language === 'ar' ? 'عرض الملف الشخصي' : 'View Profile'}
+                >
                   {msg.userPhoto ? (
                     <img 
                       src={msg.userPhoto} 
                       alt={msg.userName}
-                      className="w-10 h-10 rounded-full border-2 border-white/10"
+                      className="w-10 h-10 rounded-full border-2 border-white/10 hover:border-yellow-500/50 transition-colors"
                     />
                   ) : (
-                    <div className={`w-10 h-10 rounded-full ${msg.isAdmin ? 'bg-yellow-500/20' : 'bg-zinc-800'} flex items-center justify-center`}>
+                    <div className={`w-10 h-10 rounded-full ${msg.isAdmin ? 'bg-yellow-500/20' : 'bg-zinc-800'} flex items-center justify-center hover:bg-yellow-500/30 transition-colors`}>
                       <User className={`w-5 h-5 ${msg.isAdmin ? 'text-yellow-500' : 'text-gray-400'}`} />
                     </div>
                   )}
@@ -174,7 +180,10 @@ const Messages = () => {
 
                 {/* Message Bubble */}
                 <div className={`flex-1 max-w-[70%] ${msg.userId === user.uid ? 'items-end' : 'items-start'} flex flex-col gap-1`}>
-                  <div className={`text-[10px] font-bold uppercase tracking-wider ${msg.isAdmin ? 'text-yellow-500' : 'text-gray-500'}`}>
+                  <div 
+                    className={`text-[10px] font-bold uppercase tracking-wider ${msg.isAdmin ? 'text-yellow-500' : 'text-gray-500'} cursor-pointer hover:text-yellow-400 transition-colors`}
+                    onClick={() => navigate(`/profile/${msg.userId}`)}
+                  >
                     {msg.userName}
                   </div>
                   <div className={`rounded-2xl px-4 py-3 ${

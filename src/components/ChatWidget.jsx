@@ -12,12 +12,14 @@ import {
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { MessageCircle, Send, X, Minimize2, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 
 const ChatWidget = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -218,17 +220,21 @@ const ChatWidget = () => {
                           >
                             <div className={`flex gap-2 max-w-[80%] ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
                               {/* صورة المستخدم */}
-                              <div className="flex-shrink-0">
+                              <div 
+                                className="flex-shrink-0 cursor-pointer hover:scale-110 transition-transform"
+                                onClick={() => navigate(`/profile/${message.userId}`)}
+                                title={t('viewProfile') || 'View Profile'}
+                              >
                                 {message.userPhoto ? (
                                   <img
                                     src={message.userPhoto}
                                     alt={message.userName}
-                                    className="w-8 h-8 rounded-full object-cover"
+                                    className="w-8 h-8 rounded-full object-cover border-2 border-transparent hover:border-yellow-500/50 transition-colors"
                                   />
                                 ) : (
                                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                                     message.isAdmin ? 'bg-yellow-500' : 'bg-zinc-700'
-                                  }`}>
+                                  } hover:bg-yellow-500/80 transition-colors`}>
                                     <User className="w-4 h-4 text-black" />
                                   </div>
                                 )}
@@ -242,7 +248,10 @@ const ChatWidget = () => {
                                     : 'bg-zinc-800/80 text-white'
                                 }`}>
                                   {!isOwn && (
-                                    <p className="text-xs font-semibold mb-1 flex items-center gap-1">
+                                    <p 
+                                      className="text-xs font-semibold mb-1 flex items-center gap-1 cursor-pointer hover:text-yellow-400 transition-colors"
+                                      onClick={() => navigate(`/profile/${message.userId}`)}
+                                    >
                                       {message.userName}
                                       {message.isAdmin && (
                                         <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-500 rounded-full text-[10px]">
