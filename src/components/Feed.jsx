@@ -44,7 +44,11 @@ const Feed = () => {
         if (docSnap.exists()) {
           const data = docSnap.data();
           setUserData(data);
-          setIsAdmin(data.isAdmin === true);
+          const adminEmails = ['mchokri100@gmail.com', 'ahmed1195@gmail.com'];
+          setIsAdmin(data.isAdmin === true || adminEmails.includes(u.email?.toLowerCase()));
+        } else {
+          const adminEmails = ['mchokri100@gmail.com', 'ahmed1195@gmail.com'];
+          setIsAdmin(adminEmails.includes(u.email?.toLowerCase()));
         }
       } else {
         setUserData(null);

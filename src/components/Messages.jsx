@@ -131,101 +131,146 @@ const Messages = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black">
-      {/* Header */}
-      <div className="bg-zinc-900/60 border-b border-white/10 backdrop-blur-xl sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto p-4 flex items-center gap-3">
-          <MessageCircle className="w-6 h-6 text-yellow-500" />
-          <h1 className="text-xl font-black text-white uppercase tracking-tight">
-            {i18n.language === 'ar' ? 'الرسائل' : 'Messages'}
-          </h1>
+    <div className="min-h-screen bg-gradient-to-b from-black via-zinc-900/50 to-black flex flex-col">
+      {/* Header - Messenger Style */}
+      <div className="bg-black/80 border-b border-yellow-500/20 backdrop-blur-xl sticky top-0 z-10 shadow-lg shadow-yellow-500/5">
+        <div className="max-w-4xl mx-auto p-4 flex items-center gap-4">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="w-10 h-10 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full flex items-center justify-center shadow-lg shadow-yellow-500/30">
+              <MessageCircle className="w-5 h-5 text-black" />
+            </div>
+            <div>
+              <h1 className="text-lg font-black text-white uppercase tracking-tight">
+                {i18n.language === 'ar' ? 'الرسائل' : 'Messages'}
+              </h1>
+              <p className="text-xs text-zinc-400">
+                {isAdmin 
+                  ? (i18n.language === 'ar' ? 'جميع المحادثات' : 'All Conversations')
+                  : (i18n.language === 'ar' ? 'الدردشة مع الإدارة' : 'Chat with Admin')
+                }
+              </p>
+            </div>
+          </div>
           {isAdmin && (
-            <span className="ml-auto bg-yellow-500/20 text-yellow-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
+            <span className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg shadow-yellow-500/20">
               {i18n.language === 'ar' ? 'أدمن' : 'Admin'}
             </span>
           )}
         </div>
       </div>
 
-      {/* Messages Container */}
-      <div className="max-w-4xl mx-auto p-4 pb-24">
-        <div className="space-y-4">
-          <AnimatePresence>
-            {messages.map((msg) => (
-              <motion.div
-                key={msg.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className={`flex gap-3 ${msg.userId === user.uid ? 'flex-row-reverse' : 'flex-row'}`}
-              >
-                {/* Avatar */}
-                <div 
-                  className="flex-shrink-0 cursor-pointer hover:scale-110 transition-transform"
-                  onClick={() => navigate(`/profile/${msg.userId}`)}
-                  title={i18n.language === 'ar' ? 'عرض الملف الشخصي' : 'View Profile'}
-                >
-                  {msg.userPhoto ? (
-                    <img 
-                      src={msg.userPhoto} 
-                      alt={msg.userName}
-                      className="w-10 h-10 rounded-full border-2 border-white/10 hover:border-yellow-500/50 transition-colors"
-                    />
-                  ) : (
-                    <div className={`w-10 h-10 rounded-full ${msg.isAdmin ? 'bg-yellow-500/20' : 'bg-zinc-800'} flex items-center justify-center hover:bg-yellow-500/30 transition-colors`}>
-                      <User className={`w-5 h-5 ${msg.isAdmin ? 'text-yellow-500' : 'text-gray-400'}`} />
-                    </div>
-                  )}
-                </div>
+      {/* Messages Container - Messenger Style */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-4xl mx-auto p-4 pb-6">
+          {messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+              <div className="w-24 h-24 bg-gradient-to-r from-yellow-500/10 to-yellow-600/10 rounded-full flex items-center justify-center mb-6 border border-yellow-500/20">
+                <MessageCircle className="w-12 h-12 text-yellow-500/50" />
+              </div>
+              <h3 className="text-xl font-black text-white mb-2 uppercase">
+                {i18n.language === 'ar' ? 'لا توجد رسائل' : 'No Messages Yet'}
+              </h3>
+              <p className="text-zinc-500 text-sm">
+                {i18n.language === 'ar' 
+                  ? 'ابدأ محادثة جديدة الآن' 
+                  : 'Start a new conversation now'}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <AnimatePresence>
+                {messages.map((msg, index) => {
+                  const isOwn = msg.userId === user.uid;
+                  const showAvatar = index === 0 || messages[index - 1].userId !== msg.userId;
+                  
+                  return (
+                    <motion.div
+                      key={msg.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className={`flex gap-2 ${isOwn ? 'flex-row-reverse' : 'flex-row'} items-end`}
+                    >
+                      {/* Avatar */}
+                      <div className="w-8 flex-shrink-0">
+                        {showAvatar && (
+                          <div 
+                            className="cursor-pointer hover:scale-110 transition-transform"
+                            onClick={() => navigate(`/profile/${msg.userId}`)}
+                            title={i18n.language === 'ar' ? 'عرض الملف الشخصي' : 'View Profile'}
+                          >
+                            {msg.userPhoto ? (
+                              <img 
+                                src={msg.userPhoto} 
+                                alt={msg.userName}
+                                className="w-8 h-8 rounded-full border-2 border-yellow-500/20 hover:border-yellow-500/60 transition-colors"
+                              />
+                            ) : (
+                              <div className={`w-8 h-8 rounded-full ${msg.isAdmin ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' : 'bg-zinc-700'} flex items-center justify-center shadow-lg`}>
+                                <User className={`w-4 h-4 ${msg.isAdmin ? 'text-black' : 'text-gray-400'}`} />
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
 
-                {/* Message Bubble */}
-                <div className={`flex-1 max-w-[70%] ${msg.userId === user.uid ? 'items-end' : 'items-start'} flex flex-col gap-1`}>
-                  <div 
-                    className={`text-[10px] font-bold uppercase tracking-wider ${msg.isAdmin ? 'text-yellow-500' : 'text-gray-500'} cursor-pointer hover:text-yellow-400 transition-colors`}
-                    onClick={() => navigate(`/profile/${msg.userId}`)}
-                  >
-                    {msg.userName}
-                  </div>
-                  <div className={`rounded-2xl px-4 py-3 ${
-                    msg.userId === user.uid 
-                      ? 'bg-yellow-500 text-black' 
-                      : 'bg-zinc-900/60 border border-white/10 text-white'
-                  }`}>
-                    <p className="text-sm font-medium break-words">{msg.text}</p>
-                  </div>
-                  <div className="text-[9px] text-gray-600 font-bold">
-                    {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    }) : '...'}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-          <div ref={messagesEndRef} />
+                      {/* Message Bubble - Messenger Style */}
+                      <div className={`flex flex-col ${isOwn ? 'items-end' : 'items-start'} max-w-[70%]`}>
+                        {showAvatar && !isOwn && (
+                          <span 
+                            className="text-[10px] font-bold text-zinc-500 mb-1 px-3 cursor-pointer hover:text-yellow-500 transition-colors"
+                            onClick={() => navigate(`/profile/${msg.userId}`)}
+                          >
+                            {msg.userName}
+                          </span>
+                        )}
+                        <div className={`rounded-3xl px-4 py-2.5 shadow-lg ${
+                          isOwn 
+                            ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-black shadow-yellow-500/20' 
+                            : 'bg-zinc-800/80 text-white border border-zinc-700/50'
+                        }`}>
+                          <p className="text-sm leading-relaxed break-words">{msg.text}</p>
+                        </div>
+                        {(index === messages.length - 1 || messages[index + 1].userId !== msg.userId) && (
+                          <span className={`text-[9px] text-zinc-600 mt-1 px-3 ${isOwn ? 'text-right' : 'text-left'}`}>
+                            {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            }) : '...'}
+                          </span>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+              <div ref={messagesEndRef} />
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Input Box */}
-      <div className="fixed bottom-0 left-0 right-0 bg-zinc-900/80 border-t border-white/10 backdrop-blur-xl p-4">
-        <form onSubmit={handleSend} className="max-w-4xl mx-auto flex gap-3">
-          <Input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder={i18n.language === 'ar' ? 'اكتب رسالتك...' : 'Type your message...'}
-            className="flex-1 bg-zinc-800/60 border-white/10 text-white rounded-2xl px-4 py-3 focus:border-yellow-500/50 font-medium"
-            disabled={loading}
-          />
+      {/* Input Box - Messenger Style */}
+      <div className="bg-black/80 border-t border-yellow-500/20 backdrop-blur-xl p-4 shadow-lg shadow-yellow-500/5">
+        <form onSubmit={handleSend} className="max-w-4xl mx-auto flex items-center gap-3">
+          <div className="flex-1 relative">
+            <Input
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder={i18n.language === 'ar' ? 'اكتب رسالتك...' : 'Type a message...'}
+              className="w-full bg-zinc-900/60 border-zinc-800 text-white rounded-full px-6 py-6 focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/20 transition-all placeholder:text-zinc-600"
+              disabled={loading}
+            />
+          </div>
           <Button
             type="submit"
             disabled={loading || !newMessage.trim()}
-            className="bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase tracking-widest text-xs rounded-2xl px-6 py-3 shadow-xl shadow-yellow-500/20 disabled:opacity-50"
+            className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-black font-black rounded-full w-12 h-12 p-0 shadow-lg shadow-yellow-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105"
           >
             {loading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              <Send className="w-4 h-4" />
+              <Send className="w-5 h-5" />
             )}
           </Button>
         </form>

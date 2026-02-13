@@ -196,78 +196,64 @@ const ChatWidget = () => {
               {/* محتوى الدردشة */}
               {!isMinimized && (
                 <>
-                  {/* منطقة الرسائل */}
-                  <div className="h-96 overflow-y-auto p-4 space-y-3 scrollbar-thin scrollbar-thumb-yellow-500/20 scrollbar-track-transparent">
+                  {/* منطقة الرسائل - Messenger Style */}
+                  <div className="h-96 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-yellow-500/20 scrollbar-track-transparent">
                     {messages.length === 0 ? (
                       <div className="flex flex-col items-center justify-center h-full text-center">
-                        <MessageCircle className="w-16 h-16 text-zinc-700 mb-4" />
-                        <p className="text-zinc-500">
+                        <div className="w-16 h-16 bg-gradient-to-r from-yellow-500/10 to-yellow-600/10 rounded-full flex items-center justify-center mb-4 border border-yellow-500/20">
+                          <MessageCircle className="w-8 h-8 text-yellow-500/50" />
+                        </div>
+                        <p className="text-zinc-400 font-bold text-sm">
                           {t('noMessages') || 'No messages yet'}
                         </p>
                         <p className="text-xs text-zinc-600 mt-2">
-                          {t('startConversation') || 'Start a conversation with the admin'}
+                          {t('startConversation') || 'Start a conversation'}
                         </p>
                       </div>
                     ) : (
-                      messages.map((message) => {
+                      messages.map((message, index) => {
                         const isOwn = message.userId === user.uid;
+                        const showAvatar = index === 0 || messages[index - 1].userId !== message.userId;
                         return (
                           <motion.div
                             key={message.id}
-                            initial={{ opacity: 0, y: 10 }}
+                            initial={{ opacity: 0, y: 5 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
+                            className={`flex gap-1.5 ${isOwn ? 'flex-row-reverse' : 'flex-row'} items-end`}
                           >
-                            <div className={`flex gap-2 max-w-[80%] ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
-                              {/* صورة المستخدم */}
-                              <div 
-                                className="flex-shrink-0 cursor-pointer hover:scale-110 transition-transform"
-                                onClick={() => navigate(`/profile/${message.userId}`)}
-                                title={t('viewProfile') || 'View Profile'}
-                              >
-                                {message.userPhoto ? (
-                                  <img
-                                    src={message.userPhoto}
-                                    alt={message.userName}
-                                    className="w-8 h-8 rounded-full object-cover border-2 border-transparent hover:border-yellow-500/50 transition-colors"
-                                  />
-                                ) : (
-                                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                    message.isAdmin ? 'bg-yellow-500' : 'bg-zinc-700'
-                                  } hover:bg-yellow-500/80 transition-colors`}>
-                                    <User className="w-4 h-4 text-black" />
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* محتوى الرسالة */}
-                              <div>
-                                <div className={`px-4 py-2 rounded-2xl ${
-                                  isOwn 
-                                    ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-black'
-                                    : 'bg-zinc-800/80 text-white'
-                                }`}>
-                                  {!isOwn && (
-                                    <p 
-                                      className="text-xs font-semibold mb-1 flex items-center gap-1 cursor-pointer hover:text-yellow-400 transition-colors"
-                                      onClick={() => navigate(`/profile/${message.userId}`)}
-                                    >
-                                      {message.userName}
-                                      {message.isAdmin && (
-                                        <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-500 rounded-full text-[10px]">
-                                          Admin
-                                        </span>
-                                      )}
-                                    </p>
+                            {/* صورة المستخدم */}
+                            <div className="w-6 flex-shrink-0">
+                              {showAvatar && (
+                                <div 
+                                  className="cursor-pointer hover:scale-110 transition-transform"
+                                  onClick={() => navigate(`/profile/${message.userId}`)}
+                                  title={t('viewProfile') || 'View Profile'}
+                                >
+                                  {message.userPhoto ? (
+                                    <img
+                                      src={message.userPhoto}
+                                      alt={message.userName}
+                                      className="w-6 h-6 rounded-full object-cover border border-yellow-500/20"
+                                    />
+                                  ) : (
+                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                                      message.isAdmin ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' : 'bg-zinc-700'
+                                    }`}>
+                                      <User className="w-3 h-3 text-black" />
+                                    </div>
                                   )}
-                                  <p className="text-sm break-words">{message.text}</p>
                                 </div>
-                                <p className={`text-[10px] text-zinc-600 mt-1 ${isOwn ? 'text-right' : 'text-left'}`}>
-                                  {message.createdAt?.toDate?.()?.toLocaleTimeString([], { 
-                                    hour: '2-digit', 
-                                    minute: '2-digit' 
-                                  }) || 'Just now'}
-                                </p>
+                              )}
+                            </div>
+
+                            {/* محتوى الرسالة */}
+                            <div className={`flex flex-col ${isOwn ? 'items-end' : 'items-start'} max-w-[75%]`}>
+                              <div className={`px-3 py-2 rounded-2xl shadow-sm ${
+                                isOwn 
+                                  ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-black shadow-yellow-500/10'
+                                  : 'bg-zinc-800/90 text-white border border-zinc-700/50'
+                              }`}>
+                                <p className="text-sm leading-relaxed break-words">{message.text}</p>
                               </div>
                             </div>
                           </motion.div>
