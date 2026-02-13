@@ -10,29 +10,29 @@ import {
   where,
   getDocs,
   doc,
-  getDoc,
-  setDoc
+  getDoc
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Send, MessageCircle, User, Loader2, ArrowLeft, Search } from 'lucide-react';
+import { Send, MessageCircle, User, Loader2, ArrowLeft } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 
+const ADMIN_EMAILS = ['mchokri100@gmail.com', 'ahmed1195@gmail.com'];
+
 const Messages = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [conversations, setConversations] = useState([]);
-  const [selectedConversation, setSelectedConversation] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const messagesEndRef = useRef(null);
 
   // مراقبة حالة المستخدم
@@ -40,42 +40,71 @@ const Messages = () => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        // التحقق من صلاحيات الأدمن
-        const adminEmails = ['mchokri100@gmail.com', 'ahmed1195@gmail.com'];
-        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-        const isAdminUser = userDoc.exists() && userDoc.data().isAdmin === true || adminEmails.includes(currentUser.email?.toLowerCase());
-        setIsAdmin(isAdminUser);
+        const adminCheck = ADMIN_EMAILS.includes(currentUser.email?.toLowerCase());
+        setIsAdmin(adminCheck);
+        
+        // إذا كان مستخدم عادي، اختر الأدمن تلقائياً
+        if (!adminCheck) {
+          const adminUser = {
+            uid: 'admin',
+            displayName: i18n.language === 'ar' ? 'الإدارة' : 'Admin',
+            photoURL: null,
+            isAdmin: true
+          };
+          setSelectedUser(adminUser);
+        }
       }
     });
     return () => unsubscribe();
-  }, []);
+  }, [i18n.language]);
 
-  // جلب قائمة المحادثات
+  // جلب قائمة المستخدمين (للأدمن فقط)
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    const fetchUsers = async () => {
+      try {
+        const usersRef = collection(db, 'users');
+        const snapshot = await getDocs(usersRef);
+        const usersList = snapshot.docs
+          .map(doc => ({
+            uid: doc.id,
+            ...doc.data()
+          }))
+          .filter(u => !ADMIN_EMAILS.includes(u.email?.toLowerCase()));
+        
+        setUsers(usersList);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    };
+
+    fetchUsers();
+  }, [isAdmin]);
+
+  // جلب الرسائل
   useEffect(() => {
     if (!user) return;
 
-    const conversationsRef = collection(db, 'conversations');
-    const q = isAdmin 
-      ? query(conversationsRef, orderBy('lastMessageAt', 'desc'))
-      : query(conversationsRef, where('participants', 'array-contains', user.uid), orderBy('lastMessageAt', 'desc'));
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const convList = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setConversations(convList);
-    });
-
-    return () => unsubscribe();
-  }, [user, isAdmin]);
-
-  // جلب رسائل المحادثة المحددة
-  useEffect(() => {
-    if (!selectedConversation) return;
-
-    const messagesRef = collection(db, 'conversations', selectedConversation.id, 'messages');
-    const q = query(messagesRef, orderBy('createdAt', 'asc'));
+    let q;
+    
+    if (isAdmin && selectedUser) {
+      // الأدمن يرى رسائل المستخدم المحدد فقط
+      q = query(
+        collection(db, 'messages'),
+        where('participants', 'array-contains', selectedUser.uid),
+        orderBy('createdAt', 'asc')
+      );
+    } else if (!isAdmin) {
+      // المستخدم العادي يرى رسائله مع الأدمن فقط
+      q = query(
+        collection(db, 'messages'),
+        where('userId', '==', user.uid),
+        orderBy('createdAt', 'asc')
+      );
+    } else {
+      return; // لا توجد رسائل للعرض
+    }
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const msgList = snapshot.docs.map(doc => ({
@@ -83,71 +112,39 @@ const Messages = () => {
         ...doc.data()
       }));
       setMessages(msgList);
-      scrollToBottom();
+      setTimeout(scrollToBottom, 100);
     });
 
     return () => unsubscribe();
-  }, [selectedConversation]);
+  }, [user, isAdmin, selectedUser]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const getOrCreateConversation = async (otherUserId) => {
-    const conversationId = [user.uid, otherUserId].sort().join('_');
-    const conversationRef = doc(db, 'conversations', conversationId);
-    const conversationSnap = await getDoc(conversationRef);
-
-    if (!conversationSnap.exists()) {
-      // إنشاء محادثة جديدة
-      const otherUserDoc = await getDoc(doc(db, 'users', otherUserId));
-      const otherUserData = otherUserDoc.data();
-      
-      await setDoc(conversationRef, {
-        participants: [user.uid, otherUserId],
-        participantsData: {
-          [user.uid]: {
-            name: user.displayName || user.email,
-            photo: user.photoURL || null
-          },
-          [otherUserId]: {
-            name: otherUserData?.displayName || otherUserData?.email || 'User',
-            photo: otherUserData?.photoURL || null
-          }
-        },
-        lastMessage: '',
-        lastMessageAt: serverTimestamp(),
-        createdAt: serverTimestamp()
-      });
-    }
-
-    return conversationId;
-  };
-
   const handleSend = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim() || !selectedConversation) return;
+    if (!newMessage.trim() || !user) return;
 
     setLoading(true);
     try {
-      const messagesRef = collection(db, 'conversations', selectedConversation.id, 'messages');
-      await addDoc(messagesRef, {
+      const messageData = {
         text: newMessage,
+        userId: isAdmin ? selectedUser.uid : user.uid,
+        userName: isAdmin ? selectedUser.displayName || selectedUser.email : (user.displayName || user.email),
+        userPhoto: isAdmin ? selectedUser.photoURL : user.photoURL,
         senderId: user.uid,
         senderName: user.displayName || user.email,
         senderPhoto: user.photoURL || null,
+        isAdmin: isAdmin,
+        participants: isAdmin ? [selectedUser.uid, user.uid] : [user.uid],
         createdAt: serverTimestamp(),
         timestamp: new Date().toISOString()
-      });
+      };
 
-      // تحديث آخر رسالة في المحادثة
-      const conversationRef = doc(db, 'conversations', selectedConversation.id);
-      await setDoc(conversationRef, {
-        lastMessage: newMessage,
-        lastMessageAt: serverTimestamp()
-      }, { merge: true });
-
+      await addDoc(collection(db, 'messages'), messageData);
       setNewMessage('');
+      scrollToBottom();
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error(i18n.language === 'ar' ? 'فشل إرسال الرسالة' : 'Failed to send message');
@@ -155,17 +152,6 @@ const Messages = () => {
       setLoading(false);
     }
   };
-
-  const getOtherParticipant = (conversation) => {
-    if (!conversation || !user) return null;
-    const otherUserId = conversation.participants?.find(id => id !== user.uid);
-    return conversation.participantsData?.[otherUserId];
-  };
-
-  const filteredConversations = conversations.filter(conv => {
-    const otherUser = getOtherParticipant(conv);
-    return otherUser?.name?.toLowerCase().includes(searchQuery.toLowerCase());
-  });
 
   if (!user) {
     return (
@@ -193,65 +179,51 @@ const Messages = () => {
 
   return (
     <div className="min-h-screen bg-black flex">
-      {/* قائمة المحادثات - Sidebar */}
-      <div className={`${selectedConversation ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-80 border-r border-yellow-500/20 bg-zinc-900/30`}>
-        {/* Header */}
-        <div className="p-4 border-b border-yellow-500/20 bg-black/50">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full flex items-center justify-center shadow-lg shadow-yellow-500/30">
-              <MessageCircle className="w-5 h-5 text-black" />
-            </div>
-            <div className="flex-1">
-              <h1 className="text-lg font-black text-white uppercase tracking-tight">
-                {i18n.language === 'ar' ? 'الرسائل' : 'Messages'}
-              </h1>
-              {isAdmin && (
+      {/* قائمة المستخدمين - للأدمن فقط */}
+      {isAdmin && (
+        <div className={`${selectedUser ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-80 border-r border-yellow-500/20 bg-zinc-900/30`}>
+          {/* Header */}
+          <div className="p-4 border-b border-yellow-500/20 bg-black/50">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full flex items-center justify-center shadow-lg shadow-yellow-500/30">
+                <MessageCircle className="w-5 h-5 text-black" />
+              </div>
+              <div className="flex-1">
+                <h1 className="text-lg font-black text-white uppercase tracking-tight">
+                  {i18n.language === 'ar' ? 'الرسائل' : 'Messages'}
+                </h1>
                 <span className="text-[10px] text-yellow-500 font-black uppercase">
                   {i18n.language === 'ar' ? 'أدمن' : 'Admin'}
                 </span>
-              )}
+              </div>
             </div>
           </div>
-          
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-            <Input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={i18n.language === 'ar' ? 'بحث...' : 'Search...'}
-              className="w-full bg-zinc-800/50 border-zinc-700 text-white rounded-full pl-10 py-2 text-sm focus:border-yellow-500/50"
-            />
-          </div>
-        </div>
 
-        {/* قائمة المحادثات */}
-        <div className="flex-1 overflow-y-auto">
-          {filteredConversations.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center p-6">
-              <MessageCircle className="w-16 h-16 text-zinc-700 mb-4" />
-              <p className="text-zinc-500 text-sm">
-                {i18n.language === 'ar' ? 'لا توجد محادثات' : 'No conversations'}
-              </p>
-            </div>
-          ) : (
-            filteredConversations.map((conv) => {
-              const otherUser = getOtherParticipant(conv);
-              return (
+          {/* قائمة المستخدمين */}
+          <div className="flex-1 overflow-y-auto">
+            {users.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-center p-6">
+                <User className="w-16 h-16 text-zinc-700 mb-4" />
+                <p className="text-zinc-500 text-sm">
+                  {i18n.language === 'ar' ? 'لا يوجد مستخدمون' : 'No users'}
+                </p>
+              </div>
+            ) : (
+              users.map((u) => (
                 <motion.div
-                  key={conv.id}
+                  key={u.uid}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  onClick={() => setSelectedConversation(conv)}
+                  onClick={() => setSelectedUser(u)}
                   className={`p-4 border-b border-zinc-800/50 cursor-pointer hover:bg-zinc-800/30 transition-colors ${
-                    selectedConversation?.id === conv.id ? 'bg-zinc-800/50 border-l-4 border-l-yellow-500' : ''
+                    selectedUser?.uid === u.uid ? 'bg-zinc-800/50 border-l-4 border-l-yellow-500' : ''
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    {otherUser?.photo ? (
+                    {u.photoURL ? (
                       <img
-                        src={otherUser.photo}
-                        alt={otherUser.name}
+                        src={u.photoURL}
+                        alt={u.displayName}
                         className="w-12 h-12 rounded-full object-cover border-2 border-yellow-500/20"
                       />
                     ) : (
@@ -261,62 +233,62 @@ const Messages = () => {
                     )}
                     <div className="flex-1 min-w-0">
                       <h3 className="text-white font-bold text-sm truncate">
-                        {otherUser?.name || 'User'}
+                        {u.displayName || u.email}
                       </h3>
                       <p className="text-zinc-500 text-xs truncate">
-                        {conv.lastMessage || (i18n.language === 'ar' ? 'لا توجد رسائل' : 'No messages')}
+                        {u.email}
                       </p>
                     </div>
                   </div>
                 </motion.div>
-              );
-            })
-          )}
+              ))
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* منطقة المحادثة */}
       <div className="flex-1 flex flex-col">
-        {selectedConversation ? (
+        {selectedUser || !isAdmin ? (
           <>
             {/* Header المحادثة */}
             <div className="p-4 border-b border-yellow-500/20 bg-black/80 backdrop-blur-xl flex items-center gap-3">
-              <Button
-                onClick={() => setSelectedConversation(null)}
-                className="md:hidden bg-transparent hover:bg-zinc-800 text-white p-2 rounded-full"
+              {isAdmin && (
+                <Button
+                  onClick={() => setSelectedUser(null)}
+                  className="md:hidden bg-transparent hover:bg-zinc-800 text-white p-2 rounded-full"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </Button>
+              )}
+              <div 
+                className="flex items-center gap-3 flex-1 cursor-pointer hover:bg-zinc-800/30 p-2 rounded-xl transition-colors"
+                onClick={() => {
+                  if (isAdmin && selectedUser) {
+                    navigate(`/profile/${selectedUser.uid}`);
+                  }
+                }}
               >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              {(() => {
-                const otherUser = getOtherParticipant(selectedConversation);
-                return (
-                  <div 
-                    className="flex items-center gap-3 flex-1 cursor-pointer hover:bg-zinc-800/30 p-2 rounded-xl transition-colors"
-                    onClick={() => {
-                      const otherUserId = selectedConversation.participants?.find(id => id !== user.uid);
-                      if (otherUserId) navigate(`/profile/${otherUserId}`);
-                    }}
-                  >
-                    {otherUser?.photo ? (
-                      <img
-                        src={otherUser.photo}
-                        alt={otherUser.name}
-                        className="w-10 h-10 rounded-full object-cover border-2 border-yellow-500/20"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 flex items-center justify-center">
-                        <User className="w-5 h-5 text-black" />
-                      </div>
-                    )}
-                    <div>
-                      <h2 className="text-white font-bold">{otherUser?.name || 'User'}</h2>
-                      <p className="text-xs text-zinc-400">
-                        {i18n.language === 'ar' ? 'نشط' : 'Active'}
-                      </p>
-                    </div>
+                {selectedUser?.photoURL ? (
+                  <img
+                    src={selectedUser.photoURL}
+                    alt={selectedUser.displayName}
+                    className="w-10 h-10 rounded-full object-cover border-2 border-yellow-500/20"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 flex items-center justify-center">
+                    <User className="w-5 h-5 text-black" />
                   </div>
-                );
-              })()}
+                )}
+                <div>
+                  <h2 className="text-white font-bold">
+                    {selectedUser?.displayName || (i18n.language === 'ar' ? 'الإدارة' : 'Admin')}
+                  </h2>
+                  <p className="text-xs text-zinc-400">
+                    {i18n.language === 'ar' ? 'نشط' : 'Active'}
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* الرسائل */}
@@ -350,15 +322,12 @@ const Messages = () => {
                         >
                           <div className="w-8 flex-shrink-0">
                             {showAvatar && (
-                              <div 
-                                className="cursor-pointer hover:scale-110 transition-transform"
-                                onClick={() => navigate(`/profile/${msg.senderId}`)}
-                              >
+                              <div className="cursor-pointer hover:scale-110 transition-transform">
                                 {msg.senderPhoto ? (
                                   <img 
                                     src={msg.senderPhoto} 
                                     alt={msg.senderName}
-                                    className="w-8 h-8 rounded-full border-2 border-yellow-500/20 hover:border-yellow-500/60 transition-colors"
+                                    className="w-8 h-8 rounded-full border-2 border-yellow-500/20"
                                   />
                                 ) : (
                                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 flex items-center justify-center shadow-lg">
@@ -378,7 +347,7 @@ const Messages = () => {
                               <p className="text-sm leading-relaxed break-words">{msg.text}</p>
                             </div>
                             {(index === messages.length - 1 || messages[index + 1].senderId !== msg.senderId) && (
-                              <span className={`text-[9px] text-zinc-600 mt-1 px-3`}>
+                              <span className="text-[9px] text-zinc-600 mt-1 px-3">
                                 {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
                                   hour: '2-digit',
                                   minute: '2-digit'
@@ -426,12 +395,12 @@ const Messages = () => {
                 <MessageCircle className="w-16 h-16 text-yellow-500/50" />
               </div>
               <h3 className="text-2xl font-black text-white mb-2 uppercase">
-                {i18n.language === 'ar' ? 'اختر محادثة' : 'Select a Conversation'}
+                {i18n.language === 'ar' ? 'اختر مستخدم' : 'Select a User'}
               </h3>
               <p className="text-zinc-500">
                 {i18n.language === 'ar' 
-                  ? 'اختر محادثة من القائمة لبدء المراسلة' 
-                  : 'Choose a conversation from the list to start messaging'}
+                  ? 'اختر مستخدم من القائمة لبدء المراسلة' 
+                  : 'Choose a user from the list to start messaging'}
               </p>
             </div>
           </div>
