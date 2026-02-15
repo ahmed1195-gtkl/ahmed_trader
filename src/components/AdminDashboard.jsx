@@ -31,7 +31,8 @@ import {
   AlertCircle,
   UserX,
   Activity,
-  Plus
+  Plus,
+  GraduationCap
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -200,10 +201,11 @@ const AdminDashboard = () => {
             </h1>
           </div>
           
-          <div className="flex flex-wrap bg-white/5 p-1 rounded-xl border border-white/10">
+            <div className="flex flex-wrap bg-white/5 p-1 rounded-xl border border-white/10">
             {[
               { id: 'users', icon: Users, label: i18n.language === 'ar' ? 'المستخدمين' : 'Users' },
               { id: 'posts', icon: Newspaper, label: i18n.language === 'ar' ? 'المنشورات' : 'Posts' },
+              { id: 'courses', icon: GraduationCap, label: i18n.language === 'ar' ? 'الكورسات' : 'Courses' },
               { id: 'logs', icon: History, label: i18n.language === 'ar' ? 'السجلات' : 'Logs' },
               { id: 'settings', icon: Settings, label: i18n.language === 'ar' ? 'الإعدادات' : 'Settings' }
             ].map(tab => (
@@ -219,6 +221,21 @@ const AdminDashboard = () => {
         </div>
 
         <AnimatePresence mode="wait">
+          {activeTab === 'courses' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
+              <div className="bg-zinc-900/40 border border-white/5 p-12 rounded-[3rem] text-center">
+                <GraduationCap className="w-16 h-16 text-yellow-500 mx-auto mb-6" />
+                <h2 className="text-2xl font-black uppercase mb-4">{i18n.language === 'ar' ? 'إدارة الكورسات' : 'Course Management'}</h2>
+                <p className="text-gray-400 mb-8 max-w-md mx-auto">{i18n.language === 'ar' ? 'يمكنك إضافة وتعديل وحذف الكورسات من خلال لوحة التحكم المخصصة.' : 'You can add, edit, and delete courses through the dedicated control panel.'}</p>
+                <Button 
+                  onClick={() => navigate('/admin/courses')}
+                  className="bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase tracking-widest px-8 py-4 rounded-2xl"
+                >
+                  {i18n.language === 'ar' ? 'فتح لوحة إدارة الكورسات' : 'Open Course Management'}
+                </Button>
+              </div>
+            </motion.div>
+          )}
           {activeTab === 'users' && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
               <div className="relative max-w-md">

@@ -10,7 +10,7 @@ import { Card, CardHeader, CardContent, CardFooter } from './ui/card';
 import { Button } from './ui/button';
 import { useTranslation } from 'react-i18next';
 
-const CourseRegistration = ({ course }) => {
+const CourseRegistration = () => {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
   
@@ -200,7 +200,6 @@ const CourseRegistration = ({ course }) => {
     const finalBroker = formData.broker === 'Other' ? formData.otherBroker : formData.broker;
 
     const payload = {
-      courseName: course?.nameAr || 'Classic Course',
       name: formData.name || 'None',
       email: formData.email || 'None',
       phone: `${formData.countryCode}${formData.number}` || 'None',
@@ -225,7 +224,7 @@ const CourseRegistration = ({ course }) => {
     };
 
     try {
-      const GOOGLE_SHEET_URL = course?.sheetUrl || 'https://script.google.com/macros/s/AKfycbzU7giZJy_k4nWfvkU1k3qrA8TjRoWFmk23q6dHsbDfZ8WabiBvArtl4tIQAwtvdAPPqQ/exec';
+      const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzU7giZJy_k4nWfvkU1k3qrA8TjRoWFmk23q6dHsbDfZ8WabiBvArtl4tIQAwtvdAPPqQ/exec';
       await fetch(GOOGLE_SHEET_URL, {
         method: 'POST',
         mode: 'cors',
@@ -550,39 +549,9 @@ const CourseRegistration = ({ course }) => {
             <p className="text-gray-400 font-bold text-sm mb-8 leading-relaxed">{isAr ? 'شكراً لتسجيلك. لقد تم إرسال بياناتك بنجاح. يرجى الانضمام لقناة التلجرام، وسيتم التواصل معك فور الانضمام.' : 'Thank you for registering. Your data has been sent successfully. Please join the Telegram channel, and you will be contacted after joining.'}</p>
             <div className="bg-black/40 border border-white/10 rounded-3xl p-6 mb-8 relative group overflow-hidden"><div className="absolute inset-0 bg-yellow-500/5 opacity-0 group-hover:opacity-100 transition-opacity" /><span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-2">{isAr ? 'كود التسجيل الخاص بك' : 'Your Registration Code'}</span><div className="flex items-center justify-center gap-4"><span className="text-4xl font-black text-yellow-500 tracking-[0.2em]">{regCode}</span><button onClick={copyCode} className="p-2 hover:bg-white/5 rounded-xl transition-colors text-gray-500 hover:text-yellow-500"><Copy className="w-5 h-5" /></button></div></div>
             <div className="space-y-4">
-              {course?.telegramUrl && (
-                <Button onClick={() => window.open(course.telegramUrl, '_blank')} className="w-full bg-yellow-500 hover:bg-yellow-400 text-black rounded-2xl py-6 font-black uppercase tracking-widest text-xs shadow-xl shadow-yellow-500/20 flex items-center justify-center gap-2">
-                  <MessageCircle className="w-5 h-5" />
-                  {isAr ? 'انضم لقناة الكورس' : 'Join Course Channel'}
-                </Button>
-              )}
-              {course?.whatsappUrl && (
-                <Button onClick={() => window.open(course.whatsappUrl, '_blank')} className="w-full bg-green-500 hover:bg-green-400 text-white rounded-2xl py-6 font-black uppercase tracking-widest text-xs shadow-xl shadow-green-500/20 flex items-center justify-center gap-2">
-                  <Phone className="w-5 h-5" />
-                  {isAr ? 'تواصل عبر واتساب' : 'Contact via WhatsApp'}
-                </Button>
-              )}
-              {course?.instagramUrl && (
-                <Button onClick={() => window.open(course.instagramUrl, '_blank')} className="w-full bg-pink-500 hover:bg-pink-400 text-white rounded-2xl py-6 font-black uppercase tracking-widest text-xs shadow-xl shadow-pink-500/20 flex items-center justify-center gap-2">
-                  <Globe className="w-5 h-5" />
-                  {isAr ? 'تابعنا على انستغرام' : 'Follow on Instagram'}
-                </Button>
-              )}
-              {course?.emailUrl && (
-                <Button onClick={() => window.open(`mailto:${course.emailUrl}`, '_blank')} className="w-full bg-blue-500 hover:bg-blue-400 text-white rounded-2xl py-6 font-black uppercase tracking-widest text-xs shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2">
-                  <Mail className="w-5 h-5" />
-                  {isAr ? 'تواصل عبر البريد' : 'Contact via Email'}
-                </Button>
-              )}
-              {!course?.telegramUrl && !course?.whatsappUrl && !course?.instagramUrl && !course?.emailUrl && (
-                <Button onClick={() => window.open('https://t.me/Ahmed_trader_support', '_blank')} className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl py-6 font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2">
-                  <User className="w-5 h-5" />
-                  {isAr ? 'تواصل مع الدعم' : 'Contact Support'}
-                </Button>
-              )}
-              <Button onClick={() => window.location.href = '/'} className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl py-6 font-black uppercase tracking-widest text-xs">
-                {isAr ? 'العودة للرئيسية' : 'Back to Home'}
-              </Button>
+              <Button onClick={() => window.open('https://t.me/+CADMeIVdMDQ2Nzg0', '_blank')} className="w-full bg-yellow-500 hover:bg-yellow-400 text-black rounded-2xl py-6 font-black uppercase tracking-widest text-xs shadow-xl shadow-yellow-500/20 flex items-center justify-center gap-2"><MessageCircle className="w-5 h-5" />{isAr ? 'انضم لقناة الكورس' : 'Join Course Channel'}</Button>
+              <Button onClick={() => window.open('https://t.me/Ahmed_trader_support', '_blank')} className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl py-6 font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2"><User className="w-5 h-5" />{isAr ? 'تواصل مع الكوتش أحمد' : 'Contact Coach Ahmed'}</Button>
+              <Button onClick={() => window.location.href = '/'} className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl py-6 font-black uppercase tracking-widest text-xs">{isAr ? 'العودة للرئيسية' : 'Back to Home'}</Button>
             </div>
           </motion.div>
         )}

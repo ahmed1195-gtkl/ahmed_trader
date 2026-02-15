@@ -21,6 +21,9 @@ import NewsPage from './components/NewsPage';
 import GlobalNews from './components/GlobalNews';
 import Feed from './components/Feed';
 import CourseRegistration from './components/CourseRegistration';
+import Courses from './components/Courses';
+import CourseEnrollment from './components/CourseEnrollment';
+import CoursesAdmin from './components/CoursesAdmin';
 import AdminDashboard from './components/AdminDashboard';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import ResetPassword from './components/ResetPassword';
@@ -201,6 +204,9 @@ function App() {
                 <Route path="/settings" element={user ? <Settings /> : <Navigate to="/auth" />} />
                 <Route path="/news" element={<NewsPage />} />
                 <Route path="/global-news" element={<GlobalNews />} />
+                <Route path="/courses" element={<Courses />} />
+                <Route path="/course/:courseId" element={<CourseEnrollment />} />
+                <Route path="/admin/courses" element={isAdmin ? <CoursesAdmin /> : <Navigate to="/" />} />
                 <Route path="/course-registration" element={<CourseRegistration />} />
                 <Route path="/brokers" element={<BrokersPage />} />
                 <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/" />} />
