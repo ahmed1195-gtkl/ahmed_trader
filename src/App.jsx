@@ -35,6 +35,7 @@ import UserProfile from './components/UserProfile';
 import Friends from './components/Friends';
 import CookieConsent from './components/CookieConsent';
 import TradingChallenge from './components/TradingChallenge';
+import TradingChallengeTest from './components/TradingChallengeTest';
 import ChallengeDashboard from './components/ChallengeDashboard';
 import ChallengeAdmin from './components/ChallengeAdmin';
 import GlobalLeaderboard from './components/GlobalLeaderboard';
@@ -222,7 +223,7 @@ function App() {
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/profile/:userId" element={<UserProfile />} />
                 <Route path="/friends" element={<Friends />} />
-                <Route path="/challenges" element={<TradingChallenge />} />
+                <Route path="/challenges" element={<TradingChallengeTest />} />
                 <Route path="/challenge/:participantId" element={user ? <ChallengeDashboard /> : <Navigate to="/auth" />} />
                 <Route path="/admin/challenges" element={isAdmin ? <ChallengeAdmin /> : <Navigate to="/" />} />
                 <Route path="/global-leaderboard" element={<GlobalLeaderboard />} />
