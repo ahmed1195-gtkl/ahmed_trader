@@ -4,10 +4,11 @@ import { motion } from 'framer-motion';
 import { Link2, Check, X, AlertCircle, RefreshCw } from 'lucide-react';
 import { auth } from '../lib/firebase';
 import { connectDemoAccount, getAccountStatus, disconnectAccount } from '../lib/mt4mt5Service';
-import brokers from '../data/brokers';
+import { brokersData } from '../data/brokers';
 
 function ConnectDemoAccount({ participantId, onConnected }) {
   const { i18n } = useTranslation();
+  const brokers = brokersData[i18n.language] || brokersData.en;
   const [accountStatus, setAccountStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showConnectModal, setShowConnectModal] = useState(false);
