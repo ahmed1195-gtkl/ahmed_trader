@@ -40,6 +40,8 @@ function TradingChallenge() {
       setActiveChallenges(challenges);
     } catch (error) {
       console.error('Error loading challenges:', error);
+      // تجاهل الخطأ واستمر في عرض الصفحة
+      setActiveChallenges([]);
     } finally {
       setLoading(false);
     }
@@ -60,6 +62,8 @@ function TradingChallenge() {
       setTopTraders(traders);
     } catch (error) {
       console.error('Error loading top traders:', error);
+      // تجاهل الخطأ واستمر في عرض الصفحة
+      setTopTraders([]);
     }
   };
 
