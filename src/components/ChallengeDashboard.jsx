@@ -24,6 +24,8 @@ import {
   priceStream
 } from '../lib/marketDataService';
 import Header from './Header';
+import TeamManagement from './TeamManagement';
+import ConnectDemoAccount from './ConnectDemoAccount';
 
 function ChallengeDashboard() {
   const { participantId } = useParams();
@@ -474,6 +476,28 @@ function ChallengeDashboard() {
                   ))
                 )}
               </div>
+            </div>
+
+            {/* Team Management */}
+            <div className="mb-8">
+              <div className="flex items-center gap-3 mb-6">
+                <Users className="w-6 h-6 text-yellow-500" />
+                <h2 className="text-2xl font-black text-white uppercase">
+                  {i18n.language === 'ar' ? 'إدارة الفريق' : 'Team Management'}
+                </h2>
+              </div>
+              <TeamManagement challengeId={participant.challengeId} participantId={participantId} />
+            </div>
+
+            {/* Connect Demo Account */}
+            <div className="mb-8">
+              <div className="flex items-center gap-3 mb-6">
+                <Activity className="w-6 h-6 text-yellow-500" />
+                <h2 className="text-2xl font-black text-white uppercase">
+                  {i18n.language === 'ar' ? 'ربط حساب ديمو' : 'Connect Demo Account'}
+                </h2>
+              </div>
+              <ConnectDemoAccount participantId={participantId} onConnected={() => loadData()} />
             </div>
 
             {/* Leaderboard */}

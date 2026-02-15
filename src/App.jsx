@@ -37,6 +37,8 @@ import CookieConsent from './components/CookieConsent';
 import TradingChallenge from './components/TradingChallenge';
 import ChallengeDashboard from './components/ChallengeDashboard';
 import ChallengeAdmin from './components/ChallengeAdmin';
+import GlobalLeaderboard from './components/GlobalLeaderboard';
+import JoinTeam from './components/JoinTeam';
 import './App.css';
 
 function MainLayout() {
@@ -223,6 +225,8 @@ function App() {
                 <Route path="/challenges" element={<TradingChallenge />} />
                 <Route path="/challenge/:participantId" element={user ? <ChallengeDashboard /> : <Navigate to="/auth" />} />
                 <Route path="/admin/challenges" element={isAdmin ? <ChallengeAdmin /> : <Navigate to="/" />} />
+                <Route path="/global-leaderboard" element={<GlobalLeaderboard />} />
+                <Route path="/join-team/:inviteCode" element={user ? <JoinTeam /> : <Navigate to="/auth" />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </div>
