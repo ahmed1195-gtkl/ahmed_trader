@@ -86,12 +86,28 @@ function TradingChallengeTest() {
     navigate(`/challenge/${challengeId}`);
   };
 
-  const handleCreateChallenge = (level) => {
+  const handleCreateChallenge = async (level) => {
     if (!user) {
       navigate('/auth');
       return;
     }
-    navigate(`/create-challenge/${level}`);
+    
+    try {
+      // Import challengeEngine functions
+      const { createChallenge, joinChallenge } = await import('../lib/challengeEngine');
+      
+      // Create a new challenge
+      const challengeId = await createChallenge(level, user.uid);
+      
+      // Join the challenge
+      const participantId = await joinChallenge(challengeId, user.uid);
+      
+      // Navigate to challenge dashboard
+      navigate(`/challenge/${participantId}`);
+    } catch (error) {
+      console.error('Error creating challenge:', error);
+      alert(i18n.language === 'ar' ? 'فشل إنشاء التحدي' : 'Failed to create challenge');
+    }
   };
 
   if (loading) {
