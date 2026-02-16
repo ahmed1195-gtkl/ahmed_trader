@@ -17,6 +17,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui/card'
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { toast } from 'sonner';
+import ImageUploader from './ImageUploader';
 
 const ADMIN_EMAILS = ['mchokri100@gmail.com', 'ahmed1195@gmail.com'];
 
@@ -349,14 +350,10 @@ const CoursesAdmin = () => {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-bold text-zinc-400 uppercase">
-                        {i18n.language === 'ar' ? 'رابط الصورة' : 'Image URL'}
-                      </label>
-                      <Input
-                        value={formData.imageUrl}
-                        onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
-                        className="bg-white/5 border-white/10 text-white rounded-xl"
-                        placeholder="https://example.com/image.jpg"
+                      <ImageUploader
+                        label={i18n.language === 'ar' ? 'صورة الكورس' : 'Course Image'}
+                        currentImageUrl={formData.imageUrl}
+                        onImageUploaded={(url) => setFormData({...formData, imageUrl: url})}
                       />
                     </div>
                   </div>

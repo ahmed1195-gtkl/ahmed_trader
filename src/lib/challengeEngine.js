@@ -27,13 +27,22 @@ export const CHALLENGE_LEVELS = {
     name: 'Bronze Challenge',
     nameAr: 'التحدي البرونزي',
     nameFr: 'Défi Bronze',
-    duration: 20, // أيام
-    profitTargetPercent: 8, // نسبة مئوية
-    maxDrawdownPercent: 12,
-    dailyDrawdownPercent: 4,
+    duration: 10, // أيام
+    profitTargetPercent: 20, // نسبة مئوية
+    maxDrawdownPercent: 8,
+    dailyDrawdownPercent: 3,
     maxRiskPerTradePercent: 2,
-    minTrades: 10,
-    maxConsecutiveLosses: 10,
+    minTrades: 20,
+    maxConsecutiveLosses: 5,
+    // شروط التداول الفردي (أصعب)
+    soloMode: {
+      profitTargetPercent: 25,
+      duration: 8,
+      maxDrawdownPercent: 6,
+      dailyDrawdownPercent: 2,
+      minTrades: 25,
+      maxConsecutiveLosses: 4
+    },
     // ✅ مجاني - لا رسوم
     fee: 0,
     color: '#CD7F32',
@@ -47,12 +56,21 @@ export const CHALLENGE_LEVELS = {
     nameAr: 'التحدي الفضي',
     nameFr: 'Défi Argent',
     duration: 15,
-    profitTargetPercent: 12, // نسبة مئوية
+    profitTargetPercent: 25, // نسبة مئوية
     maxDrawdownPercent: 10,
     dailyDrawdownPercent: 3,
     maxRiskPerTradePercent: 2,
-    minTrades: 15,
-    maxConsecutiveLosses: 10,
+    minTrades: 30,
+    maxConsecutiveLosses: 6,
+    // شروط التداول الفردي (أصعب)
+    soloMode: {
+      profitTargetPercent: 30,
+      duration: 12,
+      maxDrawdownPercent: 7,
+      dailyDrawdownPercent: 2.5,
+      minTrades: 35,
+      maxConsecutiveLosses: 5
+    },
     // ✅ مجاني - لا رسوم
     fee: 0,
     color: '#C0C0C0',
@@ -65,13 +83,22 @@ export const CHALLENGE_LEVELS = {
     name: 'Gold Challenge',
     nameAr: 'التحدي الذهبي',
     nameFr: 'Défi Or',
-    duration: 10,
-    profitTargetPercent: 20, // نسبة مئوية
-    maxDrawdownPercent: 8,
-    dailyDrawdownPercent: 3,
+    duration: 20,
+    profitTargetPercent: 30, // نسبة مئوية
+    maxDrawdownPercent: 12,
+    dailyDrawdownPercent: 4,
     maxRiskPerTradePercent: 2,
-    minTrades: 20,
-    maxConsecutiveLosses: 10,
+    minTrades: 40,
+    maxConsecutiveLosses: 7,
+    // شروط التداول الفردي (أصعب)
+    soloMode: {
+      profitTargetPercent: 35,
+      duration: 18,
+      maxDrawdownPercent: 8,
+      dailyDrawdownPercent: 3,
+      minTrades: 50,
+      maxConsecutiveLosses: 6
+    },
     // ✅ مجاني - لا رسوم
     fee: 0,
     color: '#FFD700',

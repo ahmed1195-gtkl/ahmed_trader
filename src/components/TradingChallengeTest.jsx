@@ -227,17 +227,7 @@ function TradingChallengeTest() {
             ))}
           </div>
 
-          {/* Debug Info */}
-          <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-6 mb-8">
-            <h3 className="text-white font-bold mb-4">Debug Info:</h3>
-            <div className="text-sm text-gray-400 space-y-2">
-              <p>Active Challenges: {activeChallenges.length}</p>
-              <p>Top Traders: {topTraders.length}</p>
-              <p>Loading: {loading ? 'Yes' : 'No'}</p>
-              <p>Error: {error || 'None'}</p>
-              <p>User: {user ? user.email : 'Not logged in'}</p>
-            </div>
-          </div>
+
         </div>
       </div>
 
