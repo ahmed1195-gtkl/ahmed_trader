@@ -3,7 +3,8 @@
  */
 
 const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'ml_default';
+// استخدام unsigned upload بدون preset
+const CLOUDINARY_API_KEY = import.meta.env.VITE_CLOUDINARY_API_KEY;
 
 /**
  * رفع صورة إلى Cloudinary
@@ -26,9 +27,9 @@ export const uploadImage = async (file, folder = 'ahmed_trader') => {
     // إنشاء FormData
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
     formData.append('folder', folder);
-    formData.append('cloud_name', CLOUDINARY_CLOUD_NAME);
+    // استخدام unsigned upload
+    formData.append('upload_preset', 'ml_default');
 
     // رفع الصورة
     const response = await fetch(

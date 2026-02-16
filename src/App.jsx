@@ -40,6 +40,7 @@ import ChallengeDashboard from './components/ChallengeDashboard';
 import ChallengeAdmin from './components/ChallengeAdmin';
 import GlobalLeaderboard from './components/GlobalLeaderboard';
 import JoinTeam from './components/JoinTeam';
+import SheetsGuide from './components/SheetsGuide';
 import './App.css';
 
 function MainLayout() {
@@ -228,6 +229,7 @@ function App() {
                 <Route path="/admin/challenges" element={isAdmin ? <ChallengeAdmin /> : <Navigate to="/" />} />
                 <Route path="/global-leaderboard" element={<GlobalLeaderboard />} />
                 <Route path="/join-team/:inviteCode" element={user ? <JoinTeam /> : <Navigate to="/auth" />} />
+                <Route path="/sheets-guide" element={<SheetsGuide />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </div>

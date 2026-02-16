@@ -11,7 +11,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { 
   Plus, Edit, Trash2, Save, X, BookOpen, 
   Image as ImageIcon, DollarSign, Gift, Lock,
-  ArrowLeft, Loader2, CheckCircle, AlertCircle
+  ArrowLeft, Loader2, CheckCircle, AlertCircle, FileSpreadsheet
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui/card';
 import { Button } from './ui/button';
@@ -38,6 +38,8 @@ const CoursesAdmin = () => {
     descriptionAr: '',
     descriptionEn: '',
     type: 'free', // free, paid, conditional
+    price: '', // السعر (عند اختيار paid)
+    conditions: '', // الشروط (عند اختيار conditional)
     imageUrl: '',
     duration: '',
     sheetUrl: '',
@@ -90,8 +92,22 @@ const CoursesAdmin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // التحقق من الحقول المطلوبة
     if (!formData.nameAr || !formData.nameEn || !formData.descriptionAr || !formData.descriptionEn) {
       toast.error(i18n.language === 'ar' ? 'يرجى ملء جميع الحقول المطلوبة' : 'Please fill all required fields');
+      return;
+    }
+
+    // التحقق من رابط Google Sheet (ضروري)
+    if (!formData.sheetUrl || formData.sheetUrl.trim() === '') {
+      toast.error(i18n.language === 'ar' ? 'رابط Google Sheet ضروري' : 'Google Sheet URL is required');
+      return;
+    }
+
+    // التحقق من وجود رابط تواصل واحد على الأقل
+    const hasContactLink = formData.whatsappUrl || formData.instagramUrl || formData.telegramUrl || formData.emailUrl;
+    if (!hasContactLink) {
+      toast.error(i18n.language === 'ar' ? 'يجب إضافة رابط تواصل واحد على الأقل' : 'At least one contact link is required');
       return;
     }
 
@@ -132,6 +148,8 @@ const CoursesAdmin = () => {
       descriptionAr: course.descriptionAr || '',
       descriptionEn: course.descriptionEn || '',
       type: course.type || 'free',
+      price: course.price || '',
+      conditions: course.conditions || '',
       imageUrl: course.imageUrl || '',
       duration: course.duration || '',
       sheetUrl: course.sheetUrl || '',
@@ -166,6 +184,8 @@ const CoursesAdmin = () => {
       descriptionAr: '',
       descriptionEn: '',
       type: 'free',
+      price: '',
+      conditions: '',
       imageUrl: '',
       duration: '',
       sheetUrl: '',
@@ -358,6 +378,41 @@ const CoursesAdmin = () => {
                     </div>
                   </div>
 
+                  {/* حقل السعر (عند اختيار مدفوع) */}
+                  {formData.type === 'paid' && (
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-zinc-400 uppercase">
+                        {i18n.language === 'ar' ? 'السعر *' : 'Price *'}
+                      </label>
+                      <Input
+                        value={formData.price}
+                        onChange={(e) => setFormData({...formData, price: e.target.value})}
+                        className="bg-white/5 border-white/10 text-white rounded-xl"
+                        placeholder={i18n.language === 'ar' ? 'مثال: 299$' : 'e.g., $299'}
+                        required
+                      />
+                    </div>
+                  )}
+
+                  {/* حقل الشروط (عند اختيار بشروط) */}
+                  {formData.type === 'conditional' && (
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-zinc-400 uppercase">
+                        {i18n.language === 'ar' ? 'الشروط *' : 'Conditions *'}
+                      </label>
+                      <textarea
+                        value={formData.conditions}
+                        onChange={(e) => setFormData({...formData, conditions: e.target.value})}
+                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl p-3 min-h-[100px] focus:outline-none focus:border-yellow-500/50 transition-all"
+                        placeholder={i18n.language === 'ar' ? 'اكتب الشروط هنا... يمكنك وضع روابط' : 'Write conditions here... You can include links'}
+                        required
+                      />
+                      <p className="text-xs text-gray-500">
+                        {i18n.language === 'ar' ? 'يمكنك إضافة روابط مثل: https://example.com' : 'You can add links like: https://example.com'}
+                      </p>
+                    </div>
+                  )}
+
                   {/* Duration and Sheet URL */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -372,15 +427,29 @@ const CoursesAdmin = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-bold text-zinc-400 uppercase">
-                        {i18n.language === 'ar' ? 'رابط الشيت' : 'Sheet URL'}
-                      </label>
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-zinc-400 uppercase">
+                          {i18n.language === 'ar' ? 'رابط الشيت *' : 'Sheet URL *'}
+                        </label>
+                        <Button
+                          type="button"
+                          onClick={() => window.open('/#/sheets-guide', '_blank')}
+                          className="bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 border border-yellow-500/20 rounded-xl px-3 py-1 text-xs"
+                        >
+                          <FileSpreadsheet className="w-3 h-3 mr-1" />
+                          {i18n.language === 'ar' ? 'دليل الإعداد' : 'Setup Guide'}
+                        </Button>
+                      </div>
                       <Input
                         value={formData.sheetUrl}
                         onChange={(e) => setFormData({...formData, sheetUrl: e.target.value})}
                         className="bg-white/5 border-white/10 text-white rounded-xl"
-                        placeholder="https://docs.google.com/spreadsheets/..."
+                        placeholder="https://script.google.com/macros/s/.../exec"
+                        required
                       />
+                      <p className="text-xs text-gray-500">
+                        {i18n.language === 'ar' ? 'رابط Web App من Google Apps Script' : 'Web App URL from Google Apps Script'}
+                      </p>
                     </div>
                   </div>
 
