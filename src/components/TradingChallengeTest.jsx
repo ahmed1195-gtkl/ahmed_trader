@@ -96,17 +96,21 @@ function TradingChallengeTest() {
       // Import challengeEngine functions
       const { createChallenge, joinChallenge } = await import('../lib/challengeEngine');
       
-      // Create a new challenge
-      const challengeId = await createChallenge(level, user.uid);
+      // Create a new challenge (level, maxParticipants)
+      const challengeId = await createChallenge(level, 10);
       
-      // Join the challenge
-      const participantId = await joinChallenge(challengeId, user.uid);
+      // Join the challenge (challengeId, userId, userName)
+      const userName = user.displayName || user.email || 'User';
+      const participantId = await joinChallenge(challengeId, user.uid, userName);
       
       // Navigate to challenge dashboard
       navigate(`/challenge/${participantId}`);
     } catch (error) {
       console.error('Error creating challenge:', error);
-      alert(i18n.language === 'ar' ? 'فشل إنشاء التحدي' : 'Failed to create challenge');
+      const errorMessage = i18n.language === 'ar' 
+        ? `فشل إنشاء التحدي: ${error.message}`
+        : `Failed to create challenge: ${error.message}`;
+      alert(errorMessage);
     }
   };
 

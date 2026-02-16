@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react';
 import { Upload, X, Image as ImageIcon, Loader } from 'lucide-react';
-import { uploadImage } from '../lib/cloudinaryService';
 
 function ImageUploader({ onImageUploaded, currentImageUrl = null, label = 'رفع صورة' }) {
   const [uploading, setUploading] = useState(false);
@@ -8,9 +7,33 @@ function ImageUploader({ onImageUploaded, currentImageUrl = null, label = 'رف�
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
 
+  const uploadToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'ahmed_trader_preset');
+    
+    try {
+      const response = await fetch(`https://api.cloudinary.com/v1_1/dmrrj3rpl/image/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
+      return data.secure_url;
+    } catch (error) {
+      console.error("Cloudinary upload error:", error);
+      throw new Error('فشل رفع الصورة');
+    }
+  };
+
   const handleFileSelect = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    // التحقق من حجم الصورة
+    if (file.size > 5 * 1024 * 1024) {
+      setError('حجم الصورة يجب أن يكون أقل من 5MB');
+      return;
+    }
 
     // معاينة الصورة محلياً
     const reader = new FileReader();
@@ -24,7 +47,7 @@ function ImageUploader({ onImageUploaded, currentImageUrl = null, label = 'رف�
     setError(null);
 
     try {
-      const imageUrl = await uploadImage(file);
+      const imageUrl = await uploadToCloudinary(file);
       onImageUploaded(imageUrl);
       setPreview(imageUrl);
     } catch (err) {
