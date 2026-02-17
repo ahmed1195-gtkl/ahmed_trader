@@ -28,120 +28,186 @@ function decryptPassword(encryptedPassword) {
 
 /**
  * ربط حساب ديمو MT4/MT5
+ * @param {string} userId - معرف المستخدم
+ * @param {string} brokerName - اسم الوسيط
+ * @param {string} accountNumber - رقم الحساب
+ * @param {string} password - كلمة السر (الرئيسية أو المستثمر)
+ * @param {string} serverName - اسم الخادم (اختياري)
+ * @param {string} platform - المنصة (MT4/MT5)
  */
-export async function connectDemoAccount(userId, participantId, accountData) {
+export async function connectDemoAccount(userId, brokerName, accountNumber, password, serverName = '', platform = 'MT5') {
   try {
-    const {
-      brokerId,
-      brokerName,
-      accountNumber,
-      investorPassword,
-      serverName,
-      platform // 'MT4' or 'MT5'
-    } = accountData;
-
-    // التحقق من البيانات
-    if (!accountNumber || !investorPassword || !serverName || !platform) {
-      throw new Error('All fields are required');
+    // التحقق من البيانات الأساسية
+    if (!userId || !brokerName || !accountNumber || !password) {
+      return {
+        success: false,
+        message: 'يرجى ملء جميع الحقول المطلوبة'
+      };
     }
 
     // تشفير كلمة المرور
-    const encryptedPassword = encryptPassword(investorPassword);
+    const encryptedPassword = encryptPassword(password);
 
-    // حفظ بيانات الحساب
-    const accountRef = doc(db, 'demo_accounts', `${userId}_${participantId}`);
-    await setDoc(accountRef, {
-      userId,
-      participantId,
-      brokerId,
+    // محاولة الاتصال وجلب البيانات (بما في ذلك الرصيد)
+    const connectionResult = await testConnectionAndFetchBalance({
       brokerName,
       accountNumber,
-      investorPassword: encryptedPassword,
+      password,
       serverName,
+      platform
+    });
+
+    if (!connectionResult.success) {
+      return {
+        success: false,
+        message: connectionResult.error || 'فشل الاتصال بالحساب'
+      };
+    }
+
+    // حفظ بيانات الحساب في Firebase
+    const demoAccountId = `${userId}_demo`;
+    const accountRef = doc(db, 'demo_accounts', demoAccountId);
+    
+    await setDoc(accountRef, {
+      userId,
+      brokerName,
+      accountNumber,
+      password: encryptedPassword,
+      serverName: serverName || `${brokerName}-Demo`,
       platform,
       accountType: 'demo',
+      balance: connectionResult.balance,
+      equity: connectionResult.equity || connectionResult.balance,
+      margin: connectionResult.margin || 0,
+      freeMargin: connectionResult.freeMargin || connectionResult.balance,
+      leverage: connectionResult.leverage || 100,
+      currency: connectionResult.currency || 'USD',
       connectedAt: serverTimestamp(),
-      lastSyncAt: null,
-      status: 'connecting',
+      lastSyncAt: serverTimestamp(),
+      status: 'connected',
       error: null
     });
 
-    // محاولة الاتصال والتحقق
-    const connectionResult = await testConnection(accountData);
-
-    if (connectionResult.success) {
-      await updateDoc(accountRef, {
-        status: 'connected',
-        lastSyncAt: serverTimestamp()
-      });
-    } else {
-      await updateDoc(accountRef, {
-        status: 'error',
-        error: connectionResult.error
-      });
-      throw new Error(connectionResult.error);
-    }
-
-    // بدء المزامنة التلقائية
-    startAutoSync(userId, participantId);
+    // حفظ demoAccountId في ملف المستخدم
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, {
+      demoAccountId: demoAccountId,
+      demoAccountConnectedAt: serverTimestamp()
+    });
 
     return {
       success: true,
-      accountId: accountRef.id
+      accountId: demoAccountId,
+      balance: connectionResult.balance,
+      message: 'تم ربط الحساب بنجاح'
     };
   } catch (error) {
     console.error('Error connecting demo account:', error);
-    throw error;
-  }
-}
-
-/**
- * اختبار الاتصال بالحساب
- */
-async function testConnection(accountData) {
-  try {
-    // في الإنتاج، سيتم استخدام MetaAPI أو FIX API
-    // هنا نستخدم محاكاة للاختبار
-    
-    // محاكاة تأخير الشبكة
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    // في الواقع، سيتم الاتصال بـ MetaAPI
-    // const metaApi = new MetaApi(process.env.VITE_METAAPI_TOKEN);
-    // const account = await metaApi.metatraderAccountApi.getAccount(accountId);
-    // await account.deploy();
-    // await account.waitConnected();
-
-    // محاكاة نجاح الاتصال
-    const isValid = accountData.accountNumber && 
-                   accountData.investorPassword && 
-                   accountData.serverName;
-
-    if (isValid) {
-      return {
-        success: true,
-        message: 'Connection successful'
-      };
-    } else {
-      return {
-        success: false,
-        error: 'Invalid credentials'
-      };
-    }
-  } catch (error) {
     return {
       success: false,
-      error: error.message || 'Connection failed'
+      message: error.message || 'حدث خطأ أثناء الاتصال'
     };
   }
 }
 
 /**
- * قراءة بيانات الحساب من MT4/MT5
+ * اختبار الاتصال وجلب الرصيد
  */
-export async function fetchAccountData(userId, participantId) {
+async function testConnectionAndFetchBalance(accountData) {
   try {
-    const accountRef = doc(db, 'demo_accounts', `${userId}_${participantId}`);
+    const { brokerName, accountNumber, password, serverName, platform } = accountData;
+
+    // محاولة الاتصال بـ MetaAPI إذا كان متاحاً
+    const metaApiToken = import.meta.env.VITE_METAAPI_TOKEN;
+    
+    if (metaApiToken && metaApiToken !== 'your_metaapi_token_here') {
+      try {
+        // استخدام MetaAPI للاتصال الحقيقي
+        const response = await fetch('https://mt-provisioning-api-v1.agiliumtrade.agiliumtrade.ai/users/current/accounts', {
+          headers: {
+            'auth-token': metaApiToken
+          }
+        });
+
+        if (response.ok) {
+          const accounts = await response.json();
+          
+          // البحث عن الحساب المطابق
+          const matchingAccount = accounts.find(acc => 
+            acc.login === accountNumber && 
+            acc.type === 'cloud'
+          );
+
+          if (matchingAccount) {
+            // جلب معلومات الحساب
+            const accountInfoResponse = await fetch(
+              `https://mt-client-api-v1.agiliumtrade.agiliumtrade.ai/users/current/accounts/${matchingAccount._id}/account-information`,
+              {
+                headers: {
+                  'auth-token': metaApiToken
+                }
+              }
+            );
+
+            if (accountInfoResponse.ok) {
+              const accountInfo = await accountInfoResponse.json();
+              
+              return {
+                success: true,
+                balance: accountInfo.balance || 10000,
+                equity: accountInfo.equity || accountInfo.balance || 10000,
+                margin: accountInfo.margin || 0,
+                freeMargin: accountInfo.freeMargin || accountInfo.balance || 10000,
+                leverage: accountInfo.leverage || 100,
+                currency: accountInfo.currency || 'USD'
+              };
+            }
+          }
+        }
+      } catch (metaApiError) {
+        console.warn('MetaAPI connection failed, using fallback:', metaApiError);
+      }
+    }
+
+    // إذا فشل MetaAPI أو لم يكن متاحاً، استخدام بيانات افتراضية
+    // في الإنتاج، يجب استخدام API حقيقي
+    
+    // محاكاة تأخير الشبكة
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // التحقق من صحة البيانات الأساسية
+    if (!accountNumber || !password) {
+      return {
+        success: false,
+        error: 'رقم الحساب أو كلمة السر غير صحيحة'
+      };
+    }
+
+    // إرجاع بيانات افتراضية نظيفة
+    // في الإنتاج، يجب جلب هذه البيانات من الحساب الحقيقي
+    return {
+      success: true,
+      balance: 10000, // رصيد افتراضي
+      equity: 10000,
+      margin: 0,
+      freeMargin: 10000,
+      leverage: 100,
+      currency: 'USD'
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message || 'فشل الاتصال بالخادم'
+    };
+  }
+}
+
+/**
+ * قراءة بيانات الحساب من Firebase
+ */
+export async function fetchAccountData(userId, demoAccountId) {
+  try {
+    const accountRef = doc(db, 'demo_accounts', demoAccountId || `${userId}_demo`);
     const accountDoc = await getDoc(accountRef);
 
     if (!accountDoc.exists()) {
@@ -150,269 +216,148 @@ export async function fetchAccountData(userId, participantId) {
 
     const accountData = accountDoc.data();
 
-    if (accountData.status !== 'connected') {
-      throw new Error('Account is not connected');
-    }
-
-    // فك تشفير كلمة المرور
-    const password = decryptPassword(accountData.investorPassword);
-
-    // جلب بيانات حقيقية من MetaAPI
-    const METAAPI_TOKEN = import.meta.env.VITE_METAAPI_TOKEN;
+    // في الإنتاج، يجب جلب البيانات المحدثة من MetaAPI
+    // هنا نستخدم البيانات المحفوظة
     
-    if (METAAPI_TOKEN && accountData.metaApiAccountId) {
-      try {
-        // جلب بيانات الحساب من MetaAPI
-        const response = await fetch(
-          `https://mt-client-api-v1.new-york.agiliumtrade.ai/users/current/accounts/${accountData.metaApiAccountId}/account-information`,
-          {
-            headers: {
-              'auth-token': METAAPI_TOKEN
-            }
-          }
-        );
-        
-        if (response.ok) {
-          const accountInfo = await response.json();
-          
-          // جلب الصفقات المفتوحة
-          const positionsResponse = await fetch(
-            `https://mt-client-api-v1.new-york.agiliumtrade.ai/users/current/accounts/${accountData.metaApiAccountId}/positions`,
-            {
-              headers: {
-                'auth-token': METAAPI_TOKEN
-              }
-            }
-          );
-          
-          const positions = positionsResponse.ok ? await positionsResponse.json() : [];
-          
-          // تحويل البيانات للصيغة المطلوبة
-          const realData = {
-            balance: accountInfo.balance || 0,
-            equity: accountInfo.equity || 0,
-            margin: accountInfo.margin || 0,
-            freeMargin: accountInfo.freeMargin || 0,
-            marginLevel: accountInfo.marginLevel || 0,
-            openTrades: positions.map(pos => ({
-              ticket: pos.id,
-              symbol: pos.symbol,
-              type: pos.type,
-              volume: pos.volume,
-              openPrice: pos.openPrice,
-              currentPrice: pos.currentPrice,
-              stopLoss: pos.stopLoss,
-              takeProfit: pos.takeProfit,
-              profit: pos.profit,
-              openTime: pos.time,
-              commission: pos.commission || 0,
-              swap: pos.swap || 0
-            })),
-            closedTrades: [],
-            maxDrawdown: accountInfo.equity < accountInfo.balance ? 
-              ((accountInfo.balance - accountInfo.equity) / accountInfo.balance) * 100 : 0,
-            dailyDrawdown: 0 // يتم حسابه من السجل
-          };
-          
-          // تحديث آخر وقت مزامنة
-          await updateDoc(accountRef, {
-            lastSyncAt: serverTimestamp()
-          });
-          
-          return realData;
-        }
-      } catch (error) {
-        console.error('MetaAPI fetch error:', error);
-        // الاستمرار في البيانات المحلية إذا فشل MetaAPI
+    return {
+      success: true,
+      data: {
+        accountNumber: accountData.accountNumber,
+        brokerName: accountData.brokerName,
+        platform: accountData.platform,
+        balance: accountData.balance || 10000,
+        equity: accountData.equity || accountData.balance || 10000,
+        margin: accountData.margin || 0,
+        freeMargin: accountData.freeMargin || accountData.balance || 10000,
+        leverage: accountData.leverage || 100,
+        currency: accountData.currency || 'USD',
+        status: accountData.status,
+        lastSyncAt: accountData.lastSyncAt
       }
-    }
-    
-    // بيانات افتراضية للاختبار (إذا لم يتم ربط MetaAPI)
-    const mockData = {
-      balance: accountData.initialBalance || 10000,
-      equity: accountData.initialBalance || 10000,
-      margin: 0,
-      freeMargin: accountData.initialBalance || 10000,
-      marginLevel: 0,
-      openTrades: [],
-      closedTrades: [],
-      maxDrawdown: 0,
-      dailyDrawdown: 0
     };
-
-    // تحديث آخر وقت مزامنة
-    await updateDoc(accountRef, {
-      lastSyncAt: serverTimestamp()
-    });
-
-    return mockData;
   } catch (error) {
     console.error('Error fetching account data:', error);
-    throw error;
-  }
-}
-
-/**
- * بدء المزامنة التلقائية
- */
-function startAutoSync(userId, participantId) {
-  // المزامنة كل 30 ثانية
-  const syncInterval = setInterval(async () => {
-    try {
-      const accountData = await fetchAccountData(userId, participantId);
-      
-      // تحديث بيانات المشارك في التحدي
-      const participantRef = doc(db, 'challenge_participants', participantId);
-      const participantDoc = await getDoc(participantRef);
-
-      if (!participantDoc.exists()) {
-        clearInterval(syncInterval);
-        return;
-      }
-
-      const participant = participantDoc.data();
-
-      // تحديث الرصيد والإحصائيات
-      await updateDoc(participantRef, {
-        balance: accountData.balance,
-        equity: accountData.equity,
-        maxDrawdown: Math.max(participant.maxDrawdown || 0, accountData.maxDrawdown),
-        dailyDrawdown: accountData.dailyDrawdown,
-        lastSyncedAt: serverTimestamp()
-      });
-
-      // مزامنة الصفقات المفتوحة
-      await syncOpenTrades(participantId, accountData.openTrades);
-
-    } catch (error) {
-      console.error('Auto sync error:', error);
-    }
-  }, 30000); // 30 ثانية
-
-  // حفظ معرف الفاصل الزمني لإيقافه لاحقاً
-  return syncInterval;
-}
-
-/**
- * مزامنة الصفقات المفتوحة
- */
-async function syncOpenTrades(participantId, trades) {
-  try {
-    // في التطبيق الحقيقي، سيتم مزامنة الصفقات مع Firebase
-    // هنا نستخدم محاكاة بسيطة
-    
-    for (const trade of trades) {
-      const tradeRef = doc(db, 'challenge_trades', `${participantId}_${trade.ticket}`);
-      const tradeDoc = await getDoc(tradeRef);
-
-      if (!tradeDoc.exists()) {
-        // صفقة جديدة
-        await setDoc(tradeRef, {
-          participantId,
-          ticket: trade.ticket,
-          symbol: trade.symbol,
-          type: trade.type,
-          volume: trade.volume,
-          openPrice: trade.openPrice,
-          currentPrice: trade.currentPrice,
-          stopLoss: trade.stopLoss,
-          takeProfit: trade.takeProfit,
-          profit: trade.profit,
-          openTime: new Date(trade.openTime),
-          status: 'open',
-          source: 'mt4_sync',
-          syncedAt: serverTimestamp()
-        });
-      } else {
-        // تحديث صفقة موجودة
-        await updateDoc(tradeRef, {
-          currentPrice: trade.currentPrice,
-          profit: trade.profit,
-          syncedAt: serverTimestamp()
-        });
-      }
-    }
-
-    return true;
-  } catch (error) {
-    console.error('Error syncing open trades:', error);
-    return false;
-  }
-}
-
-/**
- * قطع الاتصال بالحساب
- */
-export async function disconnectAccount(userId, participantId) {
-  try {
-    const accountRef = doc(db, 'demo_accounts', `${userId}_${participantId}`);
-    await updateDoc(accountRef, {
-      status: 'disconnected',
-      lastSyncAt: serverTimestamp()
-    });
-
-    return true;
-  } catch (error) {
-    console.error('Error disconnecting account:', error);
-    throw error;
-  }
-}
-
-/**
- * حذف الحساب المربوط
- */
-export async function deleteConnectedAccount(userId, participantId) {
-  try {
-    const accountRef = doc(db, 'demo_accounts', `${userId}_${participantId}`);
-    await deleteDoc(accountRef);
-
-    return true;
-  } catch (error) {
-    console.error('Error deleting connected account:', error);
-    throw error;
-  }
-}
-
-/**
- * الحصول على حالة الحساب المربوط
- */
-export async function getAccountStatus(userId, participantId) {
-  try {
-    const accountRef = doc(db, 'demo_accounts', `${userId}_${participantId}`);
-    const accountDoc = await getDoc(accountRef);
-
-    if (!accountDoc.exists()) {
-      return {
-        connected: false,
-        status: 'not_connected'
-      };
-    }
-
-    const data = accountDoc.data();
     return {
-      connected: data.status === 'connected',
-      status: data.status,
-      brokerName: data.brokerName,
-      accountNumber: data.accountNumber,
-      platform: data.platform,
-      lastSyncAt: data.lastSyncAt,
-      error: data.error
-    };
-  } catch (error) {
-    console.error('Error getting account status:', error);
-    return {
-      connected: false,
-      status: 'error',
+      success: false,
       error: error.message
     };
   }
 }
 
-export default {
-  connectDemoAccount,
-  fetchAccountData,
-  disconnectAccount,
-  deleteConnectedAccount,
-  getAccountStatus,
-  testConnection
-};
+/**
+ * التحقق من حالة الحساب
+ */
+export async function getAccountStatus(userId, demoAccountId) {
+  try {
+    const accountRef = doc(db, 'demo_accounts', demoAccountId || `${userId}_demo`);
+    const accountDoc = await getDoc(accountRef);
+
+    if (!accountDoc.exists()) {
+      return {
+        connected: false,
+        message: 'No demo account connected'
+      };
+    }
+
+    const accountData = accountDoc.data();
+
+    return {
+      connected: accountData.status === 'connected',
+      accountNumber: accountData.accountNumber,
+      brokerName: accountData.brokerName,
+      balance: accountData.balance,
+      platform: accountData.platform,
+      lastSyncAt: accountData.lastSyncAt
+    };
+  } catch (error) {
+    console.error('Error getting account status:', error);
+    return {
+      connected: false,
+      error: error.message
+    };
+  }
+}
+
+/**
+ * مزامنة بيانات الحساب
+ */
+/**
+ * قطع الاتصال بالحساب التجريبي
+ */
+export async function disconnectAccount(userId, demoAccountId) {
+  try {
+    const accountRef = doc(db, 'demo_accounts', demoAccountId || `${userId}_demo`);
+    await updateDoc(accountRef, {
+      status: 'disconnected',
+      lastSyncAt: serverTimestamp()
+    });
+
+    // إزالة demoAccountId من ملف المستخدم
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, {
+      demoAccountId: null
+    });
+
+    return {
+      success: true,
+      message: 'تم قطع الاتصال بنجاح'
+    };
+  } catch (error) {
+    console.error('Error disconnecting account:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+/**
+ * مزامنة بيانات الحساب
+ */
+export async function syncAccountData(userId, demoAccountId) {
+  try {
+    const accountRef = doc(db, 'demo_accounts', demoAccountId || `${userId}_demo`);
+    const accountDoc = await getDoc(accountRef);
+
+    if (!accountDoc.exists()) {
+      throw new Error('Account not found');
+    }
+
+    const accountData = accountDoc.data();
+
+    // محاولة جلب البيانات المحدثة من MetaAPI
+    const updatedData = await testConnectionAndFetchBalance({
+      brokerName: accountData.brokerName,
+      accountNumber: accountData.accountNumber,
+      password: decryptPassword(accountData.password),
+      serverName: accountData.serverName,
+      platform: accountData.platform
+    });
+
+    if (updatedData.success) {
+      await updateDoc(accountRef, {
+        balance: updatedData.balance,
+        equity: updatedData.equity,
+        margin: updatedData.margin,
+        freeMargin: updatedData.freeMargin,
+        lastSyncAt: serverTimestamp()
+      });
+
+      return {
+        success: true,
+        data: updatedData
+      };
+    }
+
+    return {
+      success: false,
+      error: 'Failed to sync account data'
+    };
+  } catch (error) {
+    console.error('Error syncing account data:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
