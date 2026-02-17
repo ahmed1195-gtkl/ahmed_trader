@@ -112,6 +112,18 @@ export const CHALLENGE_LEVELS = {
 };
 
 /**
+ * توليد كود دعوة عشوائي
+ */
+function generateInviteCode() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+/**
  * إنشاء تحدي جديد
  */
 export const createChallenge = async (level, maxParticipants = 10) => {
@@ -119,9 +131,12 @@ export const createChallenge = async (level, maxParticipants = 10) => {
   if (!challengeConfig) throw new Error('Invalid challenge level');
 
   const challengeId = `${level}_${Date.now()}`;
+  const inviteCode = generateInviteCode();
+  
   const challengeData = {
     id: challengeId,
     level: level.toLowerCase(),
+    inviteCode, // كود الدعوة للانضمام
     ...challengeConfig,
     maxParticipants,
     currentParticipants: 0,
@@ -132,19 +147,49 @@ export const createChallenge = async (level, maxParticipants = 10) => {
   };
 
   await setDoc(doc(db, 'challenges', challengeId), challengeData);
-  return challengeId;
+  return { challengeId, inviteCode };
 };
 
 /**
- * الانضمام إلى تحدي
+ * البحث عن تحدي بكود الدعوة
  */
-export const joinChallenge = async (challengeId, userId, userName) => {
-  const challengeRef = doc(db, 'challenges', challengeId);
-  const challengeSnap = await getDoc(challengeRef);
+export const findChallengeByInviteCode = async (inviteCode) => {
+  const challengesRef = collection(db, 'challenges');
+  const q = query(challengesRef, where('inviteCode', '==', inviteCode.toUpperCase()));
+  const querySnapshot = await getDocs(q);
   
-  if (!challengeSnap.exists()) throw new Error('Challenge not found');
+  if (querySnapshot.empty) {
+    throw new Error('Invalid invite code');
+  }
   
-  const challenge = challengeSnap.data();
+  const challengeDoc = querySnapshot.docs[0];
+  return {
+    id: challengeDoc.id,
+    ...challengeDoc.data()
+  };
+};
+
+/**
+ * الانضمام إلى تحدي (بكود الدعوة أو challengeId)
+ */
+export const joinChallenge = async (challengeIdOrCode, userId, userName, demoAccountId = null) => {
+  // محاولة البحث بكود الدعوة إذا كان قصيراً
+  let challengeId = challengeIdOrCode;
+  let challenge;
+  
+  if (challengeIdOrCode.length === 6) {
+    // كود دعوة
+    const challengeData = await findChallengeByInviteCode(challengeIdOrCode);
+    challengeId = challengeData.id;
+    challenge = challengeData;
+  } else {
+    // challengeId عادي
+    const challengeRef = doc(db, 'challenges', challengeId);
+    const challengeSnap = await getDoc(challengeRef);
+    
+    if (!challengeSnap.exists()) throw new Error('Challenge not found');
+    challenge = challengeSnap.data();
+  }
   
   if (challenge.currentParticipants >= challenge.maxParticipants) {
     throw new Error('Challenge is full');
@@ -152,6 +197,11 @@ export const joinChallenge = async (challengeId, userId, userName) => {
   
   if (challenge.status !== 'waiting') {
     throw new Error('Challenge already started or completed');
+  }
+  
+  // التحقق من ربط الحساب التجريبي (إذا لم يتم توفيره)
+  if (!demoAccountId) {
+    throw new Error('Demo account must be connected before joining a challenge');
   }
 
   // إنشاء سجل المشارك
@@ -161,6 +211,7 @@ export const joinChallenge = async (challengeId, userId, userName) => {
     challengeId,
     userId,
     userName,
+    demoAccountId, // ربط الحساب التجريبي
     balance: challenge.initialBalance,
     initialBalance: challenge.initialBalance,
     equity: challenge.initialBalance,
@@ -176,10 +227,13 @@ export const joinChallenge = async (challengeId, userId, userName) => {
     status: 'active', // active, failed, passed
     failureReason: null,
     joinedAt: serverTimestamp(),
-    lastTradeAt: null
+    lastTradeAt: null,
+    lastSyncedAt: null
   };
 
   await setDoc(doc(db, 'challenge_participants', participantId), participantData);
+  
+  const challengeRef = doc(db, 'challenges', challengeId);
   
   // تحديث عدد المشاركين
   await updateDoc(challengeRef, {

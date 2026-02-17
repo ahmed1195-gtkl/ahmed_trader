@@ -71,8 +71,11 @@ function ChallengeAdmin() {
     setCreating(true);
 
     try {
-      await createChallenge(selectedLevel, maxParticipants);
-      alert(i18n.language === 'ar' ? 'تم إنشاء التحدي بنجاح' : 'Challenge created successfully');
+      const result = await createChallenge(selectedLevel, maxParticipants);
+      const message = i18n.language === 'ar' 
+        ? `تم إنشاء التحدي بنجاح!\n\nكود الدعوة: ${result.inviteCode}\n\nشارك هذا الكود مع المتداولين للانضمام`
+        : `Challenge created successfully!\n\nInvite Code: ${result.inviteCode}\n\nShare this code with traders to join`;
+      alert(message);
       setShowCreateModal(false);
       loadData();
     } catch (error) {

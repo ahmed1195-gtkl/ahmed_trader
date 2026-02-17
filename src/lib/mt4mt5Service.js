@@ -157,39 +157,87 @@ export async function fetchAccountData(userId, participantId) {
     // فك تشفير كلمة المرور
     const password = decryptPassword(accountData.investorPassword);
 
-    // في الإنتاج، سيتم استخدام MetaAPI
-    // const metaApi = new MetaApi(process.env.VITE_METAAPI_TOKEN);
-    // const account = await metaApi.metatraderAccountApi.getAccount(accountId);
-    // const accountInformation = await account.getAccountInformation();
-    // const positions = await account.getPositions();
-    // const history = await account.getHistoryOrdersByTimeRange(startTime, endTime);
-
-    // محاكاة البيانات للاختبار
-    const mockData = {
-      balance: 10000 + Math.random() * 1000,
-      equity: 10000 + Math.random() * 1200,
-      margin: Math.random() * 500,
-      freeMargin: 9500 + Math.random() * 500,
-      marginLevel: 1000 + Math.random() * 500,
-      openTrades: [
-        {
-          ticket: Math.floor(Math.random() * 100000000),
-          symbol: 'EURUSD',
-          type: Math.random() > 0.5 ? 'buy' : 'sell',
-          volume: 0.1,
-          openPrice: 1.0850,
-          currentPrice: 1.0850 + (Math.random() - 0.5) * 0.01,
-          stopLoss: 1.0830,
-          takeProfit: 1.0900,
-          profit: (Math.random() - 0.5) * 50,
-          openTime: new Date(Date.now() - Math.random() * 86400000).toISOString(),
-          commission: -0.7,
-          swap: -0.2
+    // جلب بيانات حقيقية من MetaAPI
+    const METAAPI_TOKEN = import.meta.env.VITE_METAAPI_TOKEN;
+    
+    if (METAAPI_TOKEN && accountData.metaApiAccountId) {
+      try {
+        // جلب بيانات الحساب من MetaAPI
+        const response = await fetch(
+          `https://mt-client-api-v1.new-york.agiliumtrade.ai/users/current/accounts/${accountData.metaApiAccountId}/account-information`,
+          {
+            headers: {
+              'auth-token': METAAPI_TOKEN
+            }
+          }
+        );
+        
+        if (response.ok) {
+          const accountInfo = await response.json();
+          
+          // جلب الصفقات المفتوحة
+          const positionsResponse = await fetch(
+            `https://mt-client-api-v1.new-york.agiliumtrade.ai/users/current/accounts/${accountData.metaApiAccountId}/positions`,
+            {
+              headers: {
+                'auth-token': METAAPI_TOKEN
+              }
+            }
+          );
+          
+          const positions = positionsResponse.ok ? await positionsResponse.json() : [];
+          
+          // تحويل البيانات للصيغة المطلوبة
+          const realData = {
+            balance: accountInfo.balance || 0,
+            equity: accountInfo.equity || 0,
+            margin: accountInfo.margin || 0,
+            freeMargin: accountInfo.freeMargin || 0,
+            marginLevel: accountInfo.marginLevel || 0,
+            openTrades: positions.map(pos => ({
+              ticket: pos.id,
+              symbol: pos.symbol,
+              type: pos.type,
+              volume: pos.volume,
+              openPrice: pos.openPrice,
+              currentPrice: pos.currentPrice,
+              stopLoss: pos.stopLoss,
+              takeProfit: pos.takeProfit,
+              profit: pos.profit,
+              openTime: pos.time,
+              commission: pos.commission || 0,
+              swap: pos.swap || 0
+            })),
+            closedTrades: [],
+            maxDrawdown: accountInfo.equity < accountInfo.balance ? 
+              ((accountInfo.balance - accountInfo.equity) / accountInfo.balance) * 100 : 0,
+            dailyDrawdown: 0 // يتم حسابه من السجل
+          };
+          
+          // تحديث آخر وقت مزامنة
+          await updateDoc(accountRef, {
+            lastSyncAt: serverTimestamp()
+          });
+          
+          return realData;
         }
-      ],
+      } catch (error) {
+        console.error('MetaAPI fetch error:', error);
+        // الاستمرار في البيانات المحلية إذا فشل MetaAPI
+      }
+    }
+    
+    // بيانات افتراضية للاختبار (إذا لم يتم ربط MetaAPI)
+    const mockData = {
+      balance: accountData.initialBalance || 10000,
+      equity: accountData.initialBalance || 10000,
+      margin: 0,
+      freeMargin: accountData.initialBalance || 10000,
+      marginLevel: 0,
+      openTrades: [],
       closedTrades: [],
-      maxDrawdown: Math.random() * 5,
-      dailyDrawdown: Math.random() * 2
+      maxDrawdown: 0,
+      dailyDrawdown: 0
     };
 
     // تحديث آخر وقت مزامنة
