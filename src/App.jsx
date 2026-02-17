@@ -16,6 +16,7 @@ import Footer from './components/Footer';
 import Auth from './components/Auth';
 import Onboarding from './components/Onboarding';
 import OnboardingFlow from './components/OnboardingFlow';
+import ProtectedRoute from './components/ProtectedRoute';
 import Settings from './components/Settings';
 import MarketData from './components/MarketData';
 import NewsPage from './components/NewsPage';
@@ -141,6 +142,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [onboardingCompleted, setOnboardingCompleted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [hasDemoAccount, setHasDemoAccount] = useState(false);
   const [siteSettings, setSiteSettings] = useState({ showAIBot: true, showPipCalculator: true });
 
   useEffect(() => {
@@ -164,6 +166,7 @@ function App() {
             setUserData(data);
             setOnboardingCompleted(data.onboardingCompleted);
             setIsAdmin(data.isAdmin || ['mchokri100@gmail.com', 'ahmed1195@gmail.com'].includes(currentUser.email?.toLowerCase()));
+            setHasDemoAccount(!!data.demoAccountId);
           }
           setLoading(false);
         });
@@ -221,13 +224,13 @@ function App() {
                 <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/" />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/ai-bot" element={siteSettings.showAIBot ? <AITradingBot /> : <Navigate to="/" />} />
+                <Route path="/ai-bot" element={siteSettings.showAIBot ? <ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}><AITradingBot /></ProtectedRoute> : <Navigate to="/" />} />
                 <Route path="/pip-calculator" element={siteSettings.showPipCalculator ? <PipCalculator /> : <Navigate to="/" />} />
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/profile/:userId" element={<UserProfile />} />
                 <Route path="/friends" element={<Friends />} />
-                <Route path="/challenges" element={<TradingChallengeTest />} />
-                <Route path="/challenge/:participantId" element={user ? <ChallengeDashboard /> : <Navigate to="/auth" />} />
+                <Route path="/challenges" element={<ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}><TradingChallengeTest /></ProtectedRoute>} />
+                <Route path="/challenge/:participantId" element={user ? <ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}><ChallengeDashboard /></ProtectedRoute> : <Navigate to="/auth" />} />
                 <Route path="/admin/challenges" element={isAdmin ? <ChallengeAdmin /> : <Navigate to="/" />} />
                 <Route path="/global-leaderboard" element={<GlobalLeaderboard />} />
                 <Route path="/join-team/:inviteCode" element={user ? <JoinTeam /> : <Navigate to="/auth" />} />
