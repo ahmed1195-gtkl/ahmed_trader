@@ -2,6 +2,10 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
+    // ═══════════════════════════════════════════════════════════════
+    // وظائف مساعدة
+    // ═══════════════════════════════════════════════════════════════
+    
     // وظيفة للتحقق مما إذا كان المستخدم هو أدمن
     function isAdmin() {
       return request.auth != null && (
@@ -15,8 +19,16 @@ service cloud.firestore {
     function isSignedIn() {
       return request.auth != null;
     }
+    
+    // وظيفة للتحقق من أن المستخدم هو صاحب المورد
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
 
-    // قواعد مجموعة المستخدمين
+    // ═══════════════════════════════════════════════════════════════
+    // قواعد المستخدمين
+    // ═══════════════════════════════════════════════════════════════
+    
     match /users/{userId} {
       allow read: if isSignedIn();
       allow create: if isSignedIn() && request.auth.uid == userId;
@@ -24,20 +36,25 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ═══════════════════════════════════════════════════════════════
     // قواعد صفقات البوت
+    // ═══════════════════════════════════════════════════════════════
+    
     match /bot_trades/{tradeId} {
       allow read: if true;
       allow create: if true; 
       allow update, delete: if isAdmin();
     }
 
-    // قواعد إعدادات البوت
     match /bot_settings/{settingId} {
       allow read: if true;
       allow write: if true; 
     }
 
-    // قواعد المنشورات
+    // ═══════════════════════════════════════════════════════════════
+    // قواعد المنشورات والتعليقات
+    // ═══════════════════════════════════════════════════════════════
+    
     match /posts/{postId} {
       allow read: if true;
       allow create: if isAdmin();
@@ -45,32 +62,27 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // قواعد منشورات الأدمن (للتوافق)
     match /admin_posts/{postId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
-    // قواعد التعليقات
     match /comments/{commentId} {
       allow read: if true;
       allow create: if isSignedIn();
       allow update, delete: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
     }
 
+    // ═══════════════════════════════════════════════════════════════
     // قواعد الرسائل - نظام مبسط
+    // ═══════════════════════════════════════════════════════════════
+    
     match /messages/{messageId} {
-      // القراءة: الأدمن يرى كل شيء، المستخدم يرى رسائله فقط
       allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
-      
-      // الإنشاء: أي مستخدم مسجل يمكنه إرسال رسالة
       allow create: if isSignedIn();
-      
-      // التحديث والحذف: الأدمن فقط
       allow update, delete: if isAdmin();
     }
 
-    // قواعد المحادثات (للتوافق مع النظام القديم)
     match /conversations/{conversationId} {
       allow read: if isAdmin() || (isSignedIn() && request.auth.uid in resource.data.participants);
       allow create: if isSignedIn() && request.auth.uid in request.resource.data.participants;
@@ -85,26 +97,34 @@ service cloud.firestore {
       }
     }
 
-    // قواعد إعدادات الموقع
+    // ═══════════════════════════════════════════════════════════════
+    // قواعد إعدادات الموقع وسجل النشاط
+    // ═══════════════════════════════════════════════════════════════
+    
     match /site_settings/{settingId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
     }
 
-    // قواعد سجل النشاط
     match /activity_logs/{logId} {
       allow read: if isAdmin();
       allow create: if isAdmin();
       allow update, delete: if false;
     }
 
+    // ═══════════════════════════════════════════════════════════════
     // قواعد الوسطاء
+    // ═══════════════════════════════════════════════════════════════
+    
     match /brokers/{brokerId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
+    // ═══════════════════════════════════════════════════════════════
     // قواعد طلبات الصداقة
+    // ═══════════════════════════════════════════════════════════════
+    
     match /friend_requests/{requestId} {
       allow read: if isSignedIn() && (resource.data.senderId == request.auth.uid || resource.data.receiverId == request.auth.uid);
       allow create: if isSignedIn() && request.resource.data.senderId == request.auth.uid;
@@ -112,10 +132,177 @@ service cloud.firestore {
       allow delete: if isSignedIn() && (resource.data.senderId == request.auth.uid || resource.data.receiverId == request.auth.uid);
     }
 
+    // ═══════════════════════════════════════════════════════════════
     // قواعد الكورسات
+    // ═══════════════════════════════════════════════════════════════
+    
     match /courses/{courseId} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // قواعد التحديات (Challenges)
+    // ═══════════════════════════════════════════════════════════════
+    
+    match /challenges/{challengeId} {
+      allow read: if isSignedIn();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /challenge_participants/{participantId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if isAdmin();
+    }
+
+    match /challenge_trades/{tradeId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if isAdmin();
+    }
+
+    match /challenge_leaderboards/{leaderboardId} {
+      allow read: if isSignedIn();
+      allow write: if false; // يتم التحديث من الخادم فقط
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // قواعد الفرق (Teams)
+    // ═══════════════════════════════════════════════════════════════
+    
+    match /teams/{teamId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && resource.data.leaderId == request.auth.uid;
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.leaderId == request.auth.uid);
+    }
+
+    match /team_invites/{inviteId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /team_chat/{messageId} {
+      // القراءة: فقط أعضاء الفريق
+      allow read: if isSignedIn() && 
+        request.auth.uid in get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.members;
+      
+      // الإنشاء: أي عضو في الفريق
+      allow create: if isSignedIn() && 
+        request.auth.uid in get(/databases/$(database)/documents/teams/$(request.resource.data.teamId)).data.members;
+      
+      // الحذف: الأدمن أو صاحب الرسالة
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      
+      allow update: if false;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // قواعد الحسابات التجريبية (Demo Accounts)
+    // ═══════════════════════════════════════════════════════════════
+    
+    match /demo_accounts/{accountId} {
+      // القراءة: صاحب الحساب أو أعضاء فريقه
+      allow read: if isSignedIn() && (
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+      
+      // الكتابة: صاحب الحساب فقط
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      
+      // الحذف: صاحب الحساب أو الأدمن
+      allow delete: if isSignedIn() && (
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // قواعد القائمة العالمية (Global Leaderboard)
+    // ═══════════════════════════════════════════════════════════════
+    
+    match /global_leaderboard/{leaderboardId} {
+      allow read: if true; // الجميع يمكنهم القراءة
+      allow write: if false; // يتم التحديث من الخادم فقط
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // قواعد سجل تدقيق الأرصدة (Balance Audit Log)
+    // ═══════════════════════════════════════════════════════════════
+    
+    match /balance_audit_log/{logId} {
+      // القراءة: الأدمن أو صاحب السجل
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      
+      // الكتابة: من الخادم فقط (لا يمكن للمستخدمين الكتابة)
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // قواعد الإشعارات (Notifications)
+    // ═══════════════════════════════════════════════════════════════
+    
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isAdmin();
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // قواعد الإنجازات (Achievements) - للمستقبل
+    // ═══════════════════════════════════════════════════════════════
+    
+    match /achievements/{achievementId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /user_achievements/{userAchievementId} {
+      allow read: if isSignedIn();
+      allow create: if false; // يتم الإنشاء من الخادم فقط
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // قواعد التداول الاجتماعي (Social Trading) - للمستقبل
+    // ═══════════════════════════════════════════════════════════════
+    
+    match /trading_feed/{postId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn(); // للإعجابات والتعليقات
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+    }
+
+    match /copy_trading/{copyId} {
+      allow read: if isSignedIn() && (
+        resource.data.followerId == request.auth.uid ||
+        resource.data.leaderId == request.auth.uid
+      );
+      allow create: if isSignedIn() && request.resource.data.followerId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.followerId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.followerId == request.auth.uid;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // قاعدة افتراضية: رفض كل شيء آخر
+    // ═══════════════════════════════════════════════════════════════
+    
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
