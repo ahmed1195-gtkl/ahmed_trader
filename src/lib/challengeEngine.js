@@ -27,6 +27,7 @@ export const CHALLENGE_LEVELS = {
     name: 'Bronze Challenge',
     nameAr: 'التحدي البرونزي',
     nameFr: 'Défi Bronze',
+    initialBalance: 10000, // الرصيد الابتدائي
     duration: 10, // أيام
     profitTargetPercent: 20, // نسبة مئوية
     maxDrawdownPercent: 8,
@@ -55,6 +56,7 @@ export const CHALLENGE_LEVELS = {
     name: 'Silver Challenge',
     nameAr: 'التحدي الفضي',
     nameFr: 'Défi Argent',
+    initialBalance: 25000, // الرصيد الابتدائي
     duration: 15,
     profitTargetPercent: 25, // نسبة مئوية
     maxDrawdownPercent: 10,
@@ -83,6 +85,7 @@ export const CHALLENGE_LEVELS = {
     name: 'Gold Challenge',
     nameAr: 'التحدي الذهبي',
     nameFr: 'Défi Or',
+    initialBalance: 50000, // الرصيد الابتدائي
     duration: 20,
     profitTargetPercent: 30, // نسبة مئوية
     maxDrawdownPercent: 12,
