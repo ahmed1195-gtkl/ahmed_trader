@@ -1,9 +1,43 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Server, Key, User, Link as LinkIcon, AlertCircle, CheckCircle, Loader } from 'lucide-react';
+import { Server, Key, User, Link as LinkIcon, AlertCircle, CheckCircle, Loader, ExternalLink } from 'lucide-react';
 import { auth } from '../lib/firebase';
-import { connectDemoAccount } from '../lib/mt4mt5Service';
+import { connectDemoAccount, fetchAccountData } from '../lib/mt4mt5Service';
 import { useNavigate } from 'react-router-dom';
+
+// قائمة البروكرات الموثوقة
+const BROKERS = [
+  {
+    name: 'XM',
+    logo: '🏆',
+    demoUrl: 'https://www.xm.com/demo-account',
+    description: 'Up to $100,000 demo balance'
+  },
+  {
+    name: 'IC Markets',
+    logo: '⭐',
+    demoUrl: 'https://www.icmarkets.com/demo',
+    description: 'Professional trading conditions'
+  },
+  {
+    name: 'Exness',
+    logo: '💎',
+    demoUrl: 'https://www.exness.com/demo-account',
+    description: 'Unlimited demo balance'
+  },
+  {
+    name: 'FBS',
+    logo: '🎯',
+    demoUrl: 'https://fbs.com/demo-account',
+    description: 'Up to $10,000 demo balance'
+  },
+  {
+    name: 'FXTM',
+    logo: '🔥',
+    demoUrl: 'https://www.forextime.com/demo-account',
+    description: 'Flexible demo accounts'
+  }
+];
 
 function DemoAccountSetup() {
   const [formData, setFormData] = useState({
@@ -11,12 +45,15 @@ function DemoAccountSetup() {
     accountNumber: '',
     investorPassword: '',
     serverName: '',
-    platform: 'MT4'
+    platform: 'MT4',
+    requiredBalance: 10000 // المبلغ المطلوب (يمكن تغييره)
   });
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [showBrokers, setShowBrokers] = useState(false);
+  const [accountData, setAccountData] = useState(null);
   
   const navigate = useNavigate();
   const currentUser = auth.currentUser;
@@ -38,11 +75,13 @@ function DemoAccountSetup() {
 
     setLoading(true);
     setError('');
+    setAccountData(null);
 
     try {
-      await connectDemoAccount(
+      // 1. ربط الحساب التجريبي
+      const accountId = await connectDemoAccount(
         currentUser.uid,
-        'temp', // معرف مؤقت
+        'temp',
         {
           brokerId: 'custom',
           brokerName: formData.brokerName,
@@ -52,6 +91,23 @@ function DemoAccountSetup() {
           platform: formData.platform
         }
       );
+
+      // 2. جلب بيانات الحساب للتحقق من المبلغ
+      const data = await fetchAccountData(accountId);
+      setAccountData(data);
+
+      // 3. التحقق من أن المبلغ يطابق المطلوب
+      const accountBalance = data.balance || 0;
+      const requiredBalance = parseFloat(formData.requiredBalance);
+
+      if (accountBalance < requiredBalance * 0.9) { // هامش خطأ 10%
+        setError(
+          `Account balance ($${accountBalance.toFixed(2)}) is less than required ($${requiredBalance.toFixed(2)}). ` +
+          `Please open a demo account with at least $${requiredBalance.toFixed(2)}.`
+        );
+        setLoading(false);
+        return;
+      }
 
       setSuccess(true);
       setTimeout(() => {
@@ -101,6 +157,60 @@ function DemoAccountSetup() {
           <p className="text-gray-400">Link your MT4/MT5 demo account to participate in challenges</p>
         </motion.div>
 
+        {/* Don't have a demo account? */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-gradient-to-r from-purple-900/20 to-purple-800/20 border border-purple-700/50 rounded-xl p-6 mb-6"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-purple-400 mb-1">Don't have a demo account?</h3>
+              <p className="text-sm text-gray-400">Open a free demo account with one of our trusted brokers</p>
+            </div>
+            <button
+              onClick={() => setShowBrokers(!showBrokers)}
+              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg font-bold transition-colors flex items-center gap-2"
+            >
+              {showBrokers ? 'Hide' : 'Show'} Brokers
+              <ExternalLink className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Brokers List */}
+          {showBrokers && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4"
+            >
+              {BROKERS.map((broker) => (
+                <a
+                  key={broker.name}
+                  href={broker.demoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded-lg p-4 transition-all group"
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-3xl">{broker.logo}</span>
+                    <div>
+                      <h4 className="font-bold text-white group-hover:text-yellow-400 transition-colors">
+                        {broker.name}
+                      </h4>
+                      <p className="text-xs text-gray-500">{broker.description}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-end text-xs text-purple-400">
+                    Open Demo Account
+                    <ExternalLink className="w-3 h-3 ml-1" />
+                  </div>
+                </a>
+              ))}
+            </motion.div>
+          )}
+        </motion.div>
+
         {/* Info Box */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -116,6 +226,7 @@ function DemoAccountSetup() {
                 <li>• We only read account data, we cannot execute trades</li>
                 <li>• Your password is encrypted and stored securely</li>
                 <li>• Only demo accounts are supported for challenges</li>
+                <li>• Account balance must match the challenge requirements</li>
               </ul>
             </div>
           </div>
@@ -157,6 +268,26 @@ function DemoAccountSetup() {
                   MetaTrader 5
                 </button>
               </div>
+            </div>
+
+            {/* Required Balance */}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Required Balance (USD)
+              </label>
+              <select
+                name="requiredBalance"
+                value={formData.requiredBalance}
+                onChange={handleChange}
+                className="w-full px-4 py-3 bg-black border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500"
+              >
+                <option value="10000">$10,000 (Bronze Challenge)</option>
+                <option value="25000">$25,000 (Silver Challenge)</option>
+                <option value="50000">$50,000 (Gold Challenge)</option>
+              </select>
+              <p className="text-xs text-gray-500 mt-2">
+                Your demo account balance must match this amount
+              </p>
             </div>
 
             {/* Broker Name */}
@@ -230,6 +361,35 @@ function DemoAccountSetup() {
               </p>
             </div>
 
+            {/* Account Data Display */}
+            {accountData && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-gray-800 border border-gray-700 rounded-lg p-4"
+              >
+                <h4 className="font-bold text-green-400 mb-3">Account Verified ✓</h4>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="text-gray-500">Balance:</span>
+                    <span className="ml-2 text-white font-bold">${accountData.balance?.toFixed(2)}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Equity:</span>
+                    <span className="ml-2 text-white font-bold">${accountData.equity?.toFixed(2)}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Leverage:</span>
+                    <span className="ml-2 text-white font-bold">1:{accountData.leverage}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Currency:</span>
+                    <span className="ml-2 text-white font-bold">{accountData.currency}</span>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
             {/* Error Message */}
             {error && (
               <motion.div
@@ -265,12 +425,12 @@ function DemoAccountSetup() {
               {loading ? (
                 <>
                   <Loader className="w-6 h-6 animate-spin" />
-                  <span>Connecting...</span>
+                  <span>Verifying Account...</span>
                 </>
               ) : (
                 <>
                   <LinkIcon className="w-6 h-6" />
-                  <span>Connect Account</span>
+                  <span>Connect & Verify Account</span>
                 </>
               )}
             </button>

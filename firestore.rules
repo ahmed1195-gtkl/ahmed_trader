@@ -297,6 +297,40 @@ service cloud.firestore {
       allow delete: if isSignedIn() && resource.data.followerId == request.auth.uid;
     }
 
+    match /copy_trading_settings/{settingId} {
+      allow read: if isSignedIn() && resource.data.followerId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.followerId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.followerId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.followerId == request.auth.uid;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // قواعد التحليل الجماعي (Crowd Wisdom)
+    // ═══════════════════════════════════════════════════════════════
+    
+    match /crowd_wisdom/{symbolId} {
+      allow read: if isSignedIn();
+      allow write: if false; // يتم التحديث من الخادم فقط
+    }
+
+    match /user_predictions/{predictionId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // قواعد التنبيهات الذكية (Smart Alerts)
+    // ═══════════════════════════════════════════════════════════════
+    
+    match /smart_alerts/{alertId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
     // ═══════════════════════════════════════════════════════════════
     // قاعدة افتراضية: رفض كل شيء آخر
     // ═══════════════════════════════════════════════════════════════
