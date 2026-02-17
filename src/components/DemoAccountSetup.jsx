@@ -39,7 +39,7 @@ const BROKERS = [
   }
 ];
 
-function DemoAccountSetup() {
+function DemoAccountSetup({ onComplete }) {
   const [formData, setFormData] = useState({
     brokerName: '',
     accountNumber: '',
@@ -111,7 +111,11 @@ function DemoAccountSetup() {
 
       setSuccess(true);
       setTimeout(() => {
-        navigate('/join-challenge');
+        if (onComplete) {
+          onComplete();
+        } else {
+          navigate('/join-challenge');
+        }
       }, 2000);
     } catch (error) {
       setError(error.message || 'Failed to connect demo account');

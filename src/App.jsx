@@ -15,6 +15,7 @@ import BrokersPage from './components/BrokersPage';
 import Footer from './components/Footer';
 import Auth from './components/Auth';
 import Onboarding from './components/Onboarding';
+import OnboardingFlow from './components/OnboardingFlow';
 import Settings from './components/Settings';
 import MarketData from './components/MarketData';
 import NewsPage from './components/NewsPage';
@@ -208,6 +209,7 @@ function App() {
                 <Route path="/" element={<MainLayout />} />
                 <Route path="/auth" element={user ? <Navigate to={onboardingCompleted ? "/" : "/onboarding"} /> : <Auth />} />
                 <Route path="/onboarding" element={user ? (onboardingCompleted ? <Navigate to="/" /> : <Onboarding />) : <Navigate to="/auth" />} />
+                <Route path="/setup-account" element={user ? <OnboardingFlow /> : <Navigate to="/auth" />} />
                 <Route path="/settings" element={user ? <Settings /> : <Navigate to="/auth" />} />
                 <Route path="/news" element={<NewsPage />} />
                 <Route path="/global-news" element={<GlobalNews />} />
