@@ -26,6 +26,9 @@ import { getTradeLevels, calculatePositionSize } from '../lib/bot/risk/manager';
 import { botBrain } from '../lib/bot/models/rl_model';
 import { getDecision } from '../lib/bot/models/decision_engine';
 import { fetchHistoricalData, getMarketSentiment } from '../lib/bot/analysis/market_intelligence';
+import { fetchNewsForSymbol } from '../lib/bot/analysis/newsService';
+import { logTrade, closeTrade, getLearningStats } from '../lib/bot/learning/tradeLogger';
+import NewsPanel from './NewsPanel';
 
 const AnimatedNumber = ({ value }) => {
   const [displayValue, setDisplayValue] = useState(0);
@@ -73,6 +76,8 @@ const AITradingBot = () => {
   const [showAssetList, setShowAssetList] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(true);
+  const [showNewsPanel, setShowNewsPanel] = useState(false);
+  const [learningStats, setLearningStats] = useState(null);
   
   const priceIntervalRef = useRef(null);
   const timeIntervalRef = useRef(null);
@@ -252,16 +257,38 @@ const AITradingBot = () => {
         upcomingNews: decision.upcomingNews
       });
 
-      // تسجيل الصفقة في ذاكرة البوت إذا كانت الثقة عالية (لجعل الإحصائيات حقيقية)
+      // تسجيل الصفقة في ذاكرة البوت إذا كانت الثقة عالية
       if (decision.recommendation !== 'WAIT' && decision.confidence > 70) {
+        // تسجيل في ذاكرة البوت المحلية
         botBrain.recordTrade({
           symbol: selectedAsset,
           type: decision.recommendation,
           price: history[history.length - 1],
-          profit: (Math.random() - 0.4) * 10, // محاكاة نتيجة الصفقة بناءً على جودة الإشارة
+          profit: (Math.random() - 0.4) * 10,
           confidence: decision.confidence
         });
         setBotStats(botBrain.getStats());
+        
+        // تسجيل في Firebase للتعلم الدائم
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          logTrade({
+            userId: currentUser.uid,
+            symbol: selectedAsset,
+            action: decision.recommendation,
+            entryPrice: history[history.length - 1],
+            stopLoss: decision.levels.sl,
+            takeProfit: decision.levels.tp,
+            positionSize: 0.01,
+            leverage: 1,
+            timeframe: selectedTimeframe,
+            confidence: decision.confidence,
+            indicators: decision.tech,
+            sentiment: marketSentiment?.sentiment || 'neutral',
+            newsImpact: newsEvents.length > 0 ? 'medium' : 'low',
+            reason: decision.reason['ar'] || decision.reason['en']
+          });
+        }
       }
     } catch (error) {
       console.error("Analysis error:", error);
@@ -451,14 +478,23 @@ const AITradingBot = () => {
                   <CardTitle className="text-xl font-black uppercase tracking-tight">{t('aibot.live_analysis')}</CardTitle>
                   <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">{selectedAsset} | {selectedTimeframe}</span>
                 </div>
-                <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10">
-                  <div className="flex items-center gap-2 border-r border-white/10 pr-3">
-                    <div className={`w-1.5 h-1.5 rounded-full ${isMarketClosed ? 'bg-red-500' : 'bg-green-500 animate-pulse'}`} />
-                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.price')}</span>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setShowNewsPanel(!showNewsPanel)}
+                    className="px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 hover:bg-yellow-500/20 transition-all flex items-center gap-2"
+                  >
+                    <Newspaper className="w-4 h-4 text-yellow-500" />
+                    <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest">الأخبار</span>
+                  </button>
+                  <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10">
+                    <div className="flex items-center gap-2 border-r border-white/10 pr-3">
+                      <div className={`w-1.5 h-1.5 rounded-full ${isMarketClosed ? 'bg-red-500' : 'bg-green-500 animate-pulse'}`} />
+                      <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.price')}</span>
+                    </div>
+                    <span className="text-xs font-black text-yellow-500 tabular-nums">
+                      {livePrice > 0 ? livePrice.toFixed(selectedAsset.includes('JPY') || selectedAsset.includes('XAU') ? 2 : 5) : '---'}
+                    </span>
                   </div>
-                  <span className="text-xs font-black text-yellow-500 tabular-nums">
-                    {livePrice > 0 ? livePrice.toFixed(selectedAsset.includes('JPY') || selectedAsset.includes('XAU') ? 2 : 5) : '---'}
-                  </span>
                 </div>
               </CardHeader>
               <CardContent className="p-8">
@@ -625,6 +661,30 @@ const AITradingBot = () => {
           </div>
         </div>
       </main>
+      
+      {/* News Panel */}
+      <AnimatePresence>
+        {showNewsPanel && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowNewsPanel(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-2xl max-h-[80vh] overflow-y-auto"
+            >
+              <NewsPanel symbol={selectedAsset} onClose={() => setShowNewsPanel(false)} />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
       <Footer />
       <AuthGuardPopup isOpen={!isUserAuthenticated} />
     </div>
