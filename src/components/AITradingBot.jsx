@@ -31,6 +31,7 @@ import { fetchNewsForSymbol } from '../lib/bot/analysis/newsService';
 import { logTrade, closeTrade, getLearningStats } from '../lib/bot/learning/tradeLogger';
 import { liveTradeMonitor } from '../lib/bot/trading/liveTradeMonitor';
 import NewsPanel from './NewsPanel';
+import LiveTradesPanel from './LiveTradesPanel';
 
 const AnimatedNumber = ({ value }) => {
   const [displayValue, setDisplayValue] = useState(0);
@@ -336,6 +337,31 @@ const AITradingBot = () => {
     return () => clearInterval(interval);
   }, [runAnalysis]);
 
+  // تحميل الصفقات الحية عند بدء التشغيل
+  useEffect(() => {
+    const loadLiveTrades = async () => {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        const trades = await liveTradeMonitor.getUserActiveTrades(currentUser.uid);
+        setLiveTradesData(trades);
+        const stats = await liveTradeMonitor.getUserPerformanceStats(currentUser.uid);
+        setPerformanceStats(stats);
+      }
+    };
+    loadLiveTrades();
+
+    // بدء مراقبة الصفقات وتحديث الأسعار
+    liveTradeMonitor.startMonitoring((symbol, tradeId) => {
+      if (symbol === selectedAsset && livePrice > 0) {
+        liveTradeMonitor.updateTradePrice(tradeId, livePrice);
+      }
+    });
+
+    return () => {
+      liveTradeMonitor.stopMonitoring();
+    };
+  }, [selectedAsset, livePrice]);
+
   // القسم المطور للتحكم في جلب الأسعار الحقيقية 100% عبر WebSocket
   useEffect(() => {
     // تنظيف الاتصالات السابقة
@@ -532,6 +558,18 @@ const AITradingBot = () => {
                 </div>
                 <div className="flex items-center gap-3">
                   <button
+                    onClick={() => setShowLiveTrades(true)}
+                    className="px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 hover:bg-green-500/20 transition-all flex items-center gap-2"
+                  >
+                    <Activity className="w-4 h-4 text-green-500" />
+                    <span className="text-[10px] font-black text-green-500 uppercase tracking-widest">الصفقات</span>
+                    {liveTradesData.length > 0 && (
+                      <span className="bg-green-500 text-black text-[8px] font-black px-1.5 py-0.5 rounded-full">
+                        {liveTradesData.length}
+                      </span>
+                    )}
+                  </button>
+                  <button
                     onClick={() => setShowNewsPanel(!showNewsPanel)}
                     className="px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 hover:bg-yellow-500/20 transition-all flex items-center gap-2"
                   >
@@ -649,6 +687,20 @@ const AITradingBot = () => {
                         </ResponsiveContainer>
                       </div>
                       <div className="space-y-4">
+                        {analysis.rawRecommendation !== 'WAIT' && analysis.confidence >= 85 && (
+                          <Button 
+                            onClick={() => openNewTrade({
+                              recommendation: analysis.rawRecommendation,
+                              confidence: analysis.confidence,
+                              levels: analysis.levels,
+                              reason: analysis.reasoning
+                            })} 
+                            className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-black text-sm font-black uppercase tracking-widest py-6 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-green-500/20"
+                          >
+                            <TrendingUp className="w-5 h-5" />
+                            {t('aibot.open_trade')} - {analysis.rawRecommendation}
+                          </Button>
+                        )}
                         <Button onClick={() => setShowTVChart(!showTVChart)} className="w-full md:hidden bg-zinc-900 border border-white/10 text-[10px] font-black uppercase tracking-widest py-6 rounded-2xl flex items-center justify-center gap-2">
                           {showTVChart ? t('aibot.hide_chart') : t('aibot.show_chart')}
                         </Button>
@@ -714,6 +766,27 @@ const AITradingBot = () => {
         </div>
       </main>
       
+      {/* Live Trades Panel */}
+      <AnimatePresence>
+        {showLiveTrades && (
+          <LiveTradesPanel
+            trades={liveTradesData}
+            stats={performanceStats}
+            onClose={() => setShowLiveTrades(false)}
+            onCloseTrade={async (tradeId, currentPrice) => {
+              await liveTradeMonitor.closeTrade(tradeId, currentPrice);
+              const currentUser = auth.currentUser;
+              if (currentUser) {
+                const trades = await liveTradeMonitor.getUserActiveTrades(currentUser.uid);
+                setLiveTradesData(trades);
+                const stats = await liveTradeMonitor.getUserPerformanceStats(currentUser.uid);
+                setPerformanceStats(stats);
+              }
+            }}
+          />
+        )}
+      </AnimatePresence>
+
       {/* News Panel */}
       <AnimatePresence>
         {showNewsPanel && (
