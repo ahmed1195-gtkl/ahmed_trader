@@ -298,7 +298,7 @@ const AITradingBot = () => {
           symbol: selectedAsset,
           type: decision.recommendation,
           price: history[history.length - 1],
-          profit: (Math.random() - 0.4) * 10,
+          profit: 0, // سيتم حسابه عند إغلاق الصفقة في نظام liveTradeMonitor
           confidence: decision.confidence
         });
         setBotStats(botBrain.getStats());
@@ -408,9 +408,10 @@ const AITradingBot = () => {
         try {
           const response = await fetch('https://api.gold-api.com/price/XAU');
           const data = await response.json();
-          if (data && data.price_gram_24k) {
-            // تحويل من سعر الجرام إلى سعر الأونصة (1 أونصة = 31.1035 جرام)
-            const pricePerOunce = data.price_gram_24k * 31.1035;
+          if (data && data.price) {
+            // API يعطي السعر بالدولار لكل كيلوجرام (1000 جرام)
+            // نحول إلى سعر الأونصة (1 أونصة = 31.1035 جرام)
+            const pricePerOunce = (data.price / 1000) * 31.1035;
             updatePrice(pricePerOunce);
           }
         } catch (error) {

@@ -65,11 +65,7 @@ export const getDecision = (data) => {
     recommendation = score > 0 ? 'BUY' : 'SELL';
   }
 
-  // إضافة محفز عشوائي ذكي (30%) لتنشيط البوت في حالات الحيرة لضمان تقديم صفقات مستمرة
-  if (recommendation === 'WAIT' && confidence >= 55 && Math.random() > 0.7) {
-    recommendation = score > 0 ? 'BUY' : 'SELL';
-    confidence = 68;
-  }
+  // تم إزالة العشوائية - نستخدم decision_engine_v2 الآن
 
   // 5. إدارة المخاطر
   const volatility = (bb.upper - bb.lower) / currentPrice;
