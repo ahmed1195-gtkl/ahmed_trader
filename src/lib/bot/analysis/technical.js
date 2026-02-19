@@ -215,3 +215,155 @@ export const calculateVolume = (prices) => {
   
   return { trend, strength };
 };
+
+
+/**
+ * حساب Fair Value Gaps (FVG)
+ * FVG هي فجوات سعرية تحدث عندما يكون هناك عدم توازن بين العرض والطلب
+ * @param {Array} candles - مصفوفة من الشموع [{high, low, close, open}, ...]
+ * @returns {Object} - معلومات عن FVG
+ */
+export const calculateFVG = (candles) => {
+  if (candles.length < 3) {
+    return {
+      hasFVG: false,
+      type: null,
+      strength: 0,
+      gapSize: 0,
+      priceLevel: 0
+    };
+  }
+
+  const fvgs = [];
+
+  // نبحث عن FVG في آخر 20 شمعة
+  const lookback = Math.min(20, candles.length - 2);
+  
+  for (let i = candles.length - 3; i >= candles.length - lookback - 3 && i >= 0; i--) {
+    const candle1 = candles[i];     // الشمعة الأولى
+    const candle2 = candles[i + 1]; // الشمعة الوسطى
+    const candle3 = candles[i + 2]; // الشمعة الثالثة
+
+    // Bullish FVG: عندما يكون low الشمعة الثالثة أعلى من high الشمعة الأولى
+    if (candle3.low > candle1.high) {
+      const gapSize = candle3.low - candle1.high;
+      const gapPercent = (gapSize / candle1.high) * 100;
+      
+      fvgs.push({
+        type: 'bullish',
+        gapSize,
+        gapPercent,
+        upperLevel: candle3.low,
+        lowerLevel: candle1.high,
+        midLevel: (candle3.low + candle1.high) / 2,
+        strength: gapPercent > 0.5 ? 'strong' : gapPercent > 0.2 ? 'medium' : 'weak',
+        age: candles.length - i - 3 // عمر الفجوة
+      });
+    }
+    
+    // Bearish FVG: عندما يكون high الشمعة الثالثة أقل من low الشمعة الأولى
+    if (candle3.high < candle1.low) {
+      const gapSize = candle1.low - candle3.high;
+      const gapPercent = (gapSize / candle1.low) * 100;
+      
+      fvgs.push({
+        type: 'bearish',
+        gapSize,
+        gapPercent,
+        upperLevel: candle1.low,
+        lowerLevel: candle3.high,
+        midLevel: (candle1.low + candle3.high) / 2,
+        strength: gapPercent > 0.5 ? 'strong' : gapPercent > 0.2 ? 'medium' : 'weak',
+        age: candles.length - i - 3
+      });
+    }
+  }
+
+  // إذا لم نجد FVG
+  if (fvgs.length === 0) {
+    return {
+      hasFVG: false,
+      type: null,
+      strength: 0,
+      gapSize: 0,
+      priceLevel: 0,
+      signal: 'neutral'
+    };
+  }
+
+  // نأخذ أحدث وأقوى FVG
+  const latestFVG = fvgs.sort((a, b) => {
+    // نرتب حسب القوة أولاً ثم الحداثة
+    if (a.strength !== b.strength) {
+      const strengthOrder = { strong: 3, medium: 2, weak: 1 };
+      return strengthOrder[b.strength] - strengthOrder[a.strength];
+    }
+    return a.age - b.age;
+  })[0];
+
+  const currentPrice = candles[candles.length - 1].close;
+  
+  // تحديد الإشارة بناءً على موقع السعر من FVG
+  let signal = 'neutral';
+  let signalStrength = 0;
+
+  if (latestFVG.type === 'bullish') {
+    // إذا كان السعر قريب من FVG الصاعد، إشارة شراء
+    if (currentPrice >= latestFVG.lowerLevel && currentPrice <= latestFVG.upperLevel) {
+      signal = 'buy';
+      signalStrength = latestFVG.strength === 'strong' ? 25 : latestFVG.strength === 'medium' ? 15 : 8;
+    } else if (currentPrice < latestFVG.lowerLevel && (latestFVG.lowerLevel - currentPrice) / currentPrice < 0.01) {
+      signal = 'buy';
+      signalStrength = latestFVG.strength === 'strong' ? 20 : latestFVG.strength === 'medium' ? 12 : 6;
+    }
+  } else if (latestFVG.type === 'bearish') {
+    // إذا كان السعر قريب من FVG الهابط، إشارة بيع
+    if (currentPrice >= latestFVG.lowerLevel && currentPrice <= latestFVG.upperLevel) {
+      signal = 'sell';
+      signalStrength = latestFVG.strength === 'strong' ? 25 : latestFVG.strength === 'medium' ? 15 : 8;
+    } else if (currentPrice > latestFVG.upperLevel && (currentPrice - latestFVG.upperLevel) / currentPrice < 0.01) {
+      signal = 'sell';
+      signalStrength = latestFVG.strength === 'strong' ? 20 : latestFVG.strength === 'medium' ? 12 : 6;
+    }
+  }
+
+  return {
+    hasFVG: true,
+    type: latestFVG.type,
+    strength: latestFVG.strength,
+    gapSize: latestFVG.gapSize,
+    gapPercent: latestFVG.gapPercent,
+    upperLevel: latestFVG.upperLevel,
+    lowerLevel: latestFVG.lowerLevel,
+    midLevel: latestFVG.midLevel,
+    priceLevel: latestFVG.midLevel,
+    signal,
+    signalStrength,
+    age: latestFVG.age,
+    totalFVGs: fvgs.length
+  };
+};
+
+/**
+ * تحويل الأسعار إلى شموع افتراضية للتحليل
+ * @param {Array} prices - مصفوفة الأسعار
+ * @returns {Array} - مصفوفة من الشموع
+ */
+export const pricesToCandles = (prices) => {
+  const candles = [];
+  const candleSize = 5; // كل 5 أسعار = شمعة واحدة
+
+  for (let i = 0; i < prices.length; i += candleSize) {
+    const segment = prices.slice(i, i + candleSize);
+    if (segment.length > 0) {
+      candles.push({
+        open: segment[0],
+        high: Math.max(...segment),
+        low: Math.min(...segment),
+        close: segment[segment.length - 1]
+      });
+    }
+  }
+
+  return candles;
+};

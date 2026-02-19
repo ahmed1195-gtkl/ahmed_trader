@@ -26,7 +26,8 @@ import {
   Plus,
   TrendingUp,
   MessageCircle,
-  Trophy
+  Trophy,
+  Crown
 } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
@@ -34,6 +35,7 @@ import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, onSnapshot, updateDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import teamLogo from '../assets/team_logo.png';
 import { toast } from 'sonner';
+import SubscriptionModal from './SubscriptionModal';
 
 const Header = () => {
   const { t, i18n } = useTranslation();
@@ -47,6 +49,7 @@ const Header = () => {
   const [showWarning, setShowWarning] = useState(false);
   const [siteSettings, setSiteSettings] = useState({ showAIBot: true, showPipCalculator: true });
   const [isBotActive, setIsBotActive] = useState(true);
+  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -259,9 +262,16 @@ const Header = () => {
 
           {/* Actions */}
           <div className="flex items-center gap-2 md:gap-4">
-            {/* تم إزالة زر تبديل البوت بناءً على طلب المستخدم */}
-
-            {/* تم إزالة زر الإشعارات بناءً على طلب المستخدم */}
+            {/* Subscription Button */}
+            {user && (
+              <button
+                onClick={() => setIsSubscriptionModalOpen(true)}
+                className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-lg hover:shadow-xl"
+              >
+                <Crown size={16} />
+                {i18n.language === 'ar' ? 'الاشتراكات' : 'Subscriptions'}
+              </button>
+            )}
 
             {/* Language Switcher */}
             <div className="relative">
@@ -406,6 +416,13 @@ const Header = () => {
           </>
         )}
       </AnimatePresence>
+
+      {/* Subscription Modal */}
+      <SubscriptionModal 
+        isOpen={isSubscriptionModalOpen} 
+        onClose={() => setIsSubscriptionModalOpen(false)}
+        currentPlan={userData?.subscription || 'free'}
+      />
     </header>
   );
 };

@@ -3,7 +3,7 @@
  * إزالة العشوائية تماماً، رفع حد الثقة، نسبة ربح/مخاطرة ديناميكية
  */
 
-import { getTechnicalSignal, calculateRSI, calculateMACD, calculateBollingerBands, calculateSupportResistance, calculateADX, calculateVolume } from '../analysis/technical';
+import { getTechnicalSignal, calculateRSI, calculateMACD, calculateBollingerBands, calculateSupportResistance, calculateADX, calculateVolume, calculateFVG, pricesToCandles } from '../analysis/technical';
 
 export const getDecisionV2 = (data) => {
   const { prices, marketStatus, timeframe, assetType, selectedAsset, sentiment, news, globalNews } = data;
@@ -74,6 +74,19 @@ export const getDecisionV2 = (data) => {
   if (currentPrice <= bb.lower) bbScore = 5; // عند الحد السفلي
   else if (currentPrice >= bb.upper) bbScore = -5; // عند الحد العلوي
 
+  // البعد 8: Fair Value Gap (FVG) - وزن 10%
+  let fvgScore = 0;
+  const candles = pricesToCandles(prices);
+  const fvg = calculateFVG(candles);
+  
+  if (fvg.hasFVG) {
+    if (fvg.signal === 'buy') {
+      fvgScore = fvg.signalStrength; // من 0 إلى 25 حسب القوة
+    } else if (fvg.signal === 'sell') {
+      fvgScore = -fvg.signalStrength;
+    }
+  }
+
   // === المرحلة 2: دمج تحليل المشاعر والأخبار ===
   const sentimentImpact = sentiment ? sentiment.impact * 30 : 0; // زيادة التأثير من 20 إلى 30
   
@@ -85,7 +98,7 @@ export const getDecisionV2 = (data) => {
   }
 
   // === المرحلة 3: حساب النتيجة النهائية ===
-  let finalScore = trendScore + momentumScore + trendStrengthScore + volumeScore + srScore + rsiScore + bbScore;
+  let finalScore = trendScore + momentumScore + trendStrengthScore + volumeScore + srScore + rsiScore + bbScore + fvgScore;
   finalScore += sentimentImpact + newsImpact;
 
   // === المرحلة 4: حساب الثقة (بدون عشوائية) ===
