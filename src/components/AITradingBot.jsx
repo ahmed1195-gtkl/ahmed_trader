@@ -25,9 +25,11 @@ import { collection, addDoc, serverTimestamp, query, where, orderBy, limit, onSn
 import { getTradeLevels, calculatePositionSize } from '../lib/bot/risk/manager';
 import { botBrain } from '../lib/bot/models/rl_model';
 import { getDecision } from '../lib/bot/models/decision_engine';
+import { getDecisionV2 } from '../lib/bot/models/decision_engine_v2';
 import { fetchHistoricalData, getMarketSentiment } from '../lib/bot/analysis/market_intelligence';
 import { fetchNewsForSymbol } from '../lib/bot/analysis/newsService';
 import { logTrade, closeTrade, getLearningStats } from '../lib/bot/learning/tradeLogger';
+import { liveTradeMonitor } from '../lib/bot/trading/liveTradeMonitor';
 import NewsPanel from './NewsPanel';
 
 const AnimatedNumber = ({ value }) => {
@@ -78,6 +80,9 @@ const AITradingBot = () => {
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(true);
   const [showNewsPanel, setShowNewsPanel] = useState(false);
   const [learningStats, setLearningStats] = useState(null);
+  const [liveTradesData, setLiveTradesData] = useState([]);
+  const [performanceStats, setPerformanceStats] = useState(null);
+  const [showLiveTrades, setShowLiveTrades] = useState(false);
   
   const priceIntervalRef = useRef(null);
   const timeIntervalRef = useRef(null);
@@ -88,6 +93,7 @@ const AITradingBot = () => {
   const lastNotificationTimeRef = useRef({});
 
   const assets = [
+    { name: 'XAU/USD (Gold)', symbol: 'XAUUSD', tvSymbol: 'OANDA:XAUUSD', basePrice: 2650, type: 'commodity' },
     { name: 'BTC/USDT', symbol: 'BTCUSDT', tvSymbol: 'BINANCE:BTCUSDT', basePrice: 45000, type: 'crypto' },
     { name: 'ETH/USDT', symbol: 'ETHUSDT', tvSymbol: 'BINANCE:ETHUSDT', basePrice: 2400, type: 'crypto' },
     { name: 'BNB/USDT', symbol: 'BNBUSDT', tvSymbol: 'BINANCE:BNBUSDT', basePrice: 300, type: 'crypto' },
@@ -226,6 +232,33 @@ const AITradingBot = () => {
     return () => clearInterval(newsIntervalRef.current);
   }, [selectedAsset]);
 
+  // دالة فتح صفقة جديدة
+  const openNewTrade = async (decision) => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
+
+    const tradeId = await liveTradeMonitor.openTrade(currentUser.uid, {
+      symbol: selectedAsset,
+      action: decision.recommendation,
+      entryPrice: livePrice,
+      stopLoss: decision.levels.sl,
+      takeProfit: decision.levels.tp,
+      confidence: decision.confidence,
+      timeframe: selectedTimeframe,
+      reason: decision.reason['ar'] || decision.reason['en']
+    });
+
+    if (tradeId) {
+      // تحديث قائمة الصفقات
+      const trades = await liveTradeMonitor.getUserActiveTrades(currentUser.uid);
+      setLiveTradesData(trades);
+      
+      // تحديث الإحصائيات
+      const stats = await liveTradeMonitor.getUserPerformanceStats(currentUser.uid);
+      setPerformanceStats(stats);
+    }
+  };
+
   const runAnalysis = useCallback(async () => {
     if (isMarketClosed) return;
     setLoading(true);
@@ -233,7 +266,7 @@ const AITradingBot = () => {
       const history = await fetchHistoricalData(selectedAsset, selectedTimeframe);
       if (!history) throw new Error("Failed to fetch data");
 
-      const decision = getDecision({
+      const decision = getDecisionV2({
         prices: history,
         marketStatus,
         timeframe: selectedTimeframe,
@@ -343,8 +376,28 @@ const AITradingBot = () => {
           updatePrice(parseFloat(data.c));
         }
       };
+    } else if (asset.type === 'commodity' && asset.symbol === 'XAUUSD') {
+      // 2️⃣ للذهب: استخدام API الذهب الخاص
+      const fetchGoldPrice = async () => {
+        try {
+          const response = await fetch('https://api.gold-api.com/price/XAU');
+          const data = await response.json();
+          if (data && data.price_gram_24k) {
+            // تحويل من سعر الجرام إلى سعر الأونصة (1 أونصة = 31.1035 جرام)
+            const pricePerOunce = data.price_gram_24k * 31.1035;
+            updatePrice(pricePerOunce);
+          }
+        } catch (error) {
+          console.error('Gold API error:', error);
+          // Fallback إلى سعر افتراضي
+          updatePrice(asset.basePrice);
+        }
+      };
+
+      fetchGoldPrice();
+      priceIntervalRef.current = setInterval(fetchGoldPrice, 5000);
     } else if (!isMarketClosed) {
-      // 2️⃣ للفوركس والذهب: يستخدم WebSocket من مصدر TradingView الموثوق (عبر Finnhub)
+      // 3️⃣ للفوركس: يستخدم WebSocket من مصدر TradingView الموثوق (عبر Finnhub)
       const socket = new WebSocket('wss://ws.finnhub.io?token=sandbox_c8m2v2iad3if8n8b8g00');
       wsRef.current = socket;
 
@@ -367,8 +420,7 @@ const AITradingBot = () => {
         try {
           // استخدام Twelve Data كخيار احتياطي أول لأنه أكثر دقة للفوركس
           const tdKey = import.meta.env.VITE_TWELVEDATA_API_KEY || 'demo';
-          const tdSymbol = asset.symbol === 'XAUUSD' ? 'GOLD' : asset.symbol;
-          const tdRes = await fetch(`https://api.twelvedata.com/price?symbol=${tdSymbol}&apikey=${tdKey}`);
+          const tdRes = await fetch(`https://api.twelvedata.com/price?symbol=${asset.symbol}&apikey=${tdKey}`);
           const tdData = await tdRes.json();
           
           if (tdData && tdData.price) {

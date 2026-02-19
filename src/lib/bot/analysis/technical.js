@@ -160,3 +160,58 @@ export const calculateSupportResistance = (prices) => {
     resistanceStrength: getStrength(bestResistance.hits)
   };
 };
+
+/**
+ * حساب مؤشر ADX (Average Directional Index) لقياس قوة الاتجاه
+ */
+export const calculateADX = (prices, period = 14) => {
+  if (prices.length < period + 1) return 25; // قيمة افتراضية
+
+  let plusDM = 0, minusDM = 0, tr = 0;
+  
+  for (let i = prices.length - period; i < prices.length; i++) {
+    const high = prices[i];
+    const low = prices[i];
+    const prevHigh = prices[i - 1];
+    const prevLow = prices[i - 1];
+    const prevClose = prices[i - 1];
+    
+    const highDiff = high - prevHigh;
+    const lowDiff = prevLow - low;
+    
+    if (highDiff > lowDiff && highDiff > 0) plusDM += highDiff;
+    if (lowDiff > highDiff && lowDiff > 0) minusDM += lowDiff;
+    
+    const trueRange = Math.max(high - low, Math.abs(high - prevClose), Math.abs(low - prevClose));
+    tr += trueRange;
+  }
+  
+  const plusDI = (plusDM / tr) * 100;
+  const minusDI = (minusDM / tr) * 100;
+  const dx = Math.abs(plusDI - minusDI) / (plusDI + minusDI) * 100;
+  
+  return dx;
+};
+
+/**
+ * تحليل حجم التداول (Volume Analysis)
+ */
+export const calculateVolume = (prices) => {
+  if (prices.length < 10) return { trend: 'neutral', strength: 'weak' };
+  
+  // محاكاة حجم التداول بناءً على تقلبات السعر
+  const recentVolatility = prices.slice(-5).reduce((sum, price, i, arr) => {
+    if (i === 0) return 0;
+    return sum + Math.abs(price - arr[i - 1]);
+  }, 0);
+  
+  const olderVolatility = prices.slice(-10, -5).reduce((sum, price, i, arr) => {
+    if (i === 0) return 0;
+    return sum + Math.abs(price - arr[i - 1]);
+  }, 0);
+  
+  const trend = recentVolatility > olderVolatility ? 'increasing' : 'decreasing';
+  const strength = Math.abs(recentVolatility - olderVolatility) / olderVolatility > 0.2 ? 'strong' : 'weak';
+  
+  return { trend, strength };
+};
