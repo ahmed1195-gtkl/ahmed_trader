@@ -70,34 +70,9 @@ export const getTechnicalSignal = (prices) => {
   };
 };
 
-export const calculateMACD = (prices) => {
-  if (prices.length < 26) return { macd: 0, signal: 0, histogram: 0 };
-  
-  const calculateEMA = (data, period) => {
-    const k = 2 / (period + 1);
-    let ema = data[0];
-    for (let i = 1; i < data.length; i++) {
-      ema = data[i] * k + ema * (1 - k);
-    }
-    return ema;
-  };
 
-  const ema12 = calculateEMA(prices.slice(-12), 12);
-  const ema26 = calculateEMA(prices.slice(-26), 26);
-  const macd = ema12 - ema26;
-  const signal = calculateEMA(prices.slice(-9), 9);
-  
-  return { macd, signal, histogram: macd - signal };
-};
 
-export const calculateBollingerBands = (prices, period = 20, stdDev = 2) => {
-  if (prices.length < period) return { middle: 0, upper: 0, lower: 0 };
-  const slice = prices.slice(-period);
-  const middle = slice.reduce((a, b) => a + b, 0) / period;
-  const variance = slice.reduce((a, b) => a + Math.pow(b - middle, 2), 0) / period;
-  const sd = Math.sqrt(variance);
-  return { middle, upper: middle + (stdDev * sd), lower: middle - (stdDev * sd) };
-};
+
 
 /**
  * خوارزمية متطورة لاستخراج الدعوم والمقاومات الحقيقية
