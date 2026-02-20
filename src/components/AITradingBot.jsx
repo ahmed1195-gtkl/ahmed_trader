@@ -291,38 +291,30 @@ const AITradingBot = () => {
         upcomingNews: decision.upcomingNews
       });
 
-      // تسجيل الصفقة في ذاكرة البوت إذا كانت الثقة عالية
+      // فتح صفقة تلقائياً إذا كانت الثقة ≥ 85%
+      if (decision.recommendation !== 'WAIT' && decision.confidence >= 85) {
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          // فتح الصفقة فوراً
+          await openNewTrade({
+            recommendation: decision.recommendation,
+            confidence: decision.confidence,
+            levels: decision.levels,
+            reason: decision.reason[i18n.language] || decision.reason['en']
+          });
+        }
+      }
+      
+      // تسجيل في ذاكرة البوت للتعلم
       if (decision.recommendation !== 'WAIT' && decision.confidence > 70) {
-        // تسجيل في ذاكرة البوت المحلية
         botBrain.recordTrade({
           symbol: selectedAsset,
           type: decision.recommendation,
           price: history[history.length - 1],
-          profit: 0, // سيتم حسابه عند إغلاق الصفقة في نظام liveTradeMonitor
+          profit: 0,
           confidence: decision.confidence
         });
         setBotStats(botBrain.getStats());
-        
-        // تسجيل في Firebase للتعلم الدائم
-        const currentUser = auth.currentUser;
-        if (currentUser) {
-          logTrade({
-            userId: currentUser.uid,
-            symbol: selectedAsset,
-            action: decision.recommendation,
-            entryPrice: history[history.length - 1],
-            stopLoss: decision.levels.sl,
-            takeProfit: decision.levels.tp,
-            positionSize: 0.01,
-            leverage: 1,
-            timeframe: selectedTimeframe,
-            confidence: decision.confidence,
-            indicators: decision.tech,
-            sentiment: marketSentiment?.sentiment || 'neutral',
-            newsImpact: newsEvents.length > 0 ? 'medium' : 'low',
-            reason: decision.reason['ar'] || decision.reason['en']
-          });
-        }
       }
     } catch (error) {
       console.error("Analysis error:", error);
@@ -348,16 +340,24 @@ const AITradingBot = () => {
         setPerformanceStats(stats);
       }
     };
+    
+    // تحميل الصفقات فوراً
     loadLiveTrades();
+
+    // إعادة تحميل الصفقات كل 5 ثوانٍ
+    const reloadInterval = setInterval(loadLiveTrades, 5000);
 
     // بدء مراقبة الصفقات وتحديث الأسعار
     liveTradeMonitor.startMonitoring((symbol, tradeId) => {
       if (symbol === selectedAsset && livePrice > 0) {
         liveTradeMonitor.updateTradePrice(tradeId, livePrice);
+        // إعادة تحميل الصفقات بعد التحديث
+        loadLiveTrades();
       }
     });
 
     return () => {
+      clearInterval(reloadInterval);
       liveTradeMonitor.stopMonitoring();
     };
   }, [selectedAsset, livePrice]);
@@ -691,18 +691,10 @@ const AITradingBot = () => {
                       </div>
                       <div className="space-y-4">
                         {analysis.rawRecommendation !== 'WAIT' && analysis.confidence >= 85 && (
-                          <Button 
-                            onClick={() => openNewTrade({
-                              recommendation: analysis.rawRecommendation,
-                              confidence: analysis.confidence,
-                              levels: analysis.levels,
-                              reason: analysis.reasoning
-                            })} 
-                            className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-black text-sm font-black uppercase tracking-widest py-6 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-green-500/20"
-                          >
-                            <TrendingUp className="w-5 h-5" />
-                            {t('aibot.open_trade')} - {analysis.rawRecommendation}
-                          </Button>
+                          <div className="w-full bg-gradient-to-r from-green-500/10 to-emerald-600/10 border-2 border-green-500 text-white text-sm font-black uppercase tracking-widest py-6 rounded-2xl flex items-center justify-center gap-2">
+                            <CheckCircle2 className="w-5 h-5 text-green-500" />
+                            {t('aibot.trade_opened_auto')} - {analysis.rawRecommendation}
+                          </div>
                         )}
                         <Button onClick={() => setShowTVChart(!showTVChart)} className="w-full md:hidden bg-zinc-900 border border-white/10 text-[10px] font-black uppercase tracking-widest py-6 rounded-2xl flex items-center justify-center gap-2">
                           {showTVChart ? t('aibot.hide_chart') : t('aibot.show_chart')}
