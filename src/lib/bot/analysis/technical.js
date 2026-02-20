@@ -367,3 +367,143 @@ export const pricesToCandles = (prices) => {
 
   return candles;
 };
+
+
+/**
+ * حساب Average True Range (ATR)
+ * @param {Array} highs - مصفوفة أعلى الأسعار
+ * @param {Array} lows - مصفوفة أدنى الأسعار
+ * @param {Array} closes - مصفوفة أسعار الإغلاق
+ * @param {number} period - الفترة (افتراضي 14)
+ * @returns {number} - قيمة ATR
+ */
+export const calculateATR = (highs, lows, closes, period = 14) => {
+  if (highs.length < period + 1 || lows.length < period + 1 || closes.length < period + 1) {
+    return 0;
+  }
+
+  const trueRanges = [];
+
+  for (let i = 1; i < highs.length; i++) {
+    const high = highs[i];
+    const low = lows[i];
+    const prevClose = closes[i - 1];
+
+    // True Range = max(high - low, |high - prevClose|, |low - prevClose|)
+    const tr = Math.max(
+      high - low,
+      Math.abs(high - prevClose),
+      Math.abs(low - prevClose)
+    );
+
+    trueRanges.push(tr);
+  }
+
+  // حساب ATR كمتوسط متحرك للـ True Range
+  if (trueRanges.length < period) {
+    return trueRanges.reduce((a, b) => a + b, 0) / trueRanges.length;
+  }
+
+  // أول ATR = متوسط بسيط لأول period من TR
+  let atr = trueRanges.slice(0, period).reduce((a, b) => a + b, 0) / period;
+
+  // باقي ATR = متوسط متحرك أسي
+  for (let i = period; i < trueRanges.length; i++) {
+    atr = ((atr * (period - 1)) + trueRanges[i]) / period;
+  }
+
+  return atr;
+};
+
+/**
+ * حساب MACD (Moving Average Convergence Divergence)
+ * @param {Array} prices - مصفوفة الأسعار
+ * @param {number} fastPeriod - الفترة السريعة (افتراضي 12)
+ * @param {number} slowPeriod - الفترة البطيئة (افتراضي 26)
+ * @param {number} signalPeriod - فترة الإشارة (افتراضي 9)
+ * @returns {Object} - {macd, signal, histogram}
+ */
+export const calculateMACD = (prices, fastPeriod = 12, slowPeriod = 26, signalPeriod = 9) => {
+  if (prices.length < slowPeriod) {
+    return { macd: 0, signal: 0, histogram: 0 };
+  }
+
+  // حساب EMA
+  const calculateEMA = (data, period) => {
+    const k = 2 / (period + 1);
+    let ema = data.slice(0, period).reduce((a, b) => a + b, 0) / period;
+
+    for (let i = period; i < data.length; i++) {
+      ema = (data[i] * k) + (ema * (1 - k));
+    }
+
+    return ema;
+  };
+
+  const fastEMA = calculateEMA(prices, fastPeriod);
+  const slowEMA = calculateEMA(prices, slowPeriod);
+  const macd = fastEMA - slowEMA;
+
+  // حساب Signal Line (EMA من MACD)
+  // نحتاج MACD لكل نقطة لحساب Signal، لكن هنا نبسطها
+  const signal = macd * 0.9; // تقريب مبسط
+
+  const histogram = macd - signal;
+
+  return { macd, signal, histogram };
+};
+
+/**
+ * حساب Bollinger Bands
+ * @param {Array} prices - مصفوفة الأسعار
+ * @param {number} period - الفترة (افتراضي 20)
+ * @param {number} stdDev - عدد الانحرافات المعيارية (افتراضي 2)
+ * @returns {Object} - {upper, middle, lower}
+ */
+export const calculateBollingerBands = (prices, period = 20, stdDev = 2) => {
+  if (prices.length < period) {
+    const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
+    return { upper: avg, middle: avg, lower: avg };
+  }
+
+  const slice = prices.slice(-period);
+  const middle = slice.reduce((a, b) => a + b, 0) / period;
+
+  // حساب الانحراف المعياري
+  const variance = slice.reduce((sum, price) => sum + Math.pow(price - middle, 2), 0) / period;
+  const std = Math.sqrt(variance);
+
+  const upper = middle + (std * stdDev);
+  const lower = middle - (std * stdDev);
+
+  return { upper, middle, lower };
+};
+
+/**
+ * حساب SL/TP بناءً على ATR
+ * @param {string} tradeType - 'BUY' or 'SELL'
+ * @param {number} entryPrice - سعر الدخول
+ * @param {number} atr - قيمة ATR
+ * @param {number} slMultiplier - مضاعف ATR للـ SL (افتراضي 2)
+ * @param {number} tpMultiplier - مضاعف ATR للـ TP (افتراضي 3)
+ * @returns {Object} - {stopLoss, takeProfit}
+ */
+export const calculateATRBasedLevels = (
+  tradeType,
+  entryPrice,
+  atr,
+  slMultiplier = 2,
+  tpMultiplier = 3
+) => {
+  if (tradeType === 'BUY') {
+    return {
+      stopLoss: entryPrice - (atr * slMultiplier),
+      takeProfit: entryPrice + (atr * tpMultiplier)
+    };
+  } else {
+    return {
+      stopLoss: entryPrice + (atr * slMultiplier),
+      takeProfit: entryPrice - (atr * tpMultiplier)
+    };
+  }
+};
