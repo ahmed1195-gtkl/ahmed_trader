@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calculator, Globe, BarChart3, RefreshCw, Info, ChevronDown, Zap, Target, Scale } from 'lucide-react';
+import { Calculator, Globe, BarChart3, RefreshCw, Info, ChevronDown, Zap, Target, Scale, Shield, TrendingUp, AlertCircle, Award } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import AuthGuardPopup from './AuthGuardPopup';
 import { auth } from '../lib/firebase';
+import { RISK_CONFIG } from '../lib/risk/config';
+import { calculateDynamicLotSize, getRiskSummary } from '../lib/risk/riskEngine';
+import { calculateMargin, getContractSize } from '../lib/risk/marginCalculator';
+import { getDailyRiskStatus } from '../lib/risk/dailyRiskTracker';
+import { analyzePosition } from '../lib/analysis/positionAnalyzer';
 
 const PipCalculator = () => {
   const { t } = useTranslation();
@@ -19,6 +24,17 @@ const PipCalculator = () => {
   const [showAssetList, setShowAssetList] = useState(false);
   const [showCurrencyList, setShowCurrencyList] = useState(false);
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(true);
+  
+  // Risk Management States
+  const [accountBalance, setAccountBalance] = useState(10000);
+  const [riskPercent, setRiskPercent] = useState(1);
+  const [stopLossPips, setStopLossPips] = useState(20);
+  const [takeProfitPips, setTakeProfitPips] = useState(40);
+  const [leverage, setLeverage] = useState(100);
+  const [riskSummary, setRiskSummary] = useState(null);
+  const [marginInfo, setMarginInfo] = useState(null);
+  const [positionQuality, setPositionQuality] = useState(null);
+  const [dailyRiskStatus, setDailyRiskStatus] = useState(null);
 
   const assets = [
     // Forex Majors
@@ -179,6 +195,59 @@ const PipCalculator = () => {
     setPipValue(value.toFixed(2));
   }, [asset, lotSize, livePrice, accountCurrency, exchangeRates]);
 
+  // Calculate Risk Summary (TASK 2)
+  useEffect(() => {
+    if (!RISK_CONFIG.riskEngineEnabled || !pipValue || !stopLossPips || !takeProfitPips) return;
+    
+    const summary = getRiskSummary({
+      accountBalance,
+      riskPercent,
+      stopLossPips,
+      takeProfitPips,
+      pipValue: parseFloat(pipValue),
+      lotSize: parseFloat(lotSize)
+    });
+    
+    setRiskSummary(summary);
+  }, [accountBalance, riskPercent, stopLossPips, takeProfitPips, pipValue, lotSize]);
+
+  // Calculate Margin (TASK 3)
+  useEffect(() => {
+    if (!RISK_CONFIG.marginCalcEnabled || !livePrice) return;
+    
+    const selectedAsset = assets.find(a => a.symbol === asset);
+    const contractSize = getContractSize(selectedAsset.type);
+    
+    const margin = calculateMargin({
+      lotSize: parseFloat(lotSize),
+      contractSize,
+      leverage,
+      price: livePrice
+    });
+    
+    setMarginInfo(margin);
+  }, [lotSize, leverage, livePrice, asset]);
+
+  // Calculate Position Quality (TASK 5)
+  useEffect(() => {
+    if (!riskSummary) return;
+    
+    const quality = analyzePosition({
+      riskPercent,
+      riskRewardRatio: riskSummary.riskRewardRatio
+    });
+    
+    setPositionQuality(quality);
+  }, [riskPercent, riskSummary]);
+
+  // Get Daily Risk Status (TASK 4)
+  useEffect(() => {
+    if (!RISK_CONFIG.dailyRiskTrackerEnabled) return;
+    
+    const status = getDailyRiskStatus();
+    setDailyRiskStatus(status);
+  }, []);
+
   const currentAsset = assets.find(a => a.symbol === asset);
   const currentCurrency = accountCurrencies.find(c => c.code === accountCurrency);
 
@@ -313,6 +382,59 @@ const PipCalculator = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Risk Summary Card (TASK 2) - Only show if enabled */}
+                {RISK_CONFIG.riskEngineEnabled && riskSummary && (!RISK_CONFIG.isProUser || RISK_CONFIG.proMetricsEnabled) && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                    <div className="p-6 rounded-2xl bg-green-500/5 border border-green-500/10">
+                      <div className="flex items-center gap-2 mb-2">
+                        <TrendingUp className="w-4 h-4 text-green-500" />
+                        <span className="text-[10px] font-black text-green-500 uppercase tracking-widest">Potential Profit</span>
+                      </div>
+                      <p className="text-3xl font-black text-white">${riskSummary.potentialProfit}</p>
+                    </div>
+                    <div className="p-6 rounded-2xl bg-red-500/5 border border-red-500/10">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Shield className="w-4 h-4 text-red-500" />
+                        <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Potential Loss</span>
+                      </div>
+                      <p className="text-3xl font-black text-white">${riskSummary.potentialLoss}</p>
+                    </div>
+                    <div className="p-6 rounded-2xl bg-blue-500/5 border border-blue-500/10">
+                      <div className="flex items-center gap-2 mb-2">
+                        <BarChart3 className="w-4 h-4 text-blue-500" />
+                        <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">Risk:Reward</span>
+                      </div>
+                      <p className="text-3xl font-black text-white">1:{riskSummary.riskRewardRatio}</p>
+                    </div>
+                    <div className={`p-6 rounded-2xl bg-${riskSummary.riskLevelColor}-500/5 border border-${riskSummary.riskLevelColor}-500/10`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <AlertCircle className={`w-4 h-4 text-${riskSummary.riskLevelColor}-500`} />
+                        <span className={`text-[10px] font-black text-${riskSummary.riskLevelColor}-500 uppercase tracking-widest`}>Risk Level</span>
+                      </div>
+                      <p className="text-3xl font-black text-white">{riskSummary.riskLevel}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Position Quality (TASK 5) */}
+                {positionQuality && (!RISK_CONFIG.isProUser || RISK_CONFIG.proMetricsEnabled) && (
+                  <div className="p-6 rounded-2xl bg-purple-500/5 border border-purple-500/10 mt-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <Award className="w-4 h-4 text-purple-500" />
+                        <span className="text-[10px] font-black text-purple-500 uppercase tracking-widest">Position Quality</span>
+                      </div>
+                      <span className="text-2xl font-black text-white">{positionQuality.score}/100</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
+                        <div className={`h-full bg-${positionQuality.color}-500`} style={{ width: `${positionQuality.score}%` }}></div>
+                      </div>
+                      <span className={`text-xs font-black text-${positionQuality.color}-500 uppercase`}>{positionQuality.label}</span>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -347,6 +469,52 @@ const PipCalculator = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Margin Info (TASK 3) */}
+            {RISK_CONFIG.marginCalcEnabled && marginInfo && marginInfo.isValid && (
+              <Card className="bg-zinc-900/40 backdrop-blur-2xl border-white/10 text-white rounded-[2.5rem]">
+                <CardHeader className="p-6 border-b border-white/5">
+                  <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-cyan-500" /> Margin Required
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Margin</span>
+                    <span className="text-lg font-black text-white">${marginInfo.margin}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Leverage</span>
+                    <span className="text-[10px] font-black text-white uppercase tracking-widest">1:{marginInfo.leverage}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Daily Risk Tracker (TASK 4) */}
+            {RISK_CONFIG.dailyRiskTrackerEnabled && dailyRiskStatus && (
+              <Card className="bg-zinc-900/40 backdrop-blur-2xl border-white/10 text-white rounded-[2.5rem]">
+                <CardHeader className="p-6 border-b border-white/5">
+                  <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4 text-orange-500" /> Daily Risk
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Used Today</span>
+                    <span className="text-lg font-black text-white">{dailyRiskStatus.totalRisk}%</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Remaining</span>
+                    <span className="text-lg font-black text-green-500">{dailyRiskStatus.remainingRisk}%</span>
+                  </div>
+                  <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-full bg-orange-500" style={{ width: `${Math.min(100, dailyRiskStatus.utilizationPercent)}%` }}></div>
+                  </div>
+                  <p className="text-[9px] text-gray-500 uppercase tracking-widest">{dailyRiskStatus.totalTrades} Trades Today</p>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </main>
