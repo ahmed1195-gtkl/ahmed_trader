@@ -12,6 +12,14 @@ import { calculateDynamicLotSize, getRiskSummary } from '../lib/risk/riskEngine'
 import { calculateMargin, getContractSize } from '../lib/risk/marginCalculator';
 import { getDailyRiskStatus } from '../lib/risk/dailyRiskTracker';
 import { analyzePosition } from '../lib/analysis/positionAnalyzer';
+import { TooltipIcon } from './ui/Tooltip';
+import { ProBadge } from './ui/ProBadge';
+import { CopyButton } from './ui/CopyButton';
+import { AnimatedNumber } from './ui/AnimatedNumber';
+import { AIHint } from './ui/AIHint';
+import { AlertBanner } from './ui/AlertBanner';
+import { SummaryPopup } from './ui/SummaryPopup';
+import { useDynamicColors, useQualityColors } from '../hooks/useDynamicColors';
 
 const PipCalculator = () => {
   const { t } = useTranslation();
@@ -35,6 +43,7 @@ const PipCalculator = () => {
   const [marginInfo, setMarginInfo] = useState(null);
   const [positionQuality, setPositionQuality] = useState(null);
   const [dailyRiskStatus, setDailyRiskStatus] = useState(null);
+  const [showAlertBanner, setShowAlertBanner] = useState(true);
 
   const assets = [
     // Forex Majors
@@ -255,6 +264,8 @@ const PipCalculator = () => {
     <div className="min-h-screen bg-black text-white font-sans selection:bg-yellow-500/30 overflow-x-hidden">
       <Header />
       <main className="pt-32 md:pt-40 pb-20 px-4 md:px-6 max-w-5xl mx-auto">
+        {/* Alert Banner */}
+        {showAlertBanner && <AlertBanner dailyRiskStatus={dailyRiskStatus} onDismiss={() => setShowAlertBanner(false)} />}
         <div className="mb-12 text-center">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[10px] font-black uppercase tracking-widest mb-6">
             <Calculator className="w-3 h-3" /> {t('nav.tools', 'Trading Tools')}
@@ -364,12 +375,18 @@ const PipCalculator = () => {
                 {/* Result Display */}
                 <div className="p-10 rounded-[2.5rem] bg-yellow-500/5 border border-yellow-500/10 flex flex-col items-center justify-center text-center relative overflow-hidden group">
                   <div className="absolute inset-0 bg-yellow-500/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-all duration-1000"></div>
-                  <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest mb-4 relative z-10">Calculated Pip Value</span>
+                  <div className="flex items-center gap-1 mb-4 relative z-10">
+                    <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest">Calculated Pip Value</span>
+                    <TooltipIcon text="The monetary value of a single pip movement for your position size. This helps you calculate potential profit or loss per pip." />
+                  </div>
                   <div className="flex items-baseline gap-3 relative z-10">
                     <span className="text-7xl md:text-8xl font-black tracking-tighter text-white">
                       {currentCurrency.symbol}{pipValue}
                     </span>
                     <span className="text-2xl font-black text-gray-500 uppercase tracking-widest">{accountCurrency}</span>
+                  </div>
+                  <div className="mt-4 relative z-10">
+                    <CopyButton value={pipValue} label="Copy" />
                   </div>
                   <div className="mt-8 flex flex-wrap justify-center gap-6 relative z-10">
                     <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/5">
@@ -385,27 +402,35 @@ const PipCalculator = () => {
 
                 {/* Risk Summary Card (TASK 2) - Only show if enabled */}
                 {RISK_CONFIG.riskEngineEnabled && riskSummary && (!RISK_CONFIG.isProUser || RISK_CONFIG.proMetricsEnabled) && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                  <>
+                  <div className="flex items-center justify-between mt-8 mb-4">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-black uppercase tracking-widest text-white">Risk Analysis</h3>
+                      <TooltipIcon text="Comprehensive risk metrics for your position including potential profit, loss, and risk:reward ratio." />
+                    </div>
+                    {!RISK_CONFIG.isProUser && <ProBadge />}
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="p-6 rounded-2xl bg-green-500/5 border border-green-500/10">
                       <div className="flex items-center gap-2 mb-2">
                         <TrendingUp className="w-4 h-4 text-green-500" />
                         <span className="text-[10px] font-black text-green-500 uppercase tracking-widest">Potential Profit</span>
                       </div>
-                      <p className="text-3xl font-black text-white">${riskSummary.potentialProfit}</p>
+                      <AnimatedNumber value={riskSummary.potentialProfit} prefix="$" className="text-3xl font-black text-white" />
                     </div>
                     <div className="p-6 rounded-2xl bg-red-500/5 border border-red-500/10">
                       <div className="flex items-center gap-2 mb-2">
                         <Shield className="w-4 h-4 text-red-500" />
                         <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Potential Loss</span>
                       </div>
-                      <p className="text-3xl font-black text-white">${riskSummary.potentialLoss}</p>
+                      <AnimatedNumber value={riskSummary.potentialLoss} prefix="$" className="text-3xl font-black text-white" />
                     </div>
                     <div className="p-6 rounded-2xl bg-blue-500/5 border border-blue-500/10">
                       <div className="flex items-center gap-2 mb-2">
                         <BarChart3 className="w-4 h-4 text-blue-500" />
                         <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">Risk:Reward</span>
                       </div>
-                      <p className="text-3xl font-black text-white">1:{riskSummary.riskRewardRatio}</p>
+                      <p className="text-3xl font-black text-white">1:<AnimatedNumber value={riskSummary.riskRewardRatio} decimals={1} className="inline" /></p>
                     </div>
                     <div className={`p-6 rounded-2xl bg-${riskSummary.riskLevelColor}-500/5 border border-${riskSummary.riskLevelColor}-500/10`}>
                       <div className="flex items-center gap-2 mb-2">
@@ -414,7 +439,11 @@ const PipCalculator = () => {
                       </div>
                       <p className="text-3xl font-black text-white">{riskSummary.riskLevel}</p>
                     </div>
-                  </div>
+                   </div>
+                   
+                   {/* AI Hints */}
+                   <AIHint riskPercent={riskPercent} riskRewardRatio={riskSummary.riskRewardRatio} />
+                   </>
                 )}
 
                 {/* Position Quality (TASK 5) */}
@@ -424,6 +453,8 @@ const PipCalculator = () => {
                       <div className="flex items-center gap-2">
                         <Award className="w-4 h-4 text-purple-500" />
                         <span className="text-[10px] font-black text-purple-500 uppercase tracking-widest">Position Quality</span>
+                        <TooltipIcon text="AI-powered analysis of your position setup quality based on risk parameters, reward potential, and market conditions." />
+                        {!RISK_CONFIG.isProUser && <ProBadge className="ml-2" />}
                       </div>
                       <span className="text-2xl font-black text-white">{positionQuality.score}/100</span>
                     </div>
@@ -476,12 +507,16 @@ const PipCalculator = () => {
                 <CardHeader className="p-6 border-b border-white/5">
                   <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
                     <Shield className="w-4 h-4 text-cyan-500" /> Margin Required
+                    <TooltipIcon text="The amount of capital required to open this position based on your leverage. Lower margin means higher capital efficiency." />
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6 space-y-4">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Margin</span>
-                    <span className="text-lg font-black text-white">${marginInfo.margin}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-black text-white">${marginInfo.margin}</span>
+                      <CopyButton value={marginInfo.margin} label="" />
+                    </div>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Leverage</span>
@@ -519,6 +554,14 @@ const PipCalculator = () => {
         </div>
       </main>
       <Footer />
+      
+      {/* Summary Popup */}
+      <SummaryPopup 
+        dailyRiskStatus={dailyRiskStatus} 
+        positionQuality={positionQuality} 
+        riskSummary={riskSummary} 
+      />
+      
       <AuthGuardPopup isOpen={!isUserAuthenticated} />
     </div>
   );
