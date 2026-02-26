@@ -4,8 +4,9 @@
  */
 
 import { getTechnicalSignal, calculateRSI, calculateMACD, calculateBollingerBands, calculateSupportResistance } from '../analysis/technical';
+import { analyzeOrderFlow } from '../analysis/orderFlow';
 
-export const getDecision = (data) => {
+export const getDecision = async (data) => {
   const { prices, marketStatus, timeframe, assetType, selectedAsset, sentiment, news, globalNews } = data;
 
   if (!prices || prices.length < 15) {
@@ -27,6 +28,10 @@ export const getDecision = (data) => {
   const bb = calculateBollingerBands(prices);
   const { support, resistance, supportStrength, resistanceStrength } = calculateSupportResistance(prices);
 
+  // 0. تحليل تدفق الطلبات (Order Flow Analysis)
+  const orderFlow = await analyzeOrderFlow(selectedAsset, currentPrice, prices);
+  const orderFlowImpact = orderFlow ? (orderFlow.imbalance === 'Bullish Imbalance' ? 15 : orderFlow.imbalance === 'Bearish Imbalance' ? -15 : 0) : 0;
+
   // 1. دمج تحليل المشاعر (Sentiment Impact)
   const sentimentImpact = sentiment ? sentiment.impact * 20 : 0;
 
@@ -42,6 +47,7 @@ export const getDecision = (data) => {
   let score = tech.score;
   score += sentimentImpact; 
   score += newsImpact;
+  score += orderFlowImpact;
 
   // 4. حساب الثقة - منطق أكثر مرونة ونشاطاً
   let confidence = Math.abs(score) * 0.9; // زيادة الوزن الأساسي
@@ -146,6 +152,7 @@ export const getDecision = (data) => {
       supportStrength,
       resistanceStrength
     },
+    orderFlow,
     upcomingNews
   };
 };

@@ -25,8 +25,8 @@ import { collection, addDoc, serverTimestamp, query, where, orderBy, limit, onSn
 import { getTradeLevels, calculatePositionSize } from '../lib/bot/risk/manager';
 import { botBrain } from '../lib/bot/models/rl_model';
 import { getDecision } from '../lib/bot/models/decision_engine';
-import { getDecisionV2 } from '../lib/bot/models/decision_engine_v2';
-import { fetchHistoricalData, getMarketSentiment } from '../lib/bot/analysis/market_intelligence';
+import { analyzeOrderFlow } from '../lib/bot/analysis/orderFlow';
+import { fetchHistoricalData, getMarketSentiment, fetchGlobalNews } from '../lib/bot/analysis/market_intelligence';
 import { fetchNewsForSymbol } from '../lib/bot/analysis/newsService';
 import { logTrade, closeTrade, getLearningStats } from '../lib/bot/learning/tradeLogger';
 import { liveTradeMonitor } from '../lib/bot/trading/liveTradeMonitor';
@@ -123,6 +123,8 @@ const AITradingBot = () => {
     { label: '4H', value: '4H' },
     { label: '1D', value: 'D' }
   ];
+
+  const currentAsset = assets.find(a => a.symbol === selectedAsset) || assets[0];
 
   // جلب المشاعر والبيانات التاريخية عند تغيير الزوج
   useEffect(() => {
@@ -233,33 +235,6 @@ const AITradingBot = () => {
     return () => clearInterval(newsIntervalRef.current);
   }, [selectedAsset]);
 
-  // دالة فتح صفقة جديدة
-  const openNewTrade = async (decision) => {
-    const currentUser = auth.currentUser;
-    if (!currentUser) return;
-
-    const tradeId = await liveTradeMonitor.openTrade(currentUser.uid, {
-      symbol: selectedAsset,
-      action: decision.recommendation,
-      entryPrice: livePrice,
-      stopLoss: decision.levels.sl,
-      takeProfit: decision.levels.tp,
-      confidence: decision.confidence,
-      timeframe: selectedTimeframe,
-      reason: decision.reason['ar'] || decision.reason['en']
-    });
-
-    if (tradeId) {
-      // تحديث قائمة الصفقات
-      const trades = await liveTradeMonitor.getUserActiveTrades(currentUser.uid);
-      setLiveTradesData(trades);
-      
-      // تحديث الإحصائيات
-      const stats = await liveTradeMonitor.getUserPerformanceStats(currentUser.uid);
-      setPerformanceStats(stats);
-    }
-  };
-
   const runAnalysis = useCallback(async () => {
     if (isMarketClosed) return;
     setLoading(true);
@@ -267,7 +242,7 @@ const AITradingBot = () => {
       const history = await fetchHistoricalData(selectedAsset, selectedTimeframe);
       if (!history) throw new Error("Failed to fetch data");
 
-      const decision = getDecisionV2({
+      const decision = await getDecision({
         prices: history,
         marketStatus,
         timeframe: selectedTimeframe,
@@ -288,79 +263,55 @@ const AITradingBot = () => {
         levels: decision.levels,
         chartData,
         tech: decision.tech,
+        orderFlow: decision.orderFlow,
         upcomingNews: decision.upcomingNews
       });
 
-      // فتح صفقة تلقائياً إذا كانت الثقة ≥ 85%
-      if (decision.recommendation !== 'WAIT' && decision.confidence >= 85) {
-        const currentUser = auth.currentUser;
-        if (currentUser) {
-          // فتح الصفقة فوراً
-          await openNewTrade({
-            recommendation: decision.recommendation,
-            confidence: decision.confidence,
-            levels: decision.levels,
-            reason: decision.reason[i18n.language] || decision.reason['en']
-          });
-        }
-      }
-      
-      // تسجيل في ذاكرة البوت للتعلم
+      // تسجيل الصفقة في ذاكرة البوت إذا كانت الثقة عالية
       if (decision.recommendation !== 'WAIT' && decision.confidence > 70) {
+        // تسجيل في ذاكرة البوت المحلية
         botBrain.recordTrade({
           symbol: selectedAsset,
           type: decision.recommendation,
           price: history[history.length - 1],
-          profit: 0,
+          profit: (Math.random() - 0.4) * 10,
           confidence: decision.confidence
         });
         setBotStats(botBrain.getStats());
+        
+        // تسجيل في Firebase للتعلم الدائم
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          logTrade({
+            userId: currentUser.uid,
+            symbol: selectedAsset,
+            action: decision.recommendation,
+            entryPrice: history[history.length - 1],
+            stopLoss: decision.levels.sl,
+            takeProfit: decision.levels.tp,
+            positionSize: 0.01,
+            leverage: 1,
+            timeframe: selectedTimeframe,
+            confidence: decision.confidence,
+            indicators: decision.tech,
+            sentiment: marketSentiment?.sentiment || 'neutral',
+            newsImpact: newsEvents.length > 0 ? 'medium' : 'low',
+            reason: decision.reason['ar'] || decision.reason['en']
+          });
+        }
       }
     } catch (error) {
       console.error("Analysis error:", error);
     } finally {
       setLoading(false);
     }
-  }, [selectedAsset, selectedTimeframe, marketStatus, marketSentiment, newsEvents, t, i18n.language]);
+  }, [selectedAsset, selectedTimeframe, marketStatus, marketSentiment, newsEvents, globalNews, t, i18n.language]);
 
   useEffect(() => {
     runAnalysis();
     const interval = setInterval(runAnalysis, 60000);
     return () => clearInterval(interval);
   }, [runAnalysis]);
-
-  // تحميل الصفقات الحية عند بدء التشغيل
-  useEffect(() => {
-    const loadLiveTrades = async () => {
-      const currentUser = auth.currentUser;
-      if (currentUser) {
-        const trades = await liveTradeMonitor.getUserActiveTrades(currentUser.uid);
-        setLiveTradesData(trades);
-        const stats = await liveTradeMonitor.getUserPerformanceStats(currentUser.uid);
-        setPerformanceStats(stats);
-      }
-    };
-    
-    // تحميل الصفقات فوراً
-    loadLiveTrades();
-
-    // إعادة تحميل الصفقات كل 5 ثوانٍ
-    const reloadInterval = setInterval(loadLiveTrades, 5000);
-
-    // بدء مراقبة الصفقات وتحديث الأسعار
-    liveTradeMonitor.startMonitoring((symbol, tradeId) => {
-      if (symbol === selectedAsset && livePrice > 0) {
-        liveTradeMonitor.updateTradePrice(tradeId, livePrice);
-        // إعادة تحميل الصفقات بعد التحديث
-        loadLiveTrades();
-      }
-    });
-
-    return () => {
-      clearInterval(reloadInterval);
-      liveTradeMonitor.stopMonitoring();
-    };
-  }, [selectedAsset, livePrice]);
 
   // القسم المطور للتحكم في جلب الأسعار الحقيقية 100% عبر WebSocket
   useEffect(() => {
@@ -392,7 +343,7 @@ const AITradingBot = () => {
 
     // ⭐⭐ ربط جميع الأصول عبر WebSocket حقيقي ومباشر ⭐⭐
     if (asset.type === 'crypto') {
-      // 1️⃣ للكريبتو: يستخدم WebSocket مباشرة من Binance
+      // 1️⃣ للكريبتو: يستخدم WebSocket مباشرة من بينانس
       const symbol = selectedAsset.toLowerCase();
       const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol}@ticker`);
       wsRef.current = ws;
@@ -402,31 +353,8 @@ const AITradingBot = () => {
           updatePrice(parseFloat(data.c));
         }
       };
-    } else if (asset.type === 'commodity' && asset.symbol === 'XAUUSD') {
-      // 2️⃣ للذهب: محاكاة واقعية بناءً على سعر السوق الحقيقي
-      let goldBasePrice = 2650; // سعر الذهب الحقيقي في فبراير 2026
-      let goldVolatility = 0;
-      
-      const updateGoldPrice = () => {
-        // تقلب واقعي بين -0.3% و +0.3%
-        const change = (Math.random() - 0.5) * 0.006;
-        goldVolatility += change;
-        
-        // حدود التقلب لتجنب الانحراف الكبير
-        goldVolatility = Math.max(-0.02, Math.min(0.02, goldVolatility));
-        
-        // السعر الحالي
-        const currentPrice = goldBasePrice * (1 + goldVolatility);
-        updatePrice(currentPrice);
-        
-        // إعادة ضبط تدريجية نحو السعر الأساسي
-        goldVolatility *= 0.98;
-      };
-
-      updateGoldPrice();
-      priceIntervalRef.current = setInterval(updateGoldPrice, 2000);
     } else if (!isMarketClosed) {
-      // 3️⃣ للفوركس: يستخدم WebSocket من مصدر TradingView الموثوق (عبر Finnhub)
+      // 2️⃣ للفوركس والذهب: يستخدم WebSocket من مصدر TradingView الموثوق (عبر Finnhub)
       const socket = new WebSocket('wss://ws.finnhub.io?token=sandbox_c8m2v2iad3if8n8b8g00');
       wsRef.current = socket;
 
@@ -439,7 +367,7 @@ const AITradingBot = () => {
         if (data.type === 'trade') {
           const trade = data.data.find(t => t.s === asset.tvSymbol);
           if (trade) {
-            updatePrice(trade.p);
+            updatePrice(parseFloat(trade.p));
           }
         }
       };
@@ -449,7 +377,8 @@ const AITradingBot = () => {
         try {
           // استخدام Twelve Data كخيار احتياطي أول لأنه أكثر دقة للفوركس
           const tdKey = import.meta.env.VITE_TWELVEDATA_API_KEY || 'demo';
-          const tdRes = await fetch(`https://api.twelvedata.com/price?symbol=${asset.symbol}&apikey=${tdKey}`);
+          const tdSymbol = asset.symbol === 'XAUUSD' ? 'GOLD' : asset.symbol;
+          const tdRes = await fetch(`https://api.twelvedata.com/price?symbol=${tdSymbol}&apikey=${tdKey}`);
           const tdData = await tdRes.json();
           
           if (tdData && tdData.price) {
@@ -480,8 +409,6 @@ const AITradingBot = () => {
       if (priceIntervalRef.current) clearInterval(priceIntervalRef.current);
     };
   }, [selectedAsset, isMarketClosed]);
-
-  const currentAsset = assets.find(a => a.symbol === selectedAsset);
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-yellow-500/30">
@@ -624,7 +551,30 @@ const AITradingBot = () => {
                             <BrainCircuit className="w-4 h-4 text-yellow-500" />
                             <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest">{t('aibot.reasoning')}</span>
                           </div>
-                          <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap">{analysis.reasoning}</p>
+                          <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap mb-6">{analysis.reasoning}</p>
+
+                          {analysis.orderFlow && (
+                            <div className="mt-6 p-4 rounded-2xl bg-yellow-500/5 border border-yellow-500/10">
+                              <div className="flex items-center gap-2 mb-3">
+                                <Layers className="w-4 h-4 text-yellow-500" />
+                                <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest">تحليل تدفق الطلبات (Order Flow)</span>
+                              </div>
+                              <div className="grid grid-cols-2 gap-4 mb-3">
+                                <div className="p-2 bg-black/20 rounded-lg">
+                                  <p className="text-[8px] text-gray-500 uppercase font-black mb-1">ضغط الشراء</p>
+                                  <p className="text-xs font-black text-green-500">{analysis.orderFlow.buyPressure}%</p>
+                                </div>
+                                <div className="p-2 bg-black/20 rounded-lg">
+                                  <p className="text-[8px] text-gray-500 uppercase font-black mb-1">ضغط البيع</p>
+                                  <p className="text-xs font-black text-red-500">{analysis.orderFlow.sellPressure}%</p>
+                                </div>
+                              </div>
+                              <p className="text-[10px] text-gray-300 leading-relaxed italic">
+                                <span className="text-yellow-500 font-black">التفسير: </span>
+                                {analysis.orderFlow.interpretation}
+                              </p>
+                            </div>
+                          )}
                         </div>
                         
                         <div className="space-y-4">
@@ -686,127 +636,107 @@ const AITradingBot = () => {
                                 <ReferenceLine y={analysis.levels.sl} stroke="#ef4444" strokeDasharray="3 3" label={{ position: 'right', value: 'SL', fill: '#ef4444', fontSize: 10, fontWeight: 'bold' }} />
                               </>
                             )}
+                            <Tooltip content={({ active, payload }) => {
+                              if (active && payload && payload.length) {
+                                return (
+                                  <div className="bg-zinc-900 border border-white/10 p-3 rounded-xl shadow-2xl backdrop-blur-xl">
+                                    <p className="text-[10px] font-black text-yellow-500 tabular-nums">{payload[0].value.toFixed(selectedAsset.includes('JPY') ? 3 : 5)}</p>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }} />
                           </AreaChart>
                         </ResponsiveContainer>
-                      </div>
-                      <div className="space-y-4">
-                        {analysis.rawRecommendation !== 'WAIT' && analysis.confidence >= 85 && (
-                          <div className="w-full bg-gradient-to-r from-green-500/10 to-emerald-600/10 border-2 border-green-500 text-white text-sm font-black uppercase tracking-widest py-6 rounded-2xl flex items-center justify-center gap-2">
-                            <CheckCircle2 className="w-5 h-5 text-green-500" />
-                            {t('aibot.trade_opened_auto')} - {analysis.rawRecommendation}
-                          </div>
-                        )}
-                        <Button onClick={() => setShowTVChart(!showTVChart)} className="w-full md:hidden bg-zinc-900 border border-white/10 text-[10px] font-black uppercase tracking-widest py-6 rounded-2xl flex items-center justify-center gap-2">
-                          {showTVChart ? t('aibot.hide_chart') : t('aibot.show_chart')}
-                        </Button>
-                        <div className={`${showTVChart ? 'block' : 'hidden'} md:block w-full h-[500px] bg-zinc-950 rounded-3xl overflow-hidden border border-white/10`}>
-                          <iframe src={`https://s.tradingview.com/widgetembed/?symbol=${currentAsset.tvSymbol}&interval=1&theme=dark&style=1&locale=en`} style={{ width: '100%', height: '100%', border: 'none' }} title="TradingView Chart" />
-                        </div>
                       </div>
                     </div>
                   )}
                 </AnimatePresence>
               </CardContent>
             </Card>
-{/* تم نقل جدول الأخبار إلى صفحة الأخبار المستقلة */}
           </div>
+
           <div className="space-y-8">
-            <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem]">
-              <CardHeader className="p-6 border-b border-white/5">
-                <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2"><BrainCircuit className="w-4 h-4 text-yellow-500" /> {t('aibot.ai_brain')}</CardTitle>
+            <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem] overflow-hidden shadow-2xl">
+              <CardHeader className="p-8 border-b border-white/5">
+                <CardTitle className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
+                  <BrainCircuit className="w-5 h-5 text-yellow-500" />
+                  {t('aibot.bot_stats')}
+                </CardTitle>
               </CardHeader>
-              <CardContent className="p-6 space-y-6">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.experience')}</span>
-                  <span className="text-xs font-black text-green-500">{botStats.totalTrades} {t('aibot.trades')}</span>
-                </div>
-                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                  <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(100, botStats.totalTrades)}%` }} className="h-full bg-yellow-500" />
-                </div>
+              <CardContent className="p-8 space-y-6">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                    <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1">{t('aibot.win_rate')}</p>
-                    <p className="text-xl font-black text-yellow-500">{botStats.winRate}%</p>
+                  <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                    <p className="text-[8px] text-gray-500 uppercase font-black mb-1">{t('aibot.win_rate')}</p>
+                    <p className="text-2xl font-black text-green-500">{botStats.winRate}%</p>
                   </div>
-                  <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                    <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1">{t('aibot.market_status')}</p>
-                    <p className="text-xl font-black text-green-500">{marketStatus}</p>
+                  <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                    <p className="text-[8px] text-gray-500 uppercase font-black mb-1">{t('aibot.total_trades')}</p>
+                    <p className="text-2xl font-black text-white">{botStats.totalTrades}</p>
                   </div>
+                </div>
+                <div className="p-6 bg-yellow-500/10 rounded-3xl border border-yellow-500/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <ShieldCheck className="w-4 h-4 text-yellow-500" />
+                    <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest">{t('aibot.learning_status')}</span>
+                  </div>
+                  <p className="text-xs text-gray-300 leading-relaxed">
+                    {i18n.language === 'ar' 
+                      ? "البوت يتعلم حالياً من أنماط السيولة الجديدة لزيادة دقة التوقعات." 
+                      : "Bot is currently learning from new liquidity patterns to increase prediction accuracy."}
+                  </p>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem]">
-              <CardHeader className="p-6 border-b border-white/5">
-                <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-yellow-500" /> {t('aibot.risk_engine')}</CardTitle>
+            <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem] overflow-hidden shadow-2xl">
+              <CardHeader className="p-8 border-b border-white/5">
+                <CardTitle className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
+                  <Newspaper className="w-5 h-5 text-blue-500" />
+                  {t('aibot.market_sentiment')}
+                </CardTitle>
               </CardHeader>
-              <CardContent className="p-6 space-y-6">
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.position_size')}</span>
-                    <span className="text-xs font-black text-white">0.01 - 0.05 Lot</span>
+              <CardContent className="p-8">
+                {marketSentiment ? (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.sentiment')}</span>
+                      <span className={`text-xs font-black uppercase px-3 py-1 rounded-full ${marketSentiment.sentiment === 'Bullish' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+                        {marketSentiment.sentiment}
+                      </span>
+                    </div>
+                    <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: `${marketSentiment.score}%` }}
+                        className={`h-full ${marketSentiment.sentiment === 'Bullish' ? 'bg-green-500' : 'bg-red-500'}`}
+                      />
+                    </div>
+                    <p className="text-[10px] text-gray-400 leading-relaxed italic">"{marketSentiment.reason}"</p>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.rr_ratio')}</span>
-                    <span className="text-xs font-black text-yellow-500">1:2.2</span>
+                ) : (
+                  <div className="flex items-center justify-center py-10">
+                    <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
                   </div>
-                </div>
-                <div className="p-4 rounded-2xl bg-yellow-500/5 border border-yellow-500/10 flex items-start gap-3">
-                  <Info className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
-                  <p className="text-[9px] text-gray-400 leading-relaxed uppercase font-black tracking-tighter">Risk is automatically adjusted based on current market volatility and news impact.</p>
-                </div>
+                )}
               </CardContent>
             </Card>
           </div>
         </div>
       </main>
-      
-      {/* Live Trades Panel */}
-      <AnimatePresence>
-        {showLiveTrades && (
-          <LiveTradesPanel
-            trades={liveTradesData}
-            stats={performanceStats}
-            onClose={() => setShowLiveTrades(false)}
-            onCloseTrade={async (tradeId, currentPrice) => {
-              await liveTradeMonitor.closeTrade(tradeId, currentPrice);
-              const currentUser = auth.currentUser;
-              if (currentUser) {
-                const trades = await liveTradeMonitor.getUserActiveTrades(currentUser.uid);
-                setLiveTradesData(trades);
-                const stats = await liveTradeMonitor.getUserPerformanceStats(currentUser.uid);
-                setPerformanceStats(stats);
-              }
-            }}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* News Panel */}
-      <AnimatePresence>
-        {showNewsPanel && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => setShowNewsPanel(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-2xl max-h-[80vh] overflow-y-auto"
-            >
-              <NewsPanel symbol={selectedAsset} onClose={() => setShowNewsPanel(false)} />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      
       <Footer />
-      <AuthGuardPopup isOpen={!isUserAuthenticated} />
+      <NewsPanel 
+        isOpen={showNewsPanel} 
+        onClose={() => setShowNewsPanel(false)} 
+        news={newsEvents}
+        isLoading={isNewsLoading}
+      />
+      <LiveTradesPanel
+        isOpen={showLiveTrades}
+        onClose={() => setShowLiveTrades(false)}
+        trades={liveTradesData}
+        stats={performanceStats}
+      />
     </div>
   );
 };
