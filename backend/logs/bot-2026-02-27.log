@@ -1,0 +1,16 @@
+[2026-02-27T04:43:09.774Z] [INFO] 🚀 Starting Ahmed Trader Backend...
+[2026-02-27T04:43:09.775Z] [ERROR] Firebase configuration is incomplete
+[2026-02-27T04:43:09.775Z] [INFO] 🤖 Initializing Bot Service...
+[2026-02-27T04:43:09.775Z] [INFO] Initializing Trading Service...
+[2026-02-27T04:43:09.775Z] [INFO] ✅ Trading Service initialized
+[2026-02-27T04:43:09.775Z] [INFO] ✅ Bot Service initialized
+[2026-02-27T04:43:09.776Z] [INFO] ✅ WebSocket Server initialized on port 3002
+[2026-02-27T04:43:09.778Z] [INFO] ✅ HTTP Server listening on port 3001
+[2026-02-27T04:43:09.778Z] [INFO] ✅ WebSocket Server listening on port 3002
+[2026-02-27T04:43:09.778Z] [INFO] ✅ Ahmed Trader Backend is ready!
+[2026-02-27T04:43:09.778Z] [INFO] Environment: development
+[2026-02-27T04:43:19.359Z] [INFO] SIGTERM received, shutting down gracefully...
+[2026-02-27T04:43:19.360Z] [INFO] HTTP server closed
+[2026-02-27T04:43:19.360Z] [INFO] Cleaning up Bot Service...
+[2026-02-27T04:43:19.361Z] [INFO] ✅ Bot Service cleaned up
+[2026-02-27T04:43:19.361Z] [INFO] WebSocket Server closed
