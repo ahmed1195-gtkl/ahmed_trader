@@ -59,6 +59,8 @@ export default function NewsPage() {
         source: n.source,
         sentiment: n.ai_analysis?.sentiment || n.sentiment || 'Neutral',
         ai_confidence: n.ai_analysis?.confidence || 0.8,
+        ai_summary: n.ai_analysis?.summary || n.description,
+        correlation: n.correlation || null,
         publishedAt: new Date(n.publishedAt),
         description: n.description,
         url: n.url || '#',
@@ -359,9 +361,26 @@ export default function NewsPage() {
                                 >
                                   {news.title}
                                 </a>
-                                <p className="text-[10px] text-gray-600 mt-3 line-clamp-1 font-medium uppercase tracking-wider group-hover:text-gray-400 transition-colors">
-                                  {news.description}
-                                </p>
+                                <div className="bg-white/5 p-3 rounded-xl border border-white/5 mt-3 mb-2">
+                                  <p className="text-yellow-500/80 text-[8px] font-black uppercase tracking-widest mb-1 flex items-center gap-2">
+                                    <Zap className="w-3 h-3" /> AI Insight
+                                  </p>
+                                  <p className="text-gray-400 text-xs font-medium leading-relaxed italic">
+                                    "{news.ai_summary}"
+                                  </p>
+                                </div>
+                                {news.correlation && news.correlation.current_price && (
+                                  <div className="flex items-center gap-4 text-[9px] font-black uppercase tracking-widest text-gray-500 mt-2">
+                                    <div className="flex items-center gap-1.5">
+                                      <Globe className="w-3 h-3" />
+                                      {news.correlation.symbol}: <span className="text-white">${news.correlation.current_price.toLocaleString()}</span>
+                                    </div>
+                                    <div className={`flex items-center gap-1.5 ${news.correlation.price_change_24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                      {news.correlation.price_change_24h >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                                      {news.correlation.price_change_24h}%
+                                    </div>
+                                  </div>
+                                )}
                               </td>
                               <td className="p-10">
                                 <div className="flex items-center gap-2">
