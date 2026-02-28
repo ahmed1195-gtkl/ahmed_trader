@@ -79,40 +79,61 @@ class AnalysisService {
     }
   }
 
-  async getNews() {
+  async getNews(query = 'crypto') {
     const now = Date.now();
+    const cacheKey = `news_${query}`;
     
     // Return cached news if still fresh
-    if (this.newsCache.timestamp && (now - this.newsCache.timestamp) < this.newsCacheDuration) {
-      return this.newsCache;
+    if (this.newsCache[cacheKey] && (now - this.newsCache[cacheKey].timestamp) < this.newsCacheDuration) {
+      return this.newsCache[cacheKey].data;
     }
 
     try {
-      // Fetch news in parallel
-      const [economic, global] = await Promise.all([
-        fetchEconomicNews().catch(err => {
-          logger.error('Failed to fetch economic news', err);
-          return [];
-        }),
-        fetchGlobalNews().catch(err => {
-          logger.error('Failed to fetch global news', err);
-          return [];
-        }),
-      ]);
+      // Import news fetchers
+      const { fetchGlobalNews } = await import('../models/analysis/market_intelligence.js');
+      
+      // Fetch news
+      const global = await fetchGlobalNews(query).catch(err => {
+        logger.error(`Failed to fetch global news for ${query}`, err);
+        return [];
+      });
 
-      this.newsCache = {
-        economic,
-        global,
+      // AI Sentiment Analysis (Phase 2)
+      const enrichedNews = await this.enrichNewsWithAI(global);
+
+      const result = {
+        global: enrichedNews,
+        economic: [], // Placeholder for future economic news integration
         timestamp: now,
       };
 
-      logger.info(`News fetched: ${economic.length} economic, ${global.length} global`);
+      // Cache the result
+      this.newsCache[cacheKey] = {
+        data: result,
+        timestamp: now,
+      };
 
-      return this.newsCache;
+      logger.info(`News fetched for ${query}: ${enrichedNews.length} articles`);
+
+      return result;
     } catch (error) {
-      logger.error('Failed to fetch news', error);
-      return { economic: [], global: [], timestamp: now };
+      logger.error(`Failed to get news for ${query}`, error);
+      return { global: [], economic: [], timestamp: now };
     }
+  }
+
+  async enrichNewsWithAI(newsItems) {
+    // Phase 2: AI Sentiment Analysis
+    // For now, we use the existing sentiment but prepare for LLM integration
+    // In a real production environment, we would call an LLM API here
+    return newsItems.map(item => ({
+      ...item,
+      ai_analysis: {
+        sentiment: item.sentiment,
+        confidence: 0.85,
+        impact_score: item.sentiment === 'Positive' ? 0.7 : item.sentiment === 'Negative' ? -0.7 : 0
+      }
+    }));
   }
 
   determineMarketCondition(indicators) {

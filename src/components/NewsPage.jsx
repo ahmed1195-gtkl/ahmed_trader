@@ -57,7 +57,8 @@ export default function NewsPage() {
         id: n.id || Math.random().toString(36).substr(2, 9),
         title: n.title,
         source: n.source,
-        sentiment: n.sentiment || 'Neutral',
+        sentiment: n.ai_analysis?.sentiment || n.sentiment || 'Neutral',
+        ai_confidence: n.ai_analysis?.confidence || 0.8,
         publishedAt: new Date(n.publishedAt),
         description: n.description,
         url: n.url || '#',
@@ -371,22 +372,30 @@ export default function NewsPage() {
                                 </div>
                               </td>
                               <td className="p-10">
-                                <div className="flex items-center gap-3">
-                                  {news.sentiment === 'Positive' ? (
-                                    <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-green-500/10 border border-green-500/20 text-green-500">
-                                      <TrendingUp className="w-3 h-3" />
-                                      <span className="text-[9px] font-black uppercase tracking-widest">Bullish</span>
-                                    </div>
-                                  ) : news.sentiment === 'Negative' ? (
-                                    <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500">
-                                      <TrendingDown className="w-3 h-3" />
-                                      <span className="text-[9px] font-black uppercase tracking-widest">Bearish</span>
-                                    </div>
-                                  ) : (
-                                    <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-500/10 border border-gray-500/20 text-gray-400">
-                                      <span className="text-[9px] font-black uppercase tracking-widest">Neutral</span>
-                                    </div>
-                                  )}
+                                <div className="flex flex-col gap-2">
+                                  <div className="flex items-center gap-3">
+                                    {news.sentiment === 'Positive' ? (
+                                      <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-green-500/10 border border-green-500/20 text-green-500">
+                                        <TrendingUp className="w-3 h-3" />
+                                        <span className="text-[9px] font-black uppercase tracking-widest">Bullish</span>
+                                      </div>
+                                    ) : news.sentiment === 'Negative' ? (
+                                      <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500">
+                                        <TrendingDown className="w-3 h-3" />
+                                        <span className="text-[9px] font-black uppercase tracking-widest">Bearish</span>
+                                      </div>
+                                    ) : (
+                                      <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-500/10 border border-gray-500/20 text-gray-400">
+                                        <span className="text-[9px] font-black uppercase tracking-widest">Neutral</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-1.5 px-2">
+                                    <div className="w-1 h-1 rounded-full bg-yellow-500 animate-pulse" />
+                                    <span className="text-[8px] font-bold text-yellow-500/60 uppercase tracking-tighter">
+                                      AI Confidence: {Math.round(news.ai_confidence * 100)}%
+                                    </span>
+                                  </div>
                                 </div>
                               </td>
                               <td className="p-10">

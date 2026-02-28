@@ -11,7 +11,7 @@ export const fetchHistoricalData = async (symbol, timeframe) => {
     
     // جلب بيانات حقيقية للفوركس والذهب إذا لم يكن الزوج كريبتو
     if (!symbol.endsWith('USDT')) {
-      const apiKey = import.meta.env.VITE_TWELVEDATA_API_KEY || 'demo';
+      const apiKey = process.env.VITE_TWELVEDATA_API_KEY || 'demo';
       const tdSymbol = symbol === 'XAUUSD' ? 'GOLD' : symbol;
       const intervalMap = { '15M': '15min', '1H': '1h', '4H': '4h', '1D': '1day' };
       const tdInterval = intervalMap[timeframe] || '1h';
@@ -66,8 +66,9 @@ export const fetchGlobalNews = async (query = 'crypto') => {
   
   // 1. CryptoPanic API (مصدر ممتاز ومجاني لأخبار الكريبتو)
   try {
-    // استخدام التوكن العام أو توكن مستخدم إذا توفر
-    const res = await fetch(`https://cryptopanic.com/api/v1/posts/?auth_token=6f7e8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f&public=true&currencies=${query}&filter=important`);
+    // استخدام التوكن من البيئة أو التوكن الافتراضي
+    const token = process.env.VITE_CRYPTOPANIC_API_KEY || '6f7e8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f';
+    const res = await fetch(`https://cryptopanic.com/api/v1/posts/?auth_token=${token}&public=true&currencies=${query}&filter=important`);
     const data = await res.json();
     if (data.results) {
       data.results.forEach(a => news.push({
@@ -83,7 +84,7 @@ export const fetchGlobalNews = async (query = 'crypto') => {
 
   // 2. GNews API (Fallback)
   try {
-    const gnewsKey = import.meta.env.VITE_GNEWS_API_KEY || 'demo';
+    const gnewsKey = process.env.VITE_GNEWS_API_KEY || 'demo';
     const res = await fetch(`https://gnews.io/api/v4/search?q=${query}&lang=en&max=10&apikey=${gnewsKey}`);
     const data = await res.json();
     if (data.articles) {

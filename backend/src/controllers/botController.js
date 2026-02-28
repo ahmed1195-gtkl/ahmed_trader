@@ -155,7 +155,8 @@ export const botController = {
   // Get news
   async getNews(req, res) {
     try {
-      const news = await analysisService.getNews();
+      const { query } = req.query;
+      const news = await analysisService.getNews(query || 'crypto');
       res.json(news);
     } catch (error) {
       logger.error('Failed to get news', error);
