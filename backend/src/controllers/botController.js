@@ -152,6 +152,17 @@ export const botController = {
     }
   },
 
+  // Get news
+  async getNews(req, res) {
+    try {
+      const news = await analysisService.getNews();
+      res.json(news);
+    } catch (error) {
+      logger.error('Failed to get news', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+
   // Health check
   async healthCheck(req, res) {
     res.json({

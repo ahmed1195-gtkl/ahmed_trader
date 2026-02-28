@@ -42,6 +42,7 @@ app.get('/api/prices', botController.getPrices);
 app.get('/api/analysis', botController.getAnalysis);
 app.get('/api/trades', botController.getTrades);
 app.post('/api/trades/close', botController.closeTrade);
+app.get('/api/news', botController.getNews);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -36,8 +36,22 @@ export default function NewsPage() {
       // تنظيف الرمز للبحث (إزالة USDT إذا وجد)
       const query = selectedAsset.replace('USDT', '');
       
-      // جلب الأخبار من محرك ذكاء السوق المطور
-      const gNewsData = await fetchGlobalNews(query);
+      // محاولة جلب الأخبار من الخلفية أولاً، ثم العودة للمحرك المحلي إذا فشل
+      let gNewsData = [];
+      try {
+        const response = await fetch(`/api/news?query=${query}`);
+        if (response.ok) {
+          const data = await response.json();
+          // دمج الأخبار العالمية والاقتصادية من الخلفية
+          gNewsData = [...(data.global || []), ...(data.economic || [])];
+        }
+      } catch (e) {
+        console.warn("Backend news fetch failed, falling back to local engine");
+      }
+
+      if (gNewsData.length === 0) {
+        gNewsData = await fetchGlobalNews(query);
+      }
       
       const formattedNews = gNewsData.map(n => ({
         id: n.id || Math.random().toString(36).substr(2, 9),
