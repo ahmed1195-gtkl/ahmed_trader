@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, RefreshCw, TrendingUp, TrendingDown, Globe, Search, Zap, AlertCircle, BarChart3 } from 'lucide-react';
+import { Calendar, RefreshCw, TrendingUp, TrendingDown, Globe, Search, Zap, AlertCircle, BarChart3, Brain, Target, Bell } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fetchGlobalNews } from '@/lib/bot/analysis/market_intelligence';
+import { marketIntelligenceClient } from '@/lib/marketIntelligenceClient';
 import { useTranslation } from 'react-i18next';
 import Header from './Header';
 import Footer from './Footer';
@@ -20,7 +21,10 @@ export default function NewsPage() {
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(true);
   const [marketStats, setMarketStats] = useState({ bullish: 0, bearish: 0, neutral: 0 });
   const [dailyReport, setDailyReport] = useState('');
+  const [analytics, setAnalytics] = useState(null);
   const newsIntervalRef = useRef(null);
+
+  const isRTL = i18n.language === 'ar';
 
   // قائمة الأصول المدمجة (عملات رقمية + فوركس)
   const cryptoAssets = [
@@ -36,39 +40,54 @@ export default function NewsPage() {
     try {
       const query = selectedAsset.replace('USDT', '');
       
-      let gNewsData = [];
-      let report = '';
+      // 1. جلب البيانات من محرك ذكاء السوق الجديد
+      let intelligenceData = null;
       try {
-        const response = await fetch(`/api/news?query=${query}&timeframe=${activeTab}`);
-        if (response.ok) {
-          const data = await response.json();
-          gNewsData = [...(data.global || []), ...(data.economic || [])];
-          report = data.dailyReport || '';
-        }
+        intelligenceData = await marketIntelligenceClient.getAssetData(query);
       } catch (e) {
-        console.warn("Backend news fetch failed, falling back to local engine");
+        console.warn("Market Intelligence Client failed, falling back to legacy fetch");
       }
 
-      if (gNewsData.length === 0) {
-        gNewsData = await fetchGlobalNews(query, activeTab);
+      let gNewsData = [];
+      let report = '';
+      
+      if (intelligenceData) {
+        gNewsData = intelligenceData.news || [];
+        setAnalytics(intelligenceData.analytics);
+      } else {
+        // Fallback to legacy API
+        try {
+          const response = await fetch(`/api/news?query=${query}&timeframe=${activeTab}`);
+          if (response.ok) {
+            const data = await response.json();
+            gNewsData = [...(data.global || []), ...(data.economic || [])];
+            report = data.dailyReport || '';
+          }
+        } catch (e) {
+          console.warn("Backend news fetch failed, falling back to local engine");
+        }
+
+        if (gNewsData.length === 0) {
+          gNewsData = await fetchGlobalNews(query, activeTab);
+        }
       }
       
       const formattedNews = gNewsData.map(n => ({
         id: n.id || Math.random().toString(36).substr(2, 9),
         title: n.title,
         source: n.source,
-        sentiment: n.ai_analysis?.sentiment || n.sentiment || 'Neutral',
-        ai_confidence: n.ai_analysis?.confidence || 0.8,
-        ai_summary: n.ai_analysis?.summary || n.description,
+        sentiment: n.sentimentLabel || n.ai_analysis?.sentiment || n.sentiment || 'Neutral',
+        ai_confidence: n.confidencePercent || n.ai_analysis?.confidence || 0.8,
+        ai_summary: n.ai_summary || n.ai_analysis?.summary || n.description || n.title,
         correlation: n.correlation || null,
-        publishedAt: new Date(n.publishedAt),
-        description: n.description,
+        publishedAt: new Date(n.publishedAt || n.published_at),
+        description: n.description || n.raw_text,
         url: n.url || '#',
-        impact: calculateImpact(n.title + " " + n.description)
+        impact: n.impact || calculateImpact(n.title + " " + (n.description || ""))
       }));
 
       setNewsEvents(formattedNews);
-      setDailyReport(report);
+      if (report) setDailyReport(report);
       
       const stats = formattedNews.reduce((acc, curr) => {
         const s = curr.sentiment.toLowerCase();
@@ -122,11 +141,11 @@ export default function NewsPage() {
 
   const getTimeAgo = (date) => {
     const seconds = Math.floor((new Date() - date) / 1000);
-    if (seconds < 60) return i18n.language === 'ar' ? 'الآن' : 'Just now';
+    if (seconds < 60) return isRTL ? 'الآن' : 'Just now';
     const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return i18n.language === 'ar' ? `منذ ${minutes} دقيقة` : `${minutes}m ago`;
+    if (minutes < 60) return isRTL ? `منذ ${minutes} دقيقة` : `${minutes}m ago`;
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return i18n.language === 'ar' ? `منذ ${hours} ساعة` : `${hours}h ago`;
+    if (hours < 24) return isRTL ? `منذ ${hours} ساعة` : `${hours}h ago`;
     return date.toLocaleDateString();
   };
 
@@ -147,19 +166,19 @@ export default function NewsPage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center gap-2">
-                    <Zap className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                    <Brain className="w-3 h-3 text-yellow-500" />
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-500">
-                      {i18n.language === 'ar' ? 'ذكاء اصطناعي لحظي' : 'AI REAL-TIME INTELLIGENCE'}
+                      {isRTL ? 'ذكاء اصطناعي فائق' : 'AI SUPER INTELLIGENCE'}
                     </span>
                   </div>
                 </div>
                 <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-[0.9] bg-gradient-to-b from-white to-white/40 bg-clip-text text-transparent">
-                  {i18n.language === 'ar' ? 'رادار' : 'Market'} <span className="text-yellow-500">{i18n.language === 'ar' ? 'الأسواق' : 'Radar'}</span>
+                  {isRTL ? 'رادار' : 'Market'} <span className="text-yellow-500">{isRTL ? 'الأسواق' : 'Radar'}</span>
                 </h1>
                 <p className="text-gray-500 text-sm md:text-base max-w-xl font-medium leading-relaxed">
-                  {i18n.language === 'ar' 
-                    ? 'تحليل لحظي للأخبار العالمية باستخدام الذكاء الاصطناعي لتحديد اتجاهات السوق بدقة.' 
-                    : 'Real-time global news analysis using AI to accurately identify market trends and sentiment.'}
+                  {isRTL 
+                    ? 'منصة ذكاء السوق المتكاملة: تحليل المشاعر، التنبؤ بالأثر، والتقارير الذكية المدعومة بالذكاء الاصطناعي.' 
+                    : 'Integrated market intelligence platform: sentiment analysis, impact prediction, and AI-powered smart reports.'}
                 </p>
               </div>
 
@@ -168,7 +187,7 @@ export default function NewsPage() {
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-yellow-500 transition-colors" />
                   <input 
                     type="text"
-                    placeholder={i18n.language === 'ar' ? 'ابحث عن خبر...' : 'Search intelligence...'}
+                    placeholder={isRTL ? 'ابحث عن خبر...' : 'Search intelligence...'}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-6 text-sm text-white focus:outline-none focus:border-yellow-500/50 focus:ring-4 focus:ring-yellow-500/10 transition-all w-full md:w-80 backdrop-blur-xl"
@@ -180,13 +199,13 @@ export default function NewsPage() {
                   className="h-14 px-6 rounded-2xl bg-yellow-500 text-black hover:bg-yellow-400 transition-all shadow-xl shadow-yellow-500/20 disabled:opacity-50 font-black uppercase tracking-widest text-xs"
                 >
                   <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                  {i18n.language === 'ar' ? 'تحديث' : 'Sync'}
+                  {isRTL ? 'تحديث' : 'Sync'}
                 </Button>
               </div>
             </div>
 
-            {/* تقرير الرادار اليومي */}
-            {dailyReport && (
+            {/* تقرير الرادار اليومي أو ملخص الذكاء الاصطناعي */}
+            {(dailyReport || (analytics && analytics.sentimentTrend)) && (
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -199,17 +218,37 @@ export default function NewsPage() {
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-yellow-500 animate-ping" />
                     <h2 className="text-xs font-black uppercase tracking-[0.3em] text-yellow-500">
-                      {i18n.language === 'ar' ? 'تقرير الرادار اليومي' : 'Daily Radar Report'}
+                      {isRTL ? 'ملخص الذكاء الاصطناعي' : 'AI INTELLIGENCE SUMMARY'}
                     </h2>
                   </div>
-                  <p className="text-lg md:text-xl font-bold text-gray-200 leading-relaxed max-w-4xl">
-                    {dailyReport}
-                  </p>
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2">
+                      <p className="text-lg md:text-xl font-bold text-gray-200 leading-relaxed">
+                        {dailyReport || (isRTL 
+                          ? `الاتجاه الحالي لـ ${selectedAsset} هو ${analytics.sentimentTrend === 'Bullish' ? 'صعودي' : 'هبوطي'} بناءً على تحليل ${analytics.totalNews} خبراً حديثاً.`
+                          : `Current trend for ${selectedAsset} is ${analytics.sentimentTrend} based on ${analytics.totalNews} recent news events.`)}
+                      </p>
+                    </div>
+                    {analytics && (
+                      <div className="bg-white/5 p-6 rounded-2xl border border-white/10 flex flex-col justify-center">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-[10px] font-black text-gray-500 uppercase">{isRTL ? 'الحركة المتوقعة' : 'PREDICTED MOVE'}</span>
+                          <span className={`text-lg font-black ${analytics.predictedMove >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                            {analytics.predictedMove >= 0 ? '+' : ''}{analytics.predictedMove}%
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] font-black text-gray-500 uppercase">{isRTL ? 'درجة الثقة' : 'CONFIDENCE'}</span>
+                          <span className="text-lg font-black text-yellow-500">{analytics.confidence}%</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </motion.div>
             )}
 
-            {/* اختيار الأصول - تصميم احترافي */}
+            {/* اختيار الأصول والتحليلات */}
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 mb-12">
               <div className="xl:col-span-3 space-y-6 bg-zinc-900/20 p-8 rounded-[2.5rem] border border-white/5 backdrop-blur-3xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/5 blur-[100px] -mr-32 -mt-32 rounded-full" />
@@ -217,7 +256,7 @@ export default function NewsPage() {
                 <div className="space-y-4 relative">
                   <div className="flex items-center justify-between">
                     <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">
-                      {i18n.language === 'ar' ? 'الأصول الرقمية' : 'Digital Assets'}
+                      {isRTL ? 'الأصول الرقمية' : 'Digital Assets'}
                     </p>
                     <div className="h-px flex-1 mx-4 bg-white/5" />
                   </div>
@@ -241,7 +280,7 @@ export default function NewsPage() {
                 <div className="space-y-4 pt-6 relative">
                   <div className="flex items-center justify-between">
                     <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">
-                      {i18n.language === 'ar' ? 'الفوركس والسلع' : 'Forex & Commodities'}
+                      {isRTL ? 'الفوركس والسلع' : 'Forex & Commodities'}
                     </p>
                     <div className="h-px flex-1 mx-4 bg-white/5" />
                   </div>
@@ -298,7 +337,7 @@ export default function NewsPage() {
                     : 'text-gray-500 hover:text-white'
                 }`}
               >
-                {i18n.language === 'ar' ? 'تغطية اليوم' : 'Daily Coverage'}
+                {isRTL ? 'تغطية اليوم' : 'Daily Coverage'}
               </button>
               <button
                 onClick={() => setActiveTab('weekly')}
@@ -308,12 +347,12 @@ export default function NewsPage() {
                     : 'text-gray-500 hover:text-white'
                 }`}
               >
-                {i18n.language === 'ar' ? 'تغطية الأسبوع' : 'Weekly Coverage'}
+                {isRTL ? 'تغطية الأسبوع' : 'Weekly Coverage'}
               </button>
             </div>
           </motion.div>
 
-          {/* جدول الأخبار - تصميم فائق الاحترافية */}
+          {/* جدول الأخبار */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -328,8 +367,8 @@ export default function NewsPage() {
                   <div>
                     <CardTitle className="text-3xl font-black uppercase tracking-tighter">
                       {activeTab === 'daily' 
-                        ? (i18n.language === 'ar' ? 'الأخبار العاجلة' : "Breaking Intelligence") 
-                        : (i18n.language === 'ar' ? 'ملخص الأسبوع' : "Weekly Intelligence")}
+                        ? (isRTL ? 'الأخبار العاجلة' : "Breaking Intelligence") 
+                        : (isRTL ? 'ملخص الأسبوع' : "Weekly Intelligence")}
                     </CardTitle>
                     <div className="flex items-center gap-2 mt-2">
                       <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
@@ -348,11 +387,11 @@ export default function NewsPage() {
                   <table className="w-full text-left border-collapse min-w-[1000px]">
                     <thead>
                       <tr className="bg-white/[0.01] border-b border-white/5">
-                        <th className="p-10 text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">{i18n.language === 'ar' ? 'التوقيت' : 'Timestamp'}</th>
-                        <th className="p-10 text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">{i18n.language === 'ar' ? 'الحدث التحليلي' : 'Intelligence Event'}</th>
-                        <th className="p-10 text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">{i18n.language === 'ar' ? 'المصدر' : 'Source'}</th>
-                        <th className="p-10 text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">{i18n.language === 'ar' ? 'المشاعر' : 'Sentiment'}</th>
-                        <th className="p-10 text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">{i18n.language === 'ar' ? 'التأثير' : 'Impact'}</th>
+                        <th className="p-10 text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">{isRTL ? 'التوقيت' : 'Timestamp'}</th>
+                        <th className="p-10 text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">{isRTL ? 'الحدث التحليلي' : 'Intelligence Event'}</th>
+                        <th className="p-10 text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">{isRTL ? 'المصدر' : 'Source'}</th>
+                        <th className="p-10 text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">{isRTL ? 'المشاعر' : 'Sentiment'}</th>
+                        <th className="p-10 text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">{isRTL ? 'التأثير' : 'Impact'}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
@@ -414,18 +453,18 @@ export default function NewsPage() {
                               <td className="p-10">
                                 <div className="flex flex-col gap-2">
                                   <div className="flex items-center gap-3">
-                                    {news.sentiment === 'Positive' ? (
+                                    {news.sentiment.toLowerCase().includes('bull') || news.sentiment.toLowerCase().includes('pos') ? (
                                       <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-green-500/10 border border-green-500/20 text-green-500">
                                         <TrendingUp className="w-3 h-3" />
                                         <span className="text-[9px] font-black uppercase tracking-widest">Bullish</span>
                                       </div>
-                                    ) : news.sentiment === 'Negative' ? (
+                                    ) : news.sentiment.toLowerCase().includes('bear') || news.sentiment.toLowerCase().includes('neg') ? (
                                       <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500">
                                         <TrendingDown className="w-3 h-3" />
                                         <span className="text-[9px] font-black uppercase tracking-widest">Bearish</span>
                                       </div>
                                     ) : (
-                                      <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-500/10 border border-gray-500/20 text-gray-400">
+                                      <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-400">
                                         <span className="text-[9px] font-black uppercase tracking-widest">Neutral</span>
                                       </div>
                                     )}
@@ -473,9 +512,9 @@ export default function NewsPage() {
           {/* إحصائيات سفلية */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
             {[
-              { label: i18n.language === 'ar' ? 'إشارات صعودية' : 'Bullish Signals', count: marketStats.bullish, color: 'text-green-500', icon: <TrendingUp />, bg: 'bg-green-500/5' },
-              { label: i18n.language === 'ar' ? 'إشارات محايدة' : 'Neutral Signals', count: marketStats.neutral, color: 'text-gray-400', icon: <Globe />, bg: 'bg-white/5' },
-              { label: i18n.language === 'ar' ? 'إشارات هبوطية' : 'Bearish Signals', count: marketStats.bearish, color: 'text-red-500', icon: <TrendingDown />, bg: 'bg-red-500/5' }
+              { label: isRTL ? 'إشارات صعودية' : 'Bullish Signals', count: marketStats.bullish, color: 'text-green-500', icon: <TrendingUp />, bg: 'bg-green-500/5' },
+              { label: isRTL ? 'إشارات محايدة' : 'Neutral Signals', count: marketStats.neutral, color: 'text-gray-400', icon: <Globe />, bg: 'bg-white/5' },
+              { label: isRTL ? 'إشارات هبوطية' : 'Bearish Signals', count: marketStats.bearish, color: 'text-red-500', icon: <TrendingDown />, bg: 'bg-red-500/5' }
             ].map((stat, i) => (
               <motion.div
                 key={i}
