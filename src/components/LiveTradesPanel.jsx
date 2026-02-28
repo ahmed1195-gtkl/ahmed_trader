@@ -3,10 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, TrendingUp, TrendingDown, Target, Shield, Activity, BarChart3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-const LiveTradesPanel = ({ trades, stats, onClose, onCloseTrade }) => {
+const LiveTradesPanel = ({ trades = [], stats, onClose, onCloseTrade, isOpen }) => {
   const { t } = useTranslation();
 
+  if (!isOpen) return null;
+
   return (
+    <AnimatePresence>
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -232,6 +235,7 @@ const LiveTradesPanel = ({ trades, stats, onClose, onCloseTrade }) => {
         </div>
       </motion.div>
     </motion.div>
+    </AnimatePresence>
   );
 };
 
