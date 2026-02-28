@@ -64,26 +64,25 @@ export default function NewsPage() {
       let report = '';
       let analyticsData = null;
 
-      // محاولة جلب البيانات من الخادم أولاً
+      // جلب البيانات من الخادم (API الحقيقي)
       try {
         const response = await fetch(`/api/news?query=${query}&timeframe=${activeTab}`);
         if (response.ok) {
           const data = await response.json();
           gNewsData = [...(data.global || []), ...(data.economic || [])];
           report = data.dailyReport || '';
+        } else {
+          throw new Error(`API returned status ${response.status}`);
         }
       } catch (e) {
-        console.warn("Backend news fetch failed, falling back to local engine");
+        console.error("Error fetching news from API:", e);
+        setIsLoading(false);
+        return; // توقف إذا فشل جلب البيانات الحقيقية
       }
 
-      // إذا لم نحصل على بيانات، استخدم محرك الأخبار المحلي
-      if (gNewsData.length === 0) {
-        gNewsData = await fetchGlobalNews(query, activeTab);
-      }
-
-      // تنسيق البيانات
+      // تنسيق البيانات من API الحقيقي
       const formattedNews = gNewsData.map(n => ({
-        id: n.id || Math.random().toString(36).substr(2, 9),
+        id: n.id || n.url || Math.random().toString(36).substr(2, 9),
         title: n.title,
         source: n.source,
         sentiment: n.sentimentLabel || n.ai_analysis?.sentiment || n.sentiment || 'Neutral',
@@ -94,14 +93,23 @@ export default function NewsPage() {
         publishedAt: new Date(n.publishedAt || n.published_at),
         description: n.description || n.raw_text,
         url: n.url || '#',
-        impact: n.impact || calculateImpact(n.title + " " + (n.description || "")),
-        keyPhrases: n.keyPhrases || extractKeyPhrases(n.title)
+        impact: n.impact || (n.ai_analysis?.impact_score > 0.5 ? 'High' : 'Medium'),
+        keyPhrases: n.keyPhrases || []
       }));
+
+      // التحقق من وجود بيانات
+      if (formattedNews.length === 0) {
+        console.warn('No news data received from API');
+        setNewsEvents([]);
+        setMarketStats({ bullish: 0, bearish: 0, neutral: 0 });
+        setIsLoading(false);
+        return;
+      }
 
       setNewsEvents(formattedNews);
       if (report) setDailyReport(report);
 
-      // حساب الإحصائيات
+      // حساب الإحصائيات من البيانات الحقيقية
       const stats = formattedNews.reduce((acc, curr) => {
         const s = curr.sentiment.toLowerCase();
         if (s.includes('bull') || s.includes('pos')) acc.bullish++;

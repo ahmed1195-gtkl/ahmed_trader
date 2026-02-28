@@ -6,6 +6,7 @@ import firebaseService from './services/firebaseService.js';
 import botService from './services/botService.js';
 import websocketService from './services/websocketService.js';
 import botController from './controllers/botController.js';
+import marketIntelligenceRoutes from './routes/marketIntelligenceRoutes.js';
 
 // Initialize Express app
 const app = express();
@@ -43,6 +44,9 @@ app.get('/api/analysis', botController.getAnalysis);
 app.get('/api/trades', botController.getTrades);
 app.post('/api/trades/close', botController.closeTrade);
 app.get('/api/news', botController.getNews);
+
+// Market Intelligence Routes
+app.use('/api/market-intelligence', marketIntelligenceRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
