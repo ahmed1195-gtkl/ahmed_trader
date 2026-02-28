@@ -19,6 +19,7 @@ export default function NewsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(true);
   const [marketStats, setMarketStats] = useState({ bullish: 0, bearish: 0, neutral: 0 });
+  const [dailyReport, setDailyReport] = useState('');
   const newsIntervalRef = useRef(null);
 
   // قائمة الأصول المدمجة (عملات رقمية + فوركس)
@@ -33,24 +34,23 @@ export default function NewsPage() {
   const fetchNews = async () => {
     setIsLoading(true);
     try {
-      // تنظيف الرمز للبحث (إزالة USDT إذا وجد)
       const query = selectedAsset.replace('USDT', '');
       
-      // محاولة جلب الأخبار من الخلفية أولاً، ثم العودة للمحرك المحلي إذا فشل
       let gNewsData = [];
+      let report = '';
       try {
-        const response = await fetch(`/api/news?query=${query}`);
+        const response = await fetch(`/api/news?query=${query}&timeframe=${activeTab}`);
         if (response.ok) {
           const data = await response.json();
-          // دمج الأخبار العالمية والاقتصادية من الخلفية
           gNewsData = [...(data.global || []), ...(data.economic || [])];
+          report = data.dailyReport || '';
         }
       } catch (e) {
         console.warn("Backend news fetch failed, falling back to local engine");
       }
 
       if (gNewsData.length === 0) {
-        gNewsData = await fetchGlobalNews(query);
+        gNewsData = await fetchGlobalNews(query, activeTab);
       }
       
       const formattedNews = gNewsData.map(n => ({
@@ -68,11 +68,12 @@ export default function NewsPage() {
       }));
 
       setNewsEvents(formattedNews);
+      setDailyReport(report);
       
-      // تحديث الإحصائيات
       const stats = formattedNews.reduce((acc, curr) => {
-        if (curr.sentiment === 'Positive') acc.bullish++;
-        else if (curr.sentiment === 'Negative') acc.bearish++;
+        const s = curr.sentiment.toLowerCase();
+        if (s.includes('bull') || s.includes('pos')) acc.bullish++;
+        else if (s.includes('bear') || s.includes('neg')) acc.bearish++;
         else acc.neutral++;
         return acc;
       }, { bullish: 0, bearish: 0, neutral: 0 });
@@ -94,7 +95,7 @@ export default function NewsPage() {
 
   useEffect(() => {
     fetchNews();
-    newsIntervalRef.current = setInterval(fetchNews, 120000); // تحديث كل دقيقتين
+    newsIntervalRef.current = setInterval(fetchNews, 120000);
     
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setIsUserAuthenticated(!!user);
@@ -104,34 +105,30 @@ export default function NewsPage() {
       if (newsIntervalRef.current) clearInterval(newsIntervalRef.current);
       unsubscribe();
     };
-  }, [selectedAsset]);
+  }, [selectedAsset, activeTab]);
 
-  // تصفية الأخبار حسب الفترة الزمنية والبحث
   const getFilteredNews = () => {
-    const now = new Date();
     let filtered = newsEvents;
-
-    // تصفية حسب الفترة
-    if (activeTab === 'daily') {
-      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      filtered = filtered.filter(n => n.publishedAt >= startOfDay);
-    } else {
-      const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      filtered = filtered.filter(n => n.publishedAt >= oneWeekAgo);
-    }
-
-    // تصفية حسب البحث
     if (searchQuery) {
       filtered = filtered.filter(n => 
         n.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
         n.source.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-
     return filtered;
   };
 
   const filteredNews = getFilteredNews();
+
+  const getTimeAgo = (date) => {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    if (seconds < 60) return i18n.language === 'ar' ? 'الآن' : 'Just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return i18n.language === 'ar' ? `منذ ${minutes} دقيقة` : `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return i18n.language === 'ar' ? `منذ ${hours} ساعة` : `${hours}h ago`;
+    return date.toLocaleDateString();
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#050505] text-white selection:bg-yellow-500/30">
@@ -187,6 +184,30 @@ export default function NewsPage() {
                 </Button>
               </div>
             </div>
+
+            {/* تقرير الرادار اليومي */}
+            {dailyReport && (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="mb-12 p-8 rounded-[2.5rem] bg-gradient-to-br from-yellow-500/10 to-transparent border border-yellow-500/20 backdrop-blur-3xl relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 p-6 opacity-10">
+                  <Zap className="w-20 h-20 text-yellow-500" />
+                </div>
+                <div className="relative space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-yellow-500 animate-ping" />
+                    <h2 className="text-xs font-black uppercase tracking-[0.3em] text-yellow-500">
+                      {i18n.language === 'ar' ? 'تقرير الرادار اليومي' : 'Daily Radar Report'}
+                    </h2>
+                  </div>
+                  <p className="text-lg md:text-xl font-bold text-gray-200 leading-relaxed max-w-4xl">
+                    {dailyReport}
+                  </p>
+                </div>
+              </motion.div>
+            )}
 
             {/* اختيار الأصول - تصميم احترافي */}
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 mb-12">
@@ -348,8 +369,8 @@ export default function NewsPage() {
                             >
                               <td className="p-10 text-xs font-black tabular-nums text-gray-500 group-hover:text-white transition-colors">
                                 <div className="flex flex-col gap-1">
-                                  <span className="text-white">{news.publishedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</span>
-                                  <span className="text-[9px] opacity-40 uppercase tracking-tighter">{news.publishedAt.toLocaleDateString([], { month: 'short', day: 'numeric' })}</span>
+                                  <span className="text-white whitespace-nowrap">{getTimeAgo(news.publishedAt)}</span>
+                                  <span className="text-[9px] opacity-40 uppercase tracking-tighter">{news.publishedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                 </div>
                               </td>
                               <td className="p-10 max-w-xl">

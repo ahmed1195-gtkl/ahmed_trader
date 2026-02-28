@@ -87,9 +87,9 @@ class AnalysisService {
     }
   }
 
-  async getNews(query = 'crypto') {
+  async getNews(query = 'crypto', timeframe = 'daily') {
     const now = Date.now();
-    const cacheKey = `news_${query}`;
+    const cacheKey = `news_${query}_${timeframe}`;
     
     // Return cached news if still fresh
     if (this.newsCache[cacheKey] && (now - this.newsCache[cacheKey].timestamp) < this.newsCacheDuration) {
@@ -97,36 +97,53 @@ class AnalysisService {
     }
 
     try {
-      // Import news fetchers
       const { fetchGlobalNews } = await import('../models/analysis/market_intelligence.js');
       
-      // Fetch news
-      const global = await fetchGlobalNews(query).catch(err => {
+      const global = await fetchGlobalNews(query, timeframe).catch(err => {
         logger.error(`Failed to fetch global news for ${query}`, err);
         return [];
       });
 
-      // AI Sentiment Analysis (Phase 2)
       const enrichedNews = await this.enrichNewsWithAI(global, query);
+      
+      // Generate Daily AI Report (Phase 2)
+      const dailyReport = await this.generateDailyReport(enrichedNews, query);
 
       const result = {
         global: enrichedNews,
-        economic: [], // Placeholder for future economic news integration
+        dailyReport,
+        economic: [],
         timestamp: now,
       };
 
-      // Cache the result
       this.newsCache[cacheKey] = {
         data: result,
         timestamp: now,
       };
 
-      logger.info(`News fetched for ${query}: ${enrichedNews.length} articles`);
-
       return result;
     } catch (error) {
       logger.error(`Failed to get news for ${query}`, error);
       return { global: [], economic: [], timestamp: now };
+    }
+  }
+
+  async generateDailyReport(newsItems, query) {
+    try {
+      if (newsItems.length === 0) return "لا توجد أخبار كافية لتوليد تقرير اليوم.";
+      
+      const summaryPrompt = `بناءً على الأخبار التالية لـ ${query}، اكتب تقريراً موجزاً واحترافياً للمتداولين باللغة العربية. ركز على الاتجاه العام للسوق (Bullish/Bearish) وأهم العوامل المؤثرة اليوم.
+      الأخبار:
+      ${newsItems.slice(0, 5).map(n => `- ${n.title}`).join('\n')}`;
+
+      const response = await this.openai.chat.completions.create({
+        model: "gpt-4.1-mini",
+        messages: [{ role: "user", content: summaryPrompt }],
+      });
+
+      return response.choices[0].message.content;
+    } catch (e) {
+      return "تقرير الذكاء الاصطناعي غير متوفر حالياً، يرجى مراجعة الأخبار الفردية.";
     }
   }
 
