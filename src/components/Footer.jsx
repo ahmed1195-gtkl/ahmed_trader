@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import teamLogo from '../assets/team_logo.png';
+import shukritradeLogo from '../assets/shukritrade_logo.svg';
 
 const Footer = () => {
   const { t } = useTranslation();
@@ -19,14 +19,13 @@ const Footer = () => {
           viewport={{ once: true }}
           className="text-center"
         >
-          {/* Team Logo */}
-          <div className="flex items-center justify-center space-x-3 rtl:space-x-reverse mb-6">
+          {/* Shukritrade Logo */}
+          <div className="flex items-center justify-center mb-6">
             <img 
-              src={teamLogo} 
-              alt="Team Logo" 
-              className="h-12 w-12 rounded-lg object-cover"
+              src={shukritradeLogo} 
+              alt="Shukritrade" 
+              className="h-10 md:h-12 w-auto object-contain"
             />
-            <span className="text-white font-bold text-lg md:text-xl">Valcons Trading Team</span>
           </div>
 
           {/* Team Description */}
@@ -40,7 +39,7 @@ const Footer = () => {
           {/* Copyright */}
           <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
             <p className="text-gray-400 text-sm">
-              © 2025 AI Trader Course. {t('footer.rights')}.
+              © 2025 Shukritrade. {t('footer.rights')}.
             </p>
             
             <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6 rtl:space-x-reverse">

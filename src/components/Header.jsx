@@ -33,7 +33,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, onSnapshot, updateDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import teamLogo from '../assets/team_logo.png';
+import shukritradeLogo from '../assets/shukritrade_logo.svg';
 import { toast } from 'sonner';
 import SubscriptionModal from './SubscriptionModal';
 
@@ -200,14 +200,10 @@ const Header = () => {
         <div className={`relative flex items-center justify-between bg-zinc-900/40 backdrop-blur-2xl border border-white/10 rounded-2xl px-4 md:px-6 py-3 transition-all duration-500 ${isScrolled ? 'shadow-2xl shadow-yellow-500/10 border-white/20' : ''}`}>
           
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
+          <Link to="/" className="flex items-center gap-2 group">
             <div className="relative">
-              <img src={teamLogo} alt="Logo" className="h-8 w-8 md:h-10 md:w-10 rounded-xl object-cover border border-white/10 group-hover:border-yellow-500/50 transition-all duration-500" />
-              <div className="absolute inset-0 bg-yellow-500/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-white font-black text-sm md:text-lg uppercase tracking-tighter leading-none">Ahmed</span>
-              <span className="text-yellow-500 font-black text-[8px] md:text-[10px] uppercase tracking-[0.3em] leading-none mt-1">Trader</span>
+              <img src={shukritradeLogo} alt="Shukritrade" className="h-8 md:h-10 w-auto object-contain transition-all duration-500 group-hover:brightness-110 group-hover:drop-shadow-[0_0_15px_rgba(240,191,82,0.4)]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#f0bf52]/20 to-[#ac8941]/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
             </div>
           </Link>
 

@@ -411,7 +411,7 @@ const AITradingBot = () => {
   }, [selectedAsset, isMarketClosed]);
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-yellow-500/30">
+    <div className="min-h-screen bg-black text-white selection:bg-amber-500/30">
       <Header />
       <main className="container mx-auto px-4 md:px-6 pt-24 md:pt-32 pb-20">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
@@ -420,11 +420,11 @@ const AITradingBot = () => {
               <div className="relative w-full md:w-72">
                 <button 
                   onClick={() => setShowAssetList(!showAssetList)}
-                  className="w-full flex items-center justify-between px-6 py-4 bg-zinc-900/50 border border-white/10 rounded-2xl backdrop-blur-xl hover:border-yellow-500/50 transition-all group"
+                  className="w-full flex items-center justify-between px-6 py-4 bg-zinc-900/50 border border-white/10 rounded-2xl backdrop-blur-xl hover:border-amber-500/50 transition-all group"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center">
-                      <Activity className="w-4 h-4 text-yellow-500" />
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                      <Activity className="w-4 h-4 text-amber-500" />
                     </div>
                     <span className="text-sm font-black uppercase tracking-widest">{currentAsset.name}</span>
                   </div>
@@ -447,7 +447,7 @@ const AITradingBot = () => {
                               setSelectedAsset(a.symbol);
                               setShowAssetList(false);
                             }} 
-                            className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all ${selectedAsset === a.symbol ? 'bg-yellow-500 text-black' : 'hover:bg-white/5 text-gray-400 hover:text-white'}`}
+                            className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all ${selectedAsset === a.symbol ? 'bg-gradient-to-r from-[#f0bf52] to-[#ac8941] text-black' : 'hover:bg-white/5 text-gray-400 hover:text-white'}`}
                           >
                             <div className="flex items-center gap-3">
                               <span className="text-[10px] font-black uppercase tracking-widest">{a.name}</span>
@@ -462,7 +462,7 @@ const AITradingBot = () => {
               </div>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl w-fit">
-              <Clock className="w-3 h-3 text-yellow-500" />
+              <Clock className="w-3 h-3 text-amber-500" />
               <span className="text-[10px] font-black tabular-nums text-gray-400 uppercase tracking-widest">
                 {currentTime.toLocaleTimeString()}
               </span>
@@ -501,17 +501,17 @@ const AITradingBot = () => {
                   </button>
                   <button
                     onClick={() => setShowNewsPanel(!showNewsPanel)}
-                    className="px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 hover:bg-yellow-500/20 transition-all flex items-center gap-2"
+                    className="px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 transition-all flex items-center gap-2"
                   >
-                    <Newspaper className="w-4 h-4 text-yellow-500" />
-                    <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest">الأخبار</span>
+                    <Newspaper className="w-4 h-4 text-amber-500" />
+                    <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">الأخبار</span>
                   </button>
                   <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10">
                     <div className="flex items-center gap-2 border-r border-white/10 pr-3">
                       <div className={`w-1.5 h-1.5 rounded-full ${isMarketClosed ? 'bg-red-500' : 'bg-green-500 animate-pulse'}`} />
                       <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{t('aibot.price')}</span>
                     </div>
-                    <span className="text-xs font-black text-yellow-500 tabular-nums">
+                    <span className="text-xs font-black text-amber-500 tabular-nums">
                       {livePrice > 0 ? livePrice.toFixed(selectedAsset.includes('JPY') || selectedAsset.includes('XAU') ? 2 : 5) : '---'}
                     </span>
                   </div>
@@ -521,7 +521,7 @@ const AITradingBot = () => {
                 <AnimatePresence mode="wait">
                   {loading ? (
                     <div className="py-20 flex flex-col items-center justify-center">
-                      <Loader2 className="w-12 h-12 text-yellow-500 animate-spin mb-4" />
+                      <Loader2 className="w-12 h-12 text-amber-500 animate-spin mb-4" />
                       <p className="text-gray-500 font-black uppercase tracking-widest text-[10px]">{t('aibot.processing')}</p>
                     </div>
                   ) : analysis && (
@@ -529,7 +529,7 @@ const AITradingBot = () => {
                       <div className="flex flex-col md:flex-row items-center justify-between gap-8">
                         <div className="text-center md:text-left">
                           <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">{t('aibot.recommendation')}</p>
-                          <h2 className={`text-6xl md:text-7xl font-black uppercase tracking-tighter ${analysis.rawRecommendation === 'BUY' ? 'text-green-500' : analysis.rawRecommendation === 'SELL' ? 'text-red-500' : 'text-yellow-500'}`}>
+                          <h2 className={`text-6xl md:text-7xl font-black uppercase tracking-tighter ${analysis.rawRecommendation === 'BUY' ? 'text-green-500' : analysis.rawRecommendation === 'SELL' ? 'text-red-500' : 'text-amber-500'}`}>
                             {analysis.recommendation}
                           </h2>
                         </div>
@@ -537,7 +537,7 @@ const AITradingBot = () => {
                           <motion.span 
                             initial={{ opacity: 0, scale: 0.5 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="text-5xl font-black tracking-tighter text-yellow-500 block"
+                            className="text-5xl font-black tracking-tighter text-amber-500 block"
                           >
                             <AnimatedNumber value={analysis.confidence} />%
                           </motion.span>
@@ -548,16 +548,16 @@ const AITradingBot = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="p-6 rounded-3xl bg-white/5 border border-white/10">
                           <div className="flex items-center gap-2 mb-4">
-                            <BrainCircuit className="w-4 h-4 text-yellow-500" />
-                            <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest">{t('aibot.reasoning')}</span>
+                            <BrainCircuit className="w-4 h-4 text-amber-500" />
+                            <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">{t('aibot.reasoning')}</span>
                           </div>
                           <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap mb-6">{analysis.reasoning}</p>
 
                           {analysis.orderFlow && (
-                            <div className="mt-6 p-4 rounded-2xl bg-yellow-500/5 border border-yellow-500/10">
+                            <div className="mt-6 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10">
                               <div className="flex items-center gap-2 mb-3">
-                                <Layers className="w-4 h-4 text-yellow-500" />
-                                <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest">تحليل تدفق الطلبات (Order Flow)</span>
+                                <Layers className="w-4 h-4 text-amber-500" />
+                                <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">تحليل تدفق الطلبات (Order Flow)</span>
                               </div>
                               <div className="grid grid-cols-2 gap-4 mb-3">
                                 <div className="p-2 bg-black/20 rounded-lg">
@@ -570,7 +570,7 @@ const AITradingBot = () => {
                                 </div>
                               </div>
                               <p className="text-[10px] text-gray-300 leading-relaxed italic">
-                                <span className="text-yellow-500 font-black">التفسير: </span>
+                                <span className="text-amber-500 font-black">التفسير: </span>
                                 {analysis.orderFlow.interpretation}
                               </p>
                             </div>
@@ -625,10 +625,10 @@ const AITradingBot = () => {
                       <div className="relative w-full h-[300px] bg-black/40 rounded-3xl p-4 border border-white/5">
                         <ResponsiveContainer width="100%" height="100%">
                           <AreaChart data={analysis.chartData}>
-                            <defs><linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#eab308" stopOpacity={0.3}/><stop offset="95%" stopColor="#eab308" stopOpacity={0}/></linearGradient></defs>
+                            <defs><linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#f0bf52" stopOpacity={0.4}/><stop offset="50%" stopColor="#cea44a" stopOpacity={0.15}/><stop offset="95%" stopColor="#ac8941" stopOpacity={0}/></linearGradient></defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                             <XAxis dataKey="time" hide /><YAxis domain={['auto', 'auto']} hide />
-                            <Area type="monotone" dataKey="price" stroke="#eab308" fillOpacity={1} fill="url(#colorPrice)" strokeWidth={3} />
+                            <Area type="monotone" dataKey="price" stroke="#d4a94b" fillOpacity={1} fill="url(#colorPrice)" strokeWidth={3} />
                             {analysis.rawRecommendation !== 'WAIT' && (
                               <>
                                 <ReferenceLine y={analysis.levels.entry} stroke="white" strokeDasharray="3 3" label={{ position: 'right', value: 'ENTRY', fill: 'white', fontSize: 10, fontWeight: 'bold' }} />
@@ -640,7 +640,7 @@ const AITradingBot = () => {
                               if (active && payload && payload.length) {
                                 return (
                                   <div className="bg-zinc-900 border border-white/10 p-3 rounded-xl shadow-2xl backdrop-blur-xl">
-                                    <p className="text-[10px] font-black text-yellow-500 tabular-nums">{payload[0].value.toFixed(selectedAsset.includes('JPY') ? 3 : 5)}</p>
+                                    <p className="text-[10px] font-black text-amber-500 tabular-nums">{payload[0].value.toFixed(selectedAsset.includes('JPY') ? 3 : 5)}</p>
                                   </div>
                                 );
                               }
@@ -660,7 +660,7 @@ const AITradingBot = () => {
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2.5rem] overflow-hidden shadow-2xl">
               <CardHeader className="p-8 border-b border-white/5">
                 <CardTitle className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
-                  <BrainCircuit className="w-5 h-5 text-yellow-500" />
+                  <BrainCircuit className="w-5 h-5 text-amber-500" />
                   {t('aibot.bot_stats')}
                 </CardTitle>
               </CardHeader>
@@ -675,10 +675,10 @@ const AITradingBot = () => {
                     <p className="text-2xl font-black text-white">{botStats.totalTrades}</p>
                   </div>
                 </div>
-                <div className="p-6 bg-yellow-500/10 rounded-3xl border border-yellow-500/20">
+                <div className="p-6 bg-amber-500/10 rounded-3xl border border-amber-500/20">
                   <div className="flex items-center gap-2 mb-2">
-                    <ShieldCheck className="w-4 h-4 text-yellow-500" />
-                    <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest">{t('aibot.learning_status')}</span>
+                    <ShieldCheck className="w-4 h-4 text-amber-500" />
+                    <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">{t('aibot.learning_status')}</span>
                   </div>
                   <p className="text-xs text-gray-300 leading-relaxed">
                     {i18n.language === 'ar' 

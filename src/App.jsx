@@ -86,7 +86,7 @@ function LoadingScreen() {
         transition={{ delay: 0.2 }}
         className="mt-6 text-yellow-500 font-black tracking-[0.2em] uppercase text-xs"
       >
-        Ahmed Trader
+        Shukritrade
       </motion.p>
     </div>
   );

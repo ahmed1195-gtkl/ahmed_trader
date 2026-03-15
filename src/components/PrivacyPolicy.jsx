@@ -95,7 +95,7 @@ const PrivacyPolicy = () => {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 mb-6"
             >
               <Shield className="w-4 h-4" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em]">Ahmed Trader Security</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em]">Shukritrade Security</span>
             </motion.div>
             <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-6 bg-gradient-to-r from-white via-white to-white/50 bg-clip-text text-transparent">
               {t('privacy.title')}
