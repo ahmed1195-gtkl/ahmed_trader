@@ -193,8 +193,8 @@ export default function MarketIntelligence() {
             className="mb-12"
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center">
-                <Brain className="w-6 h-6 text-yellow-500" />
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                <Brain className="w-6 h-6 text-amber-500" />
               </div>
               <div>
                 <h1 className="text-4xl font-black uppercase tracking-tighter text-white">
@@ -225,7 +225,7 @@ export default function MarketIntelligence() {
               <select
                 value={selectedAsset || ''}
                 onChange={(e) => setSelectedAsset(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-semibold focus:outline-none focus:border-yellow-500/50 transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-semibold focus:outline-none focus:border-amber-500/50 transition-all"
               >
                 {assets.map(asset => (
                   <option key={asset.id} value={asset.id}>
@@ -247,7 +247,7 @@ export default function MarketIntelligence() {
                   placeholder={isRTL ? 'ابحث عن الأخبار...' : 'Search news...'}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-3 pl-10 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-yellow-500/50 transition-all"
+                  className="w-full px-4 py-3 pl-10 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-amber-500/50 transition-all"
                 />
               </div>
             </div>
@@ -260,7 +260,7 @@ export default function MarketIntelligence() {
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-semibold focus:outline-none focus:border-yellow-500/50 transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-semibold focus:outline-none focus:border-amber-500/50 transition-all"
               >
                 <option value="all">{isRTL ? 'الكل' : 'All'}</option>
                 <option value="Bullish">{isRTL ? 'صعودي' : 'Bullish'}</option>
@@ -274,7 +274,7 @@ export default function MarketIntelligence() {
               <Button
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="w-full h-12 bg-yellow-500 hover:bg-yellow-600 text-black font-black uppercase tracking-widest rounded-xl transition-all disabled:opacity-50"
+                className="w-full h-12 bg-amber-500 hover:bg-amber-600 text-black font-black uppercase tracking-widest rounded-xl transition-all disabled:opacity-50"
               >
                 <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
                 {isRTL ? 'تحديث' : 'Refresh'}
@@ -294,7 +294,7 @@ export default function MarketIntelligence() {
                 <Card className="bg-zinc-900/20 backdrop-blur-3xl border-white/5 rounded-[2.5rem] overflow-hidden">
                   <CardHeader className="p-8 border-b border-white/5">
                     <CardTitle className="text-2xl font-black uppercase tracking-tighter flex items-center gap-3">
-                      <Zap className="w-6 h-6 text-yellow-500" />
+                      <Zap className="w-6 h-6 text-amber-500" />
                       {isRTL ? 'أحدث الأخبار' : 'Latest News'}
                     </CardTitle>
                   </CardHeader>
@@ -302,7 +302,7 @@ export default function MarketIntelligence() {
                     {loading ? (
                       <div className="flex items-center justify-center p-12">
                         <div className="text-center">
-                          <div className="w-12 h-12 rounded-full border-4 border-yellow-500/20 border-t-yellow-500 animate-spin mx-auto mb-4" />
+                          <div className="w-12 h-12 rounded-full border-4 border-amber-500/20 border-t-amber-500 animate-spin mx-auto mb-4" />
                           <p className="text-gray-500 text-sm font-black uppercase tracking-widest">
                             {isRTL ? 'جاري التحميل...' : 'Loading...'}
                           </p>
@@ -336,7 +336,7 @@ export default function MarketIntelligence() {
 
                                 {/* محتوى الخبر */}
                                 <div className="flex-1 min-w-0">
-                                  <h3 className="text-base font-bold text-gray-300 group-hover:text-yellow-500 transition-colors line-clamp-2 mb-2">
+                                  <h3 className="text-base font-bold text-gray-300 group-hover:text-amber-500 transition-colors line-clamp-2 mb-2">
                                     {news.title}
                                   </h3>
 
@@ -347,7 +347,7 @@ export default function MarketIntelligence() {
                                     <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-lg ${getSentimentBgColor(news.sentiment)} ${getSentimentColor(news.sentiment)}`}>
                                       {news.sentiment}
                                     </span>
-                                    <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest">
+                                    <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">
                                       {news.impact} {isRTL ? 'تأثير' : 'Impact'}
                                     </span>
                                   </div>
@@ -495,7 +495,7 @@ export default function MarketIntelligence() {
                           <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">
                             {isRTL ? 'الإطار الزمني' : 'Timeframe'}
                           </p>
-                          <p className="text-lg font-black text-yellow-500">
+                          <p className="text-lg font-black text-amber-500">
                             {analytics.timeframe}
                           </p>
                         </div>
@@ -506,11 +506,11 @@ export default function MarketIntelligence() {
                           <div className="flex items-center gap-2">
                             <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
                               <div
-                                className="h-full bg-yellow-500 rounded-full"
+                                className="h-full bg-amber-500 rounded-full"
                                 style={{ width: `${analytics.confidence}%` }}
                               />
                             </div>
-                            <span className="text-[10px] font-black text-yellow-500">
+                            <span className="text-[10px] font-black text-amber-500">
                               {analytics.confidence}%
                             </span>
                           </div>
@@ -527,7 +527,7 @@ export default function MarketIntelligence() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                <Button className="w-full h-12 bg-yellow-500 hover:bg-yellow-600 text-black font-black uppercase tracking-widest rounded-xl transition-all">
+                <Button className="w-full h-12 bg-amber-500 hover:bg-amber-600 text-black font-black uppercase tracking-widest rounded-xl transition-all">
                   <Bell className="w-4 h-4 mr-2" />
                   {isRTL ? 'إنشاء تنبيه' : 'Create Alert'}
                 </Button>

@@ -52,7 +52,7 @@ export function SubscriptionGate({
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
       </div>
     );
   }
@@ -109,7 +109,7 @@ function UpgradePrompt({ currentTier, feature, showButton }) {
   return (
     <div className="bg-gray-800 rounded-lg p-8 text-center">
       <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-${info.color}-500/20 mb-4`}>
-        <Lock className="w-8 h-8 text-yellow-500" />
+        <Lock className="w-8 h-8 text-amber-500" />
       </div>
 
       <h3 className="text-xl font-bold text-white mb-2">
@@ -221,7 +221,7 @@ export function UsageLimitIndicator({ userId, limitName, currentValue }) {
       <div className="w-full bg-gray-700 rounded-full h-2">
         <div
           className={`h-2 rounded-full transition-all ${
-            isNearLimit ? 'bg-red-500' : 'bg-yellow-500'
+            isNearLimit ? 'bg-red-500' : 'bg-amber-500'
           }`}
           style={{ width: `${Math.min(percentage, 100)}%` }}
         />

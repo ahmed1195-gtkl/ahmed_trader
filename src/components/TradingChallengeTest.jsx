@@ -118,7 +118,7 @@ function TradingChallengeTest() {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-white font-bold">
             {i18n.language === 'ar' ? 'جاري التحميل...' : 'Loading...'}
           </p>
@@ -156,9 +156,9 @@ function TradingChallengeTest() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-16"
           >
-            <div className="inline-flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 rounded-full px-6 py-2 mb-6">
-              <Trophy className="w-5 h-5 text-yellow-500" />
-              <span className="text-yellow-500 font-black text-sm uppercase tracking-widest">
+            <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-6 py-2 mb-6">
+              <Trophy className="w-5 h-5 text-amber-500" />
+              <span className="text-amber-500 font-black text-sm uppercase tracking-widest">
                 {i18n.language === 'ar' ? 'التحديات التنافسية' : i18n.language === 'fr' ? 'Défis Compétitifs' : 'Trading Challenges'}
               </span>
             </div>
@@ -184,7 +184,7 @@ function TradingChallengeTest() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-zinc-900/50 border border-white/5 rounded-3xl p-8 hover:border-yellow-500/20 transition-all group"
+                className="bg-zinc-900/50 border border-white/5 rounded-3xl p-8 hover:border-amber-500/20 transition-all group"
               >
                 <div className="flex items-center justify-between mb-6">
                   <div 
@@ -239,7 +239,7 @@ function TradingChallengeTest() {
 
                 <button
                   onClick={() => handleCreateChallenge(level.id)}
-                  className="w-full bg-white hover:bg-yellow-500 text-black font-black uppercase tracking-wider py-4 rounded-xl transition-all group-hover:scale-105"
+                  className="w-full bg-white hover:bg-amber-500 text-black font-black uppercase tracking-wider py-4 rounded-xl transition-all group-hover:scale-105"
                 >
                   {i18n.language === 'ar' ? 'انضم الآن' : i18n.language === 'fr' ? 'Rejoindre' : 'Join Challenge'}
                 </button>

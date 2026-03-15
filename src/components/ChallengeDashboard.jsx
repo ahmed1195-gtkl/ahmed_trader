@@ -204,7 +204,7 @@ function ChallengeDashboard() {
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="w-20 h-20 border-4 border-yellow-500/20 border-t-yellow-500 rounded-full animate-spin" />
+        <div className="w-20 h-20 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
       </div>
     );
   }
@@ -289,7 +289,7 @@ function ChallengeDashboard() {
           <div className="grid md:grid-cols-4 gap-6 mb-8">
             <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-6">
               <div className="flex items-center justify-between mb-4">
-                <DollarSign className="w-8 h-8 text-yellow-500" />
+                <DollarSign className="w-8 h-8 text-amber-500" />
                 <div className={`text-sm font-bold ${participant.profitLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                   {participant.profitLoss >= 0 ? '+' : ''}{participant.profitLossPercent.toFixed(2)}%
                 </div>
@@ -360,7 +360,7 @@ function ChallengeDashboard() {
                 </p>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-black text-yellow-500">
+                <div className="text-2xl font-black text-amber-500">
                   {progressPercent.toFixed(1)}%
                 </div>
                 <div className="text-xs text-gray-500">
@@ -374,7 +374,7 @@ function ChallengeDashboard() {
                 initial={{ width: 0 }}
                 animate={{ width: `${Math.min(progressPercent, 100)}%` }}
                 transition={{ duration: 1, ease: 'easeOut' }}
-                className={`h-full ${progressPercent >= 100 ? 'bg-green-500' : 'bg-yellow-500'}`}
+                className={`h-full ${progressPercent >= 100 ? 'bg-green-500' : 'bg-amber-500'}`}
               />
             </div>
           </div>
@@ -390,7 +390,7 @@ function ChallengeDashboard() {
                 {participant.status === 'active' && (
                   <button
                     onClick={() => setShowTradeModal(true)}
-                    className="flex items-center gap-2 px-6 py-3 bg-yellow-500 text-black rounded-xl font-black text-sm uppercase hover:bg-yellow-400 transition-colors"
+                    className="flex items-center gap-2 px-6 py-3 bg-amber-500 text-black rounded-xl font-black text-sm uppercase hover:bg-amber-400 transition-colors"
                   >
                     <Plus className="w-5 h-5" />
                     {i18n.language === 'ar' ? 'صفقة جديدة' : 'New Trade'}
@@ -410,7 +410,7 @@ function ChallengeDashboard() {
                   trades.map((trade) => (
                     <div
                       key={trade.id}
-                      className="bg-zinc-900/50 border border-white/5 rounded-2xl p-6 hover:border-yellow-500/20 transition-all"
+                      className="bg-zinc-900/50 border border-white/5 rounded-2xl p-6 hover:border-amber-500/20 transition-all"
                     >
                       <div className="flex items-start justify-between mb-4">
                         <div>
@@ -481,7 +481,7 @@ function ChallengeDashboard() {
             {/* Team Management */}
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-6">
-                <Users className="w-6 h-6 text-yellow-500" />
+                <Users className="w-6 h-6 text-amber-500" />
                 <h2 className="text-2xl font-black text-white uppercase">
                   {i18n.language === 'ar' ? 'إدارة الفريق' : 'Team Management'}
                 </h2>
@@ -492,7 +492,7 @@ function ChallengeDashboard() {
             {/* Connect Demo Account */}
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-6">
-                <Activity className="w-6 h-6 text-yellow-500" />
+                <Activity className="w-6 h-6 text-amber-500" />
                 <h2 className="text-2xl font-black text-white uppercase">
                   {i18n.language === 'ar' ? 'ربط حساب ديمو' : 'Connect Demo Account'}
                 </h2>
@@ -503,7 +503,7 @@ function ChallengeDashboard() {
             {/* Leaderboard */}
             <div>
               <div className="flex items-center gap-3 mb-6">
-                <Users className="w-6 h-6 text-yellow-500" />
+                <Users className="w-6 h-6 text-amber-500" />
                 <h2 className="text-2xl font-black text-white uppercase">
                   {i18n.language === 'ar' ? 'الترتيب' : 'Leaderboard'}
                 </h2>
@@ -514,13 +514,13 @@ function ChallengeDashboard() {
                   <div
                     key={entry.userId}
                     className={`p-4 border-b border-white/5 last:border-0 ${
-                      entry.userId === user.uid ? 'bg-yellow-500/10' : ''
+                      entry.userId === user.uid ? 'bg-amber-500/10' : ''
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-sm ${
-                          index === 0 ? 'bg-yellow-500/20 text-yellow-500' :
+                          index === 0 ? 'bg-amber-500/20 text-amber-500' :
                           index === 1 ? 'bg-gray-400/20 text-gray-400' :
                           index === 2 ? 'bg-orange-600/20 text-orange-600' :
                           'bg-white/5 text-gray-500'
@@ -576,7 +576,7 @@ function ChallengeDashboard() {
                   <select
                     value={selectedSymbol}
                     onChange={(e) => handleSymbolChange(e.target.value)}
-                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-yellow-500 outline-none"
+                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none"
                     required
                   >
                     <option value="">
@@ -631,7 +631,7 @@ function ChallengeDashboard() {
                     min="0.1"
                     max={challenge.riskPerTrade}
                     step="0.1"
-                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-yellow-500 outline-none"
+                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none"
                     required
                   />
                   <p className="text-xs text-gray-500 mt-2">
@@ -649,7 +649,7 @@ function ChallengeDashboard() {
                       value={stopLoss}
                       onChange={(e) => setStopLoss(e.target.value)}
                       step="0.00001"
-                      className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-yellow-500 outline-none"
+                      className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none"
                       required
                     />
                   </div>
@@ -663,7 +663,7 @@ function ChallengeDashboard() {
                       value={takeProfit}
                       onChange={(e) => setTakeProfit(e.target.value)}
                       step="0.00001"
-                      className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-yellow-500 outline-none"
+                      className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none"
                       required
                     />
                   </div>
@@ -680,7 +680,7 @@ function ChallengeDashboard() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="flex-1 py-4 bg-yellow-500 text-black rounded-xl font-bold uppercase hover:bg-yellow-400 transition-all disabled:opacity-50"
+                    className="flex-1 py-4 bg-amber-500 text-black rounded-xl font-bold uppercase hover:bg-amber-400 transition-all disabled:opacity-50"
                   >
                     {submitting 
                       ? (i18n.language === 'ar' ? 'جاري الفتح...' : 'Opening...')

@@ -69,7 +69,7 @@ const Onboarding = () => {
 
   if (checking) return (
     <div className="min-h-screen flex items-center justify-center bg-black">
-      <Loader2 className="w-10 h-10 text-yellow-500 animate-spin" />
+      <Loader2 className="w-10 h-10 text-amber-500 animate-spin" />
     </div>
   );
 
@@ -77,7 +77,7 @@ const Onboarding = () => {
     {
       id: 1,
       title: t('onboarding.level'),
-      icon: <GraduationCap className="w-8 h-8 text-yellow-500" />,
+      icon: <GraduationCap className="w-8 h-8 text-amber-500" />,
       options: [
         { id: 'beginner', label: t('onboarding.level.beginner'), desc: 'New to the world of trading' },
         { id: 'intermediate', label: t('onboarding.level.intermediate'), desc: 'Have some basic knowledge' },
@@ -88,7 +88,7 @@ const Onboarding = () => {
     {
       id: 2,
       title: t('onboarding.tradedBefore'),
-      icon: <BarChart3 className="w-8 h-8 text-yellow-500" />,
+      icon: <BarChart3 className="w-8 h-8 text-amber-500" />,
       options: [
         { id: 'yes', label: t('onboarding.yes'), desc: 'I have live trading experience' },
         { id: 'no', label: t('onboarding.no'), desc: 'I have never traded before' }
@@ -98,7 +98,7 @@ const Onboarding = () => {
     {
       id: 3,
       title: t('onboarding.brokers'),
-      icon: <Briefcase className="w-8 h-8 text-yellow-500" />,
+      icon: <Briefcase className="w-8 h-8 text-amber-500" />,
       field: 'brokers'
     }
   ];
@@ -113,7 +113,7 @@ const Onboarding = () => {
         <div className="flex justify-center mb-12">
           <div className="flex items-center gap-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${step >= i ? 'w-12 bg-yellow-500' : 'w-6 bg-white/10'}`} />
+              <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${step >= i ? 'w-12 bg-amber-500' : 'w-6 bg-white/10'}`} />
             ))}
           </div>
         </div>
@@ -123,7 +123,7 @@ const Onboarding = () => {
             <AnimatePresence mode="wait">
               <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-10">
                 <div className="text-center space-y-4">
-                  <div className="w-20 h-20 bg-yellow-500/10 rounded-3xl flex items-center justify-center mx-auto border border-yellow-500/20 mb-6">
+                  <div className="w-20 h-20 bg-amber-500/10 rounded-3xl flex items-center justify-center mx-auto border border-amber-500/20 mb-6">
                     {currentStepData.icon}
                   </div>
                   <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter leading-tight">{currentStepData.title}</h2>
@@ -140,8 +140,8 @@ const Onboarding = () => {
                         }}
                         className={`group flex items-center justify-between p-6 rounded-2xl border transition-all text-left ${
                           formData[currentStepData.field] === opt.id 
-                          ? 'bg-yellow-500 border-yellow-500 text-black shadow-lg shadow-yellow-500/20' 
-                          : 'bg-white/5 border-white/10 text-white hover:border-yellow-500/50'
+                          ? 'bg-amber-500 border-amber-500 text-black shadow-lg shadow-amber-500/20' 
+                          : 'bg-white/5 border-white/10 text-white hover:border-amber-500/50'
                         }`}
                       >
                         <div>
@@ -155,10 +155,10 @@ const Onboarding = () => {
                 ) : (
                   <div className="space-y-8">
                     <div className="grid gap-3">
-                      <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-500/50 ml-1">Your Experience</Label>
+                      <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-amber-500/50 ml-1">Your Experience</Label>
                       <Input
                         placeholder="Ex: Exness, XM, IC Markets..."
-                        className="h-16 bg-white/5 border-white/10 rounded-2xl px-6 text-lg font-bold focus:border-yellow-500/50 transition-all"
+                        className="h-16 bg-white/5 border-white/10 rounded-2xl px-6 text-lg font-bold focus:border-amber-500/50 transition-all"
                         value={formData.brokers}
                         onChange={(e) => setFormData({ ...formData, brokers: e.target.value })}
                       />
@@ -166,7 +166,7 @@ const Onboarding = () => {
                     <Button 
                       onClick={handleFinish} 
                       disabled={loading || !formData.brokers}
-                      className="w-full h-16 bg-yellow-500 text-black font-black uppercase tracking-widest rounded-2xl hover:bg-yellow-400 shadow-xl shadow-yellow-500/20 transition-all active:scale-95"
+                      className="w-full h-16 bg-amber-500 text-black font-black uppercase tracking-widest rounded-2xl hover:bg-amber-400 shadow-xl shadow-amber-500/20 transition-all active:scale-95"
                     >
                       {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : (
                         <>

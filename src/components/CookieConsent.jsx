@@ -38,12 +38,12 @@ const CookieConsent = () => {
         >
           <div className="relative overflow-hidden bg-zinc-900/90 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-8 shadow-2xl shadow-black/50">
             {/* Background Glow */}
-            <div className="absolute -top-24 -right-24 w-48 h-48 bg-yellow-500/10 blur-3xl rounded-full" />
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-amber-500/10 blur-3xl rounded-full" />
             
             <div className="relative z-10">
               <div className="flex items-start gap-6 mb-6">
-                <div className="w-14 h-14 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center shrink-0">
-                  <Cookie className="w-7 h-7 text-yellow-500" />
+                <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+                  <Cookie className="w-7 h-7 text-amber-500" />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-black uppercase tracking-tight text-white mb-2">
@@ -51,7 +51,7 @@ const CookieConsent = () => {
                   </h3>
                   <p className="text-gray-400 text-xs leading-relaxed font-medium">
                     {t('cookies.description')}
-                    <Link to="/privacy" className="text-yellow-500 hover:underline ml-1 font-black uppercase tracking-widest text-[9px]">
+                    <Link to="/privacy" className="text-amber-500 hover:underline ml-1 font-black uppercase tracking-widest text-[9px]">
                       {t('cookies.policy')}
                     </Link>
                   </p>
@@ -73,7 +73,7 @@ const CookieConsent = () => {
                 </button>
                 <button
                   onClick={handleAccept}
-                  className="px-6 py-4 rounded-2xl bg-yellow-500 text-black text-[10px] font-black uppercase tracking-widest hover:bg-yellow-400 transition-all shadow-lg shadow-yellow-500/20 flex items-center justify-center gap-2 active:scale-95"
+                  className="px-6 py-4 rounded-2xl bg-amber-500 text-black text-[10px] font-black uppercase tracking-widest hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 active:scale-95"
                 >
                   <Check className="w-4 h-4" />
                   {t('cookies.accept')}

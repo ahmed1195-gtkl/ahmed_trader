@@ -97,7 +97,7 @@ function TeamManagement({ challengeId, participantId }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="w-12 h-12 border-4 border-yellow-500/20 border-t-yellow-500 rounded-full animate-spin" />
+        <div className="w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
       </div>
     );
   }
@@ -118,7 +118,7 @@ function TeamManagement({ challengeId, participantId }) {
 
           <button
             onClick={() => setShowCreateModal(true)}
-            className="px-8 py-4 bg-yellow-500 text-black rounded-xl font-black text-sm uppercase hover:bg-yellow-400 transition-all"
+            className="px-8 py-4 bg-amber-500 text-black rounded-xl font-black text-sm uppercase hover:bg-amber-400 transition-all"
           >
             {i18n.language === 'ar' ? 'إنشاء فريق' : 'Create Team'}
           </button>
@@ -150,7 +150,7 @@ function TeamManagement({ challengeId, participantId }) {
                     value={teamName}
                     onChange={(e) => setTeamName(e.target.value)}
                     placeholder={i18n.language === 'ar' ? 'أدخل اسم الفريق' : 'Enter team name'}
-                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-yellow-500 outline-none"
+                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none"
                   />
                 </div>
 
@@ -165,7 +165,7 @@ function TeamManagement({ challengeId, participantId }) {
                   <button
                     type="submit"
                     disabled={creating}
-                    className="flex-1 py-4 bg-yellow-500 text-black rounded-xl font-bold uppercase hover:bg-yellow-400 transition-all disabled:opacity-50"
+                    className="flex-1 py-4 bg-amber-500 text-black rounded-xl font-bold uppercase hover:bg-amber-400 transition-all disabled:opacity-50"
                   >
                     {creating
                       ? (i18n.language === 'ar' ? 'جاري الإنشاء...' : 'Creating...')
@@ -188,7 +188,7 @@ function TeamManagement({ challengeId, participantId }) {
       <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-yellow-500 rounded-2xl flex items-center justify-center">
+            <div className="w-16 h-16 bg-amber-500 rounded-2xl flex items-center justify-center">
               <Users className="w-8 h-8 text-black" />
             </div>
             <div>
@@ -200,8 +200,8 @@ function TeamManagement({ challengeId, participantId }) {
           </div>
 
           {isLeader && (
-            <div className="px-4 py-2 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
-              <div className="flex items-center gap-2 text-yellow-500">
+            <div className="px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+              <div className="flex items-center gap-2 text-amber-500">
                 <Crown className="w-4 h-4" />
                 <span className="text-xs font-black uppercase">
                   {i18n.language === 'ar' ? 'القائد' : 'Leader'}
@@ -218,13 +218,13 @@ function TeamManagement({ challengeId, participantId }) {
               <div className="text-xs text-gray-500 uppercase mb-1">
                 {i18n.language === 'ar' ? 'كود الدعوة' : 'Invite Code'}
               </div>
-              <div className="text-2xl font-black text-yellow-500 tracking-wider">
+              <div className="text-2xl font-black text-amber-500 tracking-wider">
                 {team.inviteCode}
               </div>
             </div>
             <button
               onClick={handleCopyInviteCode}
-              className="px-4 py-2 bg-yellow-500 text-black rounded-lg font-bold text-sm hover:bg-yellow-400 transition-all flex items-center gap-2"
+              className="px-4 py-2 bg-amber-500 text-black rounded-lg font-bold text-sm hover:bg-amber-400 transition-all flex items-center gap-2"
             >
               {copiedCode ? (
                 <>
@@ -299,7 +299,7 @@ function TeamManagement({ challengeId, participantId }) {
                   className="flex items-center justify-between bg-black border border-white/10 rounded-xl p-4"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full flex items-center justify-center text-black font-black">
+                    <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-500 rounded-full flex items-center justify-center text-black font-black">
                       {memberName?.charAt(0).toUpperCase()}
                     </div>
                     <div>
@@ -312,7 +312,7 @@ function TeamManagement({ challengeId, participantId }) {
                         )}
                       </div>
                       {memberIsLeader && (
-                        <div className="flex items-center gap-1 text-xs text-yellow-500">
+                        <div className="flex items-center gap-1 text-xs text-amber-500">
                           <Crown className="w-3 h-3" />
                           {i18n.language === 'ar' ? 'قائد الفريق' : 'Team Leader'}
                         </div>

@@ -98,10 +98,10 @@ function DemoAccountSetup({ onComplete }) {
       >
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-yellow-500/20">
-            <Server className="w-8 h-8 text-yellow-500" />
+          <div className="w-16 h-16 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-amber-500/20">
+            <Server className="w-8 h-8 text-amber-500" />
           </div>
-          <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
+          <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">
             ربط الحساب التجريبي
           </h2>
           <p className="text-gray-400">
@@ -129,7 +129,7 @@ function DemoAccountSetup({ onComplete }) {
               name="brokerName"
               value={formData.brokerName}
               onChange={handleInputChange}
-              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-yellow-500/50 transition-colors"
+              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-amber-500/50 transition-colors"
               required
             >
               <option value="">اختر الوسيط...</option>
@@ -152,8 +152,8 @@ function DemoAccountSetup({ onComplete }) {
                 onClick={() => setFormData(prev => ({ ...prev, platform: 'MT4' }))}
                 className={`py-3 px-4 rounded-2xl font-bold transition-all ${
                   formData.platform === 'MT4'
-                    ? 'bg-yellow-500 text-black'
-                    : 'bg-black/40 border border-white/10 text-white hover:border-yellow-500/50'
+                    ? 'bg-amber-500 text-black'
+                    : 'bg-black/40 border border-white/10 text-white hover:border-amber-500/50'
                 }`}
               >
                 MetaTrader 4
@@ -163,8 +163,8 @@ function DemoAccountSetup({ onComplete }) {
                 onClick={() => setFormData(prev => ({ ...prev, platform: 'MT5' }))}
                 className={`py-3 px-4 rounded-2xl font-bold transition-all ${
                   formData.platform === 'MT5'
-                    ? 'bg-yellow-500 text-black'
-                    : 'bg-black/40 border border-white/10 text-white hover:border-yellow-500/50'
+                    ? 'bg-amber-500 text-black'
+                    : 'bg-black/40 border border-white/10 text-white hover:border-amber-500/50'
                 }`}
               >
                 MetaTrader 5
@@ -183,7 +183,7 @@ function DemoAccountSetup({ onComplete }) {
               value={formData.accountNumber}
               onChange={handleInputChange}
               placeholder="مثال: 12345678"
-              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500/50 transition-colors"
+              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-amber-500/50 transition-colors"
               required
             />
           </div>
@@ -199,7 +199,7 @@ function DemoAccountSetup({ onComplete }) {
               value={formData.password}
               onChange={handleInputChange}
               placeholder="••••••••"
-              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500/50 transition-colors"
+              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-amber-500/50 transition-colors"
               required
             />
           </div>
@@ -215,7 +215,7 @@ function DemoAccountSetup({ onComplete }) {
               value={formData.serverName}
               onChange={handleInputChange}
               placeholder="مثال: Equiti-Demo"
-              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500/50 transition-colors"
+              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-amber-500/50 transition-colors"
             />
           </div>
 
@@ -262,7 +262,7 @@ function DemoAccountSetup({ onComplete }) {
           <button
             type="submit"
             disabled={loading || success}
-            className="w-full bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-black font-bold py-4 px-6 rounded-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-black font-bold py-4 px-6 rounded-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
@@ -287,7 +287,7 @@ function DemoAccountSetup({ onComplete }) {
         <div className="mt-6 text-center">
           <button
             onClick={() => setShowBrokerLinks(!showBrokerLinks)}
-            className="text-yellow-500 hover:text-yellow-400 font-bold text-sm transition-colors"
+            className="text-amber-500 hover:text-amber-400 font-bold text-sm transition-colors"
           >
             ليس لديك حساب تجريبي؟ افتح حساباً الآن
           </button>
@@ -304,7 +304,7 @@ function DemoAccountSetup({ onComplete }) {
                   href={broker.registerUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block bg-black/40 border border-white/10 hover:border-yellow-500/50 rounded-2xl p-4 transition-all group"
+                  className="block bg-black/40 border border-white/10 hover:border-amber-500/50 rounded-2xl p-4 transition-all group"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -314,13 +314,13 @@ function DemoAccountSetup({ onComplete }) {
                         className="w-12 h-12 object-contain rounded-lg bg-white/5 p-2"
                       />
                       <div className="text-right">
-                        <p className="font-bold text-white group-hover:text-yellow-400 transition-colors">
+                        <p className="font-bold text-white group-hover:text-amber-400 transition-colors">
                           {broker.name}
                         </p>
                         <p className="text-xs text-gray-400">افتح حساب تجريبي مجاني</p>
                       </div>
                     </div>
-                    <ExternalLink className="w-5 h-5 text-gray-400 group-hover:text-yellow-400 transition-colors" />
+                    <ExternalLink className="w-5 h-5 text-gray-400 group-hover:text-amber-400 transition-colors" />
                   </div>
                 </a>
               ))}

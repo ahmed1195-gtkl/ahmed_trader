@@ -71,8 +71,8 @@ const ResetPassword = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-12 h-12 text-yellow-500 animate-spin" />
-          <p className="text-yellow-500 font-black uppercase tracking-widest text-xs">Verifying Link...</p>
+          <Loader2 className="w-12 h-12 text-amber-500 animate-spin" />
+          <p className="text-amber-500 font-black uppercase tracking-widest text-xs">Verifying Link...</p>
         </div>
       </div>
     );
@@ -81,7 +81,7 @@ const ResetPassword = () => {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden">
       {/* Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-yellow-500/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-amber-500/10 blur-[120px] rounded-full pointer-events-none" />
 
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -90,8 +90,8 @@ const ResetPassword = () => {
       >
         <Card className="bg-zinc-900/80 backdrop-blur-2xl border-white/5 text-white shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2rem] overflow-hidden">
           <CardHeader className="text-center pt-10 pb-6">
-            <div className="w-16 h-16 bg-yellow-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-yellow-500/20">
-              <Lock className="w-8 h-8 text-yellow-500" />
+            <div className="w-16 h-16 bg-amber-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-amber-500/20">
+              <Lock className="w-8 h-8 text-amber-500" />
             </div>
             <CardTitle className="text-3xl font-black text-white uppercase tracking-tighter mb-2">
               {t('auth.resetPassword')}
@@ -116,7 +116,7 @@ const ResetPassword = () => {
                     <Label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{t('auth.password')}</Label>
                     <Input 
                       type="password" 
-                      className="h-14 bg-white/5 border-white/10 rounded-xl focus:border-yellow-500/50 focus:ring-yellow-500/20 transition-all font-bold" 
+                      className="h-14 bg-white/5 border-white/10 rounded-xl focus:border-amber-500/50 focus:ring-amber-500/20 transition-all font-bold" 
                       placeholder="••••••••"
                       value={password} 
                       onChange={(e) => setPassword(e.target.value)} 
@@ -128,7 +128,7 @@ const ResetPassword = () => {
                     <Label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{t('auth.confirmPassword')}</Label>
                     <Input 
                       type="password" 
-                      className="h-14 bg-white/5 border-white/10 rounded-xl focus:border-yellow-500/50 focus:ring-yellow-500/20 transition-all font-bold" 
+                      className="h-14 bg-white/5 border-white/10 rounded-xl focus:border-amber-500/50 focus:ring-amber-500/20 transition-all font-bold" 
                       placeholder="••••••••"
                       value={confirmPassword} 
                       onChange={(e) => setConfirmPassword(e.target.value)} 
@@ -153,7 +153,7 @@ const ResetPassword = () => {
                   <Button 
                     type="submit" 
                     disabled={loading}
-                    className="h-14 bg-yellow-500 text-black font-black uppercase tracking-widest rounded-xl hover:bg-yellow-400 shadow-lg shadow-yellow-500/20 transition-all active:scale-95"
+                    className="h-14 bg-amber-500 text-black font-black uppercase tracking-widest rounded-xl hover:bg-amber-400 shadow-lg shadow-amber-500/20 transition-all active:scale-95"
                   >
                     {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : t('auth.resetPassword')}
                   </Button>

@@ -64,7 +64,7 @@ function JoinTeam() {
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="w-20 h-20 border-4 border-yellow-500/20 border-t-yellow-500 rounded-full animate-spin" />
+        <div className="w-20 h-20 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
       </div>
     );
   }
@@ -86,7 +86,7 @@ function JoinTeam() {
           <p className="text-gray-400 mb-6">{error}</p>
           <button
             onClick={() => navigate('/challenges')}
-            className="px-8 py-4 bg-yellow-500 text-black rounded-xl font-black text-sm uppercase hover:bg-yellow-400 transition-all"
+            className="px-8 py-4 bg-amber-500 text-black rounded-xl font-black text-sm uppercase hover:bg-amber-400 transition-all"
           >
             {i18n.language === 'ar' ? 'العودة للتحديات' : 'Back to Challenges'}
           </button>
@@ -103,9 +103,9 @@ function JoinTeam() {
         className="max-w-2xl w-full bg-zinc-900 border border-white/10 rounded-3xl overflow-hidden"
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-b border-white/10 p-8">
+        <div className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-b border-white/10 p-8">
           <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="w-20 h-20 bg-yellow-500 rounded-2xl flex items-center justify-center">
+            <div className="w-20 h-20 bg-amber-500 rounded-2xl flex items-center justify-center">
               <Users className="w-10 h-10 text-black" />
             </div>
           </div>
@@ -127,7 +127,7 @@ function JoinTeam() {
               <div className="text-xs text-gray-500 uppercase mb-2">
                 {i18n.language === 'ar' ? 'كود الدعوة' : 'Invite Code'}
               </div>
-              <div className="text-4xl font-black text-yellow-500 tracking-wider">
+              <div className="text-4xl font-black text-amber-500 tracking-wider">
                 {inviteCode}
               </div>
             </div>
@@ -180,7 +180,7 @@ function JoinTeam() {
           <button
             onClick={handleJoin}
             disabled={joining}
-            className="w-full py-5 bg-yellow-500 text-black rounded-xl font-black text-lg uppercase hover:bg-yellow-400 transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+            className="w-full py-5 bg-amber-500 text-black rounded-xl font-black text-lg uppercase hover:bg-amber-400 transition-all disabled:opacity-50 flex items-center justify-center gap-3"
           >
             {joining ? (
               <>

@@ -97,7 +97,7 @@ function ConnectDemoAccount({ participantId, onConnected }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="w-12 h-12 border-4 border-yellow-500/20 border-t-yellow-500 rounded-full animate-spin" />
+        <div className="w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
       </div>
     );
   }
@@ -182,7 +182,7 @@ function ConnectDemoAccount({ participantId, onConnected }) {
 
         <button
           onClick={() => setShowConnectModal(true)}
-          className="px-8 py-4 bg-yellow-500 text-black rounded-xl font-black text-sm uppercase hover:bg-yellow-400 transition-all"
+          className="px-8 py-4 bg-amber-500 text-black rounded-xl font-black text-sm uppercase hover:bg-amber-400 transition-all"
         >
           {i18n.language === 'ar' ? 'ربط الحساب' : 'Connect Account'}
         </button>
@@ -213,7 +213,7 @@ function ConnectDemoAccount({ participantId, onConnected }) {
                 <select
                   value={formData.brokerId}
                   onChange={(e) => handleBrokerChange(e.target.value)}
-                  className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-yellow-500 outline-none"
+                  className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none"
                   required
                 >
                   <option value="">
@@ -238,7 +238,7 @@ function ConnectDemoAccount({ participantId, onConnected }) {
                     onClick={() => setFormData({ ...formData, platform: 'MT4' })}
                     className={`py-3 rounded-xl font-bold text-sm uppercase transition-all ${
                       formData.platform === 'MT4'
-                        ? 'bg-yellow-500 text-black'
+                        ? 'bg-amber-500 text-black'
                         : 'bg-black border border-white/10 text-gray-400 hover:border-white/20'
                     }`}
                   >
@@ -249,7 +249,7 @@ function ConnectDemoAccount({ participantId, onConnected }) {
                     onClick={() => setFormData({ ...formData, platform: 'MT5' })}
                     className={`py-3 rounded-xl font-bold text-sm uppercase transition-all ${
                       formData.platform === 'MT5'
-                        ? 'bg-yellow-500 text-black'
+                        ? 'bg-amber-500 text-black'
                         : 'bg-black border border-white/10 text-gray-400 hover:border-white/20'
                     }`}
                   >
@@ -268,7 +268,7 @@ function ConnectDemoAccount({ participantId, onConnected }) {
                   value={formData.accountNumber}
                   onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
                   placeholder="12345678"
-                  className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-yellow-500 outline-none"
+                  className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none"
                   required
                 />
               </div>
@@ -283,7 +283,7 @@ function ConnectDemoAccount({ participantId, onConnected }) {
                   value={formData.investorPassword}
                   onChange={(e) => setFormData({ ...formData, investorPassword: e.target.value })}
                   placeholder="********"
-                  className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-yellow-500 outline-none"
+                  className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none"
                   required
                 />
                 <p className="text-xs text-gray-500 mt-2">
@@ -303,7 +303,7 @@ function ConnectDemoAccount({ participantId, onConnected }) {
                   value={formData.serverName}
                   onChange={(e) => setFormData({ ...formData, serverName: e.target.value })}
                   placeholder="BrokerName-Demo01"
-                  className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-yellow-500 outline-none"
+                  className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none"
                   required
                 />
               </div>
@@ -329,7 +329,7 @@ function ConnectDemoAccount({ participantId, onConnected }) {
                 <button
                   type="submit"
                   disabled={connecting}
-                  className="flex-1 py-4 bg-yellow-500 text-black rounded-xl font-bold uppercase hover:bg-yellow-400 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 py-4 bg-amber-500 text-black rounded-xl font-bold uppercase hover:bg-amber-400 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {connecting ? (
                     <>

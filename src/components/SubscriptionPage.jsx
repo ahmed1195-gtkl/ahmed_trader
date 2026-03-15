@@ -51,7 +51,7 @@ export default function SubscriptionPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
       </div>
     );
   }
@@ -71,7 +71,7 @@ export default function SubscriptionPage() {
           {currentSubscription && (
             <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gray-800 rounded-lg">
               <span className="text-gray-400">{t('subscription.currentPlan')}:</span>
-              <span className="font-bold text-yellow-500">
+              <span className="font-bold text-amber-500">
                 {currentSubscription.name[i18n.language]}
               </span>
             </div>
@@ -127,10 +127,10 @@ function PricingCard({ tier, data, current, onUpgrade, featured, language }) {
   const isFree = tier === 'FREE';
 
   return (
-    <div className={`relative bg-gray-800 rounded-xl p-8 ${featured ? 'ring-2 ring-yellow-500 transform scale-105' : ''}`}>
+    <div className={`relative bg-gray-800 rounded-xl p-8 ${featured ? 'ring-2 ring-amber-500 transform scale-105' : ''}`}>
       {featured && (
         <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-          <span className="bg-yellow-500 text-black px-4 py-1 rounded-full text-sm font-bold">
+          <span className="bg-amber-500 text-black px-4 py-1 rounded-full text-sm font-bold">
             Most Popular
           </span>
         </div>
@@ -138,7 +138,7 @@ function PricingCard({ tier, data, current, onUpgrade, featured, language }) {
 
       {/* Icon */}
       <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
-        isAlpha ? 'bg-yellow-500/20' : isPro ? 'bg-blue-500/20' : 'bg-gray-700'
+        isAlpha ? 'bg-amber-500/20' : isPro ? 'bg-blue-500/20' : 'bg-gray-700'
       }`}>
         <span className="text-3xl">{data.badge.icon}</span>
       </div>
@@ -174,7 +174,7 @@ function PricingCard({ tier, data, current, onUpgrade, featured, language }) {
           onClick={() => onUpgrade(tier.toLowerCase())}
           className={`w-full py-3 rounded-lg font-bold transition-colors ${
             isAlpha
-              ? 'bg-yellow-500 hover:bg-yellow-600 text-black'
+              ? 'bg-amber-500 hover:bg-amber-600 text-black'
               : 'bg-blue-500 hover:bg-blue-600 text-white'
           }`}
         >

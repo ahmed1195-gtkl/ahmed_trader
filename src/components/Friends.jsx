@@ -120,17 +120,17 @@ const Friends = () => {
         {/* قائمة الأصدقاء */}
         <div>
           <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-            <Users className="w-6 h-6 text-yellow-500" />
+            <Users className="w-6 h-6 text-amber-500" />
             {t('myFriends') || 'My Friends'}
             <span className="text-sm font-normal text-zinc-400">({friends.length})</span>
           </h2>
 
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="w-8 h-8 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin" />
+              <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : friends.length === 0 ? (
-            <div className="text-center py-12 bg-zinc-900/50 backdrop-blur-xl border border-yellow-500/20 rounded-2xl">
+            <div className="text-center py-12 bg-zinc-900/50 backdrop-blur-xl border border-amber-500/20 rounded-2xl">
               <Users className="w-16 h-16 text-zinc-600 mx-auto mb-4" />
               <p className="text-zinc-400">{t('noFriendsYet') || 'No friends yet'}</p>
             </div>
@@ -141,19 +141,19 @@ const Friends = () => {
                   key={friend.id}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="bg-zinc-900/50 backdrop-blur-xl border border-yellow-500/20 rounded-2xl p-4 flex items-center gap-4 hover:border-yellow-500/40 transition-colors"
+                  className="bg-zinc-900/50 backdrop-blur-xl border border-amber-500/20 rounded-2xl p-4 flex items-center gap-4 hover:border-amber-500/40 transition-colors"
                 >
                   {/* الصورة الشخصية */}
                   {friend.photo ? (
                     <img
                       src={friend.photo}
                       alt={friend.name}
-                      className="w-14 h-14 rounded-full object-cover border-2 border-yellow-500/20 cursor-pointer hover:border-yellow-500/60 transition-colors"
+                      className="w-14 h-14 rounded-full object-cover border-2 border-amber-500/20 cursor-pointer hover:border-amber-500/60 transition-colors"
                       onClick={() => navigate(`/profile/${friend.id}`)}
                     />
                   ) : (
                     <div 
-                      className="w-14 h-14 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
+                      className="w-14 h-14 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
                       onClick={() => navigate(`/profile/${friend.id}`)}
                     >
                       <User className="w-7 h-7 text-black" />
@@ -163,7 +163,7 @@ const Friends = () => {
                   {/* المعلومات */}
                   <div className="flex-1">
                     <h3 
-                      className="text-white font-bold cursor-pointer hover:text-yellow-500 transition-colors"
+                      className="text-white font-bold cursor-pointer hover:text-amber-500 transition-colors"
                       onClick={() => navigate(`/profile/${friend.id}`)}
                     >
                       {friend.name}
@@ -173,7 +173,7 @@ const Friends = () => {
 
                   {/* زر المراسلة */}
                   <button
-                    className="p-3 bg-yellow-500 hover:bg-yellow-600 text-black rounded-full transition-colors"
+                    className="p-3 bg-amber-500 hover:bg-amber-600 text-black rounded-full transition-colors"
                     title={t('sendMessage') || 'Send Message'}
                   >
                     <MessageCircle className="w-5 h-5" />

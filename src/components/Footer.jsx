@@ -43,13 +43,13 @@ const Footer = () => {
             </p>
             
             <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6 rtl:space-x-reverse">
-              <Link to="/privacy" className="text-gray-400 hover:text-yellow-400 transition-colors duration-300 text-sm">
+              <Link to="/privacy" className="text-gray-400 hover:text-amber-400 transition-colors duration-300 text-sm">
                 {t('footer.privacy')}
               </Link>
-              <a href="#" className="text-gray-400 hover:text-yellow-400 transition-colors duration-300 text-sm">
+              <a href="#" className="text-gray-400 hover:text-amber-400 transition-colors duration-300 text-sm">
                 {t('footer.terms')}
               </a>
-              <a href="#" className="text-gray-400 hover:text-yellow-400 transition-colors duration-300 text-sm">
+              <a href="#" className="text-gray-400 hover:text-amber-400 transition-colors duration-300 text-sm">
                 {t('footer.contact')}
               </a>
             </div>

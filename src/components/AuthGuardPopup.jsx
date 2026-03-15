@@ -38,12 +38,12 @@ const AuthGuardPopup = ({ isOpen }) => {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           className="relative w-full max-w-md bg-zinc-900 border border-white/10 rounded-[2.5rem] p-8 shadow-2xl text-center"
         >
-          <div className="w-20 h-20 bg-yellow-500/10 border border-yellow-500/20 rounded-3xl flex items-center justify-center mx-auto mb-8">
-            <Lock className="w-10 h-10 text-yellow-500" />
+          <div className="w-20 h-20 bg-amber-500/10 border border-amber-500/20 rounded-3xl flex items-center justify-center mx-auto mb-8">
+            <Lock className="w-10 h-10 text-amber-500" />
           </div>
 
           <h2 className="text-3xl font-black text-white uppercase tracking-tighter mb-4">
-            {isAr ? 'محتوى' : 'Protected'} <span className="text-yellow-500">{isAr ? 'محمي' : 'Content'}</span>
+            {isAr ? 'محتوى' : 'Protected'} <span className="text-amber-500">{isAr ? 'محمي' : 'Content'}</span>
           </h2>
           
           <p className="text-gray-400 font-bold text-sm mb-10 leading-relaxed">
@@ -65,7 +65,7 @@ const AuthGuardPopup = ({ isOpen }) => {
             {/* Email/Auth Page */}
             <Button 
               onClick={() => navigate('/auth')}
-              className="w-full h-14 bg-yellow-500 hover:bg-yellow-400 text-black rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 shadow-xl shadow-yellow-500/20 transition-all"
+              className="w-full h-14 bg-amber-500 hover:bg-amber-400 text-black rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 shadow-xl shadow-amber-500/20 transition-all"
             >
               <UserPlus className="w-5 h-5" />
               {isAr ? 'إنشاء حساب / تسجيل دخول' : 'Create Account / Login'}
@@ -82,7 +82,7 @@ const AuthGuardPopup = ({ isOpen }) => {
           </div>
 
           <div className="mt-10 pt-8 border-t border-white/5 flex items-center justify-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-yellow-500/50" />
+            <ShieldCheck className="w-4 h-4 text-amber-500/50" />
             <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">
               {isAr ? 'بياناتك محمية ومشفرة بالكامل' : 'Your data is fully protected and encrypted'}
             </span>

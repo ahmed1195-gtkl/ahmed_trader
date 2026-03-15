@@ -54,10 +54,10 @@ export const AIHint = ({ riskPercent, riskRewardRatio }) => {
               text: 'text-red-400'
             },
             yellow: {
-              bg: 'bg-yellow-500/10',
-              border: 'border-yellow-500/30',
-              icon: 'text-yellow-500',
-              text: 'text-yellow-400'
+              bg: 'bg-amber-500/10',
+              border: 'border-amber-500/30',
+              icon: 'text-amber-500',
+              text: 'text-amber-400'
             },
             green: {
               bg: 'bg-green-500/10',

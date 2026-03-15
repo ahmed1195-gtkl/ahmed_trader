@@ -108,7 +108,7 @@ function ChallengeAdmin() {
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="w-20 h-20 border-4 border-yellow-500/20 border-t-yellow-500 rounded-full animate-spin" />
+        <div className="w-20 h-20 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
       </div>
     );
   }
@@ -129,7 +129,7 @@ function ChallengeAdmin() {
 
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-yellow-500 text-black rounded-xl font-black text-sm uppercase hover:bg-yellow-400 transition-colors"
+            className="flex items-center gap-2 px-6 py-3 bg-amber-500 text-black rounded-xl font-black text-sm uppercase hover:bg-amber-400 transition-colors"
           >
             <Plus className="w-5 h-5" />
             {i18n.language === 'ar' ? 'تحدي جديد' : 'New Challenge'}
@@ -140,7 +140,7 @@ function ChallengeAdmin() {
         <div className="grid md:grid-cols-4 gap-6 mb-12">
           <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
-              <Trophy className="w-8 h-8 text-yellow-500" />
+              <Trophy className="w-8 h-8 text-amber-500" />
             </div>
             <div className="text-3xl font-black text-white mb-1">
               {stats.totalChallenges}
@@ -242,7 +242,7 @@ function ChallengeAdmin() {
                       </td>
                       <td className="px-6 py-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
-                          challenge.status === 'waiting' ? 'bg-yellow-500/10 text-yellow-500' :
+                          challenge.status === 'waiting' ? 'bg-amber-500/10 text-amber-500' :
                           challenge.status === 'active' ? 'bg-green-500/10 text-green-500' :
                           'bg-gray-500/10 text-gray-500'
                         }`}>
@@ -312,7 +312,7 @@ function ChallengeAdmin() {
                         onClick={() => setSelectedLevel(level.id)}
                         className={`p-4 rounded-xl border-2 transition-all ${
                           selectedLevel === level.id
-                            ? 'border-yellow-500 bg-yellow-500/10'
+                            ? 'border-amber-500 bg-amber-500/10'
                             : 'border-white/10 bg-black hover:border-white/20'
                         }`}
                       >
@@ -341,7 +341,7 @@ function ChallengeAdmin() {
                     onChange={(e) => setMaxParticipants(parseInt(e.target.value))}
                     min="2"
                     max="100"
-                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-yellow-500 outline-none"
+                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none"
                     required
                   />
                 </div>
@@ -357,7 +357,7 @@ function ChallengeAdmin() {
                   <button
                     type="submit"
                     disabled={creating}
-                    className="flex-1 py-4 bg-yellow-500 text-black rounded-xl font-bold uppercase hover:bg-yellow-400 transition-all disabled:opacity-50"
+                    className="flex-1 py-4 bg-amber-500 text-black rounded-xl font-bold uppercase hover:bg-amber-400 transition-all disabled:opacity-50"
                   >
                     {creating 
                       ? (i18n.language === 'ar' ? 'جاري الإنشاء...' : 'Creating...')

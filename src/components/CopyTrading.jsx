@@ -135,8 +135,8 @@ export default function CopyTrading() {
         className="mb-8"
       >
         <div className="flex items-center gap-3 mb-2">
-          <Copy className="w-8 h-8 text-yellow-500" />
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
+          <Copy className="w-8 h-8 text-amber-500" />
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">
             {t('copyTrading.title')}
           </h1>
         </div>
@@ -154,7 +154,7 @@ export default function CopyTrading() {
           <select
             value={selectedTeam || ''}
             onChange={(e) => setSelectedTeam(e.target.value)}
-            className="w-full md:w-64 bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-yellow-500"
+            className="w-full md:w-64 bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
           >
             {teams.map(team => (
               <option key={team.id} value={team.id}>
@@ -167,14 +167,14 @@ export default function CopyTrading() {
 
       {teams.length === 0 && (
         <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 mb-6">
-          <AlertCircle className="w-12 h-12 text-yellow-500 mb-3" />
+          <AlertCircle className="w-12 h-12 text-amber-500 mb-3" />
           <h3 className="text-xl font-bold mb-2">{t('copyTrading.noTeams')}</h3>
           <p className="text-gray-400 mb-4">
             {t('copyTrading.joinTeamFirst')}
           </p>
           <a
             href="/teams"
-            className="inline-block bg-yellow-500 text-black px-6 py-2 rounded-lg font-semibold hover:bg-yellow-400 transition"
+            className="inline-block bg-amber-500 text-black px-6 py-2 rounded-lg font-semibold hover:bg-amber-400 transition"
           >
             {t('copyTrading.goToTeams')}
           </a>
@@ -197,7 +197,7 @@ export default function CopyTrading() {
               <motion.div
                 key={leader.userId}
                 whileHover={{ scale: 1.02 }}
-                className="bg-gray-900 border border-gray-800 rounded-lg p-6 hover:border-yellow-500 transition"
+                className="bg-gray-900 border border-gray-800 rounded-lg p-6 hover:border-amber-500 transition"
               >
                 <div className="flex items-center gap-3 mb-4">
                   {leader.photoURL ? (
@@ -207,7 +207,7 @@ export default function CopyTrading() {
                       className="w-12 h-12 rounded-full"
                     />
                   ) : (
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-black font-bold">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black font-bold">
                       {leader.displayName[0]}
                     </div>
                   )}
@@ -244,7 +244,7 @@ export default function CopyTrading() {
 
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-400">{t('copyTrading.passedChallenges')}</span>
-                    <span className="text-yellow-500 flex items-center gap-1">
+                    <span className="text-amber-500 flex items-center gap-1">
                       <Award className="w-4 h-4" />
                       {leader.statistics.passedChallenges}
                     </span>
@@ -256,7 +256,7 @@ export default function CopyTrading() {
                     setSelectedLeader(leader);
                     setShowSetupModal(true);
                   }}
-                  className="w-full bg-yellow-500 text-black py-2 rounded-lg font-semibold hover:bg-yellow-400 transition flex items-center justify-center gap-2"
+                  className="w-full bg-amber-500 text-black py-2 rounded-lg font-semibold hover:bg-amber-400 transition flex items-center justify-center gap-2"
                 >
                   <Copy className="w-4 h-4" />
                   {t('copyTrading.startCopying')}
@@ -299,7 +299,7 @@ export default function CopyTrading() {
                         className="w-10 h-10 rounded-full"
                       />
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-black font-bold">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black font-bold">
                         {relation.leaderInfo.displayName[0]}
                       </div>
                     )}
@@ -363,7 +363,7 @@ export default function CopyTrading() {
                       className="w-10 h-10 rounded-full"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-black font-bold">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black font-bold">
                       {relation.followerInfo.displayName[0]}
                     </div>
                   )}
@@ -409,7 +409,7 @@ export default function CopyTrading() {
                     className="w-12 h-12 rounded-full"
                   />
                 ) : (
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-black font-bold">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black font-bold">
                     {selectedLeader.displayName[0]}
                   </div>
                 )}
@@ -438,7 +438,7 @@ export default function CopyTrading() {
                 />
                 <div className="flex justify-between text-sm text-gray-400 mt-1">
                   <span>1%</span>
-                  <span className="text-yellow-500 font-bold">{allocationPercent}%</span>
+                  <span className="text-amber-500 font-bold">{allocationPercent}%</span>
                   <span>100%</span>
                 </div>
               </div>
@@ -478,7 +478,7 @@ export default function CopyTrading() {
 
             <button
               onClick={handleEnableCopyTrading}
-              className="w-full bg-yellow-500 text-black py-3 rounded-lg font-semibold hover:bg-yellow-400 transition flex items-center justify-center gap-2"
+              className="w-full bg-amber-500 text-black py-3 rounded-lg font-semibold hover:bg-amber-400 transition flex items-center justify-center gap-2"
             >
               <Check className="w-5 h-5" />
               {t('copyTrading.confirm')}

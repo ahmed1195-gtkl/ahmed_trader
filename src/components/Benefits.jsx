@@ -61,7 +61,7 @@ const Benefits = () => {
           <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-4 px-4">
             {t('benefits.title')}
           </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-yellow-400 to-yellow-600 mx-auto rounded-full"></div>
+          <div className="w-24 h-1 bg-gradient-to-r from-amber-400 to-amber-600 mx-auto rounded-full"></div>
         </motion.div>
 
         <motion.div
@@ -79,14 +79,14 @@ const Benefits = () => {
                 variants={itemVariants}
                 className="group"
               >
-                <div className="bg-white/5 md:bg-white/10 backdrop-blur-md border border-white/10 md:border-white/20 rounded-2xl p-6 md:p-8 text-center hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-yellow-500/10">
+                <div className="bg-white/5 md:bg-white/10 backdrop-blur-md border border-white/10 md:border-white/20 rounded-2xl p-6 md:p-8 text-center hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-amber-500/10">
                   <div className="mb-6 flex justify-center">
-                    <div className="w-16 h-16 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <div className="w-16 h-16 bg-gradient-to-r from-amber-400 to-amber-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                       <IconComponent className="h-8 w-8 text-black" />
                     </div>
                   </div>
                   
-                  <h3 className="text-xl md:text-2xl font-bold text-white mb-4 group-hover:text-yellow-400 transition-colors duration-300">
+                  <h3 className="text-xl md:text-2xl font-bold text-white mb-4 group-hover:text-amber-400 transition-colors duration-300">
                     {benefit.title}
                   </h3>
                   

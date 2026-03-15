@@ -44,7 +44,7 @@ export default function SentimentAnalysisPanel({ news, currentPrice, historicalP
     return (
       <div className="flex items-center justify-center p-12">
         <div className="text-center">
-          <div className="w-12 h-12 rounded-full border-4 border-yellow-500/20 border-t-yellow-500 animate-spin mx-auto mb-4" />
+          <div className="w-12 h-12 rounded-full border-4 border-amber-500/20 border-t-amber-500 animate-spin mx-auto mb-4" />
           <p className="text-gray-500 text-sm font-black uppercase tracking-widest">
             {i18n.language === 'ar' ? 'تحليل المشاعر...' : 'Analyzing Sentiment...'}
           </p>
@@ -100,7 +100,7 @@ export default function SentimentAnalysisPanel({ news, currentPrice, historicalP
             <div className="text-right">
               <div className={`px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-[10px] ${
                 recommendation.strength === 'STRONG'
-                  ? 'bg-yellow-500 text-black'
+                  ? 'bg-amber-500 text-black'
                   : 'bg-white/10 text-white'
               }`}>
                 {recommendation.strength}
@@ -113,7 +113,7 @@ export default function SentimentAnalysisPanel({ news, currentPrice, historicalP
           </p>
 
           {recommendation.warning && (
-            <div className="flex items-center gap-3 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[10px] font-black uppercase tracking-widest mb-6">
+            <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-black uppercase tracking-widest mb-6">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
               {recommendation.warning}
             </div>
@@ -154,8 +154,8 @@ export default function SentimentAnalysisPanel({ news, currentPrice, historicalP
             label: i18n.language === 'ar' ? 'درجة الثقة' : 'Confidence',
             value: analysis.prediction.confidence,
             suffix: '%',
-            color: analysis.prediction.confidence > 60 ? 'text-green-500' : analysis.prediction.confidence > 40 ? 'text-yellow-500' : 'text-red-500',
-            bg: analysis.prediction.confidence > 60 ? 'bg-green-500/5' : analysis.prediction.confidence > 40 ? 'bg-yellow-500/5' : 'bg-red-500/5'
+            color: analysis.prediction.confidence > 60 ? 'text-green-500' : analysis.prediction.confidence > 40 ? 'text-amber-500' : 'text-red-500',
+            bg: analysis.prediction.confidence > 60 ? 'bg-green-500/5' : analysis.prediction.confidence > 40 ? 'bg-amber-500/5' : 'bg-red-500/5'
           },
           {
             label: i18n.language === 'ar' ? 'الارتباط' : 'Correlation',
@@ -168,8 +168,8 @@ export default function SentimentAnalysisPanel({ news, currentPrice, historicalP
             label: i18n.language === 'ar' ? 'الأخبار العالية التأثير' : 'High Impact News',
             value: analysis.analysis.highImpactNews,
             suffix: '',
-            color: 'text-yellow-500',
-            bg: 'bg-yellow-500/5'
+            color: 'text-amber-500',
+            bg: 'bg-amber-500/5'
           }
         ].map((stat, i) => (
           <motion.div
@@ -279,7 +279,7 @@ export default function SentimentAnalysisPanel({ news, currentPrice, historicalP
                       href={newsItem.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-base font-bold text-gray-300 group-hover:text-yellow-500 transition-colors line-clamp-2 block"
+                      className="text-base font-bold text-gray-300 group-hover:text-amber-500 transition-colors line-clamp-2 block"
                     >
                       {newsItem.title}
                     </a>

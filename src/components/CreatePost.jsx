@@ -100,7 +100,7 @@ const CreatePost = ({ onPostCreated }) => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-8 right-8 z-50 w-14 h-14 bg-yellow-500 text-black rounded-full shadow-2xl shadow-yellow-500/20 flex items-center justify-center hover:bg-yellow-400 transition-all"
+        className="fixed bottom-8 right-8 z-50 w-14 h-14 bg-amber-500 text-black rounded-full shadow-2xl shadow-amber-500/20 flex items-center justify-center hover:bg-amber-400 transition-all"
       >
         <Plus className="w-8 h-8" />
       </motion.button>
@@ -123,7 +123,7 @@ const CreatePost = ({ onPostCreated }) => {
             >
               <div className="flex justify-between items-center mb-8">
                 <h2 className="text-2xl font-black uppercase tracking-tight text-white">
-                  Create <span className="text-yellow-500">Post</span>
+                  Create <span className="text-amber-500">Post</span>
                 </h2>
                 <button onClick={() => setIsOpen(false)} className="text-gray-500 hover:text-white transition-colors">
                   <X className="w-6 h-6" />
@@ -132,21 +132,21 @@ const CreatePost = ({ onPostCreated }) => {
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-yellow-500/70">Post Title</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-amber-500/70">Post Title</label>
                   <Input 
                     value={title} 
                     onChange={(e) => setTitle(e.target.value)} 
                     placeholder="What's on your mind?"
-                    className="bg-white/5 border-white/10 focus:border-yellow-500/50 h-12 text-white"
+                    className="bg-white/5 border-white/10 focus:border-amber-500/50 h-12 text-white"
                     required 
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-yellow-500/70">Post Image</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-amber-500/70">Post Image</label>
                   <div 
                     onClick={() => fileInputRef.current?.click()}
-                    className="relative w-full aspect-video bg-white/5 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-yellow-500/50 transition-all overflow-hidden group"
+                    className="relative w-full aspect-video bg-white/5 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-amber-500/50 transition-all overflow-hidden group"
                   >
                     {imagePreview ? (
                       <>
@@ -172,12 +172,12 @@ const CreatePost = ({ onPostCreated }) => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-yellow-500/70">Content</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-amber-500/70">Content</label>
                   <Textarea 
                     value={content} 
                     onChange={(e) => setContent(e.target.value)} 
                     placeholder="Tell us more..."
-                    className="bg-white/5 border-white/10 focus:border-yellow-500/50 min-h-[120px] text-white"
+                    className="bg-white/5 border-white/10 focus:border-amber-500/50 min-h-[120px] text-white"
                     required 
                   />
                 </div>
@@ -185,7 +185,7 @@ const CreatePost = ({ onPostCreated }) => {
                 <Button 
                   type="submit" 
                   disabled={loading}
-                  className="w-full h-14 bg-yellow-500 hover:bg-yellow-600 text-black font-black uppercase tracking-widest shadow-lg shadow-yellow-500/10"
+                  className="w-full h-14 bg-amber-500 hover:bg-amber-600 text-black font-black uppercase tracking-widest shadow-lg shadow-amber-500/10"
                 >
                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-4 h-4 mr-2" /> Share Post</>}
                 </Button>

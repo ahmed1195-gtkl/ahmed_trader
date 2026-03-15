@@ -99,9 +99,9 @@ function TradingChallenge() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-16"
           >
-            <div className="inline-flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 rounded-full px-6 py-2 mb-6">
-              <Trophy className="w-5 h-5 text-yellow-500" />
-              <span className="text-yellow-500 font-black text-sm uppercase tracking-widest">
+            <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-6 py-2 mb-6">
+              <Trophy className="w-5 h-5 text-amber-500" />
+              <span className="text-amber-500 font-black text-sm uppercase tracking-widest">
                 {i18n.language === 'ar' ? 'التحديات التنافسية' : i18n.language === 'fr' ? 'Défis Compétitifs' : 'Trading Challenges'}
               </span>
             </div>
@@ -127,7 +127,7 @@ function TradingChallenge() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-zinc-900/50 border border-white/5 rounded-3xl p-8 hover:border-yellow-500/20 transition-all group"
+                className="bg-zinc-900/50 border border-white/5 rounded-3xl p-8 hover:border-amber-500/20 transition-all group"
               >
                 <div className="flex items-center justify-between mb-6">
                   <div 
@@ -211,7 +211,7 @@ function TradingChallenge() {
               className="mb-20"
             >
               <div className="flex items-center gap-3 mb-8">
-                <Users className="w-6 h-6 text-yellow-500" />
+                <Users className="w-6 h-6 text-amber-500" />
                 <h2 className="text-3xl font-black text-white uppercase tracking-tight">
                   {i18n.language === 'ar' ? 'التحديات النشطة' : i18n.language === 'fr' ? 'Défis Actifs' : 'Active Challenges'}
                 </h2>
@@ -223,7 +223,7 @@ function TradingChallenge() {
                   return (
                     <div
                       key={challenge.id}
-                      className="bg-zinc-900/50 border border-white/5 rounded-2xl p-6 hover:border-yellow-500/20 transition-all cursor-pointer"
+                      className="bg-zinc-900/50 border border-white/5 rounded-2xl p-6 hover:border-amber-500/20 transition-all cursor-pointer"
                       onClick={() => handleJoinChallenge(challenge.id)}
                     >
                       <div className="flex items-start justify-between mb-4">
@@ -244,7 +244,7 @@ function TradingChallenge() {
                         
                         <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
                           challenge.status === 'waiting' 
-                            ? 'bg-yellow-500/10 text-yellow-500' 
+                            ? 'bg-amber-500/10 text-amber-500' 
                             : 'bg-green-500/10 text-green-500'
                         }`}>
                           {challenge.status === 'waiting' 
@@ -279,7 +279,7 @@ function TradingChallenge() {
               animate={{ opacity: 1, y: 0 }}
             >
               <div className="flex items-center gap-3 mb-8">
-                <Trophy className="w-6 h-6 text-yellow-500" />
+                <Trophy className="w-6 h-6 text-amber-500" />
                 <h2 className="text-3xl font-black text-white uppercase tracking-tight">
                   {i18n.language === 'ar' ? 'أفضل المتداولين' : i18n.language === 'fr' ? 'Meilleurs Traders' : 'Top Traders'}
                 </h2>
@@ -293,7 +293,7 @@ function TradingChallenge() {
                   >
                     <div className="flex items-center gap-4">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black ${
-                        index === 0 ? 'bg-yellow-500/20 text-yellow-500' :
+                        index === 0 ? 'bg-amber-500/20 text-amber-500' :
                         index === 1 ? 'bg-gray-400/20 text-gray-400' :
                         index === 2 ? 'bg-orange-600/20 text-orange-600' :
                         'bg-white/5 text-gray-500'
@@ -330,8 +330,8 @@ function TradingChallenge() {
             className="grid md:grid-cols-3 gap-8 mt-20"
           >
             <div className="text-center">
-              <div className="w-16 h-16 bg-yellow-500/10 border border-yellow-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="w-8 h-8 text-yellow-500" />
+              <div className="w-16 h-16 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="w-8 h-8 text-amber-500" />
               </div>
               <h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">
                 {i18n.language === 'ar' ? 'أسواق حقيقية' : i18n.language === 'fr' ? 'Marchés Réels' : 'Real Markets'}
@@ -346,8 +346,8 @@ function TradingChallenge() {
             </div>
 
             <div className="text-center">
-              <div className="w-16 h-16 bg-yellow-500/10 border border-yellow-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Shield className="w-8 h-8 text-yellow-500" />
+              <div className="w-16 h-16 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Shield className="w-8 h-8 text-amber-500" />
               </div>
               <h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">
                 {i18n.language === 'ar' ? 'إدارة مخاطر صارمة' : i18n.language === 'fr' ? 'Gestion Stricte' : 'Strict Risk Management'}
@@ -362,8 +362,8 @@ function TradingChallenge() {
             </div>
 
             <div className="text-center">
-              <div className="w-16 h-16 bg-yellow-500/10 border border-yellow-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Target className="w-8 h-8 text-yellow-500" />
+              <div className="w-16 h-16 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Target className="w-8 h-8 text-amber-500" />
               </div>
               <h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">
                 {i18n.language === 'ar' ? 'حسابات ممولة' : i18n.language === 'fr' ? 'Comptes Financés' : 'Funded Accounts'}

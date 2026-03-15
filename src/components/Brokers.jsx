@@ -50,13 +50,13 @@ const Brokers = () => {
           <p className="text-lg md:text-xl text-gray-300 mb-6 px-4">
             {t('brokers.subtitle')}
           </p>
-          <div className="w-24 h-1 bg-gradient-to-r from-yellow-400 to-yellow-600 mx-auto rounded-full"></div>
+          <div className="w-24 h-1 bg-gradient-to-r from-amber-400 to-amber-600 mx-auto rounded-full"></div>
         </motion.div>
 
         {/* Loading State */}
         {loading && (
           <div className="flex justify-center items-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-yellow-400" />
+            <Loader2 className="h-8 w-8 animate-spin text-amber-400" />
             <span className="ml-2 text-white text-lg">
               {currentLanguage === 'ar' ? 'جاري التحميل...' : currentLanguage === 'fr' ? 'Chargement...' : 'Loading...'}
             </span>
@@ -89,7 +89,7 @@ const Brokers = () => {
               variants={itemVariants}
               className="group"
             >
-              <div className="bg-white/5 md:bg-white/10 backdrop-blur-md border border-white/10 md:border-white/20 rounded-2xl md:rounded-3xl p-5 md:p-8 hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-yellow-500/10">
+              <div className="bg-white/5 md:bg-white/10 backdrop-blur-md border border-white/10 md:border-white/20 rounded-2xl md:rounded-3xl p-5 md:p-8 hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-amber-500/10">
                 {/* Broker Header */}
                 <div className="flex items-center space-x-4 rtl:space-x-reverse mb-6">
                   <img 
@@ -98,7 +98,7 @@ const Brokers = () => {
                     className=" rounded-x1 object-cover"
                   />
                   <div>
-                    <h3 className="text-xl md:text-3xl font-bold text-white group-hover:text-yellow-400 transition-colors duration-300">
+                    <h3 className="text-xl md:text-3xl font-bold text-white group-hover:text-amber-400 transition-colors duration-300">
                       {broker.name}
                     </h3>
                     <p className="text-gray-300 mt-2">
@@ -109,14 +109,14 @@ const Brokers = () => {
 
                 {/* Features */}
                 <div className="mb-6">
-                  <h4 className="text-lg font-semibold text-yellow-400 mb-4 flex items-center">
+                  <h4 className="text-lg font-semibold text-amber-400 mb-4 flex items-center">
                     <CheckCircle className="h-5 w-5 mr-2 rtl:mr-0 rtl:ml-2" />
                     {currentLanguage === 'ar' ? 'المميزات' : currentLanguage === 'fr' ? 'Caractéristiques' : 'Features'}
                   </h4>
                   <div className="grid grid-cols-1 gap-2">
                     {broker.features.slice(0, 4).map((feature, idx) => (
                       <div key={idx} className="flex items-start space-x-3 rtl:space-x-reverse">
-                        <div className="w-2 h-2 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
+                        <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"></div>
                         <span className="text-gray-200 text-sm">{feature}</span>
                       </div>
                     ))}
@@ -126,14 +126,14 @@ const Brokers = () => {
                 {/* Bonuses */}
                 {broker.bonuses && broker.bonuses.length > 0 && (
                   <div className="mb-6">
-                    <h4 className="text-lg font-semibold text-yellow-400 mb-4 flex items-center">
+                    <h4 className="text-lg font-semibold text-amber-400 mb-4 flex items-center">
                       <Gift className="h-5 w-5 mr-2 rtl:mr-0 rtl:ml-2" />
                       {currentLanguage === 'ar' ? 'العروض والمكافآت' : currentLanguage === 'fr' ? 'Bonus et Offres' : 'Bonuses & Offers'}
                     </h4>
                     <div className="space-y-2">
                       {broker.bonuses.map((bonus, idx) => (
-                        <div key={idx} className="bg-yellow-500/20 border border-yellow-400/30 rounded-lg p-3">
-                          <span className="text-yellow-200 text-sm font-medium">{bonus}</span>
+                        <div key={idx} className="bg-amber-500/20 border border-amber-400/30 rounded-lg p-3">
+                          <span className="text-amber-200 text-sm font-medium">{bonus}</span>
                         </div>
                       ))}
                     </div>
@@ -142,20 +142,20 @@ const Brokers = () => {
 
                 {/* Contact Info */}
                 <div className="mb-6">
-                  <h4 className="text-lg font-semibold text-yellow-400 mb-4">
+                  <h4 className="text-lg font-semibold text-amber-400 mb-4">
                     {currentLanguage === 'ar' ? 'معلومات التواصل' : currentLanguage === 'fr' ? 'Contact' : 'Contact Info'}
                   </h4>
                   <div className="space-y-2">
                     <div className="flex items-center space-x-3 rtl:space-x-reverse text-gray-300">
-                      <Phone className="h-4 w-4 text-yellow-400" />
+                      <Phone className="h-4 w-4 text-amber-400" />
                       <span className="text-sm">{broker.contact.phone}</span>
                     </div>
                     <div className="flex items-center space-x-3 rtl:space-x-reverse text-gray-300">
-                      <MessageCircle className="h-4 w-4 text-yellow-400" />
+                      <MessageCircle className="h-4 w-4 text-amber-400" />
                       <span className="text-sm">{broker.contact.telegram}</span>
                     </div>
                     <div className="flex items-center space-x-3 rtl:space-x-reverse text-gray-300">
-                      <Mail className="h-4 w-4 text-yellow-400" />
+                      <Mail className="h-4 w-4 text-amber-400" />
                       <span className="text-sm">{broker.contact.email}</span>
                     </div>
                   </div>
@@ -164,7 +164,7 @@ const Brokers = () => {
                 {/* Register Button */}
                 <Button 
                   onClick={() => window.open(broker.registerUrl, '_blank')}
-                  className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-bold py-3 rounded-xl shadow-lg hover:shadow-yellow-500/25 transition-all duration-300 hover:scale-105 border-0"
+                  className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold py-3 rounded-xl shadow-lg hover:shadow-amber-500/25 transition-all duration-300 hover:scale-105 border-0"
                 >
                   <ExternalLink className="h-4 w-4 mr-2 rtl:mr-0 rtl:ml-2" />
                   {t('brokers.register')}

@@ -261,13 +261,13 @@ const PipCalculator = () => {
   const currentCurrency = accountCurrencies.find(c => c.code === accountCurrency);
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-yellow-500/30 overflow-x-hidden">
+    <div className="min-h-screen bg-black text-white font-sans selection:bg-amber-500/30 overflow-x-hidden">
       <Header />
       <main className="pt-32 md:pt-40 pb-20 px-4 md:px-6 max-w-5xl mx-auto">
         {/* Alert Banner */}
         {showAlertBanner && <AlertBanner dailyRiskStatus={dailyRiskStatus} onDismiss={() => setShowAlertBanner(false)} />}
         <div className="mb-12 text-center">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[10px] font-black uppercase tracking-widest mb-6">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-black uppercase tracking-widest mb-6">
             <Calculator className="w-3 h-3" /> {t('nav.tools', 'Trading Tools')}
           </motion.div>
           <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-4">Pip Calculator</h1>
@@ -279,9 +279,9 @@ const PipCalculator = () => {
             <Card className="bg-zinc-900/40 backdrop-blur-2xl border-white/10 text-white rounded-[2.5rem] overflow-hidden shadow-2xl">
               <CardHeader className="p-8 border-b border-white/5 flex flex-row items-center justify-between">
                 <CardTitle className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
-                  <BarChart3 className="w-6 h-6 text-yellow-500" /> Parameters
+                  <BarChart3 className="w-6 h-6 text-amber-500" /> Parameters
                 </CardTitle>
-                {loading && <RefreshCw className="w-4 h-4 text-yellow-500 animate-spin" />}
+                {loading && <RefreshCw className="w-4 h-4 text-amber-500 animate-spin" />}
               </CardHeader>
               <CardContent className="p-8 space-y-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -293,7 +293,7 @@ const PipCalculator = () => {
                     <div className="relative">
                       <button 
                         onClick={() => setShowCurrencyList(!showCurrencyList)}
-                        className="w-full flex items-center justify-between px-6 py-4 bg-black/50 border border-white/10 rounded-2xl transition-all hover:border-yellow-500/50"
+                        className="w-full flex items-center justify-between px-6 py-4 bg-black/50 border border-white/10 rounded-2xl transition-all hover:border-amber-500/50"
                       >
                         <span className="text-sm font-black uppercase tracking-widest">{accountCurrency}</span>
                         <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showCurrencyList ? 'rotate-180' : ''}`} />
@@ -308,7 +308,7 @@ const PipCalculator = () => {
                               <button 
                                 key={c.code} 
                                 onClick={() => { setAccountCurrency(c.code); setShowCurrencyList(false); }}
-                                className={`w-full flex items-center justify-between px-6 py-4 text-left transition-all ${accountCurrency === c.code ? 'bg-yellow-500 text-black' : 'hover:bg-white/5 text-gray-400 hover:text-white'}`}
+                                className={`w-full flex items-center justify-between px-6 py-4 text-left transition-all ${accountCurrency === c.code ? 'bg-amber-500 text-black' : 'hover:bg-white/5 text-gray-400 hover:text-white'}`}
                               >
                                 <span className="text-[10px] font-black uppercase tracking-widest">{c.code}</span>
                                 <span className="font-bold">{c.symbol}</span>
@@ -328,7 +328,7 @@ const PipCalculator = () => {
                     <div className="relative">
                       <button 
                         onClick={() => setShowAssetList(!showAssetList)}
-                        className="w-full flex items-center justify-between px-6 py-4 bg-black/50 border border-white/10 rounded-2xl transition-all hover:border-yellow-500/50"
+                        className="w-full flex items-center justify-between px-6 py-4 bg-black/50 border border-white/10 rounded-2xl transition-all hover:border-amber-500/50"
                       >
                         <span className="text-sm font-black uppercase tracking-widest">{currentAsset.name}</span>
                         <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showAssetList ? 'rotate-180' : ''}`} />
@@ -343,7 +343,7 @@ const PipCalculator = () => {
                               <button 
                                 key={a.symbol} 
                                 onClick={() => { setAsset(a.symbol); setShowAssetList(false); }}
-                                className={`w-full px-6 py-4 text-left transition-all ${asset === a.symbol ? 'bg-yellow-500 text-black' : 'hover:bg-white/5 text-gray-400 hover:text-white'}`}
+                                className={`w-full px-6 py-4 text-left transition-all ${asset === a.symbol ? 'bg-amber-500 text-black' : 'hover:bg-white/5 text-gray-400 hover:text-white'}`}
                               >
                                 <span className="text-[10px] font-black uppercase tracking-widest">{a.name}</span>
                               </button>
@@ -365,7 +365,7 @@ const PipCalculator = () => {
                       type="number" 
                       value={lotSize} 
                       onChange={(e) => setLotSize(e.target.value)} 
-                      className="w-full bg-black/50 border border-white/10 rounded-2xl px-6 py-5 text-xl font-black focus:outline-none focus:border-yellow-500 transition-all placeholder:text-gray-700" 
+                      className="w-full bg-black/50 border border-white/10 rounded-2xl px-6 py-5 text-xl font-black focus:outline-none focus:border-amber-500 transition-all placeholder:text-gray-700" 
                       step="0.01" min="0.01" 
                     />
                     <div className="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-black text-gray-500 uppercase tracking-widest">Units</div>
@@ -373,10 +373,10 @@ const PipCalculator = () => {
                 </div>
 
                 {/* Result Display */}
-                <div className="p-10 rounded-[2.5rem] bg-yellow-500/5 border border-yellow-500/10 flex flex-col items-center justify-center text-center relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-yellow-500/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-all duration-1000"></div>
+                <div className="p-10 rounded-[2.5rem] bg-amber-500/5 border border-amber-500/10 flex flex-col items-center justify-center text-center relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-amber-500/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-all duration-1000"></div>
                   <div className="flex items-center gap-1 mb-4 relative z-10">
-                    <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest">Calculated Pip Value</span>
+                    <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">Calculated Pip Value</span>
                     <TooltipIcon text="The monetary value of a single pip movement for your position size. This helps you calculate potential profit or loss per pip." />
                   </div>
                   <div className="flex items-baseline gap-3 relative z-10">
@@ -475,7 +475,7 @@ const PipCalculator = () => {
             <Card className="bg-zinc-900/40 backdrop-blur-2xl border-white/10 text-white rounded-[2.5rem]">
               <CardHeader className="p-6 border-b border-white/5">
                 <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
-                  <Target className="w-4 h-4 text-yellow-500" /> Trading Info
+                  <Target className="w-4 h-4 text-amber-500" /> Trading Info
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-6">

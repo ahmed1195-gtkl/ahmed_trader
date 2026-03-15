@@ -9,7 +9,7 @@ const PrivacyPolicy = () => {
 
   const sections = [
     {
-      icon: <Eye className="w-6 h-6 text-yellow-500" />,
+      icon: <Eye className="w-6 h-6 text-amber-500" />,
       title: t('privacy.collection.title'),
       content: (
         <div className="space-y-3">
@@ -26,7 +26,7 @@ const PrivacyPolicy = () => {
       )
     },
     {
-      icon: <FileText className="w-6 h-6 text-yellow-500" />,
+      icon: <FileText className="w-6 h-6 text-amber-500" />,
       title: t('privacy.usage.title'),
       content: (
         <div className="space-y-3">
@@ -41,12 +41,12 @@ const PrivacyPolicy = () => {
       )
     },
     {
-      icon: <Shield className="w-6 h-6 text-yellow-500" />,
+      icon: <Shield className="w-6 h-6 text-amber-500" />,
       title: t('privacy.sharing.title'),
       content: <p className="text-gray-400 leading-relaxed">{t('privacy.sharing.desc')}</p>
     },
     {
-      icon: <Lock className="w-6 h-6 text-yellow-500" />,
+      icon: <Lock className="w-6 h-6 text-amber-500" />,
       title: t('privacy.protection.title'),
       content: (
         <ul className="list-disc list-inside text-gray-400 space-y-2 ml-4 rtl:mr-4 rtl:ml-0">
@@ -57,7 +57,7 @@ const PrivacyPolicy = () => {
       )
     },
     {
-      icon: <UserCheck className="w-6 h-6 text-yellow-500" />,
+      icon: <UserCheck className="w-6 h-6 text-amber-500" />,
       title: t('privacy.rights.title'),
       content: (
         <div className="space-y-3">
@@ -71,7 +71,7 @@ const PrivacyPolicy = () => {
       )
     },
     {
-      icon: <Bell className="w-6 h-6 text-yellow-500" />,
+      icon: <Bell className="w-6 h-6 text-amber-500" />,
       title: t('privacy.cookies.title'),
       content: <p className="text-gray-400 leading-relaxed">{t('privacy.cookies.desc')}</p>
     }
@@ -92,7 +92,7 @@ const PrivacyPolicy = () => {
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 mb-6"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 mb-6"
             >
               <Shield className="w-4 h-4" />
               <span className="text-[10px] font-black uppercase tracking-[0.2em]">Shukritrade Security</span>
@@ -122,14 +122,14 @@ const PrivacyPolicy = () => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="group p-8 rounded-[2rem] bg-zinc-900/40 backdrop-blur-xl border border-white/5 hover:border-yellow-500/20 transition-all duration-500"
+                className="group p-8 rounded-[2rem] bg-zinc-900/40 backdrop-blur-xl border border-white/5 hover:border-amber-500/20 transition-all duration-500"
               >
                 <div className="flex flex-col md:flex-row gap-6">
-                  <div className="w-12 h-12 rounded-2xl bg-yellow-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-500">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-500">
                     {section.icon}
                   </div>
                   <div className="flex-1">
-                    <h2 className="text-xl font-black uppercase tracking-tight mb-4 text-white group-hover:text-yellow-500 transition-colors">
+                    <h2 className="text-xl font-black uppercase tracking-tight mb-4 text-white group-hover:text-amber-500 transition-colors">
                       {section.title}
                     </h2>
                     <div className="text-gray-400 leading-relaxed text-sm md:text-base">
@@ -145,7 +145,7 @@ const PrivacyPolicy = () => {
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            className="mt-16 p-12 rounded-[3rem] bg-gradient-to-br from-yellow-500 to-yellow-600 text-black text-center relative overflow-hidden group"
+            className="mt-16 p-12 rounded-[3rem] bg-gradient-to-br from-amber-500 to-amber-600 text-black text-center relative overflow-hidden group"
           >
             <div className="relative z-10">
               <h3 className="text-2xl font-black uppercase tracking-tight mb-4">{t('privacy.contact')}</h3>

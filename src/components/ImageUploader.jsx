@@ -76,7 +76,7 @@ function ImageUploader({ onImageUploaded, currentImageUrl = null, label = 'رف�
       {!preview ? (
         <div
           onClick={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-white/20 rounded-xl p-8 text-center cursor-pointer hover:border-yellow-500/50 transition-all bg-zinc-900/50"
+          className="border-2 border-dashed border-white/20 rounded-xl p-8 text-center cursor-pointer hover:border-amber-500/50 transition-all bg-zinc-900/50"
         >
           <input
             ref={fileInputRef}
@@ -88,7 +88,7 @@ function ImageUploader({ onImageUploaded, currentImageUrl = null, label = 'رف�
           
           {uploading ? (
             <div className="flex flex-col items-center gap-3">
-              <Loader className="w-12 h-12 text-yellow-500 animate-spin" />
+              <Loader className="w-12 h-12 text-amber-500 animate-spin" />
               <p className="text-gray-400">جاري رفع الصورة...</p>
             </div>
           ) : (
@@ -112,7 +112,7 @@ function ImageUploader({ onImageUploaded, currentImageUrl = null, label = 'رف�
           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-4">
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="bg-white text-black px-4 py-2 rounded-lg font-bold hover:bg-yellow-500 transition-all"
+              className="bg-white text-black px-4 py-2 rounded-lg font-bold hover:bg-amber-500 transition-all"
               disabled={uploading}
             >
               <ImageIcon className="w-5 h-5 inline mr-2" />

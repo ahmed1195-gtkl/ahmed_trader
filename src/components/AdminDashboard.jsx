@@ -194,12 +194,12 @@ const AdminDashboard = () => {
       <main className="container mx-auto px-6 pt-32 pb-20">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
           <div>
-            <div className="flex items-center gap-2 text-yellow-500 mb-2">
+            <div className="flex items-center gap-2 text-amber-500 mb-2">
               <ShieldAlert className="w-4 h-4" />
               <span className="text-[10px] font-black uppercase tracking-[0.4em]">Admin Control</span>
             </div>
             <h1 className="text-4xl font-black uppercase tracking-tighter">
-              {i18n.language === 'ar' ? 'مركز' : 'Management'} <span className="text-yellow-500">{i18n.language === 'ar' ? 'الإدارة' : 'Center'}</span>
+              {i18n.language === 'ar' ? 'مركز' : 'Management'} <span className="text-amber-500">{i18n.language === 'ar' ? 'الإدارة' : 'Center'}</span>
             </h1>
           </div>
           
@@ -215,7 +215,7 @@ const AdminDashboard = () => {
               <button 
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-yellow-500 text-black shadow-lg shadow-yellow-500/20' : 'text-gray-400 hover:text-white'}`}
+                className={`px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20' : 'text-gray-400 hover:text-white'}`}
               >
                 <tab.icon className="w-4 h-4 inline-block mr-2 mb-0.5" /> {tab.label}
               </button>
@@ -227,12 +227,12 @@ const AdminDashboard = () => {
           {activeTab === 'courses' && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
               <div className="bg-zinc-900/40 border border-white/5 p-12 rounded-[3rem] text-center">
-                <GraduationCap className="w-16 h-16 text-yellow-500 mx-auto mb-6" />
+                <GraduationCap className="w-16 h-16 text-amber-500 mx-auto mb-6" />
                 <h2 className="text-2xl font-black uppercase mb-4">{i18n.language === 'ar' ? 'إدارة الكورسات' : 'Course Management'}</h2>
                 <p className="text-gray-400 mb-8 max-w-md mx-auto">{i18n.language === 'ar' ? 'يمكنك إضافة وتعديل وحذف الكورسات من خلال لوحة التحكم المخصصة.' : 'You can add, edit, and delete courses through the dedicated control panel.'}</p>
                 <Button 
                   onClick={() => navigate('/admin/courses')}
-                  className="bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase tracking-widest px-8 py-4 rounded-2xl"
+                  className="bg-amber-500 hover:bg-amber-400 text-black font-black uppercase tracking-widest px-8 py-4 rounded-2xl"
                 >
                   {i18n.language === 'ar' ? 'فتح لوحة إدارة الكورسات' : 'Open Course Management'}
                 </Button>
@@ -257,9 +257,9 @@ const AdminDashboard = () => {
               </div>
               <div className="grid gap-4">
                 {filteredUsers.map(user => (
-                  <div key={user.id} className="bg-zinc-900/40 border border-white/5 p-6 rounded-[2rem] flex flex-col md:flex-row justify-between items-center gap-6 hover:border-yellow-500/20 transition-all">
+                  <div key={user.id} className="bg-zinc-900/40 border border-white/5 p-6 rounded-[2rem] flex flex-col md:flex-row justify-between items-center gap-6 hover:border-amber-500/20 transition-all">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-yellow-500 font-bold">
+                      <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 font-bold">
                         {user.fullName?.[0] || user.email?.[0]?.toUpperCase()}
                       </div>
                       <div>
@@ -273,7 +273,7 @@ const AdminDashboard = () => {
                     <div className="flex items-center gap-3">
                       <Button 
                         onClick={() => handleWarnUser(user)}
-                        className="bg-white/5 hover:bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
+                        className="bg-white/5 hover:bg-amber-500/10 text-amber-500 border border-amber-500/20 h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
                       >
                         <AlertCircle className="w-3 h-3 mr-2" /> {i18n.language === 'ar' ? 'تحذير' : 'Warn'}
                       </Button>
@@ -291,12 +291,12 @@ const AdminDashboard = () => {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-4">
               <div className="bg-zinc-900/40 border border-white/5 rounded-[2rem] p-8">
                 <h3 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2 mb-8">
-                  <Clock className="w-4 h-4 text-yellow-500" /> {i18n.language === 'ar' ? 'سجل الأنشطة الأخير' : 'Recent Activity Logs'}
+                  <Clock className="w-4 h-4 text-amber-500" /> {i18n.language === 'ar' ? 'سجل الأنشطة الأخير' : 'Recent Activity Logs'}
                 </h3>
                 <div className="space-y-3">
                   {logs.map((log) => (
                     <div key={log.id} className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-white/10 transition-all">
-                      <div className={`mt-1 w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${log.action.includes('BAN') ? 'bg-red-500/10 text-red-500' : 'bg-yellow-500/10 text-yellow-500'}`}>
+                      <div className={`mt-1 w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${log.action.includes('BAN') ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500'}`}>
                         <Activity className="w-4 h-4" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -321,7 +321,7 @@ const AdminDashboard = () => {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-8">
               <div className="flex justify-between items-center">
                 <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
-                  <Newspaper className="w-6 h-6 text-yellow-500" /> {i18n.language === 'ar' ? 'إدارة المنشورات' : 'Manage Posts'}
+                  <Newspaper className="w-6 h-6 text-amber-500" /> {i18n.language === 'ar' ? 'إدارة المنشورات' : 'Manage Posts'}
                 </h3>
               </div>
               <div className="bg-zinc-900/40 border border-white/5 rounded-[2rem] p-8">
@@ -388,7 +388,7 @@ const AdminDashboard = () => {
               <Card className="bg-zinc-900/40 border-white/5 rounded-[2rem] overflow-hidden">
                 <CardHeader className="p-8 border-b border-white/5">
                   <CardTitle className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
-                    <Settings className="w-6 h-6 text-yellow-500" /> {i18n.language === 'ar' ? 'إعدادات الظهور' : 'Page Visibility'}
+                    <Settings className="w-6 h-6 text-amber-500" /> {i18n.language === 'ar' ? 'إعدادات الظهور' : 'Page Visibility'}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-8 space-y-6">
@@ -408,7 +408,7 @@ const AdminDashboard = () => {
                       </div>
                       <button 
                         onClick={() => toggleSetting(setting.id)}
-                        className={`w-16 h-9 rounded-full transition-all duration-300 relative shadow-lg ${siteSettings[setting.id] ? 'bg-yellow-500 shadow-yellow-500/20' : 'bg-zinc-800/80 shadow-black/20'}`}
+                        className={`w-16 h-9 rounded-full transition-all duration-300 relative shadow-lg ${siteSettings[setting.id] ? 'bg-amber-500 shadow-amber-500/20' : 'bg-zinc-800/80 shadow-black/20'}`}
                       >
                         <div className={`absolute top-1 w-7 h-7 rounded-full bg-white shadow-md transition-all duration-300 ${siteSettings[setting.id] ? 'left-8' : 'left-1'}`} />
                       </button>

@@ -146,7 +146,7 @@ const UserProfile = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="w-16 h-16 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -173,10 +173,10 @@ const UserProfile = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-zinc-900/50 backdrop-blur-xl border border-yellow-500/20 rounded-[2rem] overflow-hidden"
+          className="bg-zinc-900/50 backdrop-blur-xl border border-amber-500/20 rounded-[2rem] overflow-hidden"
         >
           {/* الخلفية */}
-          <div className="h-48 bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 relative">
+          <div className="h-48 bg-gradient-to-r from-amber-500/20 to-amber-600/20 relative">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(234,179,8,0.1),transparent_50%)]" />
           </div>
 
@@ -191,13 +191,13 @@ const UserProfile = () => {
                   className="w-32 h-32 rounded-full object-cover border-4 border-black"
                 />
               ) : (
-                <div className="w-32 h-32 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 flex items-center justify-center border-4 border-black">
+                <div className="w-32 h-32 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 flex items-center justify-center border-4 border-black">
                   <User className="w-16 h-16 text-black" />
                 </div>
               )}
               
               {profileUser.isAdmin && (
-                <div className="absolute bottom-2 right-2 px-3 py-1 bg-yellow-500 text-black text-xs font-bold rounded-full">
+                <div className="absolute bottom-2 right-2 px-3 py-1 bg-amber-500 text-black text-xs font-bold rounded-full">
                   Admin
                 </div>
               )}
@@ -252,7 +252,7 @@ const UserProfile = () => {
                 {friendRequestStatus === null && (
                   <button
                     onClick={handleSendFriendRequest}
-                    className="flex-1 bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-bold py-3 px-6 rounded-full hover:scale-105 transition-transform flex items-center justify-center gap-2"
+                    className="flex-1 bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold py-3 px-6 rounded-full hover:scale-105 transition-transform flex items-center justify-center gap-2"
                   >
                     <UserPlus className="w-5 h-5" />
                     <span>{t('addFriend') || 'Add Friend'}</span>
@@ -293,7 +293,7 @@ const UserProfile = () => {
             {isOwnProfile && (
               <button
                 onClick={() => navigate('/settings')}
-                className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-bold py-3 px-6 rounded-full hover:scale-105 transition-transform"
+                className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold py-3 px-6 rounded-full hover:scale-105 transition-transform"
               >
                 {t('editProfile') || 'Edit Profile'}
               </button>

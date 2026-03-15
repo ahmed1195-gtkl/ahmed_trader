@@ -54,7 +54,7 @@ export const Tooltip = ({ text, children, position = 'top' }) => {
 export const TooltipIcon = ({ text, position = 'top' }) => {
   return (
     <Tooltip text={text} position={position}>
-      <Info className="w-3 h-3 text-gray-500 hover:text-yellow-500 transition-colors cursor-help ml-1" />
+      <Info className="w-3 h-3 text-gray-500 hover:text-amber-500 transition-colors cursor-help ml-1" />
     </Tooltip>
   );
 };

@@ -21,9 +21,9 @@ function TradingChallengeSimple() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-16"
           >
-            <div className="inline-flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 rounded-full px-6 py-2 mb-6">
-              <Trophy className="w-5 h-5 text-yellow-500" />
-              <span className="text-yellow-500 font-black text-sm uppercase tracking-widest">
+            <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-6 py-2 mb-6">
+              <Trophy className="w-5 h-5 text-amber-500" />
+              <span className="text-amber-500 font-black text-sm uppercase tracking-widest">
                 {i18n.language === 'ar' ? 'التحديات التنافسية' : 'Trading Challenges'}
               </span>
             </div>

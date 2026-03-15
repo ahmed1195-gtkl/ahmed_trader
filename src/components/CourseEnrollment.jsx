@@ -42,7 +42,7 @@ const CourseEnrollment = () => {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-16 h-16 text-yellow-500 animate-spin mx-auto mb-4" />
+          <Loader2 className="w-16 h-16 text-amber-500 animate-spin mx-auto mb-4" />
           <p className="text-white font-bold">
             {i18n.language === 'ar' ? 'جاري التحميل...' : 'Loading...'}
           </p>
@@ -63,7 +63,7 @@ const CourseEnrollment = () => {
           </h2>
           <Button
             onClick={() => navigate('/courses')}
-            className="bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase rounded-xl px-8 py-3"
+            className="bg-amber-500 hover:bg-amber-400 text-black font-black uppercase rounded-xl px-8 py-3"
           >
             {i18n.language === 'ar' ? 'العودة للكورسات' : 'Back to Courses'}
           </Button>

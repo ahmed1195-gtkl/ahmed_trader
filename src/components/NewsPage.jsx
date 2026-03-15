@@ -358,7 +358,7 @@ export default function NewsPage() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
             <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-lg p-6 border border-slate-700">
               <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <Zap className="w-5 h-5 text-yellow-400" />
+                <Zap className="w-5 h-5 text-amber-400" />
                 {t('Sentiment Momentum')}
               </h2>
               <div className="flex items-center gap-4">
@@ -492,7 +492,7 @@ export default function NewsPage() {
                             {t('Confidence')}: {(news.ai_confidence * 100).toFixed(0)}%
                           </span>
                           <span className={`text-xs font-semibold ${
-                            news.impact === 'High' ? 'text-red-400' : 'text-yellow-400'
+                            news.impact === 'High' ? 'text-red-400' : 'text-amber-400'
                           }`}>
                             {news.impact} {t('Impact')}
                           </span>

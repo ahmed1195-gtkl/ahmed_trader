@@ -114,7 +114,7 @@ const Comments = ({ postId }) => {
             exit={{ opacity: 0, y: -20 }}
             className={`p-4 rounded-xl flex items-center gap-3 mb-6 border ${
               notification.type === 'warning' 
-                ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500' 
+                ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' 
                 : 'bg-red-500/10 border-red-500/20 text-red-500'
             }`}
           >
@@ -124,7 +124,7 @@ const Comments = ({ postId }) => {
         )}
       </AnimatePresence>
 
-      <div className="flex items-center gap-2 mb-6 text-yellow-500">
+      <div className="flex items-center gap-2 mb-6 text-amber-500">
         <MessageSquare className="w-4 h-4" />
         <span className="text-[10px] font-black uppercase tracking-widest">
           {comments.length} {t('comments.title', 'Comments')}
@@ -137,13 +137,13 @@ const Comments = ({ postId }) => {
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder={t('comments.placeholder', 'Write a comment...')}
-            className="bg-white/5 border-white/10 focus:border-yellow-500/50 min-h-[100px] text-white rounded-2xl"
+            className="bg-white/5 border-white/10 focus:border-amber-500/50 min-h-[100px] text-white rounded-2xl"
           />
           <div className="flex justify-end">
             <Button 
               type="submit" 
               disabled={loading || !newComment.trim()}
-              className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-8 h-12 rounded-xl transition-all"
+              className="bg-amber-500 hover:bg-amber-600 text-black font-bold px-8 h-12 rounded-xl transition-all"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4 mr-2" /> {t('comments.send', 'Send')}</>}
             </Button>
@@ -166,18 +166,18 @@ const Comments = ({ postId }) => {
               animate={{ opacity: 1, y: 0 }}
               className="flex gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5"
             >
-              <div className="w-10 h-10 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center shrink-0 overflow-hidden">
+              <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 overflow-hidden">
                 {comment.userPhoto ? (
                   <img src={comment.userPhoto} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <User className="w-5 h-5 text-yellow-500" />
+                  <User className="w-5 h-5 text-amber-500" />
                 )}
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-white">{comment.userName}</span>
-                    <span className="text-[9px] font-black text-yellow-500/50 uppercase tracking-tighter">
+                    <span className="text-[9px] font-black text-amber-500/50 uppercase tracking-tighter">
                       ID: {comment.userNumericUID}
                     </span>
                   </div>

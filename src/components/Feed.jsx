@@ -261,7 +261,7 @@ const Feed = () => {
             href={part} 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="text-yellow-500 hover:underline break-all"
+            className="text-amber-500 hover:underline break-all"
           >
             {part}
           </a>
@@ -276,14 +276,14 @@ const Feed = () => {
       <div className="container mx-auto px-4 max-w-3xl">
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter">
-            {i18n.language === 'ar' ? 'خلاصة' : 'Community'} <span className="text-yellow-500">{i18n.language === 'ar' ? 'المجتمع' : 'Feed'}</span>
+            {i18n.language === 'ar' ? 'خلاصة' : 'Community'} <span className="text-amber-500">{i18n.language === 'ar' ? 'المجتمع' : 'Feed'}</span>
           </h2>
           
           <div className="flex items-center gap-3">
             {user && isAdmin && (
               <Button 
                 onClick={() => navigate('/admin')}
-                className="bg-white/5 hover:bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded-full w-12 h-12 p-0 shadow-lg transition-transform hover:scale-110"
+                className="bg-white/5 hover:bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full w-12 h-12 p-0 shadow-lg transition-transform hover:scale-110"
                 title={i18n.language === 'ar' ? 'لوحة الإدارة' : 'Admin Dashboard'}
               >
                 <LayoutDashboard className="w-6 h-6" />
@@ -292,7 +292,7 @@ const Feed = () => {
             {user && isAdmin && (
               <Button 
                 onClick={() => setShowUpload(!showUpload)}
-                className="bg-yellow-500 hover:bg-yellow-400 text-black rounded-full w-12 h-12 p-0 shadow-lg shadow-yellow-500/20 transition-transform hover:scale-110"
+                className="bg-amber-500 hover:bg-amber-400 text-black rounded-full w-12 h-12 p-0 shadow-lg shadow-amber-500/20 transition-transform hover:scale-110"
               >
                 {showUpload ? <X /> : <Plus />}
               </Button>
@@ -310,13 +310,13 @@ const Feed = () => {
             >
               <Card className="bg-zinc-900/50 border-white/10 backdrop-blur-xl rounded-[2rem] overflow-hidden">
                 <CardHeader>
-                  <CardTitle className="text-sm font-bold text-yellow-500 uppercase flex items-center gap-2">
+                  <CardTitle className="text-sm font-bold text-amber-500 uppercase flex items-center gap-2">
                     <Plus className="w-4 h-4" /> {i18n.language === 'ar' ? 'إنشاء منشور جديد' : 'Create New Post'}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <textarea 
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:border-yellow-500/50 outline-none min-h-[120px] transition-all resize-none"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:border-amber-500/50 outline-none min-h-[120px] transition-all resize-none"
                     placeholder={i18n.language === 'ar' ? 'بماذا تفكر؟ (رابط الصورة اختياري)' : "What's on your mind? (Image URL optional)"}
                     value={newPost}
                     onChange={(e) => setNewPost(e.target.value)}
@@ -352,7 +352,7 @@ const Feed = () => {
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="text-[10px] text-yellow-500"
+                      className="text-[10px] text-amber-500"
                       onClick={() => document.getElementById('feed-file-input').click()}
                     >
                       {i18n.language === 'ar' ? 'اختر ملف' : 'File'}
@@ -363,7 +363,7 @@ const Feed = () => {
                   <Button 
                     onClick={handleUpload}
                     disabled={loading || (!newPost && !imageUrl)}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-black font-black uppercase tracking-widest px-10 h-12 rounded-xl transition-all"
+                    className="bg-amber-500 hover:bg-amber-600 text-black font-black uppercase tracking-widest px-10 h-12 rounded-xl transition-all"
                   >
                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (i18n.language === 'ar' ? 'انشر الآن' : 'Post Now')}
                   </Button>
@@ -383,20 +383,20 @@ const Feed = () => {
           ) : (
             posts.map((post) => (
               <motion.div key={post.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                <Card className="bg-zinc-900/40 border-white/5 backdrop-blur-md overflow-hidden hover:border-yellow-500/20 transition-all duration-500 rounded-[2.5rem]">
+                <Card className="bg-zinc-900/40 border-white/5 backdrop-blur-md overflow-hidden hover:border-amber-500/20 transition-all duration-500 rounded-[2.5rem]">
                   <CardHeader className="p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <div 
-                          className="w-12 h-12 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center overflow-hidden cursor-pointer hover:border-yellow-500/50 transition-colors"
+                          className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center overflow-hidden cursor-pointer hover:border-amber-500/50 transition-colors"
                           onClick={() => navigate(`/profile/${post.authorId}`)}
                           title={i18n.language === 'ar' ? 'عرض الملف الشخصي' : 'View Profile'}
                         >
-                          {post.authorPhoto ? <img src={post.authorPhoto} alt="" className="w-full h-full object-cover" /> : <User className="w-6 h-6 text-yellow-500" />}
+                          {post.authorPhoto ? <img src={post.authorPhoto} alt="" className="w-full h-full object-cover" /> : <User className="w-6 h-6 text-amber-500" />}
                         </div>
                         <div>
                           <p 
-                            className="text-white font-black text-sm uppercase tracking-tight cursor-pointer hover:text-yellow-500 transition-colors"
+                            className="text-white font-black text-sm uppercase tracking-tight cursor-pointer hover:text-amber-500 transition-colors"
                             onClick={() => navigate(`/profile/${post.authorId}`)}
                           >{post.author}</p>
                           <p className="text-gray-500 text-[9px] font-black uppercase tracking-[0.2em]">{post.createdAt?.toDate ? post.createdAt.toDate().toLocaleDateString() : 'Just now'}</p>
@@ -424,7 +424,7 @@ const Feed = () => {
                           <video src={post.image} controls className="w-full aspect-video" />
                         ) : post.mediaType === 'audio' ? (
                           <div className="p-6 bg-zinc-800/50 flex items-center gap-4">
-                            <Music className="w-8 h-8 text-yellow-500 shrink-0" />
+                            <Music className="w-8 h-8 text-amber-500 shrink-0" />
                             <audio src={post.image} controls className="w-full" />
                           </div>
                         ) : (
@@ -451,12 +451,12 @@ const Feed = () => {
                         <input 
                           type="text"
                           placeholder={i18n.language === 'ar' ? 'اكتب تعليقاً...' : "Write a comment..."}
-                          className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:border-yellow-500/50 outline-none transition-all"
+                          className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:border-amber-500/50 outline-none transition-all"
                           value={commentText[post.id] || ''}
                           onChange={(e) => setCommentText({ ...commentText, [post.id]: e.target.value })}
                           onKeyPress={(e) => e.key === 'Enter' && handleComment(post.id)}
                         />
-                        <Button onClick={() => handleComment(post.id)} disabled={!commentText[post.id]} className="bg-yellow-500 hover:bg-yellow-600 text-black w-10 h-10 p-0 rounded-xl shrink-0">
+                        <Button onClick={() => handleComment(post.id)} disabled={!commentText[post.id]} className="bg-amber-500 hover:bg-amber-600 text-black w-10 h-10 p-0 rounded-xl shrink-0">
                           <Send className="w-4 h-4" />
                         </Button>
                       </div>
@@ -467,7 +467,7 @@ const Feed = () => {
                         {post.comments.map((comment, idx) => (
                           <div key={idx} className="flex gap-3 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
                             <div 
-                              className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden shrink-0 cursor-pointer hover:ring-2 hover:ring-yellow-500/50 transition-all"
+                              className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden shrink-0 cursor-pointer hover:ring-2 hover:ring-amber-500/50 transition-all"
                               onClick={() => navigate(`/profile/${comment.userId}`)}
                               title={i18n.language === 'ar' ? 'عرض الملف الشخصي' : 'View Profile'}
                             >
@@ -475,7 +475,7 @@ const Feed = () => {
                             </div>
                             <div className="flex-1">
                               <p 
-                                className="text-[10px] font-black text-white uppercase tracking-tight mb-0.5 cursor-pointer hover:text-yellow-500 transition-colors"
+                                className="text-[10px] font-black text-white uppercase tracking-tight mb-0.5 cursor-pointer hover:text-amber-500 transition-colors"
                                 onClick={() => navigate(`/profile/${comment.userId}`)}
                               >{comment.userName}</p>
                               <p className="text-xs text-gray-400 leading-relaxed">

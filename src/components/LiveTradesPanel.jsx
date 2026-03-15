@@ -45,7 +45,7 @@ const LiveTradesPanel = ({ trades = [], stats, onClose, onCloseTrade, isOpen }) 
         {/* Performance Stats */}
         {stats && (
           <div className="p-6 border-b border-white/10">
-            <h3 className="text-sm font-black uppercase tracking-widest text-yellow-500 mb-4">
+            <h3 className="text-sm font-black uppercase tracking-widest text-amber-500 mb-4">
               {t('aibot.performance_stats')}
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -71,7 +71,7 @@ const LiveTradesPanel = ({ trades = [], stats, onClose, onCloseTrade, isOpen }) 
               
               <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
                 <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="w-4 h-4 text-yellow-500" />
+                  <TrendingUp className="w-4 h-4 text-amber-500" />
                   <span className="text-[10px] text-gray-500 uppercase font-black">
                     {t('aibot.total_profit')}
                   </span>
@@ -118,7 +118,7 @@ const LiveTradesPanel = ({ trades = [], stats, onClose, onCloseTrade, isOpen }) 
 
         {/* Active Trades */}
         <div className="p-6">
-          <h3 className="text-sm font-black uppercase tracking-widest text-yellow-500 mb-4">
+          <h3 className="text-sm font-black uppercase tracking-widest text-amber-500 mb-4">
             {t('aibot.active_trades')} ({trades.length})
           </h3>
           
@@ -186,7 +186,7 @@ const LiveTradesPanel = ({ trades = [], stats, onClose, onCloseTrade, isOpen }) 
                       <p className="text-[8px] text-gray-500 uppercase font-black mb-1">
                         {t('aibot.current_price')}
                       </p>
-                      <p className="text-sm font-black text-yellow-500">
+                      <p className="text-sm font-black text-amber-500">
                         {trade.currentPrice.toFixed(5)}
                       </p>
                     </div>

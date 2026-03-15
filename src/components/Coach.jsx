@@ -29,7 +29,7 @@ const Coach = () => {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
             {t('coach.title')}
           </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-yellow-400 to-yellow-600 mx-auto rounded-full"></div>
+          <div className="w-24 h-1 bg-gradient-to-r from-amber-400 to-amber-600 mx-auto rounded-full"></div>
         </motion.div>
 
         <div className="max-w-6xl mx-auto">
@@ -51,7 +51,7 @@ const Coach = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                 
                 {/* Floating badge */}
-                <div className="absolute top-6 left-6 bg-yellow-500 text-black px-4 py-2 rounded-full font-bold text-sm">
+                <div className="absolute top-6 left-6 bg-amber-500 text-black px-4 py-2 rounded-full font-bold text-sm">
                   Expert Trader
                 </div>
               </div>
@@ -68,7 +68,7 @@ const Coach = () => {
                   const IconComponent = stat.icon;
                   return (
                     <div key={index} className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-4 text-center">
-                      <IconComponent className="h-6 w-6 text-yellow-400 mx-auto mb-2" />
+                      <IconComponent className="h-6 w-6 text-amber-400 mx-auto mb-2" />
                       <div className="text-2xl font-bold text-white">{stat.value}</div>
                       <div className="text-sm text-gray-300">{stat.label}</div>
                     </div>
@@ -97,26 +97,26 @@ const Coach = () => {
                 {/* Key Features */}
                 <div className="space-y-4 mb-8">
                   <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                    <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
                     <span className="text-gray-200">AI-Powered Trading Strategies</span>
                   </div>
                   <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                    <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
                     <span className="text-gray-200">Forex & Crypto Expertise</span>
                   </div>
                   <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                    <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
                     <span className="text-gray-200">Proven Track Record</span>
                   </div>
                   <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                    <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
                     <span className="text-gray-200">Personalized Mentorship</span>
                   </div>
                 </div>
 
                 <Button 
                   variant="outline"
-                  className="border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black transition-all duration-300 hover:scale-105"
+                  className="border-amber-400 text-amber-400 hover:bg-amber-400 hover:text-black transition-all duration-300 hover:scale-105"
                 >
                   <ExternalLink className="h-4 w-4 mr-2 rtl:mr-0 rtl:ml-2" />
                   {t('coach.learnMore')}

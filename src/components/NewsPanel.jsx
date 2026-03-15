@@ -52,7 +52,7 @@ function NewsPanel({ symbol, onClose }) {
   const getImpactBadge = (impact) => {
     const colors = {
       high: 'bg-red-500/20 text-red-400 border-red-500/30',
-      medium: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+      medium: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
       low: 'bg-blue-500/20 text-blue-400 border-blue-500/30'
     };
 
@@ -92,8 +92,8 @@ function NewsPanel({ symbol, onClose }) {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-yellow-500/10 rounded-xl flex items-center justify-center border border-yellow-500/20">
-            <Newspaper className="w-5 h-5 text-yellow-500" />
+          <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center border border-amber-500/20">
+            <Newspaper className="w-5 h-5 text-amber-500" />
           </div>
           <div>
             <h3 className="text-lg font-bold text-white">أخبار {symbol}</h3>
@@ -113,7 +113,7 @@ function NewsPanel({ symbol, onClose }) {
       {/* Loading State */}
       {loading && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-yellow-500" />
+          <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
         </div>
       )}
 
@@ -123,7 +123,7 @@ function NewsPanel({ symbol, onClose }) {
           <p className="text-red-400 text-sm">{error}</p>
           <button
             onClick={loadNews}
-            className="mt-3 text-sm text-yellow-500 hover:text-yellow-400 transition-colors"
+            className="mt-3 text-sm text-amber-500 hover:text-amber-400 transition-colors"
           >
             إعادة المحاولة
           </button>
@@ -140,7 +140,7 @@ function NewsPanel({ symbol, onClose }) {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-black/40 border border-white/10 rounded-2xl p-4 hover:border-yellow-500/30 transition-all group"
+                className="bg-black/40 border border-white/10 rounded-2xl p-4 hover:border-amber-500/30 transition-all group"
               >
                 {/* News Header */}
                 <div className="flex items-start justify-between gap-3 mb-3">
@@ -156,7 +156,7 @@ function NewsPanel({ symbol, onClose }) {
                 </div>
 
                 {/* News Title */}
-                <h4 className="text-white font-bold text-sm mb-2 line-clamp-2 group-hover:text-yellow-400 transition-colors">
+                <h4 className="text-white font-bold text-sm mb-2 line-clamp-2 group-hover:text-amber-400 transition-colors">
                   {item.title}
                 </h4>
 
@@ -178,7 +178,7 @@ function NewsPanel({ symbol, onClose }) {
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-xs text-yellow-500 hover:text-yellow-400 transition-colors"
+                      className="flex items-center gap-1 text-xs text-amber-500 hover:text-amber-400 transition-colors"
                     >
                       اقرأ المزيد
                       <ExternalLink className="w-3 h-3" />

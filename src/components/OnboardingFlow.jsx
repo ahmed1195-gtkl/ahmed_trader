@@ -75,7 +75,7 @@ function OnboardingFlow() {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-400">جاري التحميل...</p>
         </div>
       </div>
@@ -87,7 +87,7 @@ function OnboardingFlow() {
       {/* Progress Bar */}
       <div className="bg-gray-900 border-b border-gray-800 py-6">
         <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-2xl font-bold mb-6 text-center bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
+          <h2 className="text-2xl font-bold mb-6 text-center bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">
             إعداد حسابك
           </h2>
           
@@ -103,7 +103,7 @@ function OnboardingFlow() {
                       currentStep > step.id
                         ? 'bg-green-500 border-green-500'
                         : currentStep === step.id
-                        ? 'bg-yellow-500 border-yellow-500'
+                        ? 'bg-amber-500 border-amber-500'
                         : 'bg-gray-800 border-gray-700'
                     }`}
                   >

@@ -51,7 +51,7 @@ function GlobalLeaderboard() {
   const getRankIcon = (rank) => {
     switch (rank) {
       case 1:
-        return <Crown className="w-8 h-8 text-yellow-500" />;
+        return <Crown className="w-8 h-8 text-amber-500" />;
       case 2:
         return <Medal className="w-8 h-8 text-gray-400" />;
       case 3:
@@ -64,7 +64,7 @@ function GlobalLeaderboard() {
   const getRankBadge = (rank) => {
     switch (rank) {
       case 1:
-        return 'bg-gradient-to-r from-yellow-500 to-yellow-600';
+        return 'bg-gradient-to-r from-amber-500 to-amber-600';
       case 2:
         return 'bg-gradient-to-r from-gray-400 to-gray-500';
       case 3:
@@ -97,7 +97,7 @@ function GlobalLeaderboard() {
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="w-20 h-20 border-4 border-yellow-500/20 border-t-yellow-500 rounded-full animate-spin" />
+        <div className="w-20 h-20 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
       </div>
     );
   }
@@ -105,7 +105,7 @@ function GlobalLeaderboard() {
   return (
     <div className="min-h-screen bg-black">
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-b from-yellow-500/10 to-black border-b border-yellow-500/20">
+      <div className="relative overflow-hidden bg-gradient-to-b from-amber-500/10 to-black border-b border-amber-500/20">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-30" />
         
         <div className="relative max-w-7xl mx-auto px-6 py-20">
@@ -115,7 +115,7 @@ function GlobalLeaderboard() {
             className="text-center"
           >
             <div className="flex items-center justify-center gap-4 mb-6">
-              <Trophy className="w-16 h-16 text-yellow-500" />
+              <Trophy className="w-16 h-16 text-amber-500" />
             </div>
             <h1 className="text-6xl md:text-7xl font-black text-white uppercase tracking-tight mb-4">
               {i18n.language === 'ar' ? 'قادة المنصة' : i18n.language === 'fr' ? 'Leaders de la Plateforme' : 'Platform Leaders'}
@@ -138,7 +138,7 @@ function GlobalLeaderboard() {
             onClick={() => setFilter('all')}
             className={`px-6 py-3 rounded-xl font-black text-sm uppercase transition-all ${
               filter === 'all'
-                ? 'bg-yellow-500 text-black'
+                ? 'bg-amber-500 text-black'
                 : 'bg-zinc-900 text-gray-400 hover:bg-zinc-800'
             }`}
           >
@@ -148,7 +148,7 @@ function GlobalLeaderboard() {
             onClick={() => setFilter('bronze')}
             className={`px-6 py-3 rounded-xl font-black text-sm uppercase transition-all ${
               filter === 'bronze'
-                ? 'bg-yellow-500 text-black'
+                ? 'bg-amber-500 text-black'
                 : 'bg-zinc-900 text-gray-400 hover:bg-zinc-800'
             }`}
           >
@@ -158,7 +158,7 @@ function GlobalLeaderboard() {
             onClick={() => setFilter('silver')}
             className={`px-6 py-3 rounded-xl font-black text-sm uppercase transition-all ${
               filter === 'silver'
-                ? 'bg-yellow-500 text-black'
+                ? 'bg-amber-500 text-black'
                 : 'bg-zinc-900 text-gray-400 hover:bg-zinc-800'
             }`}
           >
@@ -168,7 +168,7 @@ function GlobalLeaderboard() {
             onClick={() => setFilter('gold')}
             className={`px-6 py-3 rounded-xl font-black text-sm uppercase transition-all ${
               filter === 'gold'
-                ? 'bg-yellow-500 text-black'
+                ? 'bg-amber-500 text-black'
                 : 'bg-zinc-900 text-gray-400 hover:bg-zinc-800'
             }`}
           >
@@ -233,13 +233,13 @@ function GlobalLeaderboard() {
               animate={{ opacity: 1, y: 0 }}
               className="order-1 md:order-2"
             >
-              <div className="bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 border-2 border-yellow-500 rounded-3xl p-8 text-center h-full flex flex-col justify-between transform md:scale-110">
+              <div className="bg-gradient-to-br from-amber-500/20 to-amber-600/20 border-2 border-amber-500 rounded-3xl p-8 text-center h-full flex flex-col justify-between transform md:scale-110">
                 <div>
-                  <Crown className="w-20 h-20 text-yellow-500 mx-auto mb-4" />
+                  <Crown className="w-20 h-20 text-amber-500 mx-auto mb-4" />
                   <div className="text-5xl font-black text-white mb-2">
                     {leaderboard[0].userName}
                   </div>
-                  <div className="text-sm text-yellow-500 mb-6 font-black uppercase">
+                  <div className="text-sm text-amber-500 mb-6 font-black uppercase">
                     {i18n.language === 'ar' ? '🏆 البطل' : '🏆 Champion'}
                   </div>
                 </div>
@@ -383,7 +383,7 @@ function GlobalLeaderboard() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm font-bold text-yellow-500">
+                        <div className="text-sm font-bold text-amber-500">
                           {trader.averageReturn?.toFixed(1)}%
                         </div>
                       </td>

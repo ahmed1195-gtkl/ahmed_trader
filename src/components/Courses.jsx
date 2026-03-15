@@ -75,7 +75,7 @@ const Courses = () => {
       paid: {
         ar: 'مدفوع',
         en: 'Paid',
-        color: 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30'
+        color: 'bg-amber-500/20 text-amber-500 border-amber-500/30'
       },
       conditional: {
         ar: 'بشروط',
@@ -96,7 +96,7 @@ const Courses = () => {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-white font-bold">
             {i18n.language === 'ar' ? 'جاري التحميل...' : 'Loading...'}
           </p>
@@ -126,7 +126,7 @@ const Courses = () => {
           {isAdmin && (
             <Button
               onClick={() => navigate('/admin/courses')}
-              className="mt-6 bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase tracking-widest rounded-xl px-8 py-3"
+              className="mt-6 bg-amber-500 hover:bg-amber-400 text-black font-black uppercase tracking-widest rounded-xl px-8 py-3"
             >
               {i18n.language === 'ar' ? 'إدارة الكورسات' : 'Manage Courses'}
             </Button>
@@ -159,7 +159,7 @@ const Courses = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="bg-zinc-900/50 border-white/10 backdrop-blur-xl rounded-[2rem] overflow-hidden hover:border-yellow-500/50 transition-all group h-full flex flex-col">
+                <Card className="bg-zinc-900/50 border-white/10 backdrop-blur-xl rounded-[2rem] overflow-hidden hover:border-amber-500/50 transition-all group h-full flex flex-col">
                   {/* Course Image */}
                   <div className="relative h-56 overflow-hidden">
                     {course.imageUrl ? (
@@ -169,8 +169,8 @@ const Courses = () => {
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 flex items-center justify-center">
-                        <BookOpen className="w-20 h-20 text-yellow-500/50" />
+                      <div className="w-full h-full bg-gradient-to-br from-amber-500/20 to-amber-600/20 flex items-center justify-center">
+                        <BookOpen className="w-20 h-20 text-amber-500/50" />
                       </div>
                     )}
                     <div className="absolute top-4 right-4">
@@ -211,7 +211,7 @@ const Courses = () => {
                       <div className="space-y-2 mb-6">
                         {course.features.slice(0, 3).map((feature, idx) => (
                           <div key={idx} className="flex items-center gap-2 text-xs text-zinc-400">
-                            <Star className="w-3 h-3 text-yellow-500" />
+                            <Star className="w-3 h-3 text-amber-500" />
                             <span>{i18n.language === 'ar' ? feature.ar : feature.en}</span>
                           </div>
                         ))}
@@ -220,7 +220,7 @@ const Courses = () => {
 
                     <Button
                       onClick={() => navigate(`/course/${course.id}`)}
-                      className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase tracking-widest rounded-xl py-6 mt-auto group"
+                      className="w-full bg-amber-500 hover:bg-amber-400 text-black font-black uppercase tracking-widest rounded-xl py-6 mt-auto group"
                     >
                       {i18n.language === 'ar' ? 'التسجيل الآن' : 'Enroll Now'}
                       <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />

@@ -90,7 +90,7 @@ const FriendRequests = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="w-8 h-8 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -107,7 +107,7 @@ const FriendRequests = () => {
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-        <UserPlus className="w-6 h-6 text-yellow-500" />
+        <UserPlus className="w-6 h-6 text-amber-500" />
         {t('friendRequests') || 'Friend Requests'}
         <span className="text-sm font-normal text-zinc-400">({friendRequests.length})</span>
       </h2>
@@ -119,17 +119,17 @@ const FriendRequests = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, x: -100 }}
-            className="bg-zinc-900/50 backdrop-blur-xl border border-yellow-500/20 rounded-2xl p-4 flex items-center gap-4"
+            className="bg-zinc-900/50 backdrop-blur-xl border border-amber-500/20 rounded-2xl p-4 flex items-center gap-4"
           >
             {/* الصورة الشخصية */}
             {request.senderPhoto ? (
               <img
                 src={request.senderPhoto}
                 alt={request.senderName}
-                className="w-14 h-14 rounded-full object-cover border-2 border-yellow-500/20"
+                className="w-14 h-14 rounded-full object-cover border-2 border-amber-500/20"
               />
             ) : (
-              <div className="w-14 h-14 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 flex items-center justify-center">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 flex items-center justify-center">
                 <User className="w-7 h-7 text-black" />
               </div>
             )}

@@ -272,7 +272,7 @@ const CourseRegistration = ({ course }) => {
       <div className="absolute top-8 right-8 z-50" ref={langRef}>
         <button 
           onClick={() => setShowLangDropdown(!showLangDropdown)}
-          className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-yellow-500 hover:text-black transition-all duration-300 backdrop-blur-xl group"
+          className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-amber-500 hover:text-black transition-all duration-300 backdrop-blur-xl group"
         >
           <Languages className="w-4 h-4 group-hover:rotate-12 transition-transform" />
           <span className="text-[10px] font-black uppercase tracking-widest">
@@ -293,7 +293,7 @@ const CourseRegistration = ({ course }) => {
                 <button
                   key={lang.code}
                   onClick={() => changeLanguage(lang.code)}
-                  className={`w-full px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest transition-colors ${i18n.language === lang.code ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
+                  className={`w-full px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest transition-colors ${i18n.language === lang.code ? 'bg-amber-500 text-black' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
                 >
                   {lang.label}
                 </button>
@@ -306,11 +306,11 @@ const CourseRegistration = ({ course }) => {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(234,179,8,0.05)_0%,transparent_70%)] pointer-events-none" />
       <div className="max-w-4xl mx-auto relative z-10">
         <div className="text-center mb-12">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/20 mb-6">
-            <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
-            <span className="text-yellow-500 text-[10px] font-black uppercase tracking-[0.2em]">{isAr ? 'التسجيل في الكورس الاحترافي' : 'Professional Course Registration'}</span>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 mb-6">
+            <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+            <span className="text-amber-500 text-[10px] font-black uppercase tracking-[0.2em]">{isAr ? 'التسجيل في الكورس الاحترافي' : 'Professional Course Registration'}</span>
           </motion.div>
-          <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4">{isAr ? 'ابدأ رحلتك' : 'Start Your'} <span className="text-yellow-500">{isAr ? 'الآن' : 'Journey'}</span></h2>
+          <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4">{isAr ? 'ابدأ رحلتك' : 'Start Your'} <span className="text-amber-500">{isAr ? 'الآن' : 'Journey'}</span></h2>
         </div>
 
         {!submitted ? (
@@ -320,14 +320,14 @@ const CourseRegistration = ({ course }) => {
                 {steps.map((s, idx) => (
                   <React.Fragment key={s.id}>
                     <div className="flex flex-col items-center gap-3 relative">
-                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black transition-all duration-500 ${step >= s.id ? 'bg-yellow-500 text-black shadow-lg shadow-yellow-500/20' : 'bg-white/5 text-gray-500 border border-white/10'}`}>
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black transition-all duration-500 ${step >= s.id ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20' : 'bg-white/5 text-gray-500 border border-white/10'}`}>
                         {step > s.id ? <CheckCircle2 className="w-6 h-6" /> : s.id}
                       </div>
                       <span className={`text-[10px] font-black uppercase tracking-widest ${step >= s.id ? 'text-white' : 'text-gray-500'}`}>{s.title}</span>
                     </div>
                     {idx < steps.length - 1 && (
                       <div className="flex-1 h-[2px] bg-white/5 mx-4 mb-8">
-                        <motion.div className="h-full bg-yellow-500" initial={{ width: '0%' }} animate={{ width: step > s.id ? '100%' : '0%' }} />
+                        <motion.div className="h-full bg-amber-500" initial={{ width: '0%' }} animate={{ width: step > s.id ? '100%' : '0%' }} />
                       </div>
                     )}
                   </React.Fragment>
@@ -345,15 +345,15 @@ const CourseRegistration = ({ course }) => {
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'الاسم الكامل' : 'Full Name'}</label>
                           <div className="relative group">
-                            <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-yellow-500 transition-colors" />
-                            <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all" placeholder={isAr ? 'أدخل اسمك الكامل' : 'Enter your full name'} />
+                            <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-amber-500 transition-colors" />
+                            <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 transition-all" placeholder={isAr ? 'أدخل اسمك الكامل' : 'Enter your full name'} />
                           </div>
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'البريد الإلكتروني' : 'Email Address'}</label>
                           <div className="relative group">
-                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-yellow-500 transition-colors" />
-                            <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all" placeholder="name@example.com" />
+                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-amber-500 transition-colors" />
+                            <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 transition-all" placeholder="name@example.com" />
                           </div>
                         </div>
                         <div className="space-y-2">
@@ -361,29 +361,29 @@ const CourseRegistration = ({ course }) => {
                           <div className="flex gap-2">
                             <div className="w-24 bg-white/5 border border-white/10 rounded-2xl py-4 px-3 text-white text-sm font-bold text-center">{formData.countryCode}</div>
                             <div className="flex-1 relative group">
-                              <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-yellow-500 transition-colors" />
-                              <input type="tel" value={formData.number} onChange={(e) => setFormData({...formData, number: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all" placeholder="000 000 000" />
+                              <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-amber-500 transition-colors" />
+                              <input type="tel" value={formData.number} onChange={(e) => setFormData({...formData, number: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 transition-all" placeholder="000 000 000" />
                             </div>
                           </div>
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'العمر' : 'Age'}</label>
                           <div className="relative group">
-                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-yellow-500 transition-colors" />
-                            <input type="number" value={formData.age} onChange={(e) => setFormData({...formData, age: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all" placeholder="25" />
+                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-amber-500 transition-colors" />
+                            <input type="number" value={formData.age} onChange={(e) => setFormData({...formData, age: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 transition-all" placeholder="25" />
                           </div>
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'الدولة' : 'Country'}</label>
                           <div className="relative" ref={countryRef}>
-                            <button type="button" onClick={() => setShowCountryDropdown(!showCountryDropdown)} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white text-sm font-bold flex items-center justify-between focus:outline-none focus:border-yellow-500/50 transition-all">
+                            <button type="button" onClick={() => setShowCountryDropdown(!showCountryDropdown)} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white text-sm font-bold flex items-center justify-between focus:outline-none focus:border-amber-500/50 transition-all">
                               <div className="flex items-center gap-2"><Globe className="w-4 h-4 text-gray-500" /><span>{formData.country === 'Select Country' ? (isAr ? 'اختر الدولة' : 'Select Country') : formData.country}</span></div>
                               <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showCountryDropdown ? 'rotate-180' : ''}`} />
                             </button>
                             <AnimatePresence>{showCountryDropdown && (
                               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute left-0 top-full mt-2 w-full bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-[100]">
-                                <div className="p-2 border-b border-white/5"><div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500" /><input type="text" value={countrySearch} onChange={(e) => setCountrySearch(e.target.value)} className="w-full bg-white/5 border border-white/5 rounded-xl py-2 pl-8 pr-3 text-xs text-white focus:outline-none focus:border-yellow-500/30" placeholder={isAr ? 'ابحث عن دولة...' : 'Search country...'} /></div></div>
-                                <div className="max-h-60 overflow-y-auto custom-scrollbar">{filteredCountries.map((c) => (<button key={c.name} type="button" onClick={() => { setFormData({ ...formData, country: c.name }); setShowCountryDropdown(false); }} className="w-full px-4 py-3 text-left text-xs font-bold text-gray-400 hover:bg-yellow-500 hover:text-black transition-colors flex items-center justify-between"><span>{c.name}</span><span className="opacity-50">{c.code}</span></button>))}</div>
+                                <div className="p-2 border-b border-white/5"><div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500" /><input type="text" value={countrySearch} onChange={(e) => setCountrySearch(e.target.value)} className="w-full bg-white/5 border border-white/5 rounded-xl py-2 pl-8 pr-3 text-xs text-white focus:outline-none focus:border-amber-500/30" placeholder={isAr ? 'ابحث عن دولة...' : 'Search country...'} /></div></div>
+                                <div className="max-h-60 overflow-y-auto custom-scrollbar">{filteredCountries.map((c) => (<button key={c.name} type="button" onClick={() => { setFormData({ ...formData, country: c.name }); setShowCountryDropdown(false); }} className="w-full px-4 py-3 text-left text-xs font-bold text-gray-400 hover:bg-amber-500 hover:text-black transition-colors flex items-center justify-between"><span>{c.name}</span><span className="opacity-50">{c.code}</span></button>))}</div>
                               </motion.div>
                             )}</AnimatePresence>
                           </div>
@@ -391,14 +391,14 @@ const CourseRegistration = ({ course }) => {
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'المدينة' : 'City'}</label>
                           <div className="relative" ref={cityRef}>
-                            <button type="button" onClick={() => setShowCityDropdown(!showCityDropdown)} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white text-sm font-bold flex items-center justify-between focus:outline-none focus:border-yellow-500/50 transition-all">
+                            <button type="button" onClick={() => setShowCityDropdown(!showCityDropdown)} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white text-sm font-bold flex items-center justify-between focus:outline-none focus:border-amber-500/50 transition-all">
                               <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-gray-500" /><span>{formData.city || (isAr ? 'اختر المدينة' : 'Select City')}</span></div>
                               <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showCityDropdown ? 'rotate-180' : ''}`} />
                             </button>
                             <AnimatePresence>{showCityDropdown && (
                               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute left-0 top-full mt-2 w-full bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-[100]">
-                                <div className="p-2 border-b border-white/5"><div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500" /><input type="text" value={citySearch} onChange={(e) => setCitySearch(e.target.value)} className="w-full bg-white/5 border border-white/5 rounded-xl py-2 pl-8 pr-3 text-xs text-white focus:outline-none focus:border-yellow-500/30" placeholder={isAr ? 'ابحث عن مدينة...' : 'Search city...'} /></div></div>
-                                <div className="max-h-60 overflow-y-auto custom-scrollbar">{filteredCities.map((c) => (<button key={c} type="button" onClick={() => { setFormData({ ...formData, city: c }); setShowCityDropdown(false); }} className="w-full px-4 py-3 text-left text-xs font-bold text-gray-400 hover:bg-yellow-500 hover:text-black transition-colors">{c}</button>))}</div>
+                                <div className="p-2 border-b border-white/5"><div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500" /><input type="text" value={citySearch} onChange={(e) => setCitySearch(e.target.value)} className="w-full bg-white/5 border border-white/5 rounded-xl py-2 pl-8 pr-3 text-xs text-white focus:outline-none focus:border-amber-500/30" placeholder={isAr ? 'ابحث عن مدينة...' : 'Search city...'} /></div></div>
+                                <div className="max-h-60 overflow-y-auto custom-scrollbar">{filteredCities.map((c) => (<button key={c} type="button" onClick={() => { setFormData({ ...formData, city: c }); setShowCityDropdown(false); }} className="w-full px-4 py-3 text-left text-xs font-bold text-gray-400 hover:bg-amber-500 hover:text-black transition-colors">{c}</button>))}</div>
                               </motion.div>
                             )}</AnimatePresence>
                           </div>
@@ -407,8 +407,8 @@ const CourseRegistration = ({ course }) => {
                           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="md:col-span-2 space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'اسم المدينة' : 'City Name'}</label>
                             <div className="relative group">
-                              <Edit3 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-yellow-500 transition-colors" />
-                              <input type="text" value={formData.otherCity} onChange={(e) => setFormData({...formData, otherCity: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all" placeholder={isAr ? 'اكتب اسم مدينتك' : 'Type your city name'} />
+                              <Edit3 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-amber-500 transition-colors" />
+                              <input type="text" value={formData.otherCity} onChange={(e) => setFormData({...formData, otherCity: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 transition-all" placeholder={isAr ? 'اكتب اسم مدينتك' : 'Type your city name'} />
                             </div>
                           </motion.div>
                         )}
@@ -422,32 +422,32 @@ const CourseRegistration = ({ course }) => {
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'الوظيفة الحالية' : 'Current Job'}</label>
                           <div className="relative group">
-                            <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-yellow-500 transition-colors" />
-                            <input type="text" value={formData.job} onChange={(e) => setFormData({...formData, job: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all" placeholder={isAr ? 'أدخل وظيفتك' : 'Enter your job'} />
+                            <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-amber-500 transition-colors" />
+                            <input type="text" value={formData.job} onChange={(e) => setFormData({...formData, job: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 transition-all" placeholder={isAr ? 'أدخل وظيفتك' : 'Enter your job'} />
                           </div>
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'الدخل السنوي التقريبي' : 'Approx. Annual Income'}</label>
-                          <div className="grid grid-cols-1 gap-2">{incomeOptions.map((opt) => (<button key={opt.value} type="button" onClick={() => setFormData({...formData, annualIncome: opt.value})} className={`px-3 py-3 rounded-xl text-[10px] font-black border transition-all ${formData.annualIncome === opt.value ? 'bg-yellow-500 border-yellow-500 text-black' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'}`}>{opt.label}</button>))}</div>
+                          <div className="grid grid-cols-1 gap-2">{incomeOptions.map((opt) => (<button key={opt.value} type="button" onClick={() => setFormData({...formData, annualIncome: opt.value})} className={`px-3 py-3 rounded-xl text-[10px] font-black border transition-all ${formData.annualIncome === opt.value ? 'bg-amber-500 border-amber-500 text-black' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'}`}>{opt.label}</button>))}</div>
                         </div>
                         <div className="space-y-2 md:col-span-2">
                           <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'هل لديك خبرة سابقة في التداول؟' : 'Do you have trading experience?'}</label>
-                          <div className="flex gap-4">{[{ label: isAr ? 'نعم' : 'Yes', value: 'Yes' }, { label: isAr ? 'لا' : 'No', value: 'No' }].map((opt) => (<button key={opt.value} type="button" onClick={() => setFormData({...formData, hasExperience: opt.value})} className={`flex-1 py-4 rounded-2xl text-sm font-black border transition-all ${formData.hasExperience === opt.value ? 'bg-yellow-500 border-yellow-500 text-black shadow-lg shadow-yellow-500/20' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'}`}>{opt.label}</button>))}</div>
+                          <div className="flex gap-4">{[{ label: isAr ? 'نعم' : 'Yes', value: 'Yes' }, { label: isAr ? 'لا' : 'No', value: 'No' }].map((opt) => (<button key={opt.value} type="button" onClick={() => setFormData({...formData, hasExperience: opt.value})} className={`flex-1 py-4 rounded-2xl text-sm font-black border transition-all ${formData.hasExperience === opt.value ? 'bg-amber-500 border-amber-500 text-black shadow-lg shadow-amber-500/20' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'}`}>{opt.label}</button>))}</div>
                         </div>
                         {formData.hasExperience === 'Yes' && (
                           <>
                             <div className="space-y-2">
                               <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'سنوات الخبرة' : 'Years of Experience'}</label>
                               <div className="relative group">
-                                <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-yellow-500 transition-colors" />
-                                <input type="number" value={formData.experienceYears} onChange={(e) => setFormData({...formData, experienceYears: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all" placeholder="0" />
+                                <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-amber-500 transition-colors" />
+                                <input type="number" value={formData.experienceYears} onChange={(e) => setFormData({...formData, experienceYears: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 transition-all" placeholder="0" />
                               </div>
                             </div>
                             <div className="space-y-2">
                               <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'إجمالي الخسائر التقريبية' : 'Approx. Total Losses'}</label>
                               <div className="relative group">
-                                <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-yellow-500 transition-colors" />
-                                <input type="text" value={formData.losses} onChange={(e) => setFormData({...formData, losses: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all" placeholder="0.00" />
+                                <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-amber-500 transition-colors" />
+                                <input type="text" value={formData.losses} onChange={(e) => setFormData({...formData, losses: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 transition-all" placeholder="0.00" />
                               </div>
                             </div>
                           </>
@@ -457,25 +457,25 @@ const CourseRegistration = ({ course }) => {
                             <div className="space-y-2">
                               <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'مبلغ الإيداع المتوقع' : 'Expected Deposit'}</label>
                               <div className="relative group">
-                                <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-yellow-500 transition-colors" />
-                                <input type="text" value={formData.deposit} onChange={(e) => setFormData({...formData, deposit: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all" placeholder="0.00" />
+                                <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-amber-500 transition-colors" />
+                                <input type="text" value={formData.deposit} onChange={(e) => setFormData({...formData, deposit: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 transition-all" placeholder="0.00" />
                               </div>
                             </div>
                             <div className="space-y-2">
                               <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'نوع الحساب' : 'Account Type'}</label>
-                              <div className="grid grid-cols-2 gap-2">{accountTypes.map((opt) => (<button key={opt.value} type="button" onClick={() => setFormData({...formData, accountType: opt.value})} className={`px-3 py-3 rounded-xl text-[10px] font-black border transition-all ${formData.accountType === opt.value ? 'bg-yellow-500 border-yellow-500 text-black' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'}`}>{opt.label}</button>))}</div>
+                              <div className="grid grid-cols-2 gap-2">{accountTypes.map((opt) => (<button key={opt.value} type="button" onClick={() => setFormData({...formData, accountType: opt.value})} className={`px-3 py-3 rounded-xl text-[10px] font-black border transition-all ${formData.accountType === opt.value ? 'bg-amber-500 border-amber-500 text-black' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'}`}>{opt.label}</button>))}</div>
                             </div>
                             <div className="space-y-2 md:col-span-2">
                               <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'شركة الوساطة (البروكر)' : 'Broker'}</label>
                               <div className="relative" ref={brokerRef}>
-                                <button type="button" onClick={() => setShowBrokerDropdown(!showBrokerDropdown)} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white text-sm font-bold flex items-center justify-between focus:outline-none focus:border-yellow-500/50 transition-all">
+                                <button type="button" onClick={() => setShowBrokerDropdown(!showBrokerDropdown)} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white text-sm font-bold flex items-center justify-between focus:outline-none focus:border-amber-500/50 transition-all">
                                   <span>{formData.broker || (isAr ? 'اختر البروكر' : 'Select Broker')}</span>
                                   <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showBrokerDropdown ? 'rotate-180' : ''}`} />
                                 </button>
                                 <AnimatePresence>{showBrokerDropdown && (
                                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute left-0 top-full mt-2 w-full bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-[100]">
-                                    <div className="p-2 border-b border-white/5"><div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500" /><input type="text" value={brokerSearch} onChange={(e) => setBrokerSearch(e.target.value)} className="w-full bg-white/5 border border-white/5 rounded-xl py-2 pl-8 pr-3 text-xs text-white focus:outline-none focus:border-yellow-500/30" placeholder={isAr ? 'ابحث عن بروكر...' : 'Search broker...'} /></div></div>
-                                    <div className="max-h-60 overflow-y-auto custom-scrollbar">{filteredBrokers.map((b) => (<button key={b} type="button" onClick={() => { setFormData({ ...formData, broker: b }); setShowBrokerDropdown(false); }} className="w-full px-4 py-3 text-left text-xs font-bold text-gray-400 hover:bg-yellow-500 hover:text-black transition-colors">{b}</button>))}</div>
+                                    <div className="p-2 border-b border-white/5"><div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500" /><input type="text" value={brokerSearch} onChange={(e) => setBrokerSearch(e.target.value)} className="w-full bg-white/5 border border-white/5 rounded-xl py-2 pl-8 pr-3 text-xs text-white focus:outline-none focus:border-amber-500/30" placeholder={isAr ? 'ابحث عن بروكر...' : 'Search broker...'} /></div></div>
+                                    <div className="max-h-60 overflow-y-auto custom-scrollbar">{filteredBrokers.map((b) => (<button key={b} type="button" onClick={() => { setFormData({ ...formData, broker: b }); setShowBrokerDropdown(false); }} className="w-full px-4 py-3 text-left text-xs font-bold text-gray-400 hover:bg-amber-500 hover:text-black transition-colors">{b}</button>))}</div>
                                   </motion.div>
                                 )}</AnimatePresence>
                               </div>
@@ -484,8 +484,8 @@ const CourseRegistration = ({ course }) => {
                               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="md:col-span-2 space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'اسم البروكر' : 'Broker Name'}</label>
                                 <div className="relative group">
-                                  <Edit3 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-yellow-500 transition-colors" />
-                                  <input type="text" value={formData.otherBroker} onChange={(e) => setFormData({...formData, otherBroker: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all" placeholder={isAr ? 'اكتب اسم البروكر' : 'Type broker name'} />
+                                  <Edit3 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-amber-500 transition-colors" />
+                                  <input type="text" value={formData.otherBroker} onChange={(e) => setFormData({...formData, otherBroker: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 transition-all" placeholder={isAr ? 'اكتب اسم البروكر' : 'Type broker name'} />
                                 </div>
                               </motion.div>
                             )}
@@ -502,30 +502,30 @@ const CourseRegistration = ({ course }) => {
                           <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'متوسط عدد الصفقات شهرياً' : 'Avg. Monthly Trades'}</label>
                             <div className="relative group">
-                              <Activity className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-yellow-500 transition-colors" />
-                              <input type="number" value={formData.monthlyTrades} onChange={(e) => setFormData({...formData, monthlyTrades: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all" placeholder="0" />
+                              <Activity className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-amber-500 transition-colors" />
+                              <input type="number" value={formData.monthlyTrades} onChange={(e) => setFormData({...formData, monthlyTrades: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 transition-all" placeholder="0" />
                             </div>
                           </div>
                         )}
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'طريقة التداول' : 'Trading Style'}</label>
-                          <div className="flex gap-2">{[{ label: isAr ? 'وحدي' : 'Alone', value: 'Alone' }, { label: isAr ? 'قناة توصيات' : 'Signals', value: 'Signals' }].map((opt) => (<button key={opt.value} type="button" onClick={() => setFormData({...formData, tradingStyle: opt.value})} className={`flex-1 py-3 rounded-xl text-xs font-bold border transition-all ${formData.tradingStyle === opt.value ? 'bg-yellow-500 border-yellow-500 text-black' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'}`}>{opt.label}</button>))}</div>
+                          <div className="flex gap-2">{[{ label: isAr ? 'وحدي' : 'Alone', value: 'Alone' }, { label: isAr ? 'قناة توصيات' : 'Signals', value: 'Signals' }].map((opt) => (<button key={opt.value} type="button" onClick={() => setFormData({...formData, tradingStyle: opt.value})} className={`flex-1 py-3 rounded-xl text-xs font-bold border transition-all ${formData.tradingStyle === opt.value ? 'bg-amber-500 border-amber-500 text-black' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'}`}>{opt.label}</button>))}</div>
                         </div>
                         <div className="space-y-2 md:col-span-2">
                           <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'الوقت المفضل للمتابعة' : 'Preferred Follow-up Time'}</label>
-                          <div className="grid grid-cols-3 md:grid-cols-5 gap-2">{availabilityOptions.map((opt) => (<button key={opt.value} type="button" onClick={() => setFormData({...formData, availability: opt.value})} className={`px-2 py-3 rounded-xl text-[10px] font-black border transition-all ${formData.availability === opt.value ? 'bg-yellow-500 border-yellow-500 text-black' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'}`}>{opt.label}</button>))}</div>
+                          <div className="grid grid-cols-3 md:grid-cols-5 gap-2">{availabilityOptions.map((opt) => (<button key={opt.value} type="button" onClick={() => setFormData({...formData, availability: opt.value})} className={`px-2 py-3 rounded-xl text-[10px] font-black border transition-all ${formData.availability === opt.value ? 'bg-amber-500 border-amber-500 text-black' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'}`}>{opt.label}</button>))}</div>
                         </div>
                         {formData.availability === 'written' && (
                           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="md:col-span-2 space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'تفاصيل التواصل الكتابي' : 'Written Contact Details'}</label>
-                            <textarea value={formData.availabilityDetails} onChange={(e) => setFormData({...formData, availabilityDetails: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all min-h-[100px]" placeholder={isAr ? 'أدخل وسيلة التواصل المفضلة (واتساب، تليجرام...)' : 'Enter preferred contact method (WhatsApp, Telegram...)'} />
+                            <textarea value={formData.availabilityDetails} onChange={(e) => setFormData({...formData, availabilityDetails: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 transition-all min-h-[100px]" placeholder={isAr ? 'أدخل وسيلة التواصل المفضلة (واتساب، تليجرام...)' : 'Enter preferred contact method (WhatsApp, Telegram...)'} />
                           </motion.div>
                         )}
                         <div className="space-y-2 md:col-span-2">
                           <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">{isAr ? 'الهدف من التداول' : 'Trading Goal'}</label>
                           <div className="relative group">
-                            <Target className="absolute left-4 top-4 w-4 h-4 text-gray-500 group-focus-within:text-yellow-500 transition-colors" />
-                            <textarea value={formData.learning_goal} onChange={(e) => setFormData({...formData, learning_goal: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-yellow-500/50 transition-all min-h-[100px]" placeholder={isAr ? 'ماذا تريد أن تحقق من هذا الكورس؟' : 'What do you want to achieve from this course?'} />
+                            <Target className="absolute left-4 top-4 w-4 h-4 text-gray-500 group-focus-within:text-amber-500 transition-colors" />
+                            <textarea value={formData.learning_goal} onChange={(e) => setFormData({...formData, learning_goal: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 transition-all min-h-[100px]" placeholder={isAr ? 'ماذا تريد أن تحقق من هذا الكورس؟' : 'What do you want to achieve from this course?'} />
                           </div>
                         </div>
                       </div>
@@ -538,20 +538,20 @@ const CourseRegistration = ({ course }) => {
             <CardFooter className="p-8 border-t border-white/5 flex flex-col gap-6">
               <div className="flex justify-between w-full gap-4">
                 {step > 1 && <Button onClick={() => setStep(step - 1)} className="flex-1 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl py-6 font-black uppercase tracking-widest text-xs"><ChevronLeft className={`w-4 h-4 ${isAr ? 'ml-2 rotate-180' : 'mr-2'}`} />{isAr ? 'السابق' : 'Back'}</Button>}
-                <Button onClick={() => { if (validateStep(step)) { setError(null); if (step < 3) setStep(step + 1); else handleSubmit(); } else { setError(isAr ? 'يرجى ملء جميع الحقول المطلوبة قبل الانتقال' : 'Please fill in all required fields before proceeding'); } }} disabled={loading} className="flex-[2] bg-yellow-500 hover:bg-yellow-400 text-black rounded-2xl py-6 font-black uppercase tracking-widest text-xs shadow-xl shadow-yellow-500/20">{loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>{step === 3 ? (isAr ? 'إرسال الطلب' : 'Submit Request') : (isAr ? 'التالي' : 'Next')}{step !== 3 && <ChevronRight className={`w-4 h-4 ${isAr ? 'mr-2 rotate-180' : 'ml-2'}`} />}{step === 3 && <Send className={`w-4 h-4 ${isAr ? 'mr-2' : 'ml-2'}`} />}</>}</Button>
+                <Button onClick={() => { if (validateStep(step)) { setError(null); if (step < 3) setStep(step + 1); else handleSubmit(); } else { setError(isAr ? 'يرجى ملء جميع الحقول المطلوبة قبل الانتقال' : 'Please fill in all required fields before proceeding'); } }} disabled={loading} className="flex-[2] bg-amber-500 hover:bg-amber-400 text-black rounded-2xl py-6 font-black uppercase tracking-widest text-xs shadow-xl shadow-amber-500/20">{loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>{step === 3 ? (isAr ? 'إرسال الطلب' : 'Submit Request') : (isAr ? 'التالي' : 'Next')}{step !== 3 && <ChevronRight className={`w-4 h-4 ${isAr ? 'mr-2 rotate-180' : 'ml-2'}`} />}{step === 3 && <Send className={`w-4 h-4 ${isAr ? 'mr-2' : 'ml-2'}`} />}</>}</Button>
               </div>
-              <div className="text-center space-y-2"><p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">{isAr ? 'يرجى التأكد من صحة جميع المعلومات المدخلة' : 'Please ensure all entered information is correct'}</p><p className="text-[9px] font-bold text-yellow-500/50 uppercase tracking-widest">{isAr ? 'خطوتك الأولى نحو الاحتراف تبدأ ببيانات دقيقة' : 'Your first step towards professionalism starts with accurate data'}</p></div>
+              <div className="text-center space-y-2"><p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">{isAr ? 'يرجى التأكد من صحة جميع المعلومات المدخلة' : 'Please ensure all entered information is correct'}</p><p className="text-[9px] font-bold text-amber-500/50 uppercase tracking-widest">{isAr ? 'خطوتك الأولى نحو الاحتراف تبدأ ببيانات دقيقة' : 'Your first step towards professionalism starts with accurate data'}</p></div>
             </CardFooter>
           </Card>
         ) : (
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-zinc-900/60 border-white/10 backdrop-blur-2xl rounded-[2.5rem] p-12 text-center border shadow-2xl">
-            <div className="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-yellow-500/20"><CheckCircle2 className="w-10 h-10 text-black" /></div>
+            <div className="w-20 h-20 bg-amber-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-amber-500/20"><CheckCircle2 className="w-10 h-10 text-black" /></div>
             <h3 className="text-3xl font-black text-white uppercase tracking-tighter mb-4">{isAr ? 'تم استلام طلبك!' : 'Request Received!'}</h3>
             <p className="text-gray-400 font-bold text-sm mb-8 leading-relaxed">{isAr ? 'شكراً لتسجيلك. لقد تم إرسال بياناتك بنجاح. يرجى الانضمام لقناة التلجرام، وسيتم التواصل معك فور الانضمام.' : 'Thank you for registering. Your data has been sent successfully. Please join the Telegram channel, and you will be contacted after joining.'}</p>
-            <div className="bg-black/40 border border-white/10 rounded-3xl p-6 mb-8 relative group overflow-hidden"><div className="absolute inset-0 bg-yellow-500/5 opacity-0 group-hover:opacity-100 transition-opacity" /><span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-2">{isAr ? 'كود التسجيل الخاص بك' : 'Your Registration Code'}</span><div className="flex items-center justify-center gap-4"><span className="text-4xl font-black text-yellow-500 tracking-[0.2em]">{regCode}</span><button onClick={copyCode} className="p-2 hover:bg-white/5 rounded-xl transition-colors text-gray-500 hover:text-yellow-500"><Copy className="w-5 h-5" /></button></div></div>
+            <div className="bg-black/40 border border-white/10 rounded-3xl p-6 mb-8 relative group overflow-hidden"><div className="absolute inset-0 bg-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity" /><span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-2">{isAr ? 'كود التسجيل الخاص بك' : 'Your Registration Code'}</span><div className="flex items-center justify-center gap-4"><span className="text-4xl font-black text-amber-500 tracking-[0.2em]">{regCode}</span><button onClick={copyCode} className="p-2 hover:bg-white/5 rounded-xl transition-colors text-gray-500 hover:text-amber-500"><Copy className="w-5 h-5" /></button></div></div>
             <div className="space-y-4">
               {course?.telegramUrl && (
-                <Button onClick={() => window.open(course.telegramUrl, '_blank')} className="w-full bg-yellow-500 hover:bg-yellow-400 text-black rounded-2xl py-6 font-black uppercase tracking-widest text-xs shadow-xl shadow-yellow-500/20 flex items-center justify-center gap-2">
+                <Button onClick={() => window.open(course.telegramUrl, '_blank')} className="w-full bg-amber-500 hover:bg-amber-400 text-black rounded-2xl py-6 font-black uppercase tracking-widest text-xs shadow-xl shadow-amber-500/20 flex items-center justify-center gap-2">
                   <MessageCircle className="w-5 h-5" />
                   {isAr ? 'انضم لقناة الكورس' : 'Join Course Channel'}
                 </Button>

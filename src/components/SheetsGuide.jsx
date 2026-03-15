@@ -110,7 +110,7 @@ const SheetsGuide = () => {
           className="text-center mb-12"
         >
           <div className="flex items-center justify-center gap-3 mb-4">
-            <FileSpreadsheet className="w-12 h-12 text-yellow-500" />
+            <FileSpreadsheet className="w-12 h-12 text-amber-500" />
             <h1 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tight">
               {i18n.language === 'ar' ? 'دليل Google Sheets' : 'Google Sheets Guide'}
             </h1>
@@ -130,7 +130,7 @@ const SheetsGuide = () => {
           className="bg-zinc-900 border border-white/10 rounded-3xl p-8 mb-6"
         >
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-black font-black text-xl">
+            <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-black font-black text-xl">
               1
             </div>
             <h2 className="text-2xl font-black text-white uppercase">
@@ -150,7 +150,7 @@ const SheetsGuide = () => {
             </p>
             <Button
               onClick={() => window.open('https://sheets.google.com', '_blank')}
-              className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-xl"
+              className="bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl"
             >
               <ExternalLink className="w-4 h-4 mr-2" />
               {i18n.language === 'ar' ? 'افتح Google Sheets' : 'Open Google Sheets'}
@@ -166,7 +166,7 @@ const SheetsGuide = () => {
           className="bg-zinc-900 border border-white/10 rounded-3xl p-8 mb-6"
         >
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-black font-black text-xl">
+            <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-black font-black text-xl">
               2
             </div>
             <h2 className="text-2xl font-black text-white uppercase flex items-center gap-2">
@@ -178,14 +178,14 @@ const SheetsGuide = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/10">
-                  <th className="text-left p-3 text-yellow-500 font-bold">#</th>
-                  <th className="text-left p-3 text-yellow-500 font-bold">
+                  <th className="text-left p-3 text-amber-500 font-bold">#</th>
+                  <th className="text-left p-3 text-amber-500 font-bold">
                     {i18n.language === 'ar' ? 'اسم العمود (EN)' : 'Column Name (EN)'}
                   </th>
-                  <th className="text-left p-3 text-yellow-500 font-bold">
+                  <th className="text-left p-3 text-amber-500 font-bold">
                     {i18n.language === 'ar' ? 'اسم العمود (AR)' : 'Column Name (AR)'}
                   </th>
-                  <th className="text-left p-3 text-yellow-500 font-bold">
+                  <th className="text-left p-3 text-amber-500 font-bold">
                     {i18n.language === 'ar' ? 'مثال' : 'Example'}
                   </th>
                 </tr>
@@ -202,8 +202,8 @@ const SheetsGuide = () => {
               </tbody>
             </table>
           </div>
-          <div className="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
-            <p className="text-yellow-500 text-sm">
+          <div className="mt-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+            <p className="text-amber-500 text-sm">
               ⚠️ {i18n.language === 'ar' 
                 ? 'مهم: يجب أن تكون الأعمدة بنفس الترتيب أعلاه تماماً'
                 : 'Important: Columns must be in the exact order shown above'}
@@ -219,7 +219,7 @@ const SheetsGuide = () => {
           className="bg-zinc-900 border border-white/10 rounded-3xl p-8 mb-6"
         >
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-black font-black text-xl">
+            <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-black font-black text-xl">
               3
             </div>
             <h2 className="text-2xl font-black text-white uppercase flex items-center gap-2">
@@ -234,7 +234,7 @@ const SheetsGuide = () => {
               </pre>
               <Button
                 onClick={copyCode}
-                className="absolute top-4 right-4 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-xl"
+                className="absolute top-4 right-4 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl"
               >
                 {copied ? (
                   <>
@@ -260,7 +260,7 @@ const SheetsGuide = () => {
           className="bg-zinc-900 border border-white/10 rounded-3xl p-8 mb-6"
         >
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-black font-black text-xl">
+            <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-black font-black text-xl">
               4
             </div>
             <h2 className="text-2xl font-black text-white uppercase">
@@ -294,7 +294,7 @@ const SheetsGuide = () => {
           className="bg-zinc-900 border border-white/10 rounded-3xl p-8"
         >
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-black font-black text-xl">
+            <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-black font-black text-xl">
               5
             </div>
             <h2 className="text-2xl font-black text-white uppercase">

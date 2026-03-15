@@ -202,7 +202,7 @@ const CoursesAdmin = () => {
   const getCourseTypeBadge = (type) => {
     const badges = {
       free: { ar: 'مجاني', en: 'Free', color: 'bg-green-500' },
-      paid: { ar: 'مدفوع', en: 'Paid', color: 'bg-yellow-500' },
+      paid: { ar: 'مدفوع', en: 'Paid', color: 'bg-amber-500' },
       conditional: { ar: 'بشروط', en: 'Conditional', color: 'bg-blue-500' }
     };
     const badge = badges[type] || badges.free;
@@ -216,7 +216,7 @@ const CoursesAdmin = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <Loader2 className="w-12 h-12 text-yellow-500 animate-spin" />
+        <Loader2 className="w-12 h-12 text-amber-500 animate-spin" />
       </div>
     );
   }
@@ -244,7 +244,7 @@ const CoursesAdmin = () => {
           </div>
           <Button
             onClick={() => setShowForm(true)}
-            className="bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase tracking-widest rounded-xl px-6 py-3"
+            className="bg-amber-500 hover:bg-amber-400 text-black font-black uppercase tracking-widest rounded-xl px-6 py-3"
           >
             <Plus className="w-5 h-5 mr-2" />
             {i18n.language === 'ar' ? 'إضافة كورس' : 'Add Course'}
@@ -322,7 +322,7 @@ const CoursesAdmin = () => {
                       <textarea
                         value={formData.descriptionAr}
                         onChange={(e) => setFormData({...formData, descriptionAr: e.target.value})}
-                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl p-3 min-h-[100px] focus:border-yellow-500/50 focus:outline-none"
+                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl p-3 min-h-[100px] focus:border-amber-500/50 focus:outline-none"
                         placeholder="وصف الكورس بالعربي..."
                         required
                       />
@@ -334,7 +334,7 @@ const CoursesAdmin = () => {
                       <textarea
                         value={formData.descriptionEn}
                         onChange={(e) => setFormData({...formData, descriptionEn: e.target.value})}
-                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl p-3 min-h-[100px] focus:border-yellow-500/50 focus:outline-none"
+                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl p-3 min-h-[100px] focus:border-amber-500/50 focus:outline-none"
                         placeholder="Course description in English..."
                         required
                       />
@@ -355,7 +355,7 @@ const CoursesAdmin = () => {
                             onClick={() => setFormData({...formData, type})}
                             className={`flex-1 py-3 rounded-xl text-xs font-bold border transition-all ${
                               formData.type === type
-                                ? 'bg-yellow-500 border-yellow-500 text-black'
+                                ? 'bg-amber-500 border-amber-500 text-black'
                                 : 'bg-white/5 border-white/10 text-zinc-400 hover:border-white/20'
                             }`}
                           >
@@ -403,7 +403,7 @@ const CoursesAdmin = () => {
                       <textarea
                         value={formData.conditions}
                         onChange={(e) => setFormData({...formData, conditions: e.target.value})}
-                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl p-3 min-h-[100px] focus:outline-none focus:border-yellow-500/50 transition-all"
+                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl p-3 min-h-[100px] focus:outline-none focus:border-amber-500/50 transition-all"
                         placeholder={i18n.language === 'ar' ? 'اكتب الشروط هنا... يمكنك وضع روابط' : 'Write conditions here... You can include links'}
                         required
                       />
@@ -434,7 +434,7 @@ const CoursesAdmin = () => {
                         <Button
                           type="button"
                           onClick={() => window.open('/#/sheets-guide', '_blank')}
-                          className="bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 border border-yellow-500/20 rounded-xl px-3 py-1 text-xs"
+                          className="bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/20 rounded-xl px-3 py-1 text-xs"
                         >
                           <FileSpreadsheet className="w-3 h-3 mr-1" />
                           {i18n.language === 'ar' ? 'دليل الإعداد' : 'Setup Guide'}
@@ -499,7 +499,7 @@ const CoursesAdmin = () => {
                     <Button
                       type="submit"
                       disabled={saving}
-                      className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase rounded-xl py-3"
+                      className="flex-1 bg-amber-500 hover:bg-amber-400 text-black font-black uppercase rounded-xl py-3"
                     >
                       {saving ? (
                         <Loader2 className="w-5 h-5 animate-spin mx-auto" />
@@ -525,8 +525,8 @@ const CoursesAdmin = () => {
                 {course.imageUrl ? (
                   <img src={course.imageUrl} alt={course.nameAr} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 flex items-center justify-center">
-                    <BookOpen className="w-16 h-16 text-yellow-500/50" />
+                  <div className="w-full h-full bg-gradient-to-br from-amber-500/20 to-amber-600/20 flex items-center justify-center">
+                    <BookOpen className="w-16 h-16 text-amber-500/50" />
                   </div>
                 )}
                 <div className="absolute top-4 right-4">

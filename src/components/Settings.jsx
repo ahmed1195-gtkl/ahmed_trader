@@ -147,7 +147,7 @@ const Settings = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-yellow-500 animate-spin" />
+        <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
       </div>
     );
   }
@@ -158,7 +158,7 @@ const Settings = () => {
       <main className="flex-1 container mx-auto px-4 pt-32 pb-12 max-w-full">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl mx-auto">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
-            <h1 className="text-3xl sm:text-4xl font-black text-white uppercase tracking-tighter bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl sm:text-4xl font-black text-white uppercase tracking-tighter bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">
               Settings
             </h1>
             <AnimatePresence>
@@ -176,17 +176,17 @@ const Settings = () => {
               <CardHeader className="border-b border-white/5 pb-8">
                 <div className="flex flex-col md:flex-row items-center gap-8">
                   <div className="relative group">
-                    <div className="w-24 h-24 rounded-full bg-yellow-500/10 border-2 border-yellow-500/20 flex items-center justify-center overflow-hidden shadow-2xl shadow-yellow-500/5">
+                    <div className="w-24 h-24 rounded-full bg-amber-500/10 border-2 border-amber-500/20 flex items-center justify-center overflow-hidden shadow-2xl shadow-amber-500/5">
                       {profileData.photoURL ? (
                         <img src={profileData.photoURL} alt="Profile" className="w-full h-full object-cover" onError={(e) => { e.target.onerror = null; e.target.src = ''; }} />
                       ) : (
-                        <User className="w-10 h-10 text-yellow-500" />
+                        <User className="w-10 h-10 text-amber-500" />
                       )}
                     </div>
                     <button 
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="absolute bottom-0 right-0 w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-black shadow-lg hover:bg-yellow-400 transition-all"
+                      className="absolute bottom-0 right-0 w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-black shadow-lg hover:bg-amber-400 transition-all"
                     >
                       <Camera className="w-4 h-4" />
                     </button>
@@ -207,21 +207,21 @@ const Settings = () => {
               <CardContent className="p-6 sm:p-8 space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-yellow-500/70">First Name</label>
-                    <Input value={profileData.fullName} onChange={(e) => setProfileData({...profileData, fullName: e.target.value})} className="bg-white/5 border-white/10 focus:border-yellow-500/50 h-12 rounded-xl" />
+                    <label className="text-[10px] font-black uppercase tracking-widest text-amber-500/70">First Name</label>
+                    <Input value={profileData.fullName} onChange={(e) => setProfileData({...profileData, fullName: e.target.value})} className="bg-white/5 border-white/10 focus:border-amber-500/50 h-12 rounded-xl" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-yellow-500/70">Last Name</label>
-                    <Input value={profileData.lastName} onChange={(e) => setProfileData({...profileData, lastName: e.target.value})} className="bg-white/5 border-white/10 focus:border-yellow-500/50 h-12 rounded-xl" />
+                    <label className="text-[10px] font-black uppercase tracking-widest text-amber-500/70">Last Name</label>
+                    <Input value={profileData.lastName} onChange={(e) => setProfileData({...profileData, lastName: e.target.value})} className="bg-white/5 border-white/10 focus:border-amber-500/50 h-12 rounded-xl" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-yellow-500/70">Country</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-amber-500/70">Country</label>
                     <div className="relative">
                       <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                       <select 
                         value={profileData.country} 
                         onChange={(e) => setProfileData({...profileData, country: e.target.value})}
-                        className="w-full pl-12 pr-4 bg-white/5 border border-white/10 focus:border-yellow-500/50 h-12 rounded-xl text-white appearance-none outline-none"
+                        className="w-full pl-12 pr-4 bg-white/5 border border-white/10 focus:border-amber-500/50 h-12 rounded-xl text-white appearance-none outline-none"
                       >
                         <option value="" className="bg-zinc-900">Select Country</option>
                         {countries.map(country => (
@@ -231,10 +231,10 @@ const Settings = () => {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-yellow-500/70">Age</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-amber-500/70">Age</label>
                     <div className="relative">
                       <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                      <Input type="number" value={profileData.age} onChange={(e) => setProfileData({...profileData, age: e.target.value})} className="pl-12 bg-white/5 border-white/10 focus:border-yellow-500/50 h-12 rounded-xl" />
+                      <Input type="number" value={profileData.age} onChange={(e) => setProfileData({...profileData, age: e.target.value})} className="pl-12 bg-white/5 border-white/10 focus:border-amber-500/50 h-12 rounded-xl" />
                     </div>
                   </div>
                 </div>
@@ -243,7 +243,7 @@ const Settings = () => {
         
             <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2rem]">
               <CardHeader>
-                <div className="flex items-center gap-2 text-yellow-500 mb-2">
+                <div className="flex items-center gap-2 text-amber-500 mb-2">
                   <Shield className="w-5 h-5" />
                   <span className="font-bold uppercase tracking-widest text-xs">Security</span>
                 </div>
@@ -253,7 +253,7 @@ const Settings = () => {
               <CardContent className="p-6 sm:p-8 pt-0">
                 <div className="flex items-center justify-between p-6 bg-white/5 rounded-2xl border border-white/5">
                   <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-xl bg-yellow-500/10 text-yellow-500">
+                    <div className="p-3 rounded-xl bg-amber-500/10 text-amber-500">
                       <Lock className="w-5 h-5" />
                     </div>
                     <div>
@@ -261,13 +261,13 @@ const Settings = () => {
                       <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest">{profileData.twoFactorEnabled ? 'Active' : 'Inactive'}</p>
                     </div>
                   </div>
-                  <Switch checked={profileData.twoFactorEnabled} onCheckedChange={(checked) => setProfileData({...profileData, twoFactorEnabled: checked})} className="data-[state=checked]:bg-yellow-500" />
+                  <Switch checked={profileData.twoFactorEnabled} onCheckedChange={(checked) => setProfileData({...profileData, twoFactorEnabled: checked})} className="data-[state=checked]:bg-amber-500" />
                 </div>
               </CardContent>
             </Card>
         
             <div className="flex justify-end">
-              <Button type="submit" disabled={saving} className="w-full sm:w-auto bg-yellow-500 hover:bg-yellow-600 text-black font-black uppercase tracking-widest px-12 h-14 rounded-2xl shadow-lg shadow-yellow-500/20 transition-all active:scale-95">
+              <Button type="submit" disabled={saving} className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-black font-black uppercase tracking-widest px-12 h-14 rounded-2xl shadow-lg shadow-amber-500/20 transition-all active:scale-95">
                 {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-4 h-4 mr-2" /> Save Changes</>}
               </Button>
             </div>

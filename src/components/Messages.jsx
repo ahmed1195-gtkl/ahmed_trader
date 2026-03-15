@@ -157,7 +157,7 @@ const Messages = () => {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center p-4">
         <div className="bg-zinc-900/60 border border-white/10 rounded-[2rem] p-8 text-center max-w-md">
-          <MessageCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+          <MessageCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
           <h2 className="text-2xl font-black text-white uppercase mb-4">
             {i18n.language === 'ar' ? 'يجب تسجيل الدخول' : 'Login Required'}
           </h2>
@@ -168,7 +168,7 @@ const Messages = () => {
           </p>
           <Button 
             onClick={() => navigate('/')}
-            className="bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase tracking-widest text-xs rounded-xl px-6 py-3"
+            className="bg-amber-500 hover:bg-amber-400 text-black font-black uppercase tracking-widest text-xs rounded-xl px-6 py-3"
           >
             {i18n.language === 'ar' ? 'العودة للرئيسية' : 'Back to Home'}
           </Button>
@@ -181,18 +181,18 @@ const Messages = () => {
     <div className="min-h-screen bg-black flex">
       {/* قائمة المستخدمين - للأدمن فقط */}
       {isAdmin && (
-        <div className={`${selectedUser ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-80 border-r border-yellow-500/20 bg-zinc-900/30`}>
+        <div className={`${selectedUser ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-80 border-r border-amber-500/20 bg-zinc-900/30`}>
           {/* Header */}
-          <div className="p-4 border-b border-yellow-500/20 bg-black/50">
+          <div className="p-4 border-b border-amber-500/20 bg-black/50">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full flex items-center justify-center shadow-lg shadow-yellow-500/30">
+              <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full flex items-center justify-center shadow-lg shadow-amber-500/30">
                 <MessageCircle className="w-5 h-5 text-black" />
               </div>
               <div className="flex-1">
                 <h1 className="text-lg font-black text-white uppercase tracking-tight">
                   {i18n.language === 'ar' ? 'الرسائل' : 'Messages'}
                 </h1>
-                <span className="text-[10px] text-yellow-500 font-black uppercase">
+                <span className="text-[10px] text-amber-500 font-black uppercase">
                   {i18n.language === 'ar' ? 'أدمن' : 'Admin'}
                 </span>
               </div>
@@ -216,7 +216,7 @@ const Messages = () => {
                   animate={{ opacity: 1 }}
                   onClick={() => setSelectedUser(u)}
                   className={`p-4 border-b border-zinc-800/50 cursor-pointer hover:bg-zinc-800/30 transition-colors ${
-                    selectedUser?.uid === u.uid ? 'bg-zinc-800/50 border-l-4 border-l-yellow-500' : ''
+                    selectedUser?.uid === u.uid ? 'bg-zinc-800/50 border-l-4 border-l-amber-500' : ''
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -224,10 +224,10 @@ const Messages = () => {
                       <img
                         src={u.photoURL}
                         alt={u.displayName}
-                        className="w-12 h-12 rounded-full object-cover border-2 border-yellow-500/20"
+                        className="w-12 h-12 rounded-full object-cover border-2 border-amber-500/20"
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 flex items-center justify-center">
                         <User className="w-6 h-6 text-black" />
                       </div>
                     )}
@@ -252,7 +252,7 @@ const Messages = () => {
         {selectedUser || !isAdmin ? (
           <>
             {/* Header المحادثة */}
-            <div className="p-4 border-b border-yellow-500/20 bg-black/80 backdrop-blur-xl flex items-center gap-3">
+            <div className="p-4 border-b border-amber-500/20 bg-black/80 backdrop-blur-xl flex items-center gap-3">
               {isAdmin && (
                 <Button
                   onClick={() => setSelectedUser(null)}
@@ -273,10 +273,10 @@ const Messages = () => {
                   <img
                     src={selectedUser.photoURL}
                     alt={selectedUser.displayName}
-                    className="w-10 h-10 rounded-full object-cover border-2 border-yellow-500/20"
+                    className="w-10 h-10 rounded-full object-cover border-2 border-amber-500/20"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 flex items-center justify-center">
                     <User className="w-5 h-5 text-black" />
                   </div>
                 )}
@@ -295,8 +295,8 @@ const Messages = () => {
             <div className="flex-1 overflow-y-auto p-4 bg-gradient-to-b from-black via-zinc-900/30 to-black">
               {messages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center">
-                  <div className="w-24 h-24 bg-gradient-to-r from-yellow-500/10 to-yellow-600/10 rounded-full flex items-center justify-center mb-6 border border-yellow-500/20">
-                    <MessageCircle className="w-12 h-12 text-yellow-500/50" />
+                  <div className="w-24 h-24 bg-gradient-to-r from-amber-500/10 to-amber-600/10 rounded-full flex items-center justify-center mb-6 border border-amber-500/20">
+                    <MessageCircle className="w-12 h-12 text-amber-500/50" />
                   </div>
                   <h3 className="text-xl font-black text-white mb-2 uppercase">
                     {i18n.language === 'ar' ? 'لا توجد رسائل' : 'No Messages Yet'}
@@ -327,10 +327,10 @@ const Messages = () => {
                                   <img 
                                     src={msg.senderPhoto} 
                                     alt={msg.senderName}
-                                    className="w-8 h-8 rounded-full border-2 border-yellow-500/20"
+                                    className="w-8 h-8 rounded-full border-2 border-amber-500/20"
                                   />
                                 ) : (
-                                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 flex items-center justify-center shadow-lg">
+                                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 flex items-center justify-center shadow-lg">
                                     <User className="w-4 h-4 text-black" />
                                   </div>
                                 )}
@@ -341,7 +341,7 @@ const Messages = () => {
                           <div className={`flex flex-col ${isOwn ? 'items-end' : 'items-start'} max-w-[70%]`}>
                             <div className={`rounded-3xl px-4 py-2.5 shadow-lg ${
                               isOwn 
-                                ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-black shadow-yellow-500/20' 
+                                ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-black shadow-amber-500/20' 
                                 : 'bg-zinc-800/80 text-white border border-zinc-700/50'
                             }`}>
                               <p className="text-sm leading-relaxed break-words">{msg.text}</p>
@@ -365,19 +365,19 @@ const Messages = () => {
             </div>
 
             {/* حقل الإدخال */}
-            <div className="p-4 border-t border-yellow-500/20 bg-black/80 backdrop-blur-xl">
+            <div className="p-4 border-t border-amber-500/20 bg-black/80 backdrop-blur-xl">
               <form onSubmit={handleSend} className="max-w-4xl mx-auto flex items-center gap-3">
                 <Input
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder={i18n.language === 'ar' ? 'اكتب رسالتك...' : 'Type a message...'}
-                  className="flex-1 bg-zinc-900/60 border-zinc-800 text-white rounded-full px-6 py-6 focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/20 placeholder:text-zinc-600"
+                  className="flex-1 bg-zinc-900/60 border-zinc-800 text-white rounded-full px-6 py-6 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 placeholder:text-zinc-600"
                   disabled={loading}
                 />
                 <Button
                   type="submit"
                   disabled={loading || !newMessage.trim()}
-                  className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-black font-black rounded-full w-12 h-12 p-0 shadow-lg shadow-yellow-500/30 disabled:opacity-50 transition-all hover:scale-105"
+                  className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black rounded-full w-12 h-12 p-0 shadow-lg shadow-amber-500/30 disabled:opacity-50 transition-all hover:scale-105"
                 >
                   {loading ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -391,8 +391,8 @@ const Messages = () => {
         ) : (
           <div className="flex-1 flex items-center justify-center bg-gradient-to-b from-black via-zinc-900/30 to-black">
             <div className="text-center">
-              <div className="w-32 h-32 bg-gradient-to-r from-yellow-500/10 to-yellow-600/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-yellow-500/20">
-                <MessageCircle className="w-16 h-16 text-yellow-500/50" />
+              <div className="w-32 h-32 bg-gradient-to-r from-amber-500/10 to-amber-600/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-amber-500/20">
+                <MessageCircle className="w-16 h-16 text-amber-500/50" />
               </div>
               <h3 className="text-2xl font-black text-white mb-2 uppercase">
                 {i18n.language === 'ar' ? 'اختر مستخدم' : 'Select a User'}

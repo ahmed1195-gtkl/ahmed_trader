@@ -110,12 +110,12 @@ function JoinChallengeWithCode() {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
         <div className="text-center">
-          <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+          <AlertCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Login Required</h2>
           <p className="text-gray-400 mb-4">You must be logged in to join a challenge</p>
           <button
             onClick={() => navigate('/login')}
-            className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg font-bold"
+            className="px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg font-bold"
           >
             Go to Login
           </button>
@@ -134,10 +134,10 @@ function JoinChallengeWithCode() {
           className="text-center mb-8"
         >
           <div className="flex items-center justify-center gap-3 mb-4">
-            <Trophy className="w-12 h-12 text-yellow-500" />
-            <Key className="w-10 h-10 text-yellow-400" />
+            <Trophy className="w-12 h-12 text-amber-500" />
+            <Key className="w-10 h-10 text-amber-400" />
           </div>
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">
             Join Challenge
           </h1>
           <p className="text-gray-400">Enter your invite code to join a trading challenge</p>
@@ -146,7 +146,7 @@ function JoinChallengeWithCode() {
         {/* Demo Account Status */}
         {checkingAccount ? (
           <div className="bg-gray-900 rounded-xl p-6 mb-6 flex items-center justify-center gap-3">
-            <Loader className="w-5 h-5 animate-spin text-yellow-500" />
+            <Loader className="w-5 h-5 animate-spin text-amber-500" />
             <span className="text-gray-400">Checking demo account...</span>
           </div>
         ) : demoAccount ? (
@@ -182,7 +182,7 @@ function JoinChallengeWithCode() {
             </div>
             <button
               onClick={() => navigate('/demo-account-setup')}
-              className="w-full px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg font-bold"
+              className="w-full px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg font-bold"
             >
               Connect Demo Account
             </button>
@@ -207,7 +207,7 @@ function JoinChallengeWithCode() {
                 onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
                 placeholder="ABC123"
                 maxLength={6}
-                className="w-full px-4 py-3 bg-black border border-gray-700 rounded-lg text-center text-2xl font-bold tracking-widest focus:outline-none focus:border-yellow-500"
+                className="w-full px-4 py-3 bg-black border border-gray-700 rounded-lg text-center text-2xl font-bold tracking-widest focus:outline-none focus:border-amber-500"
                 disabled={loading}
               />
               <p className="text-xs text-gray-500 mt-2 text-center">
@@ -242,7 +242,7 @@ function JoinChallengeWithCode() {
             <button
               type="submit"
               disabled={loading || !inviteCode || inviteCode.length !== 6}
-              className="w-full px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
@@ -264,10 +264,10 @@ function JoinChallengeWithCode() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-br from-gray-900 to-black border border-yellow-500/30 rounded-xl p-8"
+            className="bg-gradient-to-br from-gray-900 to-black border border-amber-500/30 rounded-xl p-8"
           >
             <div className="flex items-center gap-3 mb-6">
-              <Trophy className="w-8 h-8 text-yellow-500" />
+              <Trophy className="w-8 h-8 text-amber-500" />
               <div>
                 <h2 className="text-2xl font-bold">{challenge.name}</h2>
                 <p className="text-gray-400 text-sm">{challenge.description}</p>
@@ -277,7 +277,7 @@ function JoinChallengeWithCode() {
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="bg-black/50 rounded-lg p-4">
                 <p className="text-xs text-gray-500 mb-1">Initial Balance</p>
-                <p className="text-xl font-bold text-yellow-500">
+                <p className="text-xl font-bold text-amber-500">
                   ${challenge.initialBalance?.toLocaleString()}
                 </p>
               </div>

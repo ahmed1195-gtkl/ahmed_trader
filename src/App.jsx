@@ -75,16 +75,16 @@ function LoadingScreen() {
         transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
         className="relative"
       >
-        <div className="w-20 h-20 border-4 border-yellow-500/20 border-t-yellow-500 rounded-full animate-spin"></div>
+        <div className="w-20 h-20 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin"></div>
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-10 h-10 bg-yellow-500 rounded-full blur-xl opacity-50 animate-pulse"></div>
+          <div className="w-10 h-10 bg-amber-500 rounded-full blur-xl opacity-50 animate-pulse"></div>
         </div>
       </motion.div>
       <motion.p
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="mt-6 text-yellow-500 font-black tracking-[0.2em] uppercase text-xs"
+        className="mt-6 text-amber-500 font-black tracking-[0.2em] uppercase text-xs"
       >
         Shukritrade
       </motion.p>

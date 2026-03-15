@@ -27,7 +27,7 @@ function BalanceWarnings({ participant }) {
               ? 'bg-red-500/10 border-red-500/20'
               : isCritical
               ? 'bg-orange-500/10 border-orange-500/20'
-              : 'bg-yellow-500/10 border-yellow-500/20'
+              : 'bg-amber-500/10 border-amber-500/20'
           }`}
         >
           <div className="flex items-start justify-between">
@@ -36,7 +36,7 @@ function BalanceWarnings({ participant }) {
                 <XCircle className="w-8 h-8 text-red-500 flex-shrink-0 mt-1" />
               ) : (
                 <AlertTriangle className={`w-8 h-8 flex-shrink-0 mt-1 ${
-                  isCritical ? 'text-orange-500' : 'text-yellow-500'
+                  isCritical ? 'text-orange-500' : 'text-amber-500'
                 }`} />
               )}
               
@@ -46,7 +46,7 @@ function BalanceWarnings({ participant }) {
                     ? 'text-red-500'
                     : isCritical
                     ? 'text-orange-500'
-                    : 'text-yellow-500'
+                    : 'text-amber-500'
                 }`}>
                   {isDisqualified
                     ? (i18n.language === 'ar' ? '❌ تم الإقصاء من التحدي' : '❌ Challenge Disqualification')
@@ -72,7 +72,7 @@ function BalanceWarnings({ participant }) {
                       <div className={`px-3 py-1 rounded-full text-xs font-black ${
                         isCritical
                           ? 'bg-orange-500/20 text-orange-500'
-                          : 'bg-yellow-500/20 text-yellow-500'
+                          : 'bg-amber-500/20 text-amber-500'
                       }`}>
                         {i18n.language === 'ar' 
                           ? `تحذير ${warningCount} من 3`
@@ -87,7 +87,7 @@ function BalanceWarnings({ participant }) {
                       )}
                     </div>
 
-                    <p className={`text-sm ${isCritical ? 'text-orange-400' : 'text-yellow-400'}`}>
+                    <p className={`text-sm ${isCritical ? 'text-orange-400' : 'text-amber-400'}`}>
                       {i18n.language === 'ar'
                         ? 'تم اكتشاف اختلافات في رصيد حسابك لا تتطابق مع نشاط التداول الخاص بك.'
                         : 'Discrepancies detected in your account balance that don\'t match your trading activity.'}

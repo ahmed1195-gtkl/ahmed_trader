@@ -240,7 +240,7 @@ const Auth = () => {
 
   const getStrengthColor = () => {
     if (passwordStrength <= 1) return 'bg-red-500';
-    if (passwordStrength === 2) return 'bg-yellow-500';
+    if (passwordStrength === 2) return 'bg-amber-500';
     if (passwordStrength === 3) return 'bg-blue-500';
     return 'bg-green-500';
   };
@@ -269,9 +269,9 @@ const Auth = () => {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
       >
-        <Card className="bg-black/60 backdrop-blur-2xl border-yellow-500/30 text-white shadow-2xl overflow-hidden">
+        <Card className="bg-black/60 backdrop-blur-2xl border-amber-500/30 text-white shadow-2xl overflow-hidden">
           <CardHeader className="space-y-1 text-center pb-8">
-            <CardTitle className="text-4xl font-black bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-600 bg-clip-text text-transparent uppercase tracking-tighter">
+            <CardTitle className="text-4xl font-black bg-gradient-to-r from-amber-300 via-amber-500 to-amber-600 bg-clip-text text-transparent uppercase tracking-tighter">
               {isForgotPassword ? t('auth.resetPassword') : (isLogin ? t('auth.welcome') : t('auth.createAccount'))}
             </CardTitle>
             <CardDescription className="text-gray-400 font-medium">
@@ -290,27 +290,27 @@ const Auth = () => {
                   className="space-y-6"
                 >
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Shield className="w-8 h-8 text-yellow-500" />
+                    <div className="w-16 h-16 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Shield className="w-8 h-8 text-amber-500" />
                     </div>
                     <h3 className="text-xl font-black uppercase text-white">Security Check</h3>
                     <p className="text-xs text-gray-500 mt-2">Enter the 6-digit code sent to your device.</p>
                   </div>
                   <div className="grid gap-2">
-                    <Label className="text-yellow-500/80 font-bold text-xs uppercase tracking-widest">Verification Code</Label>
+                    <Label className="text-amber-500/80 font-bold text-xs uppercase tracking-widest">Verification Code</Label>
                     <Input 
                       type="text" 
                       placeholder="123456" 
                       value={verificationCode}
                       onChange={(e) => setVerificationCode(e.target.value)}
-                      className="text-center text-2xl tracking-[0.5em] font-black bg-white/5 border-white/10 focus:border-yellow-500/50 h-16 text-white"
+                      className="text-center text-2xl tracking-[0.5em] font-black bg-white/5 border-white/10 focus:border-amber-500/50 h-16 text-white"
                       maxLength={6}
                       required
                     />
                   </div>
                   <Button 
                     type="submit" 
-                    className="w-full h-12 bg-yellow-500 hover:bg-yellow-600 text-black font-black uppercase tracking-widest"
+                    className="w-full h-12 bg-amber-500 hover:bg-amber-600 text-black font-black uppercase tracking-widest"
                   >
                     Verify & Login
                   </Button>
@@ -331,29 +331,29 @@ const Auth = () => {
                   className="grid gap-4"
                 >
                   <div className="grid gap-2">
-                    <Label className="text-yellow-500/80 font-bold text-xs uppercase tracking-widest" htmlFor="fullName">{t('auth.fullName')}</Label>
-                    <Input id="fullName" type="text" placeholder="Ahmed Ali" className="bg-white/5 border-white/10 focus:border-yellow-500/50 h-11" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+                    <Label className="text-amber-500/80 font-bold text-xs uppercase tracking-widest" htmlFor="fullName">{t('auth.fullName')}</Label>
+                    <Input id="fullName" type="text" placeholder="Ahmed Ali" className="bg-white/5 border-white/10 focus:border-amber-500/50 h-11" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
                   </div>
                   <div className="grid gap-2">
-                    <Label className="text-yellow-500/80 font-bold text-xs uppercase tracking-widest" htmlFor="country">{t('auth.country')}</Label>
+                    <Label className="text-amber-500/80 font-bold text-xs uppercase tracking-widest" htmlFor="country">{t('auth.country')}</Label>
                     <Select onValueChange={setCountry} value={country}>
-                      <SelectTrigger className="bg-white/5 border-white/10 focus:border-yellow-500/50 h-11">
+                      <SelectTrigger className="bg-white/5 border-white/10 focus:border-amber-500/50 h-11">
                         <SelectValue placeholder={t('auth.country')} />
                       </SelectTrigger>
                       <SelectContent className="bg-zinc-900 border-white/20 text-white max-h-60">
                         {countries.map((c) => (
-                          <SelectItem key={c.code} value={c.code} className="focus:bg-yellow-500 focus:text-black">{c.name}</SelectItem>
+                          <SelectItem key={c.code} value={c.code} className="focus:bg-amber-500 focus:text-black">{c.name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="grid gap-2">
-                    <Label className="text-yellow-500/80 font-bold text-xs uppercase tracking-widest" htmlFor="phone">{t('auth.phone')}</Label>
+                    <Label className="text-amber-500/80 font-bold text-xs uppercase tracking-widest" htmlFor="phone">{t('auth.phone')}</Label>
                     <div className="flex gap-2">
                       <div className="flex items-center justify-center bg-white/5 border border-white/10 rounded-md px-3 text-sm text-gray-400 min-w-[70px]">
                         {selectedCountry ? selectedCountry.phone : '+...'}
                       </div>
-                      <Input id="phone" type="tel" placeholder="555 00 00 00" className="bg-white/5 border-white/10 focus:border-yellow-500/50 h-11 flex-1" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+                      <Input id="phone" type="tel" placeholder="555 00 00 00" className="bg-white/5 border-white/10 focus:border-amber-500/50 h-11 flex-1" value={phone} onChange={(e) => setPhone(e.target.value)} required />
                     </div>
                   </div>
                 </motion.div>
@@ -361,26 +361,26 @@ const Auth = () => {
             </AnimatePresence>
 
             <div className="grid gap-2">
-              <Label className="text-yellow-500/80 font-bold text-xs uppercase tracking-widest" htmlFor="email">{t('auth.email')}</Label>
-              <Input id="email" type="email" placeholder="ahmed@example.com" className="bg-white/5 border-white/10 focus:border-yellow-500/50 h-11" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <Label className="text-amber-500/80 font-bold text-xs uppercase tracking-widest" htmlFor="email">{t('auth.email')}</Label>
+              <Input id="email" type="email" placeholder="ahmed@example.com" className="bg-white/5 border-white/10 focus:border-amber-500/50 h-11" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
 
             {!isForgotPassword && (
               <div className="grid gap-2">
                 <div className="flex justify-between items-center">
-                  <Label className="text-yellow-500/80 font-bold text-xs uppercase tracking-widest" htmlFor="password">{t('auth.password')}</Label>
+                  <Label className="text-amber-500/80 font-bold text-xs uppercase tracking-widest" htmlFor="password">{t('auth.password')}</Label>
                   {isLogin && (
-                    <button onClick={() => setIsForgotPassword(true)} className="text-xs text-yellow-500/60 hover:text-yellow-500 transition-colors">
+                    <button onClick={() => setIsForgotPassword(true)} className="text-xs text-amber-500/60 hover:text-amber-500 transition-colors">
                       {t('auth.forgotPassword')}
                     </button>
                   )}
                 </div>
-                <Input id="password" type="password" className="bg-white/5 border-white/10 focus:border-yellow-500/50 h-11" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                <Input id="password" type="password" className="bg-white/5 border-white/10 focus:border-amber-500/50 h-11" value={password} onChange={(e) => setPassword(e.target.value)} required />
                 {!isLogin && password && (
                   <div className="mt-1">
                     <div className="flex justify-between text-[10px] uppercase font-bold mb-1">
                       <span className="text-gray-500">{t('auth.passwordStrength')}</span>
-                      <span className={passwordStrength <= 1 ? 'text-red-500' : passwordStrength === 2 ? 'text-yellow-500' : 'text-green-500'}>
+                      <span className={passwordStrength <= 1 ? 'text-red-500' : passwordStrength === 2 ? 'text-amber-500' : 'text-green-500'}>
                         {getStrengthText()}
                       </span>
                     </div>
@@ -402,7 +402,7 @@ const Auth = () => {
             <Button 
               onClick={handleEmailAuth}
               disabled={loading}
-              className="w-full h-12 bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-black font-black text-lg shadow-lg shadow-yellow-500/20 transition-all active:scale-95"
+              className="w-full h-12 bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-black font-black text-lg shadow-lg shadow-amber-500/20 transition-all active:scale-95"
             >
               {loading ? "..." : (isForgotPassword ? t('auth.resetPassword') : (isLogin ? t('auth.login') : t('auth.signup')))}
             </Button>
@@ -446,7 +446,7 @@ const Auth = () => {
                 setError('');
                 setMessage('');
               }} 
-              className="text-sm text-yellow-500 font-bold hover:underline"
+              className="text-sm text-amber-500 font-bold hover:underline"
             >
               {isForgotPassword ? t('auth.login') : (isLogin ? t('auth.signup') : t('auth.login'))}
             </button>

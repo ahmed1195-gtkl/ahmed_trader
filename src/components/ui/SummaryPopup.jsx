@@ -18,7 +18,7 @@ export const SummaryPopup = ({ dailyRiskStatus, positionQuality, riskSummary }) 
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-8 right-8 z-40 flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-black text-xs uppercase tracking-widest shadow-2xl hover:shadow-yellow-500/50 transition-all"
+        className="fixed bottom-8 right-8 z-40 flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-black font-black text-xs uppercase tracking-widest shadow-2xl hover:shadow-amber-500/50 transition-all"
       >
         <BarChart3 className="w-4 h-4" />
         <span>Summary</span>
@@ -48,8 +48,8 @@ export const SummaryPopup = ({ dailyRiskStatus, positionQuality, riskSummary }) 
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-3">
-                    <div className="p-3 rounded-2xl bg-yellow-500/10 border border-yellow-500/20">
-                      <Calendar className="w-6 h-6 text-yellow-500" />
+                    <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20">
+                      <Calendar className="w-6 h-6 text-amber-500" />
                     </div>
                     <div>
                       <h2 className="text-2xl font-black uppercase tracking-tight text-white">Daily Summary</h2>

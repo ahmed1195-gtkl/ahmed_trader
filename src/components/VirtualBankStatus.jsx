@@ -32,7 +32,7 @@ function VirtualBankStatus({ challengeId }) {
     return (
       <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-8">
         <div className="flex items-center justify-center">
-          <div className="w-12 h-12 border-4 border-yellow-500/20 border-t-yellow-500 rounded-full animate-spin" />
+          <div className="w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
         </div>
       </div>
     );
@@ -50,7 +50,7 @@ function VirtualBankStatus({ challengeId }) {
     >
       {/* Header */}
       <div className="flex items-center gap-4 mb-8">
-        <div className="w-16 h-16 bg-yellow-500 rounded-2xl flex items-center justify-center">
+        <div className="w-16 h-16 bg-amber-500 rounded-2xl flex items-center justify-center">
           <Building2 className="w-8 h-8 text-black" />
         </div>
         <div>
@@ -71,7 +71,7 @@ function VirtualBankStatus({ challengeId }) {
         <div className="bg-black/30 border border-white/10 rounded-2xl p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <DollarSign className="w-8 h-8 text-yellow-500" />
+              <DollarSign className="w-8 h-8 text-amber-500" />
               <div className="text-sm font-bold text-gray-400 uppercase">
                 {i18n.language === 'ar' ? 'رصيد البنك الكلي' : 'Total Bank Balance'}
               </div>
@@ -127,7 +127,7 @@ function VirtualBankStatus({ challengeId }) {
         {/* Average Balance */}
         <div className="bg-black/30 border border-white/10 rounded-xl p-4">
           <div className="flex items-center gap-3 mb-2">
-            <DollarSign className="w-5 h-5 text-yellow-500" />
+            <DollarSign className="w-5 h-5 text-amber-500" />
             <div className="text-xs font-bold text-gray-500 uppercase">
               {i18n.language === 'ar' ? 'متوسط الرصيد' : 'Average Balance'}
             </div>
@@ -142,12 +142,12 @@ function VirtualBankStatus({ challengeId }) {
         {/* Status */}
         <div className="bg-black/30 border border-white/10 rounded-xl p-4">
           <div className="flex items-center gap-3 mb-2">
-            <Trophy className="w-5 h-5 text-yellow-500" />
+            <Trophy className="w-5 h-5 text-amber-500" />
             <div className="text-xs font-bold text-gray-500 uppercase">
               {i18n.language === 'ar' ? 'الحالة' : 'Status'}
             </div>
           </div>
-          <div className="text-lg font-black text-yellow-500">
+          <div className="text-lg font-black text-amber-500">
             {i18n.language === 'ar' ? 'نشط' : 'Active'}
           </div>
         </div>

@@ -90,7 +90,7 @@ function TeamChat({ teamId, teamName }) {
       case 'system':
         return 'bg-blue-500/10 border-blue-500/20 text-blue-400 text-center italic';
       case 'trade_alert':
-        return 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400';
+        return 'bg-amber-500/10 border-amber-500/20 text-amber-400';
       default:
         return 'bg-zinc-800 border-white/5';
     }
@@ -118,7 +118,7 @@ function TeamChat({ teamId, teamName }) {
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 w-16 h-16 bg-yellow-500 text-black rounded-full shadow-2xl flex items-center justify-center hover:bg-yellow-400 transition-all"
+        className="fixed bottom-6 right-6 z-50 w-16 h-16 bg-amber-500 text-black rounded-full shadow-2xl flex items-center justify-center hover:bg-amber-400 transition-all"
       >
         <MessageCircle className="w-8 h-8" />
         {unreadCount > 0 && (
@@ -143,7 +143,7 @@ function TeamChat({ teamId, teamName }) {
       {/* Header */}
       <div className="bg-zinc-800 border-b border-white/10 p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
+          <div className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center">
             <Users className="w-5 h-5 text-black" />
           </div>
           <div>
@@ -193,7 +193,7 @@ function TeamChat({ teamId, teamName }) {
                 >
                   {msg.type !== 'system' && (
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-bold text-yellow-500">
+                      <span className="text-xs font-bold text-amber-500">
                         {msg.userName}
                       </span>
                       <span className="text-xs text-gray-500">
@@ -232,12 +232,12 @@ function TeamChat({ teamId, teamName }) {
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder={i18n.language === 'ar' ? 'اكتب رسالة...' : 'Type a message...'}
-                className="flex-1 bg-zinc-800 border border-white/10 rounded-xl px-4 py-2 text-sm text-white placeholder-gray-500 focus:border-yellow-500 outline-none"
+                className="flex-1 bg-zinc-800 border border-white/10 rounded-xl px-4 py-2 text-sm text-white placeholder-gray-500 focus:border-amber-500 outline-none"
               />
               <button
                 type="submit"
                 disabled={!newMessage.trim()}
-                className="w-10 h-10 bg-yellow-500 text-black rounded-xl flex items-center justify-center hover:bg-yellow-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-10 h-10 bg-amber-500 text-black rounded-xl flex items-center justify-center hover:bg-amber-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send className="w-5 h-5" />
               </button>

@@ -42,7 +42,7 @@ const BrokersPage = () => {
           className="text-center mb-16"
         >
           <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white mb-6">
-            {currentLanguage === 'ar' ? 'الوسطاء' : currentLanguage === 'fr' ? 'Courtiers' : 'Brokers'} <span className="text-yellow-500">{currentLanguage === 'ar' ? 'الموصى بهم' : currentLanguage === 'fr' ? 'Recommandés' : 'Recommended'}</span>
+            {currentLanguage === 'ar' ? 'الوسطاء' : currentLanguage === 'fr' ? 'Courtiers' : 'Brokers'} <span className="text-amber-500">{currentLanguage === 'ar' ? 'الموصى بهم' : currentLanguage === 'fr' ? 'Recommandés' : 'Recommended'}</span>
           </h1>
           <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-8">
             {currentLanguage === 'ar' 
@@ -52,13 +52,13 @@ const BrokersPage = () => {
               : 'Our trusted partners in the trading world - Choose the right broker for you and start your journey to success'
             }
           </p>
-          <div className="w-32 h-1.5 bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 mx-auto rounded-full shadow-lg shadow-yellow-500/50"></div>
+          <div className="w-32 h-1.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 mx-auto rounded-full shadow-lg shadow-amber-500/50"></div>
         </motion.div>
 
         {/* Loading State */}
         {loading && (
           <div className="flex justify-center items-center py-20">
-            <Loader2 className="h-10 w-10 animate-spin text-yellow-500" />
+            <Loader2 className="h-10 w-10 animate-spin text-amber-500" />
             <span className="ml-3 text-white text-lg font-bold">
               {currentLanguage === 'ar' ? 'جاري التحميل...' : currentLanguage === 'fr' ? 'Chargement...' : 'Loading...'}
             </span>
@@ -90,10 +90,10 @@ const BrokersPage = () => {
                 variants={itemVariants}
                 className="group"
               >
-                <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/10 rounded-[3rem] p-8 md:p-12 hover:border-yellow-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-yellow-500/10">
+                <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/10 rounded-[3rem] p-8 md:p-12 hover:border-amber-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-500/10">
                   {/* Broker Header */}
                   <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-10">
-                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-[2rem] bg-white/5 p-4 flex items-center justify-center border border-white/10 group-hover:border-yellow-500/30 transition-all duration-500">
+                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-[2rem] bg-white/5 p-4 flex items-center justify-center border border-white/10 group-hover:border-amber-500/30 transition-all duration-500">
                       <img 
                         src={broker.logo} 
                         alt={`${broker.name} Logo`} 
@@ -101,7 +101,7 @@ const BrokersPage = () => {
                       />
                     </div>
                     <div className="flex-1 text-center md:text-left">
-                      <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-white group-hover:text-yellow-500 transition-colors duration-300 mb-4">
+                      <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-white group-hover:text-amber-500 transition-colors duration-300 mb-4">
                         {broker.name}
                       </h2>
                       <p className="text-lg text-gray-300 leading-relaxed">
@@ -113,14 +113,14 @@ const BrokersPage = () => {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
                     {/* Features */}
                     <div className="bg-white/5 rounded-[2rem] p-6 border border-white/5">
-                      <h3 className="text-xl font-black uppercase tracking-tight text-yellow-500 mb-6 flex items-center gap-3">
+                      <h3 className="text-xl font-black uppercase tracking-tight text-amber-500 mb-6 flex items-center gap-3">
                         <CheckCircle className="w-6 h-6" />
                         {currentLanguage === 'ar' ? 'المميزات' : currentLanguage === 'fr' ? 'Caractéristiques' : 'Features'}
                       </h3>
                       <div className="space-y-3">
                         {broker.features.map((feature, idx) => (
                           <div key={idx} className="flex items-start gap-3">
-                            <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                            <div className="w-2 h-2 bg-amber-500 rounded-full mt-2 flex-shrink-0"></div>
                             <span className="text-gray-200 text-sm leading-relaxed">{feature}</span>
                           </div>
                         ))}
@@ -132,14 +132,14 @@ const BrokersPage = () => {
                       {/* Bonuses */}
                       {broker.bonuses && broker.bonuses.length > 0 && (
                         <div className="bg-white/5 rounded-[2rem] p-6 border border-white/5">
-                          <h3 className="text-xl font-black uppercase tracking-tight text-yellow-500 mb-6 flex items-center gap-3">
+                          <h3 className="text-xl font-black uppercase tracking-tight text-amber-500 mb-6 flex items-center gap-3">
                             <Gift className="w-6 h-6" />
                             {currentLanguage === 'ar' ? 'العروض والمكافآت' : currentLanguage === 'fr' ? 'Bonus et Offres' : 'Bonuses & Offers'}
                           </h3>
                           <div className="space-y-3">
                             {broker.bonuses.map((bonus, idx) => (
-                              <div key={idx} className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
-                                <span className="text-yellow-300 text-sm font-bold">{bonus}</span>
+                              <div key={idx} className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4">
+                                <span className="text-amber-300 text-sm font-bold">{bonus}</span>
                               </div>
                             ))}
                           </div>
@@ -148,25 +148,25 @@ const BrokersPage = () => {
 
                       {/* Contact Info */}
                       <div className="bg-white/5 rounded-[2rem] p-6 border border-white/5">
-                        <h3 className="text-xl font-black uppercase tracking-tight text-yellow-500 mb-6">
+                        <h3 className="text-xl font-black uppercase tracking-tight text-amber-500 mb-6">
                           {currentLanguage === 'ar' ? 'تواصل مع الكوتش أحمد' : currentLanguage === 'fr' ? 'Contactez le Coach Ahmed' : 'Contact Coach Ahmed'}
                         </h3>
                         <div className="space-y-4">
-                          <a href={`tel:${broker.contact.phone}`} className="flex items-center gap-3 text-gray-300 hover:text-yellow-500 transition-colors group/link">
-                            <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center group-hover/link:bg-yellow-500/20 transition-colors">
-                              <Phone className="w-5 h-5 text-yellow-500" />
+                          <a href={`tel:${broker.contact.phone}`} className="flex items-center gap-3 text-gray-300 hover:text-amber-500 transition-colors group/link">
+                            <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center group-hover/link:bg-amber-500/20 transition-colors">
+                              <Phone className="w-5 h-5 text-amber-500" />
                             </div>
                             <span className="text-sm font-bold">{broker.contact.phone}</span>
                           </a>
-                          <a href={`https://t.me/${broker.contact.telegram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-gray-300 hover:text-yellow-500 transition-colors group/link">
-                            <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center group-hover/link:bg-yellow-500/20 transition-colors">
-                              <Send className="w-5 h-5 text-yellow-500" />
+                          <a href={`https://t.me/${broker.contact.telegram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-gray-300 hover:text-amber-500 transition-colors group/link">
+                            <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center group-hover/link:bg-amber-500/20 transition-colors">
+                              <Send className="w-5 h-5 text-amber-500" />
                             </div>
                             <span className="text-sm font-bold">{broker.contact.telegram}</span>
                           </a>
-                          <a href={`mailto:${broker.contact.email}`} className="flex items-center gap-3 text-gray-300 hover:text-yellow-500 transition-colors group/link">
-                            <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center group-hover/link:bg-yellow-500/20 transition-colors">
-                              <Mail className="w-5 h-5 text-yellow-500" />
+                          <a href={`mailto:${broker.contact.email}`} className="flex items-center gap-3 text-gray-300 hover:text-amber-500 transition-colors group/link">
+                            <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center group-hover/link:bg-amber-500/20 transition-colors">
+                              <Mail className="w-5 h-5 text-amber-500" />
                             </div>
                             <span className="text-sm font-bold">{broker.contact.email}</span>
                           </a>
@@ -178,7 +178,7 @@ const BrokersPage = () => {
                   {/* Register Button */}
                   <Button 
                     onClick={() => window.open(broker.registerUrl, '_blank')}
-                    className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-black uppercase tracking-widest py-6 rounded-[1.5rem] text-lg shadow-lg shadow-yellow-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-yellow-500/40"
+                    className="w-full bg-amber-500 hover:bg-amber-600 text-black font-black uppercase tracking-widest py-6 rounded-[1.5rem] text-lg shadow-lg shadow-amber-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-amber-500/40"
                   >
                     <ExternalLink className="w-5 h-5 mr-3 rtl:mr-0 rtl:ml-3" />
                     {currentLanguage === 'ar' ? 'افتح حساب الآن' : currentLanguage === 'fr' ? 'Ouvrir un compte maintenant' : 'Open Account Now'}
@@ -206,7 +206,7 @@ const BrokersPage = () => {
                   href="https://www.instagram.com/ahmed_trader_support/" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 via-pink-500 to-yellow-500 flex items-center justify-center hover:scale-110 transition-transform duration-300 shadow-lg hover:shadow-pink-500/50"
+                  className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 via-pink-500 to-amber-500 flex items-center justify-center hover:scale-110 transition-transform duration-300 shadow-lg hover:shadow-pink-500/50"
                 >
                   <Instagram className="w-8 h-8 text-white" />
                 </a>

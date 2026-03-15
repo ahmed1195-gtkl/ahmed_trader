@@ -23,7 +23,7 @@ export const CopyButton = ({ value, label = 'Copy' }) => {
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       onClick={handleCopy}
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-yellow-500/50 transition-all group"
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-amber-500/50 transition-all group"
       title={label}
     >
       <AnimatePresence mode="wait">
@@ -46,8 +46,8 @@ export const CopyButton = ({ value, label = 'Copy' }) => {
             exit={{ scale: 0, rotate: -180 }}
             className="flex items-center gap-1.5"
           >
-            <Copy className="w-3 h-3 text-gray-500 group-hover:text-yellow-500 transition-colors" />
-            <span className="text-[9px] font-black uppercase tracking-widest text-gray-500 group-hover:text-yellow-500 transition-colors">{label}</span>
+            <Copy className="w-3 h-3 text-gray-500 group-hover:text-amber-500 transition-colors" />
+            <span className="text-[9px] font-black uppercase tracking-widest text-gray-500 group-hover:text-amber-500 transition-colors">{label}</span>
           </motion.div>
         )}
       </AnimatePresence>
