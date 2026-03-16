@@ -44,6 +44,9 @@ import GlobalLeaderboard from './components/GlobalLeaderboard';
 import JoinTeam from './components/JoinTeam';
 import SheetsGuide from './components/SheetsGuide';
 import MarketIntelligence from './components/MarketIntelligence';
+import Academy from './components/academy/Academy';
+import SchoolPage from './components/academy/SchoolPage';
+import LessonPage from './components/academy/LessonPage';
 import './App.css';
 
 function MainLayout() {
@@ -237,6 +240,9 @@ function App() {
                 <Route path="/join-team/:inviteCode" element={user ? <JoinTeam /> : <Navigate to="/auth" />} />
                 <Route path="/sheets-guide" element={<SheetsGuide />} />
                 <Route path="/market-intelligence" element={<MarketIntelligence />} />
+                <Route path="/academy" element={<Academy />} />
+                <Route path="/academy/:schoolId" element={<SchoolPage />} />
+                <Route path="/academy/:schoolId/lesson/:lessonId" element={<LessonPage />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </div>

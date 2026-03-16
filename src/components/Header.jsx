@@ -27,7 +27,8 @@ import {
   TrendingUp,
   MessageCircle,
   Trophy,
-  Crown
+  Crown,
+  BookOpen
 } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
@@ -127,6 +128,7 @@ const Header = () => {
     { name: i18n.language === 'ar' ? 'الرسائل' : 'Messages', path: '/messages', icon: <MessageCircle className="w-4 h-4" />, show: true },
     { name: 'AI Bot', path: '/ai-bot', icon: <Zap className="w-4 h-4" />, show: siteSettings.showAIBot },
     { name: 'Pips', path: '/pip-calculator', icon: <Calculator className="w-4 h-4" />, show: siteSettings.showPipCalculator },
+    { name: i18n.language === 'ar' ? 'الأكاديمية' : i18n.language === 'fr' ? 'Académie' : i18n.language === 'es' ? 'Academia' : 'Academy', path: '/academy', icon: <BookOpen className="w-4 h-4" />, show: true },
   ].filter(link => link.show);
 
   const changeLanguage = (code) => {
