@@ -593,6 +593,174 @@ const DiagramSVG = ({ type, className = '' }) => {
         </g>
       </svg>
     ),
+
+    rsi: (
+      <svg viewBox="0 0 600 350" className={baseClass} xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="rsiBg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#1a1a2e" />
+            <stop offset="100%" stopColor="#0d0d1a" />
+          </linearGradient>
+          <linearGradient id="rsiOverbought" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#ef4444" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#ef4444" stopOpacity="0.2" />
+          </linearGradient>
+          <linearGradient id="rsiOversold" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#22c55e" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#22c55e" stopOpacity="0.2" />
+          </linearGradient>
+        </defs>
+        <rect width="600" height="350" fill="url(#rsiBg)" rx="12" />
+        <text x="300" y="30" textAnchor="middle" fill="#d4a94b" fontSize="16" fontWeight="bold">RSI (Relative Strength Index)</text>
+        
+        <line x1="50" y1="80" x2="550" y2="80" stroke="#404050" strokeWidth="1" strokeDasharray="3,3" />
+        <line x1="50" y1="180" x2="550" y2="180" stroke="#404050" strokeWidth="1" strokeDasharray="3,3" />
+        <line x1="50" y1="280" x2="550" y2="280" stroke="#404050" strokeWidth="1" strokeDasharray="3,3" />
+        
+        <rect x="50" y="50" width="500" height="30" fill="url(#rsiOverbought)" />
+        <text x="560" y="70" fill="#ef4444" fontSize="11" fontWeight="bold">70 (Overbought)</text>
+        
+        <line x1="50" y1="180" x2="550" y2="180" stroke="#d4a94b" strokeWidth="2" />
+        <text x="560" y="185" fill="#d4a94b" fontSize="11" fontWeight="bold">50 (Neutral)</text>
+        
+        <rect x="50" y="280" width="500" height="30" fill="url(#rsiOversold)" />
+        <text x="560" y="300" fill="#22c55e" fontSize="11" fontWeight="bold">30 (Oversold)</text>
+        
+        <polyline points="70,200 100,150 130,140 160,120 190,110 220,130 250,160 280,170 310,150 340,120 370,100 400,110 430,140 460,160 490,180 520,200" fill="none" stroke="#d4a94b" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        
+        <circle cx="370" cy="100" r="5" fill="#ef4444" />
+        <text x="370" y="85" textAnchor="middle" fill="#ef4444" fontSize="10">Sell</text>
+        
+        <circle cx="220" cy="130" r="5" fill="#22c55e" />
+        <text x="220" y="320" textAnchor="middle" fill="#22c55e" fontSize="10">Buy</text>
+      </svg>
+    ),
+
+    macd: (
+      <svg viewBox="0 0 600 350" className={baseClass} xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="macdBg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#1a1a2e" />
+            <stop offset="100%" stopColor="#0d0d1a" />
+          </linearGradient>
+        </defs>
+        <rect width="600" height="350" fill="url(#macdBg)" rx="12" />
+        <text x="300" y="30" textAnchor="middle" fill="#d4a94b" fontSize="16" fontWeight="bold">MACD (Moving Average Convergence Divergence)</text>
+        
+        <line x1="50" y1="180" x2="550" y2="180" stroke="#d4a94b" strokeWidth="2" />
+        <text x="560" y="185" fill="#d4a94b" fontSize="11">0</text>
+        
+        <polyline points="70,170 100,160 130,150 160,140 190,130 220,120 250,110 280,100 310,95 340,100 370,110 400,120 430,130 460,140 490,150 520,160" fill="none" stroke="#3b82f6" strokeWidth="2.5" />
+        <text x="530" y="160" fill="#3b82f6" fontSize="11" fontWeight="bold">MACD</text>
+        
+        <polyline points="70,175 100,165 130,155 160,145 190,135 220,125 250,115 280,105 310,100 340,105 370,115 400,125 430,135 460,145 490,155 520,165" fill="none" stroke="#f97316" strokeWidth="2.5" />
+        <text x="530" y="175" fill="#f97316" fontSize="11" fontWeight="bold">Signal</text>
+        
+        <rect x="65" y="180" width="8" height="8" fill="#22c55e" />
+        <rect x="95" y="180" width="8" height="5" fill="#22c55e" />
+        <rect x="125" y="180" width="8" height="3" fill="#22c55e" />
+        <rect x="155" y="180" width="8" height="2" fill="#ef4444" />
+        <rect x="185" y="180" width="8" height="4" fill="#ef4444" />
+        <rect x="215" y="180" width="8" height="6" fill="#ef4444" />
+        <rect x="245" y="180" width="8" height="8" fill="#ef4444" />
+        <rect x="275" y="180" width="8" height="7" fill="#ef4444" />
+        <rect x="305" y="180" width="8" height="5" fill="#ef4444" />
+        <rect x="335" y="180" width="8" height="3" fill="#22c55e" />
+        <rect x="365" y="180" width="8" height="5" fill="#22c55e" />
+        <rect x="395" y="180" width="8" height="7" fill="#22c55e" />
+        <rect x="425" y="180" width="8" height="9" fill="#22c55e" />
+        <rect x="455" y="180" width="8" height="8" fill="#22c55e" />
+        <rect x="485" y="180" width="8" height="6" fill="#22c55e" />
+        <rect x="515" y="180" width="8" height="4" fill="#22c55e" />
+        
+        <text x="300" y="320" textAnchor="middle" fill="#94a3b8" fontSize="11">Bullish (Green) = Uptrend | Bearish (Red) = Downtrend</text>
+      </svg>
+    ),
+
+    fibonacci: (
+      <svg viewBox="0 0 600 350" className={baseClass} xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="fibBg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#1a1a2e" />
+            <stop offset="100%" stopColor="#0d0d1a" />
+          </linearGradient>
+        </defs>
+        <rect width="600" height="350" fill="url(#fibBg)" rx="12" />
+        <text x="300" y="30" textAnchor="middle" fill="#d4a94b" fontSize="16" fontWeight="bold">Fibonacci Retracement Levels</text>
+        
+        <line x1="100" y1="280" x2="100" y2="80" stroke="#d4a94b" strokeWidth="3" />
+        <circle cx="100" cy="280" r="4" fill="#22c55e" />
+        <text x="85" y="295" fill="#22c55e" fontSize="11" fontWeight="bold">Low</text>
+        <circle cx="100" cy="80" r="4" fill="#ef4444" />
+        <text x="85" y="70" fill="#ef4444" fontSize="11" fontWeight="bold">High</text>
+        
+        <line x1="100" y1="80" x2="500" y2="80" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="3,3" />
+        <text x="510" y="85" fill="#ef4444" fontSize="11" fontWeight="bold">0%</text>
+        
+        <line x1="100" y1="125" x2="500" y2="125" stroke="#d4a94b" strokeWidth="1.5" strokeDasharray="3,3" />
+        <text x="510" y="130" fill="#d4a94b" fontSize="11" fontWeight="bold">23.6%</text>
+        
+        <line x1="100" y1="155" x2="500" y2="155" stroke="#d4a94b" strokeWidth="1.5" strokeDasharray="3,3" />
+        <text x="510" y="160" fill="#d4a94b" fontSize="11" fontWeight="bold">38.2%</text>
+        
+        <line x1="100" y1="180" x2="500" y2="180" stroke="#d4a94b" strokeWidth="2" />
+        <text x="510" y="185" fill="#d4a94b" fontSize="11" fontWeight="bold">50%</text>
+        
+        <line x1="100" y1="205" x2="500" y2="205" stroke="#d4a94b" strokeWidth="1.5" strokeDasharray="3,3" />
+        <text x="510" y="210" fill="#d4a94b" fontSize="11" fontWeight="bold">61.8%</text>
+        
+        <line x1="100" y1="235" x2="500" y2="235" stroke="#d4a94b" strokeWidth="1.5" strokeDasharray="3,3" />
+        <text x="510" y="240" fill="#d4a94b" fontSize="11" fontWeight="bold">76.4%</text>
+        
+        <line x1="100" y1="280" x2="500" y2="280" stroke="#22c55e" strokeWidth="1.5" strokeDasharray="3,3" />
+        <text x="510" y="285" fill="#22c55e" fontSize="11" fontWeight="bold">100%</text>
+        
+        <text x="300" y="320" textAnchor="middle" fill="#94a3b8" fontSize="11">Support at 38.2%, 50%, 61.8% | Key reversal at 50%</text>
+      </svg>
+    ),
+
+    riskManagement: (
+      <svg viewBox="0 0 600 350" className={baseClass} xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="rmBg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#1a1a2e" />
+            <stop offset="100%" stopColor="#0d0d1a" />
+          </linearGradient>
+        </defs>
+        <rect width="600" height="350" fill="url(#rmBg)" rx="12" />
+        <text x="300" y="30" textAnchor="middle" fill="#d4a94b" fontSize="16" fontWeight="bold">Risk Management Framework</text>
+        
+        <rect x="50" y="60" width="140" height="60" fill="#1e3a8a" stroke="#3b82f6" strokeWidth="2" rx="8" />
+        <text x="120" y="80" textAnchor="middle" fill="#3b82f6" fontSize="11" fontWeight="bold">Account Size</text>
+        <text x="120" y="105" textAnchor="middle" fill="#93c5fd" fontSize="10">$10,000</text>
+        
+        <rect x="210" y="60" width="140" height="60" fill="#7c2d12" stroke="#ea580c" strokeWidth="2" rx="8" />
+        <text x="280" y="80" textAnchor="middle" fill="#ea580c" fontSize="11" fontWeight="bold">Risk per Trade</text>
+        <text x="280" y="105" textAnchor="middle" fill="#fed7aa" fontSize="10">1-2% Max</text>
+        
+        <rect x="370" y="60" width="140" height="60" fill="#166534" stroke="#22c55e" strokeWidth="2" rx="8" />
+        <text x="440" y="80" textAnchor="middle" fill="#22c55e" fontSize="11" fontWeight="bold">Position Size</text>
+        <text x="440" y="105" textAnchor="middle" fill="#86efac" fontSize="10">Calculated</text>
+        
+        <rect x="50" y="150" width="130" height="110" fill="#1e1b4b" stroke="#ef4444" strokeWidth="2" rx="8" />
+        <text x="115" y="175" textAnchor="middle" fill="#ef4444" fontSize="11" fontWeight="bold">Stop Loss</text>
+        <text x="115" y="195" textAnchor="middle" fill="#fca5a5" fontSize="9">Exit Point</text>
+        <text x="115" y="210" textAnchor="middle" fill="#fca5a5" fontSize="9">Limit Losses</text>
+        <text x="115" y="225" textAnchor="middle" fill="#fca5a5" fontSize="9">Protect Capital</text>
+        
+        <rect x="210" y="150" width="130" height="110" fill="#1b3a1b" stroke="#22c55e" strokeWidth="2" rx="8" />
+        <text x="275" y="175" textAnchor="middle" fill="#22c55e" fontSize="11" fontWeight="bold">Take Profit</text>
+        <text x="275" y="195" textAnchor="middle" fill="#86efac" fontSize="9">Target Price</text>
+        <text x="275" y="210" textAnchor="middle" fill="#86efac" fontSize="9">Lock Profits</text>
+        <text x="275" y="225" textAnchor="middle" fill="#86efac" fontSize="9">Secure Gains</text>
+        
+        <rect x="370" y="150" width="140" height="110" fill="#1a1a2e" stroke="#d4a94b" strokeWidth="2" rx="8" />
+        <text x="440" y="175" textAnchor="middle" fill="#d4a94b" fontSize="11" fontWeight="bold">R:R Ratio</text>
+        <text x="440" y="195" textAnchor="middle" fill="#fef3c7" fontSize="9">Ideal: 1:2</text>
+        <text x="440" y="210" textAnchor="middle" fill="#fef3c7" fontSize="9">Risk $100</text>
+        <text x="440" y="225" textAnchor="middle" fill="#fef3c7" fontSize="9">Gain $200</text>
+      </svg>
+    ),
   };
 
   const DiagramComponent = diagrams[type];
