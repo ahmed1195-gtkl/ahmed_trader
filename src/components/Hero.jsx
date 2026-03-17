@@ -7,6 +7,7 @@ import { auth } from '../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Bot, BarChart3, Newspaper, GraduationCap, Shield, TrendingUp } from 'lucide-react';
 import shukritradeLogo from '../assets/shukritrade_logo.svg';
+import heroImage from '../assets/hero-shukritrade.jpg';
 
 const Hero = () => {
   const { t, i18n } = useTranslation();
@@ -56,6 +57,16 @@ const Hero = () => {
 
   return (
     <section className="min-h-[85vh] flex flex-col items-center justify-center relative overflow-hidden py-16 md:py-24">
+      {/* Background Image for Desktop and Tablet */}
+      <div className="hidden md:block absolute inset-0 w-full h-full">
+        <img 
+          src={heroImage} 
+          alt="Shukritrade Trading Platform" 
+          className="w-full h-full object-cover opacity-20" 
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/80"></div>
+      </div>
+      
       {/* Subtle background glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-[#f0bf52]/8 via-transparent to-transparent rounded-full blur-3xl pointer-events-none"></div>
       
@@ -77,7 +88,7 @@ const Hero = () => {
             <img 
               src={shukritradeLogo} 
               alt="Shukritrade" 
-              className="h-16 sm:h-20 md:h-28 lg:h-32 w-auto object-contain drop-shadow-[0_0_30px_rgba(240,191,82,0.15)]" 
+              className="h-20 sm:h-24 md:h-40 lg:h-48 w-auto object-contain drop-shadow-[0_0_40px_rgba(240,191,82,0.25)] hover:drop-shadow-[0_0_60px_rgba(240,191,82,0.35)] transition-all duration-300" 
             />
           </motion.div>
 
