@@ -88,7 +88,7 @@ const Hero = () => {
             <img 
               src={shukritradeLogo} 
               alt="Shukritrade" 
-              className="h-20 sm:h-24 md:h-40 lg:h-48 w-auto object-contain drop-shadow-[0_0_40px_rgba(240,191,82,0.25)] hover:drop-shadow-[0_0_60px_rgba(240,191,82,0.35)] transition-all duration-300" 
+              className="h-32 sm:h-40 md:h-56 lg:h-72 w-auto object-contain drop-shadow-[0_0_60px_rgba(240,191,82,0.4)] hover:drop-shadow-[0_0_100px_rgba(240,191,82,0.6)] transition-all duration-300" 
             />
           </motion.div>
 
