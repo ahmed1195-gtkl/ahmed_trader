@@ -32,6 +32,15 @@ import { logTrade, closeTrade, getLearningStats } from '../lib/bot/learning/trad
 import { liveTradeMonitor } from '../lib/bot/trading/liveTradeMonitor';
 import NewsPanel from './NewsPanel';
 import LiveTradesPanel from './LiveTradesPanel';
+import botBg from '../assets/backgrounds/manus/ai_bot.jpg';
+
+// Background styling for the bot page
+const botPageStyle = {
+  backgroundImage: `url(${botBg})`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  backgroundAttachment: 'fixed'
+};
 
 const AnimatedNumber = ({ value }) => {
   const [displayValue, setDisplayValue] = useState(0);
@@ -411,9 +420,10 @@ const AITradingBot = () => {
   }, [selectedAsset, isMarketClosed]);
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-amber-500/30">
+    <div className="min-h-screen bg-black text-white selection:bg-amber-500/30" style={botPageStyle}>
+      <div className="absolute inset-0 bg-black/70 z-0"></div>
       <Header />
-      <main className="container mx-auto px-4 md:px-6 pt-24 md:pt-32 pb-20">
+      <main className="container mx-auto px-4 md:px-6 pt-24 md:pt-32 pb-20 relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-4">

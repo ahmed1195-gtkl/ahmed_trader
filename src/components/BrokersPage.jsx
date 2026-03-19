@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button.jsx';
 import { ExternalLink, CheckCircle, Gift, Phone, MessageCircle, Mail, Loader2, TrendingUp, Shield, Zap, Award, Instagram, Send } from 'lucide-react';
 import { useBrokers } from '../hooks/useBrokers';
+import brokersBg from '../assets/backgrounds/manus/brokers.jpg';
 
 const BrokersPage = () => {
   const { t, i18n } = useTranslation();
@@ -32,8 +33,14 @@ const BrokersPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black pt-24 pb-12">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-black pt-24 pb-12" style={{
+      backgroundImage: `url(${brokersBg})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundAttachment: 'fixed'
+    }}>
+      <div className="absolute inset-0 bg-black/70"></div>
+      <div className="container mx-auto px-4 relative z-10">
         {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}

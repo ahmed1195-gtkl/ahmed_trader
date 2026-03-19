@@ -7,6 +7,7 @@ import { schools } from '../../data/academy/academyData';
 import { tradingTips } from '../../data/academy/schoolsData';
 import Header from '../Header';
 import Footer from '../Footer';
+import academyBg from '../../assets/backgrounds/manus/academey.jpg';
 
 const iconMap = { BarChart3, Brain, Target, Zap };
 
@@ -98,8 +99,14 @@ const Academy = () => {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative pt-24 pb-16 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-amber-900/10 via-black to-black" />
+      <section className="relative pt-24 pb-16 overflow-hidden" style={{
+        backgroundImage: `url(${academyBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      }}>
+        <div className="absolute inset-0 bg-black/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-amber-900/5 via-black/50 to-black" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-amber-500/5 rounded-full blur-3xl" />
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 text-center">

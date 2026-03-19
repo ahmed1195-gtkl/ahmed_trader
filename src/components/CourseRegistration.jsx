@@ -9,6 +9,7 @@ import {
 import { Card, CardHeader, CardContent, CardFooter } from './ui/card';
 import { Button } from './ui/button';
 import { useTranslation } from 'react-i18next';
+import coursesBg from '../assets/backgrounds/manus/courses.jpg';
 
 const CourseRegistration = ({ course }) => {
   const { t, i18n } = useTranslation();
@@ -267,7 +268,14 @@ const CourseRegistration = ({ course }) => {
   const filteredBrokers = allBrokers.filter(b => b.toLowerCase().includes(brokerSearch.toLowerCase()));
 
   return (
-    <section className="min-h-screen bg-black pt-32 pb-20 px-4 relative overflow-hidden">
+    <section className="min-h-screen bg-black pt-32 pb-20 px-4 relative overflow-hidden" style={{
+      backgroundImage: `url(${coursesBg})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundAttachment: 'fixed'
+    }}>
+    <div className="absolute inset-0 bg-black/70"></div>
+    <div className="relative z-10">
       {/* Language Toggle Button */}
       <div className="absolute top-8 right-8 z-50" ref={langRef}>
         <button 
@@ -587,6 +595,7 @@ const CourseRegistration = ({ course }) => {
           </motion.div>
         )}
       </div>
+    </div>
     </section>
   );
 };
