@@ -24,7 +24,7 @@ const Footer = () => {
             <img 
               src={shukritradeLogo} 
               alt="Shukritrade" 
-              className="h-10 md:h-12 w-auto object-contain"
+              className="h-16 md:h-20 w-auto object-contain"
             />
           </div>
 
@@ -46,9 +46,9 @@ const Footer = () => {
               <Link to="/privacy" className="text-gray-400 hover:text-amber-400 transition-colors duration-300 text-sm">
                 {t('footer.privacy')}
               </Link>
-              <a href="#" className="text-gray-400 hover:text-amber-400 transition-colors duration-300 text-sm">
-                {t('footer.terms')}
-              </a>
+<Link to="/terms" className="text-gray-400 hover:text-amber-400 transition-colors duration-300 text-sm">
+                {t("footer.terms")}
+              </Link>
               <a href="#" className="text-gray-400 hover:text-amber-400 transition-colors duration-300 text-sm">
                 {t('footer.contact')}
               </a>

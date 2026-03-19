@@ -204,7 +204,7 @@ const Header = () => {
           {/* Logo + Site Name */}
           <Link to="/" className="flex items-center gap-2 group shrink-0">
             <div className="relative">
-              <img src={shukritradeLogo} alt="Shukritrade" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto object-contain transition-all duration-500 group-hover:brightness-125 group-hover:drop-shadow-[0_0_25px_rgba(240,191,82,0.6)]" />
+              <img src={shukritradeLogo} alt="Shukritrade" className="h-20 sm:h-24 md:h-28 lg:h-32 w-auto object-contain transition-all duration-500 group-hover:brightness-125 group-hover:drop-shadow-[0_0_25px_rgba(240,191,82,0.6)]" />
               <div className="absolute inset-0 bg-gradient-to-r from-[#f0bf52]/20 to-[#ac8941]/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
             </div>
           </Link>

@@ -28,6 +28,7 @@ import CourseEnrollment from './components/CourseEnrollment';
 import CoursesAdmin from './components/CoursesAdmin';
 import AdminDashboard from './components/AdminDashboard';
 import PrivacyPolicy from './components/PrivacyPolicy';
+import TermsOfService from './components/TermsOfService';
 import ResetPassword from './components/ResetPassword';
 import AITradingBot from './components/AITradingBot';
 import PipCalculator from './components/PipCalculator';
@@ -228,6 +229,7 @@ function App() {
                 <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/" />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsOfService />} />
                 <Route path="/ai-bot" element={siteSettings.showAIBot ? <ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}><AITradingBot /></ProtectedRoute> : <Navigate to="/" />} />
                 <Route path="/pip-calculator" element={siteSettings.showPipCalculator ? <PipCalculator /> : <Navigate to="/" />} />
                 <Route path="/messages" element={<Messages />} />
