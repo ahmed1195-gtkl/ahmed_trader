@@ -9,7 +9,7 @@ import {
 import { Card, CardHeader, CardContent, CardFooter } from './ui/card';
 import { Button } from './ui/button';
 import { useTranslation } from 'react-i18next';
-import coursesBg from '../assets/backgrounds/manus/courses.jpg';
+import coursesBg from '../assets/backgrounds/manus/logo.jpg';
 
 const CourseRegistration = ({ course }) => {
   const { t, i18n } = useTranslation();

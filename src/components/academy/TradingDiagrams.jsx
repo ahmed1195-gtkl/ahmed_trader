@@ -719,15 +719,15 @@ const DiagramSVG = ({ type, className = '' }) => {
       </svg>
     ),
 
-    riskManagement: (
+    riskManagementFramework: (
       <svg viewBox="0 0 600 350" className={baseClass} xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <linearGradient id="rmBg" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id="rmBg2" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#1a1a2e" />
             <stop offset="100%" stopColor="#0d0d1a" />
           </linearGradient>
         </defs>
-        <rect width="600" height="350" fill="url(#rmBg)" rx="12" />
+        <rect width="600" height="350" fill="url(#rmBg2)" rx="12" />
         <text x="300" y="30" textAnchor="middle" fill="#d4a94b" fontSize="16" fontWeight="bold">Risk Management Framework</text>
         
         <rect x="50" y="60" width="140" height="60" fill="#1e3a8a" stroke="#3b82f6" strokeWidth="2" rx="8" />
