@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
-import { BookOpen, GraduationCap, ChevronLeft, Lightbulb, ArrowLeft, Star, Users, Clock, Award, Zap } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { BookOpen, GraduationCap, ChevronLeft, Lightbulb, ArrowLeft, Star, Users, Clock, Award, Zap, Lock } from 'lucide-react';
+import { auth } from '../../lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import { stages, tradingTips } from '../../data/academy/academyData';
+import { 
+  getUserProgress, 
+  initializeUserProgress,
+  isStageUnlocked,
+  getProgressSummary 
+} from '../../lib/progressService';
 import Header from '../Header';
 import Footer from '../Footer';
+import ProgressDashboard from './ProgressDashboard';
 import academyBg from '../../assets/backgrounds/manus/academey.jpg';
 
 const Academy = () => {
@@ -14,8 +23,49 @@ const Academy = () => {
   const lang = i18n.language?.startsWith('ar') ? 'ar' : i18n.language?.startsWith('fr') ? 'fr' : i18n.language?.startsWith('es') ? 'es' : 'en';
   const isRTL = lang === 'ar';
 
+  const [user, setUser] = useState(null);
   const [dailyTip, setDailyTip] = useState(null);
   const [selectedDifficulty, setSelectedDifficulty] = useState('all');
+  const [userProgress, setUserProgress] = useState(null);
+  const [unlockedStages, setUnlockedStages] = useState([]);
+  const [showProgressDashboard, setShowProgressDashboard] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      
+      if (currentUser) {
+        try {
+          // تهيئة ملف التقدم إن لم يكن موجوداً
+          await initializeUserProgress(currentUser.uid, currentUser.displayName || 'Trader', currentUser.email);
+          
+          // تحميل بيانات التقدم
+          const progress = await getUserProgress(currentUser.uid);
+          setUserProgress(progress);
+          
+          // حساب المراحل المفتوحة
+          const unlocked = [];
+          for (let i = 0; i < stages.length; i++) {
+            const isUnlocked = await isStageUnlocked(currentUser.uid, i);
+            if (isUnlocked) {
+              unlocked.push(i);
+            }
+          }
+          setUnlockedStages(unlocked);
+        } catch (error) {
+          console.error('Error loading user progress:', error);
+        }
+      } else {
+        setUserProgress(null);
+        setUnlockedStages([]);
+      }
+      
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const allTips = tradingTips[lang] || tradingTips.en;
@@ -38,7 +88,12 @@ const Academy = () => {
       filterBeginner: 'Beginner',
       filterIntermediate: 'Intermediate',
       filterAdvanced: 'Advanced',
-      filterExpert: 'Expert'
+      filterExpert: 'Expert',
+      myProgress: 'My Progress',
+      locked: 'Locked',
+      unlocked: 'Unlocked',
+      completed: 'Completed',
+      loginToUnlock: 'Login to unlock stages'
     },
     ar: {
       badge: 'تعليم تداول احترافي',
@@ -53,7 +108,12 @@ const Academy = () => {
       filterBeginner: 'مبتدئ',
       filterIntermediate: 'متوسط',
       filterAdvanced: 'متقدم',
-      filterExpert: 'خبير'
+      filterExpert: 'خبير',
+      myProgress: 'تقدمي',
+      locked: 'مقفلة',
+      unlocked: 'مفتوحة',
+      completed: 'مكتملة',
+      loginToUnlock: 'سجل الدخول لفتح المراحل'
     },
     fr: {
       badge: 'Formation Trading Professionnelle',
@@ -68,7 +128,12 @@ const Academy = () => {
       filterBeginner: 'Débutant',
       filterIntermediate: 'Intermédiaire',
       filterAdvanced: 'Avancé',
-      filterExpert: 'Expert'
+      filterExpert: 'Expert',
+      myProgress: 'Ma Progression',
+      locked: 'Verrouillé',
+      unlocked: 'Déverrouillé',
+      completed: 'Complété',
+      loginToUnlock: 'Connectez-vous pour déverrouiller les étapes'
     },
     es: {
       badge: 'Educación de Trading Profesional',
@@ -83,7 +148,12 @@ const Academy = () => {
       filterBeginner: 'Principiante',
       filterIntermediate: 'Intermedio',
       filterAdvanced: 'Avanzado',
-      filterExpert: 'Experto'
+      filterExpert: 'Experto',
+      myProgress: 'Mi Progreso',
+      locked: 'Bloqueado',
+      unlocked: 'Desbloqueado',
+      completed: 'Completado',
+      loginToUnlock: 'Inicia sesión para desbloquear etapas'
     }
   };
 
@@ -92,8 +162,8 @@ const Academy = () => {
   // Get stage name based on language
   const getStageName = (stage) => {
     if (lang === 'ar') return stage.name;
-    if (lang === 'fr') return stage.nameEn; // Using English as fallback for French
-    if (lang === 'es') return stage.nameEn; // Using English as fallback for Spanish
+    if (lang === 'fr') return stage.nameEn;
+    if (lang === 'es') return stage.nameEn;
     return stage.nameEn;
   };
 
@@ -139,6 +209,17 @@ const Academy = () => {
         return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
       default:
         return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
+    }
+  };
+
+  const handleStageClick = (stageId) => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    if (unlockedStages.includes(stageId)) {
+      navigate(`/academy/stage/${stageId}`);
     }
   };
 
@@ -214,9 +295,36 @@ const Academy = () => {
                 </motion.div>
               ))}
             </div>
+
+            {/* Progress Dashboard Button */}
+            {user && (
+              <motion.button
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                onClick={() => setShowProgressDashboard(!showProgressDashboard)}
+                className="px-6 py-3 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold hover:shadow-lg hover:shadow-amber-500/50 transition-all"
+              >
+                {showProgressDashboard ? '✕ ' : '📊 '} {texts.myProgress}
+              </motion.button>
+            )}
           </motion.div>
         </div>
       </section>
+
+      {/* Progress Dashboard */}
+      <AnimatePresence>
+        {showProgressDashboard && user && (
+          <motion.section
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="max-w-7xl mx-auto px-4 sm:px-6 py-12 border-b border-gray-800"
+          >
+            <ProgressDashboard />
+          </motion.section>
+        )}
+      </AnimatePresence>
 
       {/* Filter Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
@@ -242,58 +350,101 @@ const Academy = () => {
       {/* Stages Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredStages.map((stage, index) => (
-            <motion.div
-              key={stage.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 * (index % 6) }}
-              whileHover={{ y: -8, scale: 1.02 }}
-              onClick={() => navigate(`/academy/stage/${stage.id}`)}
-              className="cursor-pointer group"
-            >
-              <div className="relative h-full bg-gray-900/60 backdrop-blur-sm rounded-2xl border border-gray-800 hover:border-amber-500/40 transition-all duration-300 overflow-hidden p-6">
-                {/* Gradient overlay */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${getDifficultyColor(stage.difficulty)} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
-                
-                {/* Stage number and difficulty */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="text-3xl font-bold text-amber-500/40">
-                    {String(stage.id).padStart(2, '0')}
-                  </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getDifficultyBadgeColor(stage.difficulty)}`}>
-                    {stage.difficulty}
-                  </span>
-                </div>
+          {filteredStages.map((stage, index) => {
+            const isUnlocked = unlockedStages.includes(stage.id);
+            const isCompleted = userProgress?.stagesStatus[`stage_${stage.id}`]?.isCompleted;
 
-                {/* Content */}
-                <h3 className="text-lg font-bold text-white mb-2 group-hover:text-amber-400 transition-colors line-clamp-2">
-                  {getStageName(stage)}
-                </h3>
-                <p className="text-gray-400 text-sm leading-relaxed mb-4 line-clamp-2">
-                  {getStageDescription(stage)}
-                </p>
+            return (
+              <motion.div
+                key={stage.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 * (index % 6) }}
+                whileHover={isUnlocked ? { y: -8, scale: 1.02 } : {}}
+                onClick={() => handleStageClick(stage.id)}
+                className={`group ${isUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+              >
+                <div className={`relative h-full bg-gray-900/60 backdrop-blur-sm rounded-2xl border transition-all duration-300 overflow-hidden p-6 ${
+                  isUnlocked 
+                    ? 'border-gray-800 hover:border-amber-500/40' 
+                    : 'border-gray-800/50 opacity-60'
+                }`}>
+                  {/* Gradient overlay */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${getDifficultyColor(stage.difficulty)} opacity-0 ${isUnlocked ? 'group-hover:opacity-5' : ''} transition-opacity duration-300`} />
+                  
+                  {/* Lock Icon */}
+                  {!isUnlocked && (
+                    <div className="absolute top-4 right-4">
+                      <Lock className="w-6 h-6 text-red-500" />
+                    </div>
+                  )}
 
-                {/* Footer */}
-                <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-800">
-                  <div className="flex items-center gap-4 text-xs text-gray-500">
-                    <span className="flex items-center gap-1.5">
-                      <BookOpen className="w-3.5 h-3.5" />
-                      {stage.lessonsCount} {lang === 'ar' ? 'درس' : 'lessons'}
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5" />
-                      {stage.estimatedHours}h
+                  {/* Completed Badge */}
+                  {isCompleted && (
+                    <div className="absolute top-4 right-4">
+                      <div className="w-8 h-8 rounded-full bg-green-500/20 border border-green-500 flex items-center justify-center">
+                        <span className="text-green-400 text-sm">✓</span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Stage number and difficulty */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="text-3xl font-bold text-amber-500/40">
+                      {String(stage.id).padStart(2, '0')}
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getDifficultyBadgeColor(stage.difficulty)}`}>
+                      {stage.difficulty}
                     </span>
                   </div>
-                  <span className="flex items-center gap-1 text-xs text-amber-500 group-hover:translate-x-1 transition-transform">
-                    {lang === 'ar' ? 'ابدأ' : 'Start'}
-                    <ChevronLeft className={`w-3.5 h-3.5 ${isRTL ? '' : 'rotate-180'}`} />
-                  </span>
+
+                  {/* Content */}
+                  <h3 className={`text-lg font-bold mb-2 group-hover:text-amber-400 transition-colors line-clamp-2 ${
+                    isUnlocked ? 'text-white' : 'text-gray-400'
+                  }`}>
+                    {getStageName(stage)}
+                  </h3>
+                  <p className={`text-sm leading-relaxed mb-4 line-clamp-2 ${
+                    isUnlocked ? 'text-gray-400' : 'text-gray-500'
+                  }`}>
+                    {getStageDescription(stage)}
+                  </p>
+
+                  {/* Footer */}
+                  <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-800">
+                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                      <span className="flex items-center gap-1.5">
+                        <BookOpen className="w-3.5 h-3.5" />
+                        {stage.lessonsCount} {lang === 'ar' ? 'درس' : 'lessons'}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5" />
+                        {stage.estimatedHours}h
+                      </span>
+                    </div>
+                    {isUnlocked ? (
+                      <span className="flex items-center gap-1 text-xs text-amber-500 group-hover:translate-x-1 transition-transform">
+                        {lang === 'ar' ? 'ابدأ' : 'Start'}
+                        <ChevronLeft className={`w-3.5 h-3.5 ${isRTL ? '' : 'rotate-180'}`} />
+                      </span>
+                    ) : (
+                      <span className="text-xs text-red-400">{texts.locked}</span>
+                    )}
+                  </div>
+
+                  {/* Lock Overlay */}
+                  {!isUnlocked && (
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-2xl">
+                      <div className="text-center">
+                        <Lock className="w-8 h-8 text-red-500 mx-auto mb-2" />
+                        <p className="text-red-400 text-sm font-semibold">{texts.locked}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
 
         {filteredStages.length === 0 && (
@@ -304,6 +455,35 @@ const Academy = () => {
           </div>
         )}
       </section>
+
+      {/* Login Prompt */}
+      {!user && (
+        <section className="max-w-4xl mx-auto px-4 sm:px-6 pb-20">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative bg-gradient-to-br from-amber-500/10 to-amber-900/10 rounded-2xl border border-amber-500/20 p-6 sm:p-8 text-center"
+          >
+            <h3 className="text-lg font-bold text-amber-500 mb-3">
+              🔓 {texts.loginToUnlock}
+            </h3>
+            <p className="text-gray-300 text-base sm:text-lg leading-relaxed mb-6">
+              {lang === 'ar'
+                ? 'سجل الدخول الآن لتتمكن من فتح المراحل التعليمية وتتبع تقدمك في رحلتك نحو الاحتراف.'
+                : 'Login now to unlock learning stages and track your progress on your journey to mastery.'
+              }
+            </p>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/login')}
+              className="px-8 py-3 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold hover:shadow-lg hover:shadow-amber-500/50 transition-all"
+            >
+              {lang === 'ar' ? 'سجل الدخول' : 'Login'}
+            </motion.button>
+          </motion.div>
+        </section>
+      )}
 
       {/* Tip of the Day */}
       {dailyTip && (
