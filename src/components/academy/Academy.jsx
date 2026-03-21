@@ -2,41 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { BarChart3, Brain, Target, Zap, BookOpen, GraduationCap, ChevronLeft, Lightbulb, ArrowLeft, Star, Users, Clock, Award } from 'lucide-react';
-import { schools } from '../../data/academy/academyData';
-import { tradingTips } from '../../data/academy/schoolsData';
+import { BookOpen, GraduationCap, ChevronLeft, Lightbulb, ArrowLeft, Star, Users, Clock, Award, Zap } from 'lucide-react';
+import { stages, tradingTips } from '../../data/academy/academyData';
 import Header from '../Header';
 import Footer from '../Footer';
 import academyBg from '../../assets/backgrounds/manus/academey.jpg';
-
-const iconMap = { BarChart3, Brain, Target, Zap };
-
-const schoolTranslations = {
-  classical: {
-    en: { name: 'Classical Technical Analysis', desc: 'Master the foundations of technical analysis including trends, support & resistance, chart patterns, and candlestick analysis.' },
-    ar: { name: 'التحليل الفني الكلاسيكي', desc: 'أتقن أساسيات التحليل الفني بما في ذلك الاتجاهات والدعم والمقاومة وأنماط الشارت وتحليل الشموع.' },
-    fr: { name: 'Analyse Technique Classique', desc: 'Maîtrisez les fondamentaux de l\'analyse technique.' },
-    es: { name: 'Análisis Técnico Clásico', desc: 'Domina los fundamentos del análisis técnico.' }
-  },
-  smc: {
-    en: { name: 'Smart Money Concepts', desc: 'Learn how institutional traders move the market. Understand liquidity, order blocks, and fair value gaps.' },
-    ar: { name: 'مفاهيم المال الذكي', desc: 'تعلم كيف يحرك المتداولون المؤسسيون السوق. افهم السيولة وكتل الأوامر وفجوات القيمة العادلة.' },
-    fr: { name: 'Smart Money Concepts', desc: 'Apprenez comment les institutions bougent le marché.' },
-    es: { name: 'Smart Money Concepts', desc: 'Aprende cómo las instituciones mueven el mercado.' }
-  },
-  ict: {
-    en: { name: 'ICT Trading Method', desc: 'Master the Inner Circle Trader methodology including kill zones, liquidity sweeps, and institutional entry models.' },
-    ar: { name: 'منهجية ICT للتداول', desc: 'أتقن منهجية ICT بما في ذلك مناطق القتل واكتساح السيولة ونماذج الدخول المؤسسي.' },
-    fr: { name: 'Méthode ICT', desc: 'Maîtrisez la méthodologie ICT.' },
-    es: { name: 'Método ICT', desc: 'Domina la metodología ICT.' }
-  },
-  sk: {
-    en: { name: 'SK System', desc: 'A complete proprietary trading system combining the best of SMC and ICT with strict risk management rules.' },
-    ar: { name: 'نظام SK', desc: 'نظام تداول متكامل يجمع أفضل ما في SMC و ICT مع قواعد صارمة لإدارة المخاطر.' },
-    fr: { name: 'Système SK', desc: 'Un système de trading complet combinant SMC et ICT.' },
-    es: { name: 'Sistema SK', desc: 'Un sistema completo que combina SMC e ICT.' }
-  }
-};
 
 const Academy = () => {
   const { t, i18n } = useTranslation();
@@ -45,54 +15,132 @@ const Academy = () => {
   const isRTL = lang === 'ar';
 
   const [dailyTip, setDailyTip] = useState(null);
+  const [selectedDifficulty, setSelectedDifficulty] = useState('all');
 
   useEffect(() => {
-    const allTips = tradingTips;
+    const allTips = tradingTips[lang] || tradingTips.en;
     const today = new Date();
     const dayIndex = (today.getFullYear() * 366 + today.getMonth() * 31 + today.getDate()) % allTips.length;
     setDailyTip(allTips[dayIndex]);
-  }, []);
+  }, [lang]);
 
   const heroTexts = {
     en: {
       badge: 'Professional Trading Education',
       title: 'ShukriTrade Academy',
-      subtitle: 'Your journey to becoming a professional trader starts here. Learn from structured courses designed for beginners to advanced traders.',
-      schools: 'Trading Schools',
-      lessons: 'Lessons',
+      subtitle: 'Your journey to becoming a professional trader starts here. Learn from 15 comprehensive stages with 178 lessons designed for beginners to advanced traders.',
+      stages: 'Learning Stages',
+      lessons: 'Total Lessons',
+      hours: 'Learning Hours',
       languages: 'Languages',
-      tipTitle: 'Tip of the Day'
+      tipTitle: 'Tip of the Day',
+      filterAll: 'All Levels',
+      filterBeginner: 'Beginner',
+      filterIntermediate: 'Intermediate',
+      filterAdvanced: 'Advanced',
+      filterExpert: 'Expert'
     },
     ar: {
       badge: 'تعليم تداول احترافي',
       title: 'أكاديمية ShukriTrade',
-      subtitle: 'رحلتك لتصبح متداولاً محترفاً تبدأ من هنا. تعلم من دورات منظمة مصممة من المبتدئين إلى المتقدمين.',
-      schools: 'مدارس تداول',
-      lessons: 'درس',
+      subtitle: 'رحلتك لتصبح متداولاً محترفاً تبدأ من هنا. تعلم من 15 مرحلة شاملة تحتوي على 178 درس مصممة للمبتدئين إلى المتقدمين.',
+      stages: 'مراحل التعلم',
+      lessons: 'إجمالي الدروس',
+      hours: 'ساعات التعلم',
       languages: 'لغات',
-      tipTitle: 'نصيحة اليوم'
+      tipTitle: 'نصيحة اليوم',
+      filterAll: 'جميع المستويات',
+      filterBeginner: 'مبتدئ',
+      filterIntermediate: 'متوسط',
+      filterAdvanced: 'متقدم',
+      filterExpert: 'خبير'
     },
     fr: {
       badge: 'Formation Trading Professionnelle',
       title: 'ShukriTrade Academy',
-      subtitle: 'Votre parcours pour devenir un trader professionnel commence ici.',
-      schools: 'Écoles de Trading',
-      lessons: 'Leçons',
+      subtitle: 'Votre parcours pour devenir un trader professionnel commence ici. Apprenez de 15 étapes complètes avec 178 leçons.',
+      stages: 'Étapes d\'apprentissage',
+      lessons: 'Leçons totales',
+      hours: 'Heures d\'apprentissage',
       languages: 'Langues',
-      tipTitle: 'Conseil du Jour'
+      tipTitle: 'Conseil du Jour',
+      filterAll: 'Tous les niveaux',
+      filterBeginner: 'Débutant',
+      filterIntermediate: 'Intermédiaire',
+      filterAdvanced: 'Avancé',
+      filterExpert: 'Expert'
     },
     es: {
       badge: 'Educación de Trading Profesional',
       title: 'ShukriTrade Academy',
-      subtitle: 'Tu camino para convertirte en un trader profesional comienza aquí.',
-      schools: 'Escuelas de Trading',
-      lessons: 'Lecciones',
+      subtitle: 'Tu camino para convertirte en un trader profesional comienza aquí. Aprende de 15 etapas completas con 178 lecciones.',
+      stages: 'Etapas de aprendizaje',
+      lessons: 'Lecciones totales',
+      hours: 'Horas de aprendizaje',
       languages: 'Idiomas',
-      tipTitle: 'Consejo del Día'
+      tipTitle: 'Consejo del Día',
+      filterAll: 'Todos los niveles',
+      filterBeginner: 'Principiante',
+      filterIntermediate: 'Intermedio',
+      filterAdvanced: 'Avanzado',
+      filterExpert: 'Experto'
     }
   };
 
   const texts = heroTexts[lang] || heroTexts.en;
+
+  // Get stage name based on language
+  const getStageName = (stage) => {
+    if (lang === 'ar') return stage.name;
+    if (lang === 'fr') return stage.nameEn; // Using English as fallback for French
+    if (lang === 'es') return stage.nameEn; // Using English as fallback for Spanish
+    return stage.nameEn;
+  };
+
+  // Get stage description based on language
+  const getStageDescription = (stage) => {
+    if (lang === 'ar') return stage.description;
+    if (lang === 'fr') return stage.descriptionEn;
+    if (lang === 'es') return stage.descriptionEn;
+    return stage.descriptionEn;
+  };
+
+  // Filter stages by difficulty
+  const filteredStages = selectedDifficulty === 'all' 
+    ? stages 
+    : stages.filter(stage => stage.difficulty === selectedDifficulty);
+
+  // Get difficulty color
+  const getDifficultyColor = (difficulty) => {
+    switch (difficulty) {
+      case 'Beginner':
+        return 'from-green-500 to-emerald-500';
+      case 'Intermediate':
+        return 'from-blue-500 to-cyan-500';
+      case 'Advanced':
+        return 'from-purple-500 to-pink-500';
+      case 'Expert':
+        return 'from-amber-500 to-orange-500';
+      default:
+        return 'from-gray-500 to-gray-600';
+    }
+  };
+
+  // Get difficulty badge color
+  const getDifficultyBadgeColor = (difficulty) => {
+    switch (difficulty) {
+      case 'Beginner':
+        return 'bg-green-500/10 text-green-400 border-green-500/20';
+      case 'Intermediate':
+        return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+      case 'Advanced':
+        return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
+      case 'Expert':
+        return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+      default:
+        return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
+    }
+  };
 
   return (
     <div className={`min-h-screen bg-black text-white ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
@@ -144,8 +192,9 @@ const Academy = () => {
             {/* Stats */}
             <div className="flex flex-wrap justify-center gap-6 sm:gap-10 mb-12">
               {[
-                { icon: BookOpen, value: '4', label: texts.schools },
-                { icon: Star, value: '49+', label: texts.lessons },
+                { icon: BookOpen, value: '15', label: texts.stages },
+                { icon: Star, value: '178', label: texts.lessons },
+                { icon: Clock, value: '160+', label: texts.hours },
                 { icon: Users, value: '4', label: texts.languages },
               ].map((stat, i) => (
                 <motion.div
@@ -169,56 +218,91 @@ const Academy = () => {
         </div>
       </section>
 
-      {/* Schools Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {schools.map((school, index) => {
-            const Icon = iconMap[school.icon] || BookOpen;
-            const schoolText = schoolTranslations[school.id]?.[lang] || schoolTranslations[school.id]?.en;
-            
-            return (
-              <motion.div
-                key={school.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * index }}
-                whileHover={{ y: -8, scale: 1.02 }}
-                onClick={() => navigate(`/academy/${school.id}`)}
-                className="cursor-pointer group"
-              >
-                <div className="relative h-full bg-gray-900/60 backdrop-blur-sm rounded-2xl border border-gray-800 hover:border-amber-500/40 transition-all duration-300 overflow-hidden p-6">
-                  {/* Gradient overlay */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${school.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
-                  
-                  {/* Icon */}
-                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${school.color} flex items-center justify-center mb-4 shadow-lg`}>
-                    <Icon className="w-7 h-7 text-white" />
-                  </div>
-
-                  {/* Content */}
-                  <h3 className="text-lg font-bold text-white mb-2 group-hover:text-amber-400 transition-colors">
-                    {schoolText?.name}
-                  </h3>
-                  <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                    {schoolText?.desc}
-                  </p>
-
-                  {/* Footer */}
-                  <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-800">
-                    <span className="flex items-center gap-1.5 text-xs text-gray-500">
-                      <BookOpen className="w-3.5 h-3.5" />
-                      {school.lessons} {lang === 'ar' ? 'درس' : 'lessons'}
-                    </span>
-                    <span className="flex items-center gap-1 text-xs text-amber-500 group-hover:translate-x-1 transition-transform">
-                      {lang === 'ar' ? 'ابدأ التعلم' : 'Start Learning'}
-                      <ChevronLeft className={`w-3.5 h-3.5 ${isRTL ? '' : 'rotate-180'}`} />
-                    </span>
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })}
+      {/* Filter Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+        <div className="flex flex-wrap justify-center gap-3">
+          {['all', 'Beginner', 'Intermediate', 'Advanced', 'Expert'].map((level) => (
+            <motion.button
+              key={level}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setSelectedDifficulty(level)}
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                selectedDifficulty === level
+                  ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/50'
+                  : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50 border border-gray-700'
+              }`}
+            >
+              {texts[`filter${level.charAt(0).toUpperCase() + level.slice(1)}`] || level}
+            </motion.button>
+          ))}
         </div>
+      </section>
+
+      {/* Stages Grid */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredStages.map((stage, index) => (
+            <motion.div
+              key={stage.id}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 * (index % 6) }}
+              whileHover={{ y: -8, scale: 1.02 }}
+              onClick={() => navigate(`/academy/stage/${stage.id}`)}
+              className="cursor-pointer group"
+            >
+              <div className="relative h-full bg-gray-900/60 backdrop-blur-sm rounded-2xl border border-gray-800 hover:border-amber-500/40 transition-all duration-300 overflow-hidden p-6">
+                {/* Gradient overlay */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${getDifficultyColor(stage.difficulty)} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
+                
+                {/* Stage number and difficulty */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="text-3xl font-bold text-amber-500/40">
+                    {String(stage.id).padStart(2, '0')}
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getDifficultyBadgeColor(stage.difficulty)}`}>
+                    {stage.difficulty}
+                  </span>
+                </div>
+
+                {/* Content */}
+                <h3 className="text-lg font-bold text-white mb-2 group-hover:text-amber-400 transition-colors line-clamp-2">
+                  {getStageName(stage)}
+                </h3>
+                <p className="text-gray-400 text-sm leading-relaxed mb-4 line-clamp-2">
+                  {getStageDescription(stage)}
+                </p>
+
+                {/* Footer */}
+                <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-800">
+                  <div className="flex items-center gap-4 text-xs text-gray-500">
+                    <span className="flex items-center gap-1.5">
+                      <BookOpen className="w-3.5 h-3.5" />
+                      {stage.lessonsCount} {lang === 'ar' ? 'درس' : 'lessons'}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5" />
+                      {stage.estimatedHours}h
+                    </span>
+                  </div>
+                  <span className="flex items-center gap-1 text-xs text-amber-500 group-hover:translate-x-1 transition-transform">
+                    {lang === 'ar' ? 'ابدأ' : 'Start'}
+                    <ChevronLeft className={`w-3.5 h-3.5 ${isRTL ? '' : 'rotate-180'}`} />
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {filteredStages.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-400 text-lg">
+              {lang === 'ar' ? 'لا توجد مراحل بهذا المستوى' : 'No stages found at this level'}
+            </p>
+          </div>
+        )}
       </section>
 
       {/* Tip of the Day */}
@@ -238,7 +322,7 @@ const Academy = () => {
               {texts.tipTitle}
             </h3>
             <p className="text-gray-300 text-base sm:text-lg leading-relaxed italic">
-              "{dailyTip[lang] || dailyTip.en}"
+              "{dailyTip}"
             </p>
           </motion.div>
         </section>
