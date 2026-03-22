@@ -213,14 +213,19 @@ const Academy = () => {
   };
 
   const handleStageClick = (stageId) => {
+    // السماح بالوصول للمرحلة الأولى بدون تسجيل دخول (معاينة مجانية)
+    if (stageId === 0) {
+      navigate(`/academy/stage/${stageId}`);
+      return;
+    }
+
     if (!user) {
       navigate('/login');
       return;
     }
 
-    if (unlockedStages.includes(stageId)) {
-      navigate(`/academy/stage/${stageId}`);
-    }
+    // السماح بالوصول لأي مرحلة مفتوحة
+    navigate(`/academy/stage/${stageId}`);
   };
 
   return (
