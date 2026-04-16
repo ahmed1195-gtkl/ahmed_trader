@@ -8,7 +8,9 @@ import Header from './Header';
 import Footer from './Footer';
 import Comments from './Comments';
 import AuthGuardPopup from './AuthGuardPopup';
+import EconomicCalendar from './EconomicCalendar';
 import { auth } from '../lib/firebase';
+import { economicCalendarInit } from '../lib/economicCalendarInit';
 
 const News = () => {
   const { t } = useTranslation();
@@ -76,6 +78,11 @@ const News = () => {
       setIsUserAuthenticated(!!user);
     });
 
+    // Initialize Economic Calendar System
+    economicCalendarInit.initialize().catch(err => {
+      console.error('Failed to initialize Economic Calendar:', err);
+    });
+
     return () => {
       clearInterval(interval);
       unsubscribe();
@@ -107,6 +114,12 @@ const News = () => {
             </button>
           </div>
 
+          {/* Economic Calendar Section */}
+          <div className="mb-16">
+            <EconomicCalendar />
+          </div>
+
+          {/* News Section */}
           {error ? (
             <div className="text-center py-24 bg-zinc-900/50 rounded-[2.5rem] border border-white/5 backdrop-blur-xl">
               <div className="w-20 h-20 bg-red-500/10 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-red-500/20">
