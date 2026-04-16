@@ -9,7 +9,7 @@ import Footer from './Footer';
 import Comments from './Comments';
 import AuthGuardPopup from './AuthGuardPopup';
 import { auth } from '../lib/firebase';
-import { forexFactoryScraper } from '../lib/forexFactoryScraper';
+import EconomicCalendarTable from './EconomicCalendarTable';
 
 const News = () => {
   const { t } = useTranslation();
@@ -17,10 +17,6 @@ const News = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
-  const [economicEvents, setEconomicEvents] = useState([]);
-  const [eventsLoading, setEventsLoading] = useState(true);
-  const [selectedCurrencies, setSelectedCurrencies] = useState(['USD', 'EUR', 'GBP']);
-  const [selectedImpacts, setSelectedImpacts] = useState(['HIGH', 'MEDIUM']);
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(true);
 
   const fetchNews = useCallback(async () => {
@@ -77,34 +73,15 @@ const News = () => {
     fetchNews();
     const interval = setInterval(fetchNews, 600000); // Update every 10 minutes
     
-    // Fetch economic events from Forex Factory
-    const fetchEconomicEvents = async () => {
-      setEventsLoading(true);
-      try {
-        const events = await forexFactoryScraper.fetchEvents();
-        const filtered = forexFactoryScraper.getFilteredEvents(events, selectedCurrencies, selectedImpacts);
-        setEconomicEvents(filtered);
-      } catch (error) {
-        console.error('Error fetching economic events:', error);
-        setEconomicEvents(forexFactoryScraper.getDefaultEvents());
-      } finally {
-        setEventsLoading(false);
-      }
-    };
-
-    fetchEconomicEvents();
-    const economicInterval = setInterval(fetchEconomicEvents, 15 * 60 * 1000); // Refresh every 15 minutes
-    
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setIsUserAuthenticated(!!user);
     });
 
     return () => {
       clearInterval(interval);
-      clearInterval(economicInterval);
       unsubscribe();
     };
-  }, [fetchNews, selectedCurrencies, selectedImpacts]);
+  }, [fetchNews]);
 
   return (
     <div className="min-h-screen flex flex-col bg-black">
@@ -131,97 +108,8 @@ const News = () => {
             </button>
           </div>
 
-          {/* Economic Calendar Section - Forex Factory */}
-          <div className="mb-16 bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-[2rem] p-8">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <Calendar className="w-5 h-5 text-amber-500" />
-                <h2 className="text-2xl font-black text-white uppercase tracking-tight">
-                  {t('news.economicCalendar', 'Economic Calendar')} - Forex Factory
-                </h2>
-              </div>
-              <button
-                onClick={() => forexFactoryScraper.clearCache()}
-                className="text-xs font-black uppercase tracking-widest px-3 py-2 rounded-lg bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 transition-all"
-              >
-                Refresh
-              </button>
-            </div>
-
-            {/* Currency Filters */}
-            <div className="mb-6 flex flex-wrap gap-2">
-              {['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD'].map(currency => (
-                <button
-                  key={currency}
-                  onClick={() => {
-                    setSelectedCurrencies(prev =>
-                      prev.includes(currency)
-                        ? prev.filter(c => c !== currency)
-                        : [...prev, currency]
-                    );
-                  }}
-                  className={`text-xs font-black uppercase tracking-widest px-3 py-2 rounded-lg transition-all ${
-                    selectedCurrencies.includes(currency)
-                      ? 'bg-amber-500 text-black'
-                      : 'bg-white/5 text-white hover:bg-white/10'
-                  }`}
-                >
-                  {currency}
-                </button>
-              ))}
-            </div>
-
-            {/* Events Grid */}
-            {eventsLoading ? (
-              <div className="text-center py-8 text-gray-500">
-                <div className="inline-block animate-spin">
-                  <RefreshCw className="w-5 h-5" />
-                </div>
-                <p className="mt-2 text-sm">Loading economic events from Forex Factory...</p>
-              </div>
-            ) : economicEvents.length > 0 ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {economicEvents.slice(0, 8).map(event => (
-                  <motion.div
-                    key={event.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={`rounded-xl p-4 border transition-all ${
-                      event.impact === 'HIGH'
-                        ? 'bg-red-500/5 border-red-500/20 hover:border-red-500/50'
-                        : event.impact === 'MEDIUM'
-                        ? 'bg-yellow-500/5 border-yellow-500/20 hover:border-yellow-500/50'
-                        : 'bg-green-500/5 border-green-500/20 hover:border-green-500/50'
-                    }`}
-                  >
-                    <div className={`text-xs font-black uppercase tracking-widest mb-2 ${
-                      event.impact === 'HIGH'
-                        ? 'text-red-500'
-                        : event.impact === 'MEDIUM'
-                        ? 'text-yellow-500'
-                        : 'text-green-500'
-                    }`}>
-                      {event.currency} - {event.impact}
-                    </div>
-                    <div className="text-white font-black text-sm mb-1 line-clamp-2">{event.title}</div>
-                    <div className="text-gray-500 text-xs mb-3">
-                      <div>Forecast: {event.forecast || 'N/A'}</div>
-                      <div>Previous: {event.previous || 'N/A'}</div>
-                      {event.actual && <div className="text-amber-500">Actual: {event.actual}</div>}
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-500">
-                      <Clock className="w-3 h-3" />
-                      <span className="text-[10px]">{event.time}</span>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <p className="text-sm">No events found for selected filters</p>
-              </div>
-            )}
-          </div>
+          {/* Economic Calendar Table */}
+          <EconomicCalendarTable />
 
           {/* News Section */}
           {error ? (
