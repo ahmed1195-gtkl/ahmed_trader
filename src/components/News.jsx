@@ -1,16 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { Clock, ExternalLink, TrendingUp, RefreshCw, AlertCircle, MessageCircle, X, User } from 'lucide-react';
+import { Clock, ExternalLink, TrendingUp, RefreshCw, AlertCircle, MessageCircle, X, User, Calendar } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import Header from './Header';
 import Footer from './Footer';
 import Comments from './Comments';
 import AuthGuardPopup from './AuthGuardPopup';
-import EconomicCalendar from './EconomicCalendar';
 import { auth } from '../lib/firebase';
-import { economicCalendarInit } from '../lib/economicCalendarInit';
 
 const News = () => {
   const { t } = useTranslation();
@@ -78,11 +76,6 @@ const News = () => {
       setIsUserAuthenticated(!!user);
     });
 
-    // Initialize Economic Calendar System
-    economicCalendarInit.initialize().catch(err => {
-      console.error('Failed to initialize Economic Calendar:', err);
-    });
-
     return () => {
       clearInterval(interval);
       unsubscribe();
@@ -115,8 +108,51 @@ const News = () => {
           </div>
 
           {/* Economic Calendar Section */}
-          <div className="mb-16">
-            <EconomicCalendar />
+          <div className="mb-16 bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-[2rem] p-8">
+            <div className="flex items-center gap-3 mb-6">
+              <Calendar className="w-5 h-5 text-amber-500" />
+              <h2 className="text-2xl font-black text-white uppercase tracking-tight">
+                {t('news.economicCalendar', 'Economic Calendar')}
+              </h2>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-black/40 rounded-xl p-4 border border-white/5 hover:border-amber-500/30 transition-all">
+                <div className="text-amber-500 text-xs font-black uppercase tracking-widest mb-2">USD</div>
+                <div className="text-white font-black text-lg mb-1">NFP</div>
+                <div className="text-gray-500 text-xs">Non-Farm Payroll</div>
+                <div className="mt-3 flex items-center gap-2">
+                  <Clock className="w-3 h-3 text-gray-500" />
+                  <span className="text-[10px] text-gray-500">Friday 13:30 UTC</span>
+                </div>
+              </div>
+              <div className="bg-black/40 rounded-xl p-4 border border-white/5 hover:border-amber-500/30 transition-all">
+                <div className="text-amber-500 text-xs font-black uppercase tracking-widest mb-2">EUR</div>
+                <div className="text-white font-black text-lg mb-1">ECB Rate</div>
+                <div className="text-gray-500 text-xs">Interest Rate Decision</div>
+                <div className="mt-3 flex items-center gap-2">
+                  <Clock className="w-3 h-3 text-gray-500" />
+                  <span className="text-[10px] text-gray-500">Thursday 13:00 UTC</span>
+                </div>
+              </div>
+              <div className="bg-black/40 rounded-xl p-4 border border-white/5 hover:border-amber-500/30 transition-all">
+                <div className="text-amber-500 text-xs font-black uppercase tracking-widest mb-2">GBP</div>
+                <div className="text-white font-black text-lg mb-1">BOE Rate</div>
+                <div className="text-gray-500 text-xs">Interest Rate Decision</div>
+                <div className="mt-3 flex items-center gap-2">
+                  <Clock className="w-3 h-3 text-gray-500" />
+                  <span className="text-[10px] text-gray-500">Thursday 12:00 UTC</span>
+                </div>
+              </div>
+              <div className="bg-black/40 rounded-xl p-4 border border-white/5 hover:border-amber-500/30 transition-all">
+                <div className="text-amber-500 text-xs font-black uppercase tracking-widest mb-2">JPY</div>
+                <div className="text-white font-black text-lg mb-1">BOJ Rate</div>
+                <div className="text-gray-500 text-xs">Interest Rate Decision</div>
+                <div className="mt-3 flex items-center gap-2">
+                  <Clock className="w-3 h-3 text-gray-500" />
+                  <span className="text-[10px] text-gray-500">Wednesday 09:00 UTC</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* News Section */}
