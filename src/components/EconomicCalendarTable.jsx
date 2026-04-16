@@ -5,12 +5,11 @@ import { Clock, TrendingUp, TrendingDown, AlertCircle, RefreshCw, Calendar } fro
 import { forexFactoryScraperReal } from '../lib/forexFactoryScraperReal';
 
 const EconomicCalendarTable = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCurrencies, setSelectedCurrencies] = useState(['USD', 'EUR', 'GBP', 'JPY']);
   const [selectedImpacts, setSelectedImpacts] = useState(['HIGH', 'MEDIUM', 'LOW']);
-  const [sortBy, setSortBy] = useState('time');
 
   // Fetch events on mount and set up interval
   useEffect(() => {
@@ -73,7 +72,11 @@ const EconomicCalendarTable = () => {
   };
 
   return (
-    <div className="mb-16 bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-[2rem] p-8">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mb-16 bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-[2rem] p-8"
+    >
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
@@ -240,7 +243,7 @@ const EconomicCalendarTable = () => {
           Data refreshes every 15 minutes
         </p>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
