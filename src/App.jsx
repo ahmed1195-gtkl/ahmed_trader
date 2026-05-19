@@ -45,9 +45,10 @@ import JoinTeam from './components/JoinTeam';
 import SheetsGuide from './components/SheetsGuide';
 import MarketIntelligence from './components/MarketIntelligence';
 import Academy from './components/academy/Academy';
-import LibraryPage from './components/LibraryPage';
 import SchoolPage from './components/academy/SchoolPage';
 import LessonPage from './components/academy/LessonPage';
+import BooksPage from './components/BooksPage';
+import BookDetail from './components/BookDetail';
 import './App.css';
 
 function MainLayout() {
@@ -244,7 +245,8 @@ function App() {
                 <Route path="/academy" element={<Academy />} />
                 <Route path="/academy/:schoolId" element={<SchoolPage />} />
                 <Route path="/academy/:schoolId/lesson/:lessonId" element={<LessonPage />} />
-                <Route path="/library" element={<LibraryPage />} />
+                <Route path="/books" element={<BooksPage />} />
+                <Route path="/books/:bookId" element={<BookDetail />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </div>
