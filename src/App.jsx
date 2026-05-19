@@ -45,6 +45,7 @@ import JoinTeam from './components/JoinTeam';
 import SheetsGuide from './components/SheetsGuide';
 import MarketIntelligence from './components/MarketIntelligence';
 import Academy from './components/academy/Academy';
+import LibraryPage from './components/LibraryPage';
 import SchoolPage from './components/academy/SchoolPage';
 import LessonPage from './components/academy/LessonPage';
 import './App.css';
@@ -243,6 +244,7 @@ function App() {
                 <Route path="/academy" element={<Academy />} />
                 <Route path="/academy/:schoolId" element={<SchoolPage />} />
                 <Route path="/academy/:schoolId/lesson/:lessonId" element={<LessonPage />} />
+                <Route path="/library" element={<LibraryPage />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </div>
