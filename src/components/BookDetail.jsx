@@ -190,15 +190,26 @@ const BookDetail = () => {
                   <span className="text-lg text-zinc-600 line-through">${ORIGINAL_PRICE}</span>
                   <span className="px-2 py-1 rounded-lg bg-red-500/20 text-red-400 text-xs font-bold">-{DISCOUNT_PCT}%</span>
                 </div>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setPaymentOpen(true)}
-                  className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-amber-500/20 cursor-pointer"
-                >
-                  <ShoppingCart className="w-5 h-5" />
-                  {isAr ? 'اشتري الآن' : 'Buy Now'}
-                </motion.button>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setPaymentOpen(true)}
+                    className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-amber-500/20 cursor-pointer"
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                    {isAr ? 'اشتري الآن' : 'Buy Now'}
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => navigate('/books/sober-trading/read')}
+                    className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-white/5 border border-amber-500/30 hover:bg-amber-500/10 text-amber-400 hover:text-amber-300 font-black text-sm uppercase tracking-widest transition-all cursor-pointer"
+                  >
+                    <BookOpen className="w-5 h-5" />
+                    {isAr ? 'ابدأ القراءة' : 'Start Reading'}
+                  </motion.button>
+                </div>
               </motion.div>
             </div>
           </div>

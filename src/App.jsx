@@ -49,6 +49,7 @@ import SchoolPage from './components/academy/SchoolPage';
 import LessonPage from './components/academy/LessonPage';
 import BooksPage from './components/BooksPage';
 import BookDetail from './components/BookDetail';
+import ImmersiveBookReader from './components/ImmersiveBookReader';
 import './App.css';
 
 function MainLayout() {
@@ -247,6 +248,7 @@ function App() {
                 <Route path="/academy/:schoolId/lesson/:lessonId" element={<LessonPage />} />
                 <Route path="/books" element={<BooksPage />} />
                 <Route path="/books/:bookId" element={<BookDetail />} />
+                <Route path="/books/:bookId/read" element={<ImmersiveBookReader />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </div>
