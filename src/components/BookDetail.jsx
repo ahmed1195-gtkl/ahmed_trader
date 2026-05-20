@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ChevronLeft, BookOpen, ShoppingCart, Star, ChevronDown, ChevronUp, Lock, Eye } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
+import PaymentModal from './PaymentModal';
 
 const CHAPTER_1 = {
   titleAr: 'الفصل الأول: لماذا يخسر أغلب الناس؟',
@@ -114,7 +115,12 @@ const BookDetail = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState(0);
   const [showChapters, setShowChapters] = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
   const isAr = i18n.language === 'ar';
+
+  const PRICE = 11.99;
+  const ORIGINAL_PRICE = 23.98;
+  const DISCOUNT_PCT = Math.round(((ORIGINAL_PRICE - PRICE) / ORIGINAL_PRICE) * 100);
 
   return (
     <>
@@ -180,21 +186,19 @@ const BookDetail = () => {
                   <span className="text-zinc-500 text-xs">(342 {isAr ? 'تقييم' : 'reviews'})</span>
                 </div>
                 <div className="flex items-baseline gap-3 mb-4">
-                  <span className="text-3xl font-black text-white">$29.99</span>
-                  <span className="text-lg text-zinc-600 line-through">$49.99</span>
-                  <span className="px-2 py-1 rounded-lg bg-red-500/20 text-red-400 text-xs font-bold">-40%</span>
+                  <span className="text-3xl font-black text-white">${PRICE}</span>
+                  <span className="text-lg text-zinc-600 line-through">${ORIGINAL_PRICE}</span>
+                  <span className="px-2 py-1 rounded-lg bg-red-500/20 text-red-400 text-xs font-bold">-{DISCOUNT_PCT}%</span>
                 </div>
-                <motion.a
+                <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  href="https://t.me/ahmed_trader_123"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  onClick={() => setPaymentOpen(true)}
                   className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-amber-500/20 cursor-pointer"
                 >
                   <ShoppingCart className="w-5 h-5" />
                   {isAr ? 'اشتري الآن' : 'Buy Now'}
-                </motion.a>
+                </motion.button>
               </motion.div>
             </div>
           </div>
@@ -351,15 +355,14 @@ const BookDetail = () => {
                       {isAr ? 'التالي' : 'Next'}
                     </button>
                   ) : (
-                    <motion.a
+                    <motion.button
                       whileHover={{ scale: 1.02 }}
-                      href="https://t.me/ahmed_trader_123"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setPaymentOpen(true)}
                       className="px-6 py-3 rounded-xl bg-amber-500 text-black text-xs font-bold uppercase tracking-widest hover:bg-amber-400 transition-all cursor-pointer"
                     >
                       {isAr ? 'اشتر الكتاب كاملاً' : 'Buy Full Book'}
-                    </motion.a>
+                    </motion.button>
                   )}
                 </div>
               </div>
@@ -368,6 +371,15 @@ const BookDetail = () => {
         </div>
       </div>
       <Footer />
+
+      {/* Payment Modal */}
+      <PaymentModal
+        isOpen={paymentOpen}
+        onClose={() => setPaymentOpen(false)}
+        bookTitle={isAr ? 'التداول الرصين' : 'Sober Trading'}
+        price={PRICE}
+        originalPrice={ORIGINAL_PRICE}
+      />
     </>
   );
 };
