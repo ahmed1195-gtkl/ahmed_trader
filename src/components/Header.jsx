@@ -210,54 +210,7 @@ const Header = () => {
             </div>
           </Link>
 
-          {/* Unified Nav - Desktop */}
-          <nav className="hidden lg:flex items-center gap-6">
-            {navLinks.map((link) => (
-              <Link 
-                key={link.path} 
-                to={link.path} 
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-white/5 ${location.pathname === link.path ? 'text-amber-500 bg-amber-500/5' : 'text-gray-400'}`}
-              >
-                {link.icon} {link.name}
-              </Link>
-            ))}
-            
-            {user && isAdmin && (
-              <div className="flex items-center gap-2">
-                <Link 
-                  to="/admin" 
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-amber-500 hover:text-black ${location.pathname === '/admin' ? 'bg-amber-500 text-black' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}`}
-                >
-                  <Plus className="w-3 h-3" /> {t('nav.admin', 'Admin')}
-                </Link>
-                <Link 
-                  to="/admin/courses" 
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-amber-500 hover:text-black ${location.pathname === '/admin/courses' ? 'bg-amber-500 text-black' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}`}
-                >
-                  <GraduationCap className="w-3 h-3" /> {i18n.language === 'ar' ? 'إدارة الكورسات' : 'Manage Courses'}
-                </Link>
-                <Link 
-                  to="/admin/challenges" 
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-amber-500 hover:text-black ${location.pathname === '/admin/challenges' ? 'bg-amber-500 text-black' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}`}
-                >
-                  <Trophy className="w-3 h-3" /> {i18n.language === 'ar' ? 'إدارة التحديات' : 'Manage Challenges'}
-                </Link>
-              </div>
-            )}
 
-            <div className="relative group">
-              <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-400 group-hover:text-amber-500 transition-all hover:bg-white/5">
-                {t('nav.channels')} <ChevronDown className="w-3 h-3" />
-              </button>
-              <div className="absolute top-full right-0 mt-2 w-48 bg-zinc-900/95 backdrop-blur-2xl border border-white/10 rounded-2xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0 shadow-2xl">
-                {socialChannels.map((channel) => (
-                  <a key={channel.name} href={channel.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all">
-                    {channel.icon} <span className="text-[10px] font-black uppercase tracking-widest">{channel.name}</span>
-                  </a>
-                ))}
-              </div>
-            </div>
-          </nav>
 
           {/* Actions */}
           <div className="flex items-center gap-2 md:gap-4">
@@ -311,16 +264,13 @@ const Header = () => {
                 <Link to="/auth" className="px-4 md:px-6 py-2 md:py-2.5 rounded-xl bg-amber-500 text-black text-[10px] font-black uppercase tracking-widest hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20">
                   {t('nav.login')}
                 </Link>
-                <Link to="/auth" className="hidden md:flex px-4 md:px-6 py-2 md:py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">
-                  {t('auth.signup')}
-                </Link>
               </div>
             )}
 
-            {/* Mobile Menu Toggle */}
+            {/* Menu Toggle (always visible on all devices) */}
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
-              className="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white"
+              className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white"
             >
               {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -328,7 +278,7 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Mobile Sidebar */}
+      {/* Navigation Sidebar Drawer */}
       <AnimatePresence>
         {isSidebarOpen && (
           <>
@@ -337,13 +287,13 @@ const Header = () => {
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }} 
               onClick={() => setIsSidebarOpen(false)}
-              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[90] lg:hidden"
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[90]"
             />
             <motion.div 
               initial={{ x: '100%' }} 
               animate={{ x: 0 }} 
               exit={{ x: '100%' }} 
-              className="fixed top-0 right-0 bottom-0 w-[280px] bg-zinc-950 border-l border-white/10 z-[101] p-6 lg:hidden"
+              className="fixed top-0 right-0 bottom-0 w-[280px] sm:w-[320px] bg-zinc-950 border-l border-white/10 z-[101] p-6 overflow-y-auto"
             >
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between mb-10">
@@ -364,14 +314,35 @@ const Header = () => {
                     </Link>
                   ))}
                   {user && isAdmin && (
-                    <Link 
-                      to="/admin" 
-                      onClick={() => setIsSidebarOpen(false)}
-                      className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${location.pathname === '/admin' ? 'bg-amber-500 text-black' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}`}
-                    >
-                      <Plus className="w-5 h-5" />
-                      <span className="text-xs font-black uppercase tracking-widest">{t('nav.admin', 'Admin')}</span>
-                    </Link>
+                    <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-white/5">
+                      <span className="text-[10px] text-amber-500 font-bold uppercase tracking-widest px-4 mb-1">
+                        {i18n.language === 'ar' ? 'الإدارة' : 'Administration'}
+                      </span>
+                      <Link 
+                        to="/admin" 
+                        onClick={() => setIsSidebarOpen(false)}
+                        className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${location.pathname === '/admin' ? 'bg-amber-500 text-black' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}`}
+                      >
+                        <Plus className="w-5 h-5" />
+                        <span className="text-xs font-black uppercase tracking-widest">{t('nav.admin', 'Admin')}</span>
+                      </Link>
+                      <Link 
+                        to="/admin/courses" 
+                        onClick={() => setIsSidebarOpen(false)}
+                        className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${location.pathname === '/admin/courses' ? 'bg-amber-500 text-black' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}`}
+                      >
+                        <GraduationCap className="w-5 h-5" />
+                        <span className="text-xs font-black uppercase tracking-widest">{i18n.language === 'ar' ? 'إدارة الكورسات' : 'Manage Courses'}</span>
+                      </Link>
+                      <Link 
+                        to="/admin/challenges" 
+                        onClick={() => setIsSidebarOpen(false)}
+                        className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${location.pathname === '/admin/challenges' ? 'bg-amber-500 text-black' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}`}
+                      >
+                        <Trophy className="w-5 h-5" />
+                        <span className="text-xs font-black uppercase tracking-widest">{i18n.language === 'ar' ? 'إدارة التحديات' : 'Manage Challenges'}</span>
+                      </Link>
+                    </div>
                   )}
                   {!user && (
                     <>
@@ -395,7 +366,7 @@ const Header = () => {
                   {user && (
                     <button 
                       onClick={() => { signOut(auth); setIsSidebarOpen(false); }}
-                      className="flex items-center gap-4 px-4 py-4 rounded-2xl text-xs font-black uppercase tracking-widest text-red-500 bg-red-500/10 border border-red-500/20 mt-4"
+                      className="flex items-center gap-4 px-4 py-4 rounded-2xl text-xs font-black uppercase tracking-widest text-red-500 bg-red-500/10 border border-red-500/20 mt-4 text-left"
                     >
                       <LogOut className="w-4 h-4" /> {t('nav.logout')}
                     </button>

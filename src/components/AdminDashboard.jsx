@@ -33,7 +33,8 @@ import {
   Activity,
   Plus,
   GraduationCap,
-  Crown
+  Crown,
+  BookOpen
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -183,6 +184,23 @@ const AdminDashboard = () => {
     }
   };
 
+  const toggleBookAccess = async (user) => {
+    const newValue = !user.soberBookAccess;
+    try {
+      await updateDoc(doc(db, 'users', user.id), {
+        soberBookAccess: newValue
+      });
+      await logAdminAction('TOGGLE_BOOK_ACCESS', `Admin changed book access for ${user.email} to ${newValue}`);
+      toast.success(i18n.language === 'ar' 
+        ? (newValue ? 'تم منح صلاحية الكتاب بنجاح' : 'تم إلغاء صلاحية الكتاب بنجاح')
+        : `Book access ${newValue ? 'granted' : 'revoked'} successfully`
+      );
+    } catch (error) {
+      console.error('Error updating book access:', error);
+      toast.error(i18n.language === 'ar' ? 'فشل تحديث صلاحية الكتاب' : 'Failed to update book access');
+    }
+  };
+
   const filteredUsers = users.filter(u => 
     u.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
     u.email?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -266,11 +284,25 @@ const AdminDashboard = () => {
                         <h3 className="font-black uppercase tracking-tight flex items-center gap-2">
                           {user.fullName || 'User'}
                           {user.isBanned && <span className="text-[8px] bg-red-500 text-white px-2 py-0.5 rounded-full">BANNED</span>}
+                          {user.soberBookAccess && <span className="text-[8px] bg-amber-500/20 text-amber-500 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">SOBER BOOK</span>}
                         </h3>
                         <p className="text-xs text-gray-500">{user.email}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
+                      <Button 
+                        onClick={() => toggleBookAccess(user)}
+                        className={`h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                          user.soberBookAccess 
+                            ? 'bg-amber-500/20 hover:bg-amber-500 text-amber-500 hover:text-black border border-amber-500/30' 
+                            : 'bg-white/5 hover:bg-amber-500/10 text-amber-500 border border-amber-500/20'
+                        }`}
+                      >
+                        <BookOpen className="w-3 h-3 mr-2" />
+                        {user.soberBookAccess 
+                          ? (i18n.language === 'ar' ? 'صلاحية الكتاب: مفعّلة' : 'Book: Active') 
+                          : (i18n.language === 'ar' ? 'منح صلاحية الكتاب' : 'Grant Book Access')}
+                      </Button>
                       <Button 
                         onClick={() => handleWarnUser(user)}
                         className="bg-white/5 hover:bg-amber-500/10 text-amber-500 border border-amber-500/20 h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
