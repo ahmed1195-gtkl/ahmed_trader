@@ -332,6 +332,39 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
+    // قواعد الكتاب الإلكتروني — Sober Book
+    // ═══════════════════════════════════════════════════════════════
+
+    // وظيفة مساعدة: هل يملك المستخدم صلاحية الوصول للكتاب؟
+    function hasSoberBookAccess() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.soberBookAccess == true;
+    }
+
+    // سجلات مشتريات الكتب — يكتب إليها السيرفر فقط (Admin SDK)
+    // المستخدم يقرأ سجلاته الخاصة فقط
+    match /book_purchases/{purchaseId} {
+      allow read: if isAdmin() ||
+        (isSignedIn() && resource.data.userId == request.auth.uid);
+      // الكتابة من السيرفر (Admin SDK) فقط — لا يكتب إليها العميل أبداً
+      allow create, update, delete: if false;
+    }
+
+    // بيانات تفاصيل الكتاب (إن أردت حفظ فصوله في Firestore لاحقاً)
+    match /books/{bookId} {
+      // القراءة العامة: فقط البيانات التسويقية (العنوان، الوصف، السعر)
+      allow read: if true;
+    }
+
+    match /books/{bookId}/chapters/{chapterId} {
+      // الفصل الأول مجاني للجميع
+      allow read: if chapterId == 'chapter-1';
+      // باقي الفصول: يجب أن يكون المستخدم مسجلاً ولديه صلاحية
+      allow read: if hasSoberBookAccess() || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
     // قاعدة افتراضية: رفض كل شيء آخر
     // ═══════════════════════════════════════════════════════════════
     

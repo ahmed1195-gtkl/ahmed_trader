@@ -1,0 +1,76 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // وظائف مساعدة
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    // هل المستخدم مسجل الدخول؟
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // هل المستخدم أدمن؟
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'mchokri100@gmail.com' ||
+        request.auth.token.email == 'ahmed1195@gmail.com'
+      );
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // ملفات الكتاب الإلكتروني (Sober Book PDF)
+    // المسار: books/sober-trading/**
+    //
+    // ⚠️  لا يمكن للـ Storage Rules الوصول لـ Firestore مباشرةً.
+    //    الحل الصحيح والأكثر أماناً هو استخدام Custom Claims
+    //    يضيفها السيرفر (Firebase Admin SDK) على Token المستخدم
+    //    عند إتمام الدفع.
+    //
+    //    في الـ webhook بعد منح الصلاحية في Firestore، أضف:
+    //      await admin.auth().setCustomUserClaims(userId, {
+    //        soberBookAccess: true
+    //      });
+    //    ثم يجب أن يعيد المستخدم تسجيل الدخول (أو refresh token)
+    //    لكي تظهر الـ Claims الجديدة.
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    match /books/sober-trading/{allFiles=**} {
+      // القراءة/التحميل: مسجل + يملك Custom Claim
+      allow read: if isSignedIn() &&
+                     request.auth.token.soberBookAccess == true;
+
+      // الكتابة: الأدمن فقط (لرفع الكتاب)
+      allow write: if isAdmin();
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // صور وملفات المستخدمين العامة
+    // المسار: users/{userId}/**
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    match /users/{userId}/{allFiles=**} {
+      // المستخدم يقرأ ويكتب ملفاته فقط
+      allow read:  if isSignedIn() && request.auth.uid == userId;
+      allow write: if isSignedIn() && request.auth.uid == userId
+                   && request.resource.size < 5 * 1024 * 1024  // حد 5 ميغابايت
+                   && request.resource.contentType.matches('image/.*');
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // الصور العامة للموقع (أغلفة الكتب، إلخ)
+    // المسار: public/**
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    match /public/{allFiles=**} {
+      allow read:  if true;       // يمكن للجميع قراءتها
+      allow write: if isAdmin();  // يكتب إليها الأدمن فقط
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // رفض كل شيء آخر
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
