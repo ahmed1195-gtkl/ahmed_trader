@@ -145,7 +145,7 @@ const BookDetail = () => {
                 loop
                 playsInline
                 className="w-full h-full object-cover opacity-60"
-              preload="none" />
+              preload="auto" />
             ) : (
               <img src="/book_background.png" alt="" className="w-full h-full object-cover" decoding="async" loading="lazy" />
             )}

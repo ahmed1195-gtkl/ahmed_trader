@@ -588,7 +588,7 @@ const ImmersiveBookReader = () => {
             loop
             playsInline
             src={VIDEO_BG}
-          preload="none" />
+          preload="auto" />
         </div>
       )}
 

@@ -18,8 +18,9 @@ import { countries } from '../data/countries';
 import {
   Eye, EyeOff, Mail, Lock, User, Globe, Phone,
   Shield, ArrowLeft, CheckCircle2, AlertCircle,
-  Loader2, ChevronRight, Sparkles
+  Loader2, ChevronRight
 } from 'lucide-react';
+import shukritradeLogo from '../assets/shukritrade_logo.svg';
 
 /* ─────────────────────────────────────────────
    Reusable Premium Input with left icon + glow
@@ -357,10 +358,10 @@ const Auth = () => {
     : isLogin ? t('auth.welcome') : t('auth.createAccount');
 
   const pageSub = isForgotPassword
-    ? 'أدخل بريدك الإلكتروني لإعادة تعيين كلمة المرور'
+    ? t('auth.resetPasswordSub')
     : isLogin
-      ? 'أهلاً بعودتك إلى منصة التداول الاحترافية'
-      : 'انضم إلى مجتمع المتداولين المحترفين';
+      ? t('auth.welcomeSub')
+      : t('auth.createAccountSub');
 
   // ── Password eye toggle button ──
   const PasswordToggle = (
@@ -407,11 +408,8 @@ const Auth = () => {
           transition={{ delay: 0.1, duration: 0.4 }}
           className="text-center mb-8"
         >
-          <div className="inline-flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/30">
-              <Sparkles className="w-4 h-4 text-black" />
-            </div>
-            <span className="text-white/90 font-black text-lg uppercase tracking-[0.2em]">ShükriTrade</span>
+          <div className="inline-flex items-center justify-center gap-2 mb-3">
+            <img src={shukritradeLogo} alt="ShükriTrade" className="h-10 sm:h-12 w-auto object-contain" decoding="async" />
           </div>
           <div className="w-12 h-[1px] bg-gradient-to-r from-transparent via-amber-500/40 to-transparent mx-auto" />
         </motion.div>
@@ -461,12 +459,12 @@ const Auth = () => {
                       <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-4">
                         <Shield className="w-7 h-7 text-amber-400" />
                       </div>
-                      <h3 className="text-base font-black uppercase tracking-widest text-white mb-1">Security Check</h3>
-                      <p className="text-xs text-white/30">Enter the 6-digit code sent to your device.</p>
+                      <h3 className="text-base font-black uppercase tracking-widest text-white mb-1">{t('auth.securityCheck')}</h3>
+                      <p className="text-xs text-white/30">{t('auth.enterCode')}</p>
                     </div>
 
                     <div>
-                      <FieldLabel>Verification Code</FieldLabel>
+                      <FieldLabel>{t('auth.verificationCode')}</FieldLabel>
                       <input
                         type="text"
                         placeholder="• • • • • •"
@@ -484,7 +482,7 @@ const Auth = () => {
                       whileTap={{ scale: 0.98 }}
                       className="w-full h-12 rounded-xl bg-gradient-to-r from-amber-400 to-amber-600 text-black font-black text-sm uppercase tracking-widest shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 transition-all duration-300"
                     >
-                      Verify & Login
+                      {t('auth.verifyLogin')}
                     </motion.button>
 
                     <button
@@ -493,7 +491,7 @@ const Auth = () => {
                       className="w-full flex items-center justify-center gap-1 text-[10px] font-black uppercase tracking-widest text-white/30 hover:text-white/60 transition-colors pt-1"
                     >
                       <ArrowLeft className="w-3 h-3" />
-                      Back to Login
+                      {t('auth.backToLogin')}
                     </button>
                   </motion.form>
 
@@ -765,7 +763,7 @@ const Auth = () => {
                 <div className="border-t border-white/[0.04] pt-5 flex items-center justify-center gap-2 flex-wrap">
                   <span className="text-xs text-white/25 font-medium">
                     {isForgotPassword
-                      ? 'تذكرت كلمة المرور؟'
+                      ? t('auth.rememberPassword')
                       : isLogin ? t('auth.noAccount') : t('auth.hasAccount')}
                   </span>
                   <motion.button
@@ -790,7 +788,7 @@ const Auth = () => {
           transition={{ delay: 0.5 }}
           className="flex items-center justify-center gap-5 mt-6"
         >
-          {['256-bit SSL', 'Firebase Auth', 'End-to-End Encrypted'].map((badge) => (
+          {[t('auth.sslBadge'), t('auth.firebaseBadge'), t('auth.encryptedBadge')].map((badge) => (
             <div key={badge} className="flex items-center gap-1.5 text-white/15">
               <div className="w-1 h-1 rounded-full bg-amber-500/40" />
               <span className="text-[9px] font-bold uppercase tracking-widest">{badge}</span>
