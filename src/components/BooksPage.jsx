@@ -146,11 +146,10 @@ const BooksPage = () => {
                           <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-[85%] h-16 bg-amber-500/10 blur-3xl rounded-full group-hover:bg-amber-500/20 transition-all duration-700"></div>
 
                           {/* Book image */}
-                          <img
-                            src={book.cover}
+                          <img src={book.cover}
                             alt={isAr ? book.titleAr : book.titleEn}
                             className="relative z-10 w-full rounded-2xl shadow-2xl shadow-black/50 group-hover:shadow-amber-500/20 transition-all duration-700"
-                          />
+                          decoding="async" loading="lazy" />
 
                           {/* Shine effect */}
                           <div className="absolute inset-0 z-20 rounded-2xl bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>

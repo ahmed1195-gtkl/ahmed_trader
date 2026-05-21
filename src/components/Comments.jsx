@@ -168,7 +168,7 @@ const Comments = ({ postId }) => {
             >
               <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 overflow-hidden">
                 {comment.userPhoto ? (
-                  <img src={comment.userPhoto} alt="" className="w-full h-full object-cover" />
+                  <img src={comment.userPhoto} alt="" className="w-full h-full object-cover" decoding="async" loading="lazy" />
                 ) : (
                   <User className="w-5 h-5 text-amber-500" />
                 )}

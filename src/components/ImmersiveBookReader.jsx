@@ -583,13 +583,12 @@ const ImmersiveBookReader = () => {
       {/* ── Video Background (Desktop Only) ── */}
       {isDesktop && (
         <div className="ibr-video-bg">
-          <video
-            autoPlay
+          <video autoPlay
             muted
             loop
             playsInline
             src={VIDEO_BG}
-          />
+          preload="none" />
         </div>
       )}
 

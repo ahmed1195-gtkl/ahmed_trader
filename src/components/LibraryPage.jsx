@@ -164,7 +164,7 @@ const PreviewModal = ({ book, onClose }) => {
         </button>
 
         <div className="w-full md:w-2/5 relative aspect-[3/4] md:aspect-auto">
-          <img src={book.cover} alt={book.title} className="w-full h-full object-cover" />
+          <img src={book.cover} alt={book.title} className="w-full h-full object-cover" decoding="async" loading="lazy" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#131A29] via-transparent to-transparent md:bg-gradient-to-r" />
         </div>
 

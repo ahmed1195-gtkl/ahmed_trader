@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { db, auth } from '../lib/firebase';
 import { 
   collection, 
@@ -74,24 +74,24 @@ const ChatWidget = () => {
       setMessages(messagesList);
       
       // حساب الرسائل غير المقروءة
-      if (!isOpen) {
-        const unread = messagesList.filter(msg => 
-          !msg.read && msg.userId !== user.uid
-        ).length;
-        setUnreadCount(unread);
-      }
+      const unread = messagesList.filter(msg => 
+        !msg.read && msg.userId !== user.uid
+      ).length;
+      setUnreadCount(unread);
       
       scrollToBottom();
     });
 
     return () => unsubscribe();
-  }, [user, isAdmin, isOpen]);
+  }, [user, isAdmin]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const scrollToBottom = useCallback(() => {
+    requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    });
+  }, []);
 
-  const handleSend = async (e) => {
+  const handleSend = useCallback(async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !user) return;
 
@@ -114,19 +114,21 @@ const ChatWidget = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [newMessage, user, isAdmin, scrollToBottom]);
 
-  const toggleChat = () => {
-    setIsOpen(!isOpen);
-    if (!isOpen) {
-      setUnreadCount(0);
-      setIsMinimized(false);
-    }
-  };
+  const toggleChat = useCallback(() => {
+    setIsOpen(prev => {
+      if (!prev) {
+        setUnreadCount(0);
+        setIsMinimized(false);
+      }
+      return !prev;
+    });
+  }, []);
 
-  const toggleMinimize = () => {
-    setIsMinimized(!isMinimized);
-  };
+  const toggleMinimize = useCallback(() => {
+    setIsMinimized(prev => !prev);
+  }, []);
 
   if (!user) return null;
 
@@ -230,11 +232,10 @@ const ChatWidget = () => {
                                   title={t('viewProfile') || 'View Profile'}
                                 >
                                   {message.userPhoto ? (
-                                    <img
-                                      src={message.userPhoto}
+                                    <img src={message.userPhoto}
                                       alt={message.userName}
                                       className="w-6 h-6 rounded-full object-cover border border-amber-500/20"
-                                    />
+                                    decoding="async" loading="lazy" />
                                   ) : (
                                     <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
                                       message.isAdmin ? 'bg-gradient-to-r from-amber-500 to-amber-600' : 'bg-zinc-700'

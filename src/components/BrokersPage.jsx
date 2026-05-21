@@ -94,11 +94,10 @@ const BrokersPage = () => {
                   {/* Broker Header */}
                   <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-10">
                     <div className="w-32 h-32 md:w-40 md:h-40 rounded-[2rem] bg-white/5 p-4 flex items-center justify-center border border-white/10 group-hover:border-amber-500/30 transition-all duration-500">
-                      <img 
-                        src={broker.logo} 
+                      <img src={broker.logo} 
                         alt={`${broker.name} Logo`} 
                         className="w-full h-full object-contain"
-                      />
+                      decoding="async" loading="lazy" />
                     </div>
                     <div className="flex-1 text-center md:text-left">
                       <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-white group-hover:text-amber-500 transition-colors duration-300 mb-4">

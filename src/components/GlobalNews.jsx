@@ -126,7 +126,7 @@ const GlobalNews = () => {
                   <div className="relative p-4">
                     <div className="aspect-[16/10] overflow-hidden relative rounded-[2rem] border border-white/10">
                       {item.mediaType === 'video' ? (
-                        <video src={item.thumbnail} className="w-full h-full object-cover" muted onMouseOver={e => e.target.play()} onMouseOut={e => e.target.pause()} />
+                        <video src={item.thumbnail} className="w-full h-full object-cover" muted preload="none" onMouseOver={(e) => e.target.play()} onMouseOut={(e) => e.target.pause()} />
                       ) : item.mediaType === 'audio' ? (
                         <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
                           <div className="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center">
@@ -134,11 +134,10 @@ const GlobalNews = () => {
                           </div>
                         </div>
                       ) : (
-                        <img 
-                          src={item.thumbnail || `https://images.unsplash.com/photo-1611974714024-462cd297c8aa?q=80&w=800&auto=format&fit=crop`} 
+                        <img src={item.thumbnail || `https://images.unsplash.com/photo-1611974714024-462cd297c8aa?q=80&w=800&auto=format&fit=crop`} 
                           alt=""
                           className="w-full h-full object-contain bg-black/20 group-hover:scale-105 transition-transform duration-700"
-                        />
+                        decoding="async" loading="lazy" />
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 via-transparent to-transparent opacity-60" />
                     </div>
@@ -235,13 +234,13 @@ const GlobalNews = () => {
                     {selectedPost.isAdminPost && (
                       <div className="mb-8 rounded-2xl overflow-hidden bg-black border border-white/5">
                         {selectedPost.mediaType === 'video' ? (
-                          <video src={selectedPost.thumbnail} controls className="w-full aspect-video" />
+                          <video src={selectedPost.thumbnail} controls className="w-full aspect-video" preload="none" />
                         ) : selectedPost.mediaType === 'audio' ? (
                           <div className="p-8 bg-zinc-800/50">
                             <audio src={selectedPost.thumbnail} controls className="w-full" />
                           </div>
                         ) : (
-                          <img src={selectedPost.thumbnail} alt="" className="w-full object-cover" />
+                          <img src={selectedPost.thumbnail} alt="" className="w-full object-cover" decoding="async" loading="lazy" />
                         )}
                       </div>
                     )}

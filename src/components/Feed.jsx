@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { auth, db } from '../lib/firebase';
@@ -14,7 +14,8 @@ import {
   arrayUnion,
   arrayRemove,
   getDoc,
-  deleteDoc
+  deleteDoc,
+  limit
 } from 'firebase/firestore';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
@@ -56,7 +57,7 @@ const Feed = () => {
       }
     });
     
-    const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
+    const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(50));
     const unsubscribePosts = onSnapshot(q, (snapshot) => {
       const postsData = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -140,7 +141,7 @@ const Feed = () => {
     }
   };
 
-  const handleLike = async (postId, likes) => {
+  const handleLike = useCallback(async (postId, likes) => {
     if (!user) {
       toast.error(i18n.language === 'ar' ? 'يجب تسجيل الدخول للإعجاب' : 'Please login to like posts');
       return;
@@ -180,9 +181,9 @@ const Feed = () => {
       );
       toast.error(i18n.language === 'ar' ? 'فشل الإعجاب' : 'Failed to like post');
     }
-  };
+  }, [user, i18n.language]);
 
-  const handleComment = async (postId) => {
+  const handleComment = useCallback(async (postId) => {
     if (!user) {
       toast.error(i18n.language === 'ar' ? 'يجب تسجيل الدخول للتعليق' : 'Please login to comment');
       return;
@@ -214,7 +215,7 @@ const Feed = () => {
       )
     );
     
-    setCommentText({ ...commentText, [postId]: '' });
+    setCommentText(prev => ({ ...prev, [postId]: '' }));
 
     try {
       await updateDoc(postRef, {
@@ -232,9 +233,9 @@ const Feed = () => {
       );
       toast.error(i18n.language === 'ar' ? 'فشل إضافة التعليق' : "Failed to add comment. Please try again.");
     }
-  };
+  }, [user, userData, i18n.language, commentText]);
 
-  const handleDeletePost = async (postId) => {
+  const handleDeletePost = useCallback(async (postId) => {
     if (!isAdmin) return;
     
     const confirmed = window.confirm(i18n.language === 'ar' ? 'هل أنت متأكد من حذف هذا المنشور؟' : 'Are you sure you want to delete this post?');
@@ -247,9 +248,9 @@ const Feed = () => {
       console.error("Error deleting post: ", error);
       toast.error(i18n.language === 'ar' ? 'فشل حذف المنشور' : "Failed to delete post.");
     }
-  };
+  }, [isAdmin, i18n.language]);
 
-  const renderTextWithLinks = (text) => {
+  const renderTextWithLinks = useCallback((text) => {
     if (!text) return null;
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     const parts = text.split(urlRegex);
@@ -269,7 +270,7 @@ const Feed = () => {
       }
       return part;
     });
-  };
+  }, []);
 
   return (
     <section className="py-12 md:py-20 relative bg-black min-h-screen">
@@ -382,7 +383,7 @@ const Feed = () => {
             </div>
           ) : (
             posts.map((post) => (
-              <motion.div key={post.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+              <motion.div key={post.id} className="contain-layout" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
                 <Card className="bg-zinc-900/40 border-white/5 backdrop-blur-md overflow-hidden hover:border-amber-500/20 transition-all duration-500 rounded-[2.5rem]">
                   <CardHeader className="p-6">
                     <div className="flex items-center justify-between">
@@ -392,7 +393,7 @@ const Feed = () => {
                           onClick={() => navigate(`/profile/${post.authorId}`)}
                           title={i18n.language === 'ar' ? 'عرض الملف الشخصي' : 'View Profile'}
                         >
-                          {post.authorPhoto ? <img src={post.authorPhoto} alt="" className="w-full h-full object-cover" /> : <User className="w-6 h-6 text-amber-500" />}
+                          {post.authorPhoto ? <img src={post.authorPhoto} alt="" className="w-full h-full object-cover" decoding="async" loading="lazy" /> : <User className="w-6 h-6 text-amber-500" />}
                         </div>
                         <div>
                           <p 
@@ -421,14 +422,14 @@ const Feed = () => {
                     {post.image && (
                       <div className="w-full rounded-3xl overflow-hidden bg-black border border-white/5">
                         {post.mediaType === 'video' ? (
-                          <video src={post.image} controls className="w-full aspect-video" />
+                          <video src={post.image} controls className="w-full aspect-video" preload="none" />
                         ) : post.mediaType === 'audio' ? (
                           <div className="p-6 bg-zinc-800/50 flex items-center gap-4">
                             <Music className="w-8 h-8 text-amber-500 shrink-0" />
                             <audio src={post.image} controls className="w-full" />
                           </div>
                         ) : (
-                          <img src={post.image} alt="Post" className="w-full object-cover max-h-[500px]" />
+                          <img src={post.image} alt="Post" loading="lazy" decoding="async" className="w-full object-cover max-h-[500px]" />
                         )}
                       </div>
                     )}
@@ -453,7 +454,7 @@ const Feed = () => {
                           placeholder={i18n.language === 'ar' ? 'اكتب تعليقاً...' : "Write a comment..."}
                           className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:border-amber-500/50 outline-none transition-all"
                           value={commentText[post.id] || ''}
-                          onChange={(e) => setCommentText({ ...commentText, [post.id]: e.target.value })}
+                          onChange={(e) => { const val = e.target.value; setCommentText(prev => ({ ...prev, [post.id]: val })); }}
                           onKeyPress={(e) => e.key === 'Enter' && handleComment(post.id)}
                         />
                         <Button onClick={() => handleComment(post.id)} disabled={!commentText[post.id]} className="bg-amber-500 hover:bg-amber-600 text-black w-10 h-10 p-0 rounded-xl shrink-0">
@@ -471,7 +472,7 @@ const Feed = () => {
                               onClick={() => navigate(`/profile/${comment.userId}`)}
                               title={i18n.language === 'ar' ? 'عرض الملف الشخصي' : 'View Profile'}
                             >
-                              {comment.userPhoto ? <img src={comment.userPhoto} alt="" className="w-full h-full object-cover" /> : <User className="w-4 h-4 text-gray-500" />}
+                              {comment.userPhoto ? <img src={comment.userPhoto} alt="" className="w-full h-full object-cover" decoding="async" loading="lazy" /> : <User className="w-4 h-4 text-gray-500" />}
                             </div>
                             <div className="flex-1">
                               <p 

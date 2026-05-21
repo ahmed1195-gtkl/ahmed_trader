@@ -308,11 +308,10 @@ function DemoAccountSetup({ onComplete }) {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <img
-                        src={broker.logo}
+                      <img src={broker.logo}
                         alt={broker.name}
                         className="w-12 h-12 object-contain rounded-lg bg-white/5 p-2"
-                      />
+                      decoding="async" loading="lazy" />
                       <div className="text-right">
                         <p className="font-bold text-white group-hover:text-amber-400 transition-colors">
                           {broker.name}

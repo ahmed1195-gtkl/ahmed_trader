@@ -163,11 +163,10 @@ const Courses = () => {
                   {/* Course Image */}
                   <div className="relative h-56 overflow-hidden">
                     {course.imageUrl ? (
-                      <img
-                        src={course.imageUrl}
+                      <img src={course.imageUrl}
                         alt={course.name}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
+                      decoding="async" loading="lazy" />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-amber-500/20 to-amber-600/20 flex items-center justify-center">
                         <BookOpen className="w-20 h-20 text-amber-500/50" />

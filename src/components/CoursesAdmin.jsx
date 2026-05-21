@@ -523,7 +523,7 @@ const CoursesAdmin = () => {
             <Card key={course.id} className="bg-zinc-900/50 border-white/10 rounded-2xl overflow-hidden">
               <div className="relative h-48">
                 {course.imageUrl ? (
-                  <img src={course.imageUrl} alt={course.nameAr} className="w-full h-full object-cover" />
+                  <img src={course.imageUrl} alt={course.nameAr} className="w-full h-full object-cover" decoding="async" loading="lazy" />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-amber-500/20 to-amber-600/20 flex items-center justify-center">
                     <BookOpen className="w-16 h-16 text-amber-500/50" />

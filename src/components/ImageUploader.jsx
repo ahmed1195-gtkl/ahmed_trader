@@ -103,11 +103,10 @@ function ImageUploader({ onImageUploaded, currentImageUrl = null, label = 'رف�
         </div>
       ) : (
         <div className="relative group">
-          <img
-            src={preview}
+          <img src={preview}
             alt="Preview"
             className="w-full h-64 object-cover rounded-xl border border-white/10"
-          />
+          decoding="async" loading="lazy" />
           
           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-4">
             <button

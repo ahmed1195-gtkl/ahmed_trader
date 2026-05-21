@@ -178,7 +178,7 @@ const Settings = () => {
                   <div className="relative group">
                     <div className="w-24 h-24 rounded-full bg-amber-500/10 border-2 border-amber-500/20 flex items-center justify-center overflow-hidden shadow-2xl shadow-amber-500/5">
                       {profileData.photoURL ? (
-                        <img src={profileData.photoURL} alt="Profile" className="w-full h-full object-cover" onError={(e) => { e.target.onerror = null; e.target.src = ''; }} />
+                        <img src={profileData.photoURL} alt="Profile" className="w-full h-full object-cover" decoding="async" loading="lazy" onError={(e) => { e.target.onerror = null; e.target.src = ''; }} />
                       ) : (
                         <User className="w-10 h-10 text-amber-500" />
                       )}

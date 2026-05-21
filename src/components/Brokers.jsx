@@ -92,11 +92,10 @@ const Brokers = () => {
               <div className="bg-white/5 md:bg-white/10 backdrop-blur-md border border-white/10 md:border-white/20 rounded-2xl md:rounded-3xl p-5 md:p-8 hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-amber-500/10">
                 {/* Broker Header */}
                 <div className="flex items-center space-x-4 rtl:space-x-reverse mb-6">
-                  <img 
-                    src={broker.logo} 
+                  <img src={broker.logo} 
                     alt={`${broker.name} Logo`} 
                     className=" rounded-x1 object-cover"
-                  />
+                  decoding="async" loading="lazy" />
                   <div>
                     <h3 className="text-xl md:text-3xl font-bold text-white group-hover:text-amber-400 transition-colors duration-300">
                       {broker.name}

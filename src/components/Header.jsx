@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -56,13 +56,11 @@ const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      const scrolled = window.scrollY > 10;
+      setIsScrolled((prev) => (prev !== scrolled ? scrolled : prev));
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
     
     const adminEmails = ['mchokri100@gmail.com', 'ahmed1195@gmail.com'];
     
@@ -106,19 +104,19 @@ const Header = () => {
     };
   }, []);
 
-  const languages = [
+  const languages = useMemo(() => [
     { code: 'en', name: 'English', flag: '🇺🇸' },
     { code: 'ar', name: 'العربية', flag: '🇸🇦' },
     { code: 'fr', name: 'Français', flag: '🇫🇷' }
-  ];
+  ], []);
 
-  const socialChannels = [
-    { name: 'TikTok', icon: <Video className="w-4 h-4" />, url: 'https://www.tiktok.com/@ahmed.trader123' },
+  const socialChannels = useMemo(() => [
+    { name: 'TikTok', icon: <video className="w-4 h-4" preload="none" />, url: 'https://www.tiktok.com/@ahmed.trader123' },
     { name: 'Telegram', icon: <Send className="w-4 h-4" />, url: 'https://t.me/ahmed_trader_123' },
     { name: 'Instagram', icon: <Instagram className="w-4 h-4" />, url: 'https://www.instagram.com/mohamed_chokry' }
-  ];
+  ], []);
 
-  const navLinks = [
+  const navLinks = useMemo(() => [
     { name: t('nav.home'), path: '/', icon: <Home className="w-4 h-4" />, show: true },
     { name: i18n.language === 'ar' ? 'الوسطاء' : i18n.language === 'fr' ? 'Courtiers' : 'Brokers', path: '/brokers', icon: <TrendingUp className="w-4 h-4" />, show: true },
     { name: i18n.language === 'ar' ? 'الأخبار' : 'Market News', path: '/news', icon: <Activity className="w-4 h-4" />, show: true },
@@ -130,22 +128,44 @@ const Header = () => {
     { name: 'Pips', path: '/pip-calculator', icon: <Calculator className="w-4 h-4" />, show: siteSettings.showPipCalculator },
     { name: i18n.language === 'ar' ? 'الأكاديمية' : i18n.language === 'fr' ? 'Académie' : i18n.language === 'es' ? 'Academia' : 'Academy', path: '/academy', icon: <BookOpen className="w-4 h-4" />, show: true },
     { name: i18n.language === 'ar' ? 'الكتب' : i18n.language === 'fr' ? 'Livres' : 'Books', path: '/books', icon: <BookOpen className="w-4 h-4" />, show: true },
-  ].filter(link => link.show);
+  ].filter(link => link.show), [i18n.language, t, siteSettings.showAIBot, siteSettings.showPipCalculator]);
 
-  const changeLanguage = (code) => {
+  const changeLanguage = useCallback((code) => {
     i18n.changeLanguage(code);
     setIsLangOpen(false);
     window.location.reload();
-  };
+  }, [i18n]);
 
-  const markWarningAsRead = async () => {
+  const markWarningAsRead = useCallback(async () => {
     if (user && userData?.warning) {
       await updateDoc(doc(db, 'users', user.uid), {
         warningRead: true
       });
       setShowWarning(false);
     }
-  };
+  }, [user, userData]);
+
+  const prefetchRoute = useCallback((path) => {
+    try {
+      if (path === '/brokers') import('./BrokersPage');
+      else if (path === '/news') import('./NewsPage');
+      else if (path === '/books') import('./BooksPage');
+      else if (path === '/academy') import('./academy/Academy');
+      else if (path === '/ai-bot') import('./AITradingBot');
+      else if (path === '/pip-calculator') import('./PipCalculator');
+      else if (path === '/messages') import('./Messages');
+      else if (path === '/settings') import('./Settings');
+      else if (path === '/admin') import('./AdminDashboard');
+      else if (path === '/admin/courses') import('./CoursesAdmin');
+      else if (path === '/admin/challenges') import('./ChallengeAdmin');
+      else if (path === '/global-leaderboard') import('./GlobalLeaderboard');
+      else if (path === '/market-intelligence') import('./MarketIntelligence');
+      else if (path === '/sheets-guide') import('./SheetsGuide');
+    } catch (e) {
+      console.warn("Failed to prefetch route", path, e);
+    }
+  }, []);
+
 
   // وظيفة تبديل حالة البوت مع تسجيل النشاط وإظهار إشعار
   const toggleBot = async () => {
@@ -205,7 +225,7 @@ const Header = () => {
           {/* Logo + Site Name */}
           <Link to="/" className="flex items-center gap-2 group shrink-0">
             <div className="relative">
-              <img src={shukritradeLogo} alt="Shukritrade" className="h-7 sm:h-8 md:h-9 w-auto object-contain transition-all duration-500 group-hover:brightness-110 group-hover:drop-shadow-[0_0_15px_rgba(240,191,82,0.4)]" />
+              <img src={shukritradeLogo} alt="Shukritrade" className="h-7 sm:h-8 md:h-9 w-auto object-contain transition-all duration-500 group-hover:brightness-110 group-hover:drop-shadow-[0_0_15px_rgba(240,191,82,0.4)]" decoding="async" />
               <div className="absolute inset-0 bg-gradient-to-r from-[#f0bf52]/20 to-[#ac8941]/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
             </div>
           </Link>
@@ -252,7 +272,11 @@ const Header = () => {
             {/* User Profile / Login */}
             {user ? (
               <div className="flex items-center gap-2 md:gap-3 pl-2 md:pl-4 border-l border-white/10">
-                <button onClick={() => navigate('/settings')} className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 hover:bg-amber-500 hover:text-black transition-all">
+                <button 
+                  onClick={() => navigate('/settings')} 
+                  onMouseEnter={() => prefetchRoute('/settings')}
+                  className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 hover:bg-amber-500 hover:text-black transition-all"
+                >
                   <User className="w-4 h-4" />
                 </button>
                 <button onClick={() => signOut(auth)} className="hidden md:flex w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all">
@@ -308,6 +332,7 @@ const Header = () => {
                       key={link.path} 
                       to={link.path} 
                       onClick={() => setIsSidebarOpen(false)}
+                      onMouseEnter={() => prefetchRoute(link.path)}
                       className={`flex items-center gap-4 px-4 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${location.pathname === link.path ? 'bg-amber-500 text-black' : 'text-gray-400 hover:bg-white/5'}`}
                     >
                       {link.icon} {link.name}
@@ -321,6 +346,7 @@ const Header = () => {
                       <Link 
                         to="/admin" 
                         onClick={() => setIsSidebarOpen(false)}
+                        onMouseEnter={() => prefetchRoute('/admin')}
                         className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${location.pathname === '/admin' ? 'bg-amber-500 text-black' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}`}
                       >
                         <Plus className="w-5 h-5" />
@@ -329,6 +355,7 @@ const Header = () => {
                       <Link 
                         to="/admin/courses" 
                         onClick={() => setIsSidebarOpen(false)}
+                        onMouseEnter={() => prefetchRoute('/admin/courses')}
                         className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${location.pathname === '/admin/courses' ? 'bg-amber-500 text-black' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}`}
                       >
                         <GraduationCap className="w-5 h-5" />
@@ -337,6 +364,7 @@ const Header = () => {
                       <Link 
                         to="/admin/challenges" 
                         onClick={() => setIsSidebarOpen(false)}
+                        onMouseEnter={() => prefetchRoute('/admin/challenges')}
                         className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${location.pathname === '/admin/challenges' ? 'bg-amber-500 text-black' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}`}
                       >
                         <Trophy className="w-5 h-5" />

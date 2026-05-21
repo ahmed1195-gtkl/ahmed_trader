@@ -123,11 +123,10 @@ const FriendRequests = () => {
           >
             {/* الصورة الشخصية */}
             {request.senderPhoto ? (
-              <img
-                src={request.senderPhoto}
+              <img src={request.senderPhoto}
                 alt={request.senderName}
                 className="w-14 h-14 rounded-full object-cover border-2 border-amber-500/20"
-              />
+              decoding="async" loading="lazy" />
             ) : (
               <div className="w-14 h-14 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 flex items-center justify-center">
                 <User className="w-7 h-7 text-black" />

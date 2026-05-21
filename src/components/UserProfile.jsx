@@ -185,11 +185,10 @@ const UserProfile = () => {
             {/* الصورة الشخصية */}
             <div className="relative -mt-20 mb-6">
               {profileUser.photoURL ? (
-                <img
-                  src={profileUser.photoURL}
+                <img src={profileUser.photoURL}
                   alt={profileUser.displayName}
                   className="w-32 h-32 rounded-full object-cover border-4 border-black"
-                />
+                decoding="async" loading="lazy" />
               ) : (
                 <div className="w-32 h-32 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 flex items-center justify-center border-4 border-black">
                   <User className="w-16 h-16 text-black" />

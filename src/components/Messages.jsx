@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { db, auth } from '../lib/firebase';
 import { 
   collection, 
@@ -112,17 +112,19 @@ const Messages = () => {
         ...doc.data()
       }));
       setMessages(msgList);
-      setTimeout(scrollToBottom, 100);
+      requestAnimationFrame(scrollToBottom);
     });
 
     return () => unsubscribe();
   }, [user, isAdmin, selectedUser]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const scrollToBottom = useCallback(() => {
+    requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    });
+  }, []);
 
-  const handleSend = async (e) => {
+  const handleSend = useCallback(async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !user) return;
 
@@ -151,7 +153,7 @@ const Messages = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [newMessage, user, isAdmin, selectedUser, i18n.language, scrollToBottom]);
 
   if (!user) {
     return (
@@ -221,11 +223,10 @@ const Messages = () => {
                 >
                   <div className="flex items-center gap-3">
                     {u.photoURL ? (
-                      <img
-                        src={u.photoURL}
+                      <img src={u.photoURL}
                         alt={u.displayName}
                         className="w-12 h-12 rounded-full object-cover border-2 border-amber-500/20"
-                      />
+                      decoding="async" loading="lazy" />
                     ) : (
                       <div className="w-12 h-12 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 flex items-center justify-center">
                         <User className="w-6 h-6 text-black" />
@@ -270,11 +271,10 @@ const Messages = () => {
                 }}
               >
                 {selectedUser?.photoURL ? (
-                  <img
-                    src={selectedUser.photoURL}
+                  <img src={selectedUser.photoURL}
                     alt={selectedUser.displayName}
                     className="w-10 h-10 rounded-full object-cover border-2 border-amber-500/20"
-                  />
+                  decoding="async" loading="lazy" />
                 ) : (
                   <div className="w-10 h-10 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 flex items-center justify-center">
                     <User className="w-5 h-5 text-black" />
@@ -324,11 +324,10 @@ const Messages = () => {
                             {showAvatar && (
                               <div className="cursor-pointer hover:scale-110 transition-transform">
                                 {msg.senderPhoto ? (
-                                  <img 
-                                    src={msg.senderPhoto} 
+                                  <img src={msg.senderPhoto} 
                                     alt={msg.senderName}
                                     className="w-8 h-8 rounded-full border-2 border-amber-500/20"
-                                  />
+                                  decoding="async" loading="lazy" />
                                 ) : (
                                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 flex items-center justify-center shadow-lg">
                                     <User className="w-4 h-4 text-black" />

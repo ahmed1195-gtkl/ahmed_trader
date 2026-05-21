@@ -139,16 +139,15 @@ const BookDetail = () => {
         <div className="relative h-[60vh] md:h-[70vh] overflow-hidden">
           <div className="absolute inset-0">
             {isDesktop ? (
-              <video
-                src="https://Shukritrade.b-cdn.net/0520.mp4"
+              <video src="https://Shukritrade.b-cdn.net/0520.mp4"
                 autoPlay
                 muted
                 loop
                 playsInline
                 className="w-full h-full object-cover opacity-60"
-              />
+              preload="none" />
             ) : (
-              <img src="/book_background.png" alt="" className="w-full h-full object-cover" />
+              <img src="/book_background.png" alt="" className="w-full h-full object-cover" decoding="async" loading="lazy" />
             )}
             <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black"></div>
             <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-transparent to-black/90"></div>
@@ -177,11 +176,10 @@ const BookDetail = () => {
                 transition={{ duration: 0.6 }}
                 className="flex-shrink-0 w-48 md:w-56"
               >
-                <img
-                  src="/book_cover.png"
+                <img src="/book_cover.png"
                   alt="Sober Trading"
                   className="w-full rounded-xl shadow-2xl shadow-black/80 border border-white/10"
-                />
+                decoding="async" loading="lazy" />
               </motion.div>
 
               {/* Book Info */}

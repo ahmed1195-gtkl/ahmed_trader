@@ -7,9 +7,14 @@ function Skeleton({
   return (
     <div
       data-slot="skeleton"
-      className={cn("bg-accent animate-pulse rounded-md", className)}
-      {...props} />
+      className={cn(
+        "relative overflow-hidden bg-zinc-900/30 border border-white/5 rounded-xl animate-shimmer",
+        className
+      )}
+      {...props}
+    />
   );
 }
 
 export { Skeleton }
+

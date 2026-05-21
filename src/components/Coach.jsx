@@ -43,11 +43,10 @@ const Coach = () => {
               className="relative"
             >
               <div className="relative overflow-hidden rounded-2xl">
-                <img 
-                  src={coachImage} 
+                <img src={coachImage} 
                   alt="Coach Mustafa" 
                   className="w-full h-[500px] object-cover"
-                />
+                decoding="async" loading="lazy" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                 
                 {/* Floating badge */}

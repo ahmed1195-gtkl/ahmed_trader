@@ -21,11 +21,10 @@ const Footer = () => {
         >
           {/* Shukritrade Logo */}
           <div className="flex items-center justify-center mb-6">
-            <img 
-              src={shukritradeLogo} 
+            <img src={shukritradeLogo} 
               alt="Shukritrade" 
               className="h-10 md:h-12 w-auto object-contain"
-            />
+            decoding="async" loading="lazy" />
           </div>
 
           {/* Team Description */}

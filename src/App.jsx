@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { auth, db } from './lib/firebase';
@@ -11,46 +11,59 @@ import Hero from './components/Hero';
 import Benefits from './components/Benefits';
 import Coach from './components/Coach';
 import Brokers from './components/Brokers';
-import BrokersPage from './components/BrokersPage';
 import Footer from './components/Footer';
-import Auth from './components/Auth';
-import Onboarding from './components/Onboarding';
-import OnboardingFlow from './components/OnboardingFlow';
 import ProtectedRoute from './components/ProtectedRoute';
-import Settings from './components/Settings';
 import MarketData from './components/MarketData';
-import NewsPage from './components/NewsPage';
-import GlobalNews from './components/GlobalNews';
 import Feed from './components/Feed';
-import CourseRegistration from './components/CourseRegistration';
-import Courses from './components/Courses';
-import CourseEnrollment from './components/CourseEnrollment';
-import CoursesAdmin from './components/CoursesAdmin';
-import AdminDashboard from './components/AdminDashboard';
-import PrivacyPolicy from './components/PrivacyPolicy';
-import ResetPassword from './components/ResetPassword';
-import AITradingBot from './components/AITradingBot';
-import PipCalculator from './components/PipCalculator';
-import Messages from './components/Messages';
 import ChatWidget from './components/ChatWidget';
-import UserProfile from './components/UserProfile';
-import Friends from './components/Friends';
 import CookieConsent from './components/CookieConsent';
-import TradingChallenge from './components/TradingChallenge';
-import TradingChallengeTest from './components/TradingChallengeTest';
-import ChallengeDashboard from './components/ChallengeDashboard';
-import ChallengeAdmin from './components/ChallengeAdmin';
-import GlobalLeaderboard from './components/GlobalLeaderboard';
-import JoinTeam from './components/JoinTeam';
-import SheetsGuide from './components/SheetsGuide';
-import MarketIntelligence from './components/MarketIntelligence';
-import Academy from './components/academy/Academy';
-import SchoolPage from './components/academy/SchoolPage';
-import LessonPage from './components/academy/LessonPage';
-import BooksPage from './components/BooksPage';
-import BookDetail from './components/BookDetail';
-import ImmersiveBookReader from './components/ImmersiveBookReader';
+import { FeedSkeleton, DashboardSkeleton, ChatSkeleton, BooksSkeleton, ProfileSkeleton } from './components/ui/PageSkeletons';
 import './App.css';
+
+// Lazy loading high-performance wrapper
+const withSuspense = (Component, Fallback) => {
+  const WrappedComponent = (props) => (
+    <Suspense fallback={<Fallback />}>
+      <Component {...props} />
+    </Suspense>
+  );
+  WrappedComponent.displayName = `withSuspense(${Component.name || 'Component'})`;
+  return WrappedComponent;
+};
+
+const LazyAuth = withSuspense(lazy(() => import('./components/Auth')), FeedSkeleton);
+const LazyOnboarding = withSuspense(lazy(() => import('./components/Onboarding')), FeedSkeleton);
+const LazyOnboardingFlow = withSuspense(lazy(() => import('./components/OnboardingFlow')), FeedSkeleton);
+const LazySettings = withSuspense(lazy(() => import('./components/Settings')), ProfileSkeleton);
+const LazyNewsPage = withSuspense(lazy(() => import('./components/NewsPage')), FeedSkeleton);
+const LazyGlobalNews = withSuspense(lazy(() => import('./components/GlobalNews')), FeedSkeleton);
+const LazyCourses = withSuspense(lazy(() => import('./components/Courses')), BooksSkeleton);
+const LazyCourseEnrollment = withSuspense(lazy(() => import('./components/CourseEnrollment')), BooksSkeleton);
+const LazyCoursesAdmin = withSuspense(lazy(() => import('./components/CoursesAdmin')), DashboardSkeleton);
+const LazyCourseRegistration = withSuspense(lazy(() => import('./components/CourseRegistration')), BooksSkeleton);
+const LazyBrokersPage = withSuspense(lazy(() => import('./components/BrokersPage')), DashboardSkeleton);
+const LazyAdminDashboard = withSuspense(lazy(() => import('./components/AdminDashboard')), DashboardSkeleton);
+const LazyResetPassword = withSuspense(lazy(() => import('./components/ResetPassword')), FeedSkeleton);
+const LazyPrivacyPolicy = withSuspense(lazy(() => import('./components/PrivacyPolicy')), FeedSkeleton);
+const LazyAITradingBot = withSuspense(lazy(() => import('./components/AITradingBot')), DashboardSkeleton);
+const LazyPipCalculator = withSuspense(lazy(() => import('./components/PipCalculator')), DashboardSkeleton);
+const LazyMessages = withSuspense(lazy(() => import('./components/Messages')), ChatSkeleton);
+const LazyUserProfile = withSuspense(lazy(() => import('./components/UserProfile')), ProfileSkeleton);
+const LazyFriends = withSuspense(lazy(() => import('./components/Friends')), ProfileSkeleton);
+const LazyTradingChallengeTest = withSuspense(lazy(() => import('./components/TradingChallengeTest')), DashboardSkeleton);
+const LazyChallengeDashboard = withSuspense(lazy(() => import('./components/ChallengeDashboard')), DashboardSkeleton);
+const LazyChallengeAdmin = withSuspense(lazy(() => import('./components/ChallengeAdmin')), DashboardSkeleton);
+const LazyGlobalLeaderboard = withSuspense(lazy(() => import('./components/GlobalLeaderboard')), DashboardSkeleton);
+const LazyJoinTeam = withSuspense(lazy(() => import('./components/JoinTeam')), DashboardSkeleton);
+const LazySheetsGuide = withSuspense(lazy(() => import('./components/SheetsGuide')), BooksSkeleton);
+const LazyMarketIntelligence = withSuspense(lazy(() => import('./components/MarketIntelligence')), DashboardSkeleton);
+const LazyAcademy = withSuspense(lazy(() => import('./components/academy/Academy')), BooksSkeleton);
+const LazySchoolPage = withSuspense(lazy(() => import('./components/academy/SchoolPage')), BooksSkeleton);
+const LazyLessonPage = withSuspense(lazy(() => import('./components/academy/LessonPage')), BooksSkeleton);
+const LazyBooksPage = withSuspense(lazy(() => import('./components/BooksPage')), BooksSkeleton);
+const LazyBookDetail = withSuspense(lazy(() => import('./components/BookDetail')), BooksSkeleton);
+const LazyImmersiveBookReader = withSuspense(lazy(() => import('./components/ImmersiveBookReader')), BooksSkeleton);
+
 
 function MainLayout() {
   return (
@@ -217,38 +230,38 @@ function App() {
             <div className="relative z-10">
               <Routes>
                 <Route path="/" element={<MainLayout />} />
-                <Route path="/auth" element={user ? <Navigate to={onboardingCompleted ? "/" : "/onboarding"} /> : <Auth />} />
-                <Route path="/onboarding" element={user ? (onboardingCompleted ? <Navigate to="/" /> : <Onboarding />) : <Navigate to="/auth" />} />
-                <Route path="/setup-account" element={user ? <OnboardingFlow /> : <Navigate to="/auth" />} />
-                <Route path="/settings" element={user ? <Settings /> : <Navigate to="/auth" />} />
-                <Route path="/news" element={<NewsPage />} />
-                <Route path="/global-news" element={<GlobalNews />} />
-                <Route path="/courses" element={<Courses />} />
-                <Route path="/course/:courseId" element={<CourseEnrollment />} />
-                <Route path="/admin/courses" element={isAdmin ? <CoursesAdmin /> : <Navigate to="/" />} />
-                <Route path="/course-registration" element={<CourseRegistration />} />
-                <Route path="/brokers" element={<BrokersPage />} />
-                <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/" />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/ai-bot" element={siteSettings.showAIBot ? <ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}><AITradingBot /></ProtectedRoute> : <Navigate to="/" />} />
-                <Route path="/pip-calculator" element={siteSettings.showPipCalculator ? <PipCalculator /> : <Navigate to="/" />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/profile/:userId" element={<UserProfile />} />
-                <Route path="/friends" element={<Friends />} />
-                <Route path="/challenges" element={<ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}><TradingChallengeTest /></ProtectedRoute>} />
-                <Route path="/challenge/:participantId" element={user ? <ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}><ChallengeDashboard /></ProtectedRoute> : <Navigate to="/auth" />} />
-                <Route path="/admin/challenges" element={isAdmin ? <ChallengeAdmin /> : <Navigate to="/" />} />
-                <Route path="/global-leaderboard" element={<GlobalLeaderboard />} />
-                <Route path="/join-team/:inviteCode" element={user ? <JoinTeam /> : <Navigate to="/auth" />} />
-                <Route path="/sheets-guide" element={<SheetsGuide />} />
-                <Route path="/market-intelligence" element={<MarketIntelligence />} />
-                <Route path="/academy" element={<Academy />} />
-                <Route path="/academy/:schoolId" element={<SchoolPage />} />
-                <Route path="/academy/:schoolId/lesson/:lessonId" element={<LessonPage />} />
-                <Route path="/books" element={<BooksPage />} />
-                <Route path="/books/:bookId" element={<BookDetail />} />
-                <Route path="/books/:bookId/read" element={<ImmersiveBookReader />} />
+                <Route path="/auth" element={user ? <Navigate to={onboardingCompleted ? "/" : "/onboarding"} /> : <LazyAuth />} />
+                <Route path="/onboarding" element={user ? (onboardingCompleted ? <Navigate to="/" /> : <LazyOnboarding />) : <Navigate to="/auth" />} />
+                <Route path="/setup-account" element={user ? <LazyOnboardingFlow /> : <Navigate to="/auth" />} />
+                <Route path="/settings" element={user ? <LazySettings /> : <Navigate to="/auth" />} />
+                <Route path="/news" element={<LazyNewsPage />} />
+                <Route path="/global-news" element={<LazyGlobalNews />} />
+                <Route path="/courses" element={<LazyCourses />} />
+                <Route path="/course/:courseId" element={<LazyCourseEnrollment />} />
+                <Route path="/admin/courses" element={isAdmin ? <LazyCoursesAdmin /> : <Navigate to="/" />} />
+                <Route path="/course-registration" element={<LazyCourseRegistration />} />
+                <Route path="/brokers" element={<LazyBrokersPage />} />
+                <Route path="/admin" element={isAdmin ? <LazyAdminDashboard /> : <Navigate to="/" />} />
+                <Route path="/reset-password" element={<LazyResetPassword />} />
+                <Route path="/privacy" element={<LazyPrivacyPolicy />} />
+                <Route path="/ai-bot" element={siteSettings.showAIBot ? <ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}><LazyAITradingBot /></ProtectedRoute> : <Navigate to="/" />} />
+                <Route path="/pip-calculator" element={siteSettings.showPipCalculator ? <LazyPipCalculator /> : <Navigate to="/" />} />
+                <Route path="/messages" element={<LazyMessages />} />
+                <Route path="/profile/:userId" element={<LazyUserProfile />} />
+                <Route path="/friends" element={<LazyFriends />} />
+                <Route path="/challenges" element={<ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}><LazyTradingChallengeTest /></ProtectedRoute>} />
+                <Route path="/challenge/:participantId" element={user ? <ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}><LazyChallengeDashboard /></ProtectedRoute> : <Navigate to="/auth" />} />
+                <Route path="/admin/challenges" element={isAdmin ? <LazyChallengeAdmin /> : <Navigate to="/" />} />
+                <Route path="/global-leaderboard" element={<LazyGlobalLeaderboard />} />
+                <Route path="/join-team/:inviteCode" element={user ? <LazyJoinTeam /> : <Navigate to="/auth" />} />
+                <Route path="/sheets-guide" element={<LazySheetsGuide />} />
+                <Route path="/market-intelligence" element={<LazyMarketIntelligence />} />
+                <Route path="/academy" element={<LazyAcademy />} />
+                <Route path="/academy/:schoolId" element={<LazySchoolPage />} />
+                <Route path="/academy/:schoolId/lesson/:lessonId" element={<LazyLessonPage />} />
+                <Route path="/books" element={<LazyBooksPage />} />
+                <Route path="/books/:bookId" element={<LazyBookDetail />} />
+                <Route path="/books/:bookId/read" element={<LazyImmersiveBookReader />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </div>

@@ -58,7 +58,7 @@ const AuthGuardPopup = ({ isOpen }) => {
               onClick={handleGoogleSignIn}
               className="w-full h-14 bg-white text-black hover:bg-gray-200 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 transition-all"
             >
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" decoding="async" loading="lazy" />
               {isAr ? 'التسجيل عبر جوجل' : 'Sign in with Google'}
             </Button>
 

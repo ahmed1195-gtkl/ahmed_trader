@@ -145,10 +145,11 @@ const Friends = () => {
                 >
                   {/* الصورة الشخصية */}
                   {friend.photo ? (
-                    <img
-                      src={friend.photo}
+                    <img src={friend.photo}
                       alt={friend.name}
                       className="w-14 h-14 rounded-full object-cover border-2 border-amber-500/20 cursor-pointer hover:border-amber-500/60 transition-colors"
+                      decoding="async"
+                      loading="lazy"
                       onClick={() => navigate(`/profile/${friend.id}`)}
                     />
                   ) : (

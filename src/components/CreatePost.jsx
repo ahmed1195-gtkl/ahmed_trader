@@ -150,7 +150,7 @@ const CreatePost = ({ onPostCreated }) => {
                   >
                     {imagePreview ? (
                       <>
-                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" decoding="async" loading="lazy" />
                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
                           <Upload className="w-8 h-8 text-white" />
                         </div>

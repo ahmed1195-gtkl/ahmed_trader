@@ -74,3 +74,26 @@
     color: #ffffff !important;
   }
 }
+
+/* Custom premium card utilities */
+@utility glass-card {
+  background-color: rgba(24, 24, 27, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1.5rem;
+}
+
+@utility glass-card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  
+  &:hover {
+    background-color: rgba(234, 179, 8, 0.05);
+    border-color: rgba(234, 179, 8, 0.3);
+    box-shadow: 0 10px 30px -10px rgba(234, 179, 8, 0.15);
+    transform: translateY(-2px);
+  }
+}
+
+

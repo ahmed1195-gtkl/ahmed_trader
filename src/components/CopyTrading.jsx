@@ -201,11 +201,10 @@ export default function CopyTrading() {
               >
                 <div className="flex items-center gap-3 mb-4">
                   {leader.photoURL ? (
-                    <img
-                      src={leader.photoURL}
+                    <img src={leader.photoURL}
                       alt={leader.displayName}
                       className="w-12 h-12 rounded-full"
-                    />
+                    decoding="async" loading="lazy" />
                   ) : (
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black font-bold">
                       {leader.displayName[0]}
@@ -293,11 +292,10 @@ export default function CopyTrading() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     {relation.leaderInfo.photoURL ? (
-                      <img
-                        src={relation.leaderInfo.photoURL}
+                      <img src={relation.leaderInfo.photoURL}
                         alt={relation.leaderInfo.displayName}
                         className="w-10 h-10 rounded-full"
-                      />
+                      decoding="async" loading="lazy" />
                     ) : (
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black font-bold">
                         {relation.leaderInfo.displayName[0]}
@@ -357,11 +355,10 @@ export default function CopyTrading() {
               >
                 <div className="flex items-center gap-3">
                   {relation.followerInfo.photoURL ? (
-                    <img
-                      src={relation.followerInfo.photoURL}
+                    <img src={relation.followerInfo.photoURL}
                       alt={relation.followerInfo.displayName}
                       className="w-10 h-10 rounded-full"
-                    />
+                    decoding="async" loading="lazy" />
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black font-bold">
                       {relation.followerInfo.displayName[0]}
@@ -403,11 +400,10 @@ export default function CopyTrading() {
             <div className="mb-6">
               <div className="flex items-center gap-3 mb-4">
                 {selectedLeader.photoURL ? (
-                  <img
-                    src={selectedLeader.photoURL}
+                  <img src={selectedLeader.photoURL}
                     alt={selectedLeader.displayName}
                     className="w-12 h-12 rounded-full"
-                  />
+                  decoding="async" loading="lazy" />
                 ) : (
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black font-bold">
                     {selectedLeader.displayName[0]}

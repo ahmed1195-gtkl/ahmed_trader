@@ -74,11 +74,10 @@ const Hero = () => {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="flex justify-center mb-8"
           >
-            <img 
-              src={shukritradeLogo} 
+            <img src={shukritradeLogo} 
               alt="Shukritrade" 
               className="h-16 sm:h-20 md:h-28 lg:h-32 w-auto object-contain drop-shadow-[0_0_30px_rgba(240,191,82,0.15)]" 
-            />
+            decoding="async" />
           </motion.div>
 
           {/* Tagline */}
@@ -161,7 +160,7 @@ const Hero = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 1.1 + index * 0.1 }}
-                  className="group flex flex-col items-center p-3 md:p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-[#f0bf52]/30 hover:bg-[#f0bf52]/5 transition-all duration-300"
+                  className="glass-card glass-card-hover group flex flex-col items-center p-3 md:p-4 rounded-2xl"
                 >
                   <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-[#f0bf52]/15 to-[#ac8941]/15 flex items-center justify-center mb-2 md:mb-3 group-hover:from-[#f0bf52]/25 group-hover:to-[#ac8941]/25 transition-all duration-300">
                     <IconComp className="w-5 h-5 md:w-6 md:h-6 text-[#d4a94b] group-hover:text-[#f0bf52] transition-colors duration-300" />

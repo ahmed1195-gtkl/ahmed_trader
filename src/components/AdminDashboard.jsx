@@ -67,7 +67,7 @@ const AdminDashboard = () => {
     });
 
     // جلب المنشورات
-    const postsQ = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
+    const postsQ = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(50));
     const unsubscribePosts = onSnapshot(postsQ, (snapshot) => {
       const postsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setPosts(postsData);
@@ -395,11 +395,11 @@ const AdminDashboard = () => {
                         {post.image && (
                           <div className="rounded-xl overflow-hidden">
                             {post.mediaType === 'video' ? (
-                              <video src={post.image} controls className="w-full" />
+                              <video src={post.image} controls className="w-full" preload="none" />
                             ) : post.mediaType === 'audio' ? (
                               <audio src={post.image} controls className="w-full" />
                             ) : (
-                              <img src={post.image} alt="Post" className="w-full object-cover max-h-[300px]" />
+                              <img src={post.image} alt="Post" className="w-full object-cover max-h-[300px]" decoding="async" loading="lazy" />
                             )}
                           </div>
                         )}

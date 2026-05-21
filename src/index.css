@@ -47,3 +47,49 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #d4a94b;
 }
+
+/* GPU-accelerated Skeleton Shimmer Animation */
+@keyframes skeleton-shimmer {
+  0% {
+    transform: translate3d(-100%, 0, 0);
+  }
+  100% {
+    transform: translate3d(100%, 0, 0);
+  }
+}
+
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transform: translate3d(-100%, 0, 0);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.03) 20%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.03) 80%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: skeleton-shimmer 1.6s infinite ease-in-out;
+  will-change: transform;
+}
+
+/* Layout & Paint isolation for deep mobile performance optimization */
+.contain-layout {
+  contain: layout style paint;
+}
+
+.contain-paint {
+  contain: paint;
+}
+
+
