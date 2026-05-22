@@ -1320,3 +1320,78 @@
     animation-duration: 0.01ms !important;
   }
 }
+
+/* ── Three.js 3D Canvas Styles ─────────────────────────────── */
+.ibr-canvas-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  outline: none;
+  cursor: grab;
+}
+
+.ibr-canvas-container:active {
+  cursor: grabbing;
+}
+
+.ibr-lite-mode-badge {
+  position: absolute;
+  top: 80px;
+  right: 2rem;
+  z-index: 32;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  font-family: var(--ibr-font-ui);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 4px 10px;
+  border-radius: 8px;
+  text-transform: uppercase;
+}
+
+.ibr-zoom-badge {
+  position: absolute;
+  top: 80px;
+  left: 2rem;
+  z-index: 32;
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: var(--ibr-gold);
+  font-family: var(--ibr-font-ui);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+/* 3D Gating Paywall Center Panel */
+.ibr-3d-paywall {
+  position: absolute;
+  inset: 0;
+  z-index: 22;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 15, 16, 0.7);
+  backdrop-filter: blur(10px);
+  padding: 2rem;
+}
+
+.ibr-3d-paywall-card {
+  width: 100%;
+  max-width: 440px;
+  background: rgba(20, 20, 22, 0.95);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 28px;
+  padding: 2.5rem;
+  text-align: center;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(212, 175, 55, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
