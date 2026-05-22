@@ -27,6 +27,8 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import Header from './Header';
+import Footer from './Footer';
 
 const UserProfile = () => {
   const { userId } = useParams();
@@ -158,6 +160,8 @@ const UserProfile = () => {
   const isOwnProfile = currentUser?.uid === userId;
 
   return (
+    <>
+      <Header />
     <div className="min-h-screen bg-black pt-24 pb-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* زر الرجوع */}
@@ -301,6 +305,8 @@ const UserProfile = () => {
         </motion.div>
       </div>
     </div>
+      <Footer />
+    </>
   );
 };
 

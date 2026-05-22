@@ -172,6 +172,7 @@ const ImmersiveBookReader = () => {
   const scrollRef = useRef(null);
   const autoScrollRaf = useRef(null);
   const autoScrollTimerRef = useRef(null);
+  const accumulatedScrollRef = useRef(0);
   const musicRef = useRef(null);
   const inactivityTimer = useRef(null);
 
@@ -285,6 +286,9 @@ const ImmersiveBookReader = () => {
 
   // ── Auto-scroll loop ──
   useEffect(() => {
+    // Reset accumulator on speed or status change
+    accumulatedScrollRef.current = 0;
+
     if (!autoScroll || isAutoScrollPaused || isHovered || showPaywall) {
       if (autoScrollRaf.current) {
         cancelAnimationFrame(autoScrollRaf.current);
@@ -308,7 +312,12 @@ const ImmersiveBookReader = () => {
         return;
       }
 
-      scrollRef.current.scrollTop += pixelsPerFrame;
+      accumulatedScrollRef.current += pixelsPerFrame;
+      const wholePixels = Math.floor(accumulatedScrollRef.current);
+      if (wholePixels > 0) {
+        scrollRef.current.scrollTop += wholePixels;
+        accumulatedScrollRef.current -= wholePixels;
+      }
       autoScrollRaf.current = requestAnimationFrame(scrollStep);
     };
 

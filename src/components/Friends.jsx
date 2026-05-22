@@ -13,6 +13,8 @@ import { useTranslation } from 'react-i18next';
 import { Users, User, MessageCircle, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import FriendRequests from './FriendRequests';
+import Header from './Header';
+import Footer from './Footer';
 
 const Friends = () => {
   const { t } = useTranslation();
@@ -101,7 +103,9 @@ const Friends = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black pt-24 pb-12 px-4">
+    <>
+      <Header />
+      <div className="min-h-screen bg-black pt-24 pb-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* زر الرجوع */}
         <button
@@ -185,7 +189,9 @@ const Friends = () => {
           )}
         </div>
       </div>
-    </div>
+      </div>
+      <Footer />
+    </>
   );
 };
 

@@ -28,7 +28,9 @@ import {
   MessageCircle,
   Trophy,
   Crown,
-  BookOpen
+  BookOpen,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
@@ -37,9 +39,11 @@ import { doc, onSnapshot, updateDoc, collection, addDoc, serverTimestamp } from 
 import shukritradeLogo from '../assets/shukritrade_logo.svg';
 import { toast } from 'sonner';
 import SubscriptionModal from './SubscriptionModal';
+import { useTheme } from '../context/ThemeContext';
 
 const Header = () => {
   const { t, i18n } = useTranslation();
+  const { theme, toggleTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
@@ -244,6 +248,15 @@ const Header = () => {
                 {i18n.language === 'ar' ? 'الاشتراكات' : 'Subscriptions'}
               </button>
             )}
+
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all"
+              title={theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+            >
+              {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+            </button>
 
             {/* Language Switcher */}
             <div className="relative">

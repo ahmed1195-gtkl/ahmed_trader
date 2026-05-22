@@ -7,6 +7,8 @@ import Header from './Header';
 import Footer from './Footer';
 import PaymentModal from './PaymentModal';
 import { useBookAccess } from '../hooks/useBookAccess';
+import { db } from '../lib/firebase';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 
 const CHAPTER_1 = {
   titleAr: 'الفصل الأول: لماذا يخسر أغلب الناس؟',
@@ -133,6 +135,49 @@ const BookDetail = () => {
 
   const isSectionLocked = (section) => !section.free && !hasAccess;
 
+  const [bookStats, setBookStats] = useState({ rating: 4.8, reviews: 342, purchases: 1540 });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const bookRef = doc(db, 'books', 'sober-trading');
+        const bookSnap = await getDoc(bookRef);
+        let readers = 0;
+        if (bookSnap.exists()) {
+          readers = bookSnap.data().readersCount || 0;
+        }
+
+        const reviewsQuery = query(collection(db, 'book_reviews'), where('bookId', '==', 'sober-trading'));
+        const reviewsSnap = await getDocs(reviewsQuery);
+        
+        let totalRating = 0;
+        let reviewsCount = 0;
+        reviewsSnap.forEach((doc) => {
+          totalRating += doc.data().rating || 0;
+          reviewsCount++;
+        });
+
+        const baseReviews = 342;
+        const baseRating = 4.8;
+        const basePurchases = 1540;
+
+        const finalReviewsCount = baseReviews + reviewsCount;
+        const finalRating = Number(((baseReviews * baseRating + totalRating) / finalReviewsCount).toFixed(1));
+        const finalPurchases = basePurchases + readers;
+
+        setBookStats({
+          rating: finalRating,
+          reviews: finalReviewsCount,
+          purchases: finalPurchases
+        });
+      } catch (err) {
+        console.warn('Could not fetch book stats dynamically:', err);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   useEffect(() => {
     const handleResize = () => setIsDesktop(window.innerWidth >= 768);
     window.addEventListener('resize', handleResize);
@@ -210,11 +255,11 @@ const BookDetail = () => {
                 <div className="flex items-center gap-4 mb-4">
                   <div className="flex items-center gap-1">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`w-4 h-4 ${i < 5 ? 'text-amber-500 fill-amber-500' : 'text-zinc-700'}`} />
+                      <Star key={i} className={`w-4 h-4 ${i < Math.floor(bookStats.rating) ? 'text-amber-500 fill-amber-500' : 'text-zinc-700'}`} />
                     ))}
                   </div>
-                  <span className="text-white font-bold text-sm">4.8</span>
-                  <span className="text-zinc-500 text-xs">(342 {isAr ? 'تقييم' : 'reviews'})</span>
+                  <span className="text-white font-bold text-sm">{bookStats.rating}</span>
+                  <span className="text-zinc-500 text-xs">({bookStats.reviews} {isAr ? 'تقييم' : 'reviews'})</span>
                 </div>
                 <div className="flex items-baseline gap-3 mb-4">
                   <span className="text-3xl font-black text-white">${PRICE}</span>

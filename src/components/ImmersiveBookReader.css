@@ -1569,6 +1569,16 @@
 
   .ibr-topbar-actions {
     gap: 0.25rem;
+    overflow-x: auto;
+    max-width: calc(100vw - 120px);
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    display: flex;
+    flex-wrap: nowrap;
+  }
+  .ibr-topbar-actions::-webkit-scrollbar {
+    display: none;
   }
 
   .ibr-topbar {

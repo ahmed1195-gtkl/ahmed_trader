@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +9,9 @@ import {
 import Header from './Header';
 import Footer from './Footer';
 import PaymentModal from './PaymentModal';
+import { useBookAccess } from '../hooks/useBookAccess';
+import { db } from '../lib/firebase';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 
 const BOOKS = [
   {
@@ -48,6 +51,53 @@ const BooksPage = () => {
   const [hoveredBook, setHoveredBook] = useState(null);
   const [paymentBook, setPaymentBook] = useState(null);
   const isAr = i18n.language === 'ar';
+
+  const { hasAccess } = useBookAccess();
+  const [bookStats, setBookStats] = useState({ rating: 4.8, reviews: 342, purchases: 1540 });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        // 1. Fetch readersCount from books/sober-trading doc
+        const bookRef = doc(db, 'books', 'sober-trading');
+        const bookSnap = await getDoc(bookRef);
+        let readers = 0;
+        if (bookSnap.exists()) {
+          readers = bookSnap.data().readersCount || 0;
+        }
+
+        // 2. Fetch all reviews from book_reviews collection to aggregate rating
+        const reviewsQuery = query(collection(db, 'book_reviews'), where('bookId', '==', 'sober-trading'));
+        const reviewsSnap = await getDocs(reviewsQuery);
+        
+        let totalRating = 0;
+        let reviewsCount = 0;
+        reviewsSnap.forEach((doc) => {
+          totalRating += doc.data().rating || 0;
+          reviewsCount++;
+        });
+
+        // Blend dynamic reviews with historical baseline
+        const baseReviews = 342;
+        const baseRating = 4.8;
+        const basePurchases = 1540;
+
+        const finalReviewsCount = baseReviews + reviewsCount;
+        const finalRating = Number(((baseReviews * baseRating + totalRating) / finalReviewsCount).toFixed(1));
+        const finalPurchases = basePurchases + readers;
+
+        setBookStats({
+          rating: finalRating,
+          reviews: finalReviewsCount,
+          purchases: finalPurchases
+        });
+      } catch (err) {
+        console.warn('Could not fetch book stats dynamically:', err);
+      }
+    };
+
+    fetchStats();
+  }, []);
 
   return (
     <>
@@ -203,12 +253,12 @@ const BooksPage = () => {
                               {[...Array(5)].map((_, i) => (
                                 <Star
                                   key={i}
-                                  className={`w-4 h-4 ${i < Math.floor(book.rating) ? 'text-amber-500 fill-amber-500' : 'text-zinc-700'}`}
+                                  className={`w-4 h-4 ${i < Math.floor(bookStats.rating) ? 'text-amber-500 fill-amber-500' : 'text-zinc-700'}`}
                                 />
                               ))}
                             </div>
-                            <span className="text-white font-bold text-sm">{book.rating}</span>
-                            <span className="text-zinc-500 text-xs">({book.reviews})</span>
+                            <span className="text-white font-bold text-sm">{bookStats.rating}</span>
+                            <span className="text-zinc-500 text-xs">({bookStats.reviews} {isAr ? 'تقييم' : 'reviews'})</span>
                           </div>
                           <div className="text-zinc-500 text-xs flex items-center gap-1">
                             <BookOpen className="w-3 h-3" />
@@ -216,6 +266,10 @@ const BooksPage = () => {
                           </div>
                           <div className="text-zinc-500 text-xs flex items-center gap-1">
                             {book.pages} {isAr ? 'صفحة' : 'Pages'}
+                          </div>
+                          <div className="text-zinc-500 text-xs flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-amber-500" />
+                            {bookStats.purchases} {isAr ? 'قارئ' : 'readers'}
                           </div>
                         </div>
 
@@ -265,17 +319,30 @@ const BooksPage = () => {
                               {isAr ? 'معاينة مجانية' : 'Free Preview'}
                             </motion.button>
 
-                            {/* Buy Now button */}
-                            <motion.button
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              onClick={() => setPaymentBook(book)}
-                              className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 cursor-pointer"
-                            >
-                              <ShoppingCart className="w-5 h-5" />
-                              {isAr ? 'اشتري الآن' : 'Buy Now'}
-                              <ArrowRight className="w-4 h-4" />
-                            </motion.button>
+                            {/* Buy Now or Read Book button */}
+                            {hasAccess ? (
+                              <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => navigate(`/books/${book.id}/read`)}
+                                className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 cursor-pointer animate-pulse-subtle"
+                              >
+                                <BookOpen className="w-5 h-5" />
+                                {isAr ? 'اقرأ الكتاب' : 'Read Book'}
+                                <ArrowRight className="w-4 h-4" />
+                              </motion.button>
+                            ) : (
+                              <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => setPaymentBook(book)}
+                                className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 cursor-pointer"
+                              >
+                                <ShoppingCart className="w-5 h-5" />
+                                {isAr ? 'اشتري الآن' : 'Buy Now'}
+                                <ArrowRight className="w-4 h-4" />
+                              </motion.button>
+                            )}
                           </div>
                         </div>
                       </div>

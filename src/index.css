@@ -92,4 +92,148 @@
   contain: paint;
 }
 
+/* ============================================================
+   GLOBAL LIGHT MODE STYLING OVERRIDES (Premium & WCAG AA)
+   ============================================================ */
+:root.light {
+  color-scheme: light;
+}
+
+:root.light body {
+  background-color: #f8f9fa !important;
+  color: #0f172a !important;
+}
+
+/* Header styling in light mode */
+:root.light header .bg-zinc-900\/40 {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+}
+
+:root.light header .shadow-\[\#f0bf52\]\/10 {
+  box-shadow: 0 10px 30px rgba(172, 137, 65, 0.15) !important;
+}
+
+/* Text overrides in light mode */
+:root.light .text-white,
+:root.light .text-zinc-100,
+:root.light .text-zinc-200,
+:root.light .text-gray-100,
+:root.light .text-gray-200 {
+  color: #0f172a !important;
+}
+
+:root.light .text-zinc-400,
+:root.light .text-gray-400,
+:root.light .text-zinc-500,
+:root.light .text-gray-500 {
+  color: #475569 !important;
+}
+
+:root.light .text-amber-500 {
+  color: #ac8941 !important; /* Rich readable gold */
+}
+
+/* Page sections & cards in light mode */
+:root.light section,
+:root.light .bg-black {
+  background-color: #f8f9fa !important;
+}
+
+:root.light .bg-zinc-900,
+:root.light .bg-zinc-950,
+:root.light .bg-zinc-900\/30,
+:root.light .bg-zinc-900\/50,
+:root.light .bg-zinc-900\/95,
+:root.light .bg-zinc-950\/50,
+:root.light .bg-zinc-950\/90,
+:root.light .bg-zinc-900\/90,
+:root.light .bg-zinc-800,
+:root.light .bg-white\/\[0\.02\] {
+  background-color: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Borders in light mode */
+:root.light .border-white\/5,
+:root.light .border-white\/10,
+:root.light .border-white\/20,
+:root.light .border-zinc-800,
+:root.light .border-zinc-700 {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Custom background ambient light adjustment */
+:root.light .bg-amber-500\/5,
+:root.light .bg-amber-500\/10,
+:root.light .bg-amber-500\/2 {
+  background-color: rgba(172, 137, 65, 0.06) !important;
+}
+
+/* Buttons and interactive elements */
+:root.light .bg-white\/5 {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+  color: #0f172a !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+:root.light .bg-white\/5:hover {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+:root.light .text-zinc-300 {
+  color: #1e293b !important;
+}
+
+:root.light .hover\:text-amber-400:hover {
+  color: #ac8941 !important;
+}
+
+/* Drawer / Sidebar in Light Mode */
+:root.light .fixed.top-0.right-0.bottom-0 {
+  background-color: #ffffff !important;
+  border-left-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+:root.light .fixed.top-0.right-0.bottom-0 .text-white {
+  color: #0f172a !important;
+}
+
+:root.light .fixed.top-0.right-0.bottom-0 .hover\:bg-white\/5:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+:root.light .fixed.top-0.right-0.bottom-0 .text-gray-400 {
+  color: #475569 !important;
+}
+
+:root.light .bg-amber-500\/10 {
+  background-color: rgba(172, 137, 65, 0.1) !important;
+}
+
+:root.light .text-amber-500 {
+  color: #ac8941 !important;
+}
+
+/* Dynamic Stars coloring for readibility */
+:root.light .text-zinc-700 {
+  color: #cbd5e1 !important;
+}
+
+/* Footer elements */
+:root.light footer {
+  background-color: #ffffff !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+:root.light footer .text-zinc-400 {
+  color: #475569 !important;
+}
+
+:root.light footer .bg-zinc-900 {
+  background-color: #f1f3f5 !important;
+}
+
+
 

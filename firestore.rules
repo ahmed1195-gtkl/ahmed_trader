@@ -308,6 +308,8 @@ service cloud.firestore {
     // بيانات تفاصيل الكتب
     match /books/{bookId} {
       allow read: if true; // متاح للجميع (وصف تسويقي)
+      allow update: if isSignedIn(); // السماح للمستخدمين بتسجيل الدخول وتحديث عداد القراء
+      allow write: if isAdmin();
       
       // الفصول والمحتوى
       match /chapters/{chapterId} {
@@ -315,6 +317,13 @@ service cloud.firestore {
         allow read: if chapterId == 'chapter-1' || hasSoberBookAccess() || isAdmin();
         allow write: if isAdmin();
       }
+    }
+
+    // تقييمات ومراجعات الكتب
+    match /book_reviews/{reviewId} {
+      allow read: if true;
+      allow create, update: if isSignedIn() && (request.auth.uid == request.resource.data.userId || reviewId == request.auth.uid + '_sober-trading');
+      allow delete: if isAdmin();
     }
 
     // ═══════════════════════════════════════════════════════════════
