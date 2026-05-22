@@ -18,8 +18,8 @@ import { db, auth } from '../lib/firebase';
 import { doc, getDoc, updateDoc, setDoc, increment } from 'firebase/firestore';
 import PaymentModal from './PaymentModal';
 
-// Setup pdfjs worker
-pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.7.284/pdf.worker.min.mjs';
+// Setup pdfjs worker — use local copy to avoid CDN 404
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 // ══════════════════════════════════════════════════════════════
 // CONSTANTS & CONFIGURATION
@@ -400,7 +400,7 @@ const ImmersiveBookReader = () => {
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = !liteMode;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
     mountRef.current.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
@@ -517,14 +517,9 @@ const ImmersiveBookReader = () => {
 
     // Render loop
     let animationFrameId;
-    const clock = new THREE.Clock();
 
     const render = () => {
       animationFrameId = requestAnimationFrame(render);
-      
-      // Update animations
-      bookGroup.scale.setScalar(zoomFactor);
-
       renderer.render(scene, camera);
     };
     render();
@@ -822,11 +817,18 @@ const ImmersiveBookReader = () => {
     }
   };
 
-  // Mouse wheel zoom
-  const handleWheel = (e) => {
+  // Mouse wheel zoom — attached with passive:false in useEffect so preventDefault works
+  const handleWheel = useCallback((e) => {
     e.preventDefault();
     setZoomFactor(z => Math.min(Math.max(1.0, z - e.deltaY * 0.0015), 3.0));
-  };
+  }, []);
+
+  useEffect(() => {
+    const el = mountRef.current;
+    if (!el) return;
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, [handleWheel]);
 
   // ── 7. Rating Submit ──
   const handleRatingSubmit = useCallback(async (skip = false) => {
@@ -929,7 +931,6 @@ const ImmersiveBookReader = () => {
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handlePointerUp}
-        onWheel={handleWheel}
       />
 
       {/* ── Lite Mode Indicator ── */}
