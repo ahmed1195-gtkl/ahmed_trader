@@ -156,6 +156,12 @@ export default async function handler(req, res) {
 
     console.log(`[webhook] ✅ Granted soberBookAccess + Custom Claim to userId=${userId}`);
 
+    // 4c. Increment book salesCount
+    await db.collection('books').doc('sober-trading').set(
+      { salesCount: FieldValue.increment(1) },
+      { merge: true }
+    );
+
     // ── 5. Log the transaction ────────────────────────────────────
     await db.collection('book_purchases').add({
       userId,

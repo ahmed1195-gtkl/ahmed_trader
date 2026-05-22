@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, BookOpen, ShoppingCart, Star, ChevronDown, ChevronUp, Lock, Eye } from 'lucide-react';
+import { ChevronLeft, BookOpen, ShoppingCart, Star, ChevronDown, ChevronUp, Lock, Eye, AlertTriangle, Download, Shield } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import PaymentModal from './PaymentModal';
+import { useBookAccess } from '../hooks/useBookAccess';
 
 const CHAPTER_1 = {
   titleAr: 'الفصل الأول: لماذا يخسر أغلب الناس؟',
@@ -14,6 +15,7 @@ const CHAPTER_1 = {
     {
       titleAr: 'الافتتاحية: وهم المعرفة المسبقة',
       titleEn: 'Opening: The Illusion of Prior Knowledge',
+      free: true,
       contentAr: `تخيل معي للحظة أنني أعطيتك القدرة على رؤية المستقبل. تحديداً، أعطيتك صحيفة وول ستريت جورنال قبل 24 ساعة من نشرها. أنت تعرف ماذا سيكتبون غداً.
 
 هل تعتقد أنك ستجني أرباحاً خيالية؟
@@ -29,6 +31,7 @@ const CHAPTER_1 = {
     {
       titleAr: 'الدرس الأول: وهم الثراء السريع',
       titleEn: 'Lesson 1: The Illusion of Quick Wealth',
+      free: true,
       contentAr: `كارلوس، شاب في التاسعة والعشرين من عمره، كان يعمل مهندساً. في أحد الأيام، ظهر له إعلان بعنوان "كيف حولت 500 دولار إلى 50,000 دولار في شهر واحد".
 
 أودع 3000 دولار. في الأسبوع الأول، ربح 400 دولار. زاد حجم صفقاته. في الأسبوع الثاني، خسر 2500 دولار. بدأ يدخل صفقات عشوائية "لتعويض" ما خسره.
@@ -42,6 +45,7 @@ const CHAPTER_1 = {
     {
       titleAr: 'الدرس الثاني: تأثير السوشيال ميديا',
       titleEn: 'Lesson 2: Social Media Effect',
+      free: true,
       contentAr: `محمد، شاب في الثانية والعشرين، كان يتابع أحد "المؤثرين" الماليين. دفع 200 دولار شهرياً للانضمام لمجموعته. تلقى إشارات تداول. خسر كل مرة.
 
 محمد لم يكن يعلم أن هذا "المؤثر" لم يكن يتداول أصلاً. كان يكسب ماله من الاشتراكات الشهرية.
@@ -55,6 +59,7 @@ const CHAPTER_1 = {
     {
       titleAr: 'الدرس الثالث: لماذا يربح القليل فقط؟',
       titleEn: 'Lesson 3: Why Do Only Few Win?',
+      free: false,
       contentAr: `هناك ثلاث فئات في السوق:
 
 الفئة الأولى - المؤسسات والبنوك: 85% منهم يربحون. لديهم فرق كاملة وأنظمة صارمة.
@@ -68,6 +73,7 @@ const CHAPTER_1 = {
     {
       titleAr: 'الدرس الرابع: المقامر والمتداول',
       titleEn: 'Lesson 4: Gambler vs Trader',
+      free: false,
       contentAr: `المقامر لا يعرف متى يتوقف. المقامر يخاطر بأكثر مما يستطيع تحمل خسارته. يلاحق الخسارة محاولاً "تعويضها".
 
 المتداول الحقيقي يعرف بالضبط كم سيخسر قبل أن يدخل الصفقة. يعرف أن الخسارة جزء من اللعبة.
@@ -82,6 +88,7 @@ const CHAPTER_1 = {
     {
       titleAr: 'ماذا تعلمت في هذا الفصل؟',
       titleEn: 'What Did You Learn?',
+      free: false,
       contentAr: `ثلاث نقاط أساسية:
 
 أولاً: وهم الثراء السريع فخ كيميائي حقيقي في دماغك. الدوبامين يقلل من قدرتك على تقييم المخاطر.
@@ -113,6 +120,7 @@ const CHAPTERS_LIST = [
 const BookDetail = () => {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
+  const { hasAccess } = useBookAccess();
   const [activeSection, setActiveSection] = useState(0);
   const [showChapters, setShowChapters] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
@@ -123,13 +131,22 @@ const BookDetail = () => {
   const ORIGINAL_PRICE = 23.98;
   const DISCOUNT_PCT = Math.round(((ORIGINAL_PRICE - PRICE) / ORIGINAL_PRICE) * 100);
 
+  const isSectionLocked = (section) => !section.free && !hasAccess;
+
   useEffect(() => {
-    const handleResize = () => {
-      setIsDesktop(window.innerWidth >= 768);
-    };
+    const handleResize = () => setIsDesktop(window.innerWidth >= 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const handleSectionClick = (idx) => {
+    const section = CHAPTER_1.sections[idx];
+    if (isSectionLocked(section)) {
+      setActiveSection(idx);
+    } else {
+      setActiveSection(idx);
+    }
+  };
 
   return (
     <>
@@ -140,12 +157,9 @@ const BookDetail = () => {
           <div className="absolute inset-0">
             {isDesktop ? (
               <video src="https://Shukritrade.b-cdn.net/0520.mp4"
-                autoPlay
-                muted
-                loop
-                playsInline
+                autoPlay muted loop playsInline
                 className="w-full h-full object-cover opacity-60"
-              preload="auto" />
+                preload="auto" />
             ) : (
               <img src="/book_background.png" alt="" className="w-full h-full object-cover" decoding="async" loading="lazy" />
             )}
@@ -179,7 +193,7 @@ const BookDetail = () => {
                 <img src="/book_cover.png"
                   alt="Sober Trading"
                   className="w-full rounded-xl shadow-2xl shadow-black/80 border border-white/10"
-                decoding="async" loading="lazy" />
+                  decoding="async" loading="lazy" />
               </motion.div>
 
               {/* Book Info */}
@@ -192,9 +206,7 @@ const BookDetail = () => {
                 <h1 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tight mb-3 leading-tight">
                   {isAr ? 'التداول الرصين' : 'Sober Trading'}
                 </h1>
-                <p className="text-amber-500 font-bold text-sm uppercase tracking-widest mb-4">
-                  Shukritrade
-                </p>
+                <p className="text-amber-500 font-bold text-sm uppercase tracking-widest mb-4">Shukritrade</p>
                 <div className="flex items-center gap-4 mb-4">
                   <div className="flex items-center gap-1">
                     {[...Array(5)].map((_, i) => (
@@ -209,25 +221,63 @@ const BookDetail = () => {
                   <span className="text-lg text-zinc-600 line-through">${ORIGINAL_PRICE}</span>
                   <span className="px-2 py-1 rounded-lg bg-red-500/20 text-red-400 text-xs font-bold">-{DISCOUNT_PCT}%</span>
                 </div>
+
                 <div className="flex items-center gap-3 flex-wrap">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setPaymentOpen(true)}
-                    className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-amber-500/20 cursor-pointer"
-                  >
-                    <ShoppingCart className="w-5 h-5" />
-                    {isAr ? 'اشتري الآن' : 'Buy Now'}
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => navigate('/books/sober-trading/read')}
-                    className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-white/5 border border-amber-500/30 hover:bg-amber-500/10 text-amber-400 hover:text-amber-300 font-black text-sm uppercase tracking-widest transition-all cursor-pointer"
-                  >
-                    <BookOpen className="w-5 h-5" />
-                    {isAr ? 'ابدأ القراءة' : 'Start Reading'}
-                  </motion.button>
+                  {hasAccess ? (
+                    <>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                        onClick={() => navigate('/books/sober-trading/read')}
+                        className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-amber-500/20 cursor-pointer"
+                      >
+                        <BookOpen className="w-5 h-5" />
+                        {isAr ? 'ابدأ القراءة' : 'Start Reading'}
+                      </motion.button>
+                      <motion.a
+                        whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                        href="/sober_trading.pdf"
+                        download="Sober_Trading.pdf"
+                        className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-white/5 border border-amber-500/30 hover:bg-amber-500/10 text-amber-400 hover:text-amber-300 font-black text-sm uppercase tracking-widest transition-all cursor-pointer"
+                      >
+                        <Download className="w-5 h-5" />
+                        {isAr ? 'تحميل PDF' : 'Download PDF'}
+                      </motion.a>
+                    </>
+                  ) : (
+                    <>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                        onClick={() => setPaymentOpen(true)}
+                        className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-amber-500/20 cursor-pointer"
+                      >
+                        <ShoppingCart className="w-5 h-5" />
+                        {isAr ? 'اشتري الآن' : 'Buy Now'}
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                        onClick={() => navigate('/books/sober-trading/read')}
+                        className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-white/5 border border-amber-500/30 hover:bg-amber-500/10 text-amber-400 hover:text-amber-300 font-black text-sm uppercase tracking-widest transition-all cursor-pointer"
+                      >
+                        <BookOpen className="w-5 h-5" />
+                        {isAr ? 'ابدأ القراءة (معاينة)' : 'Start Reading (Preview)'}
+                      </motion.button>
+                    </>
+                  )}
+                </div>
+
+                {/* Money-Back Guarantee */}
+                <div className="mt-6 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10 flex items-start gap-3 max-w-lg">
+                  <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-amber-500 text-xs font-black uppercase tracking-wider mb-1">
+                      {isAr ? 'ضمان استرداد الأموال لمدة 7 أيام' : '7-Day Money-Back Guarantee'}
+                    </p>
+                    <p className="text-zinc-400 text-xs leading-relaxed">
+                      {isAr
+                        ? 'إذا قرأت الكتاب كاملاً ولم تستفد — أعيد لك المبلغ خلال 7 أيام'
+                        : 'If you read the book in full and do not benefit — we will refund your money within 7 days'}
+                    </p>
+                  </div>
                 </div>
               </motion.div>
             </div>
@@ -258,38 +308,57 @@ const BookDetail = () => {
                 </button>
 
                 <div className={`space-y-1 ${showChapters ? 'block' : 'hidden lg:block'}`}>
-                  {CHAPTERS_LIST.map((ch) => (
-                    <div
-                      key={ch.num}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer ${
-                        ch.free
-                          ? 'hover:bg-amber-500/10 text-white'
-                          : 'text-zinc-600 hover:bg-white/5'
-                      } ${ch.num === 1 ? 'bg-amber-500/10 border border-amber-500/20' : ''}`}
-                      onClick={() => ch.free && setActiveSection(0)}
-                    >
-                      <span className={`w-6 h-6 flex items-center justify-center rounded-lg text-[10px] font-black ${
-                        ch.num === 1 ? 'bg-amber-500 text-black' : 'bg-white/5 text-zinc-500'
-                      }`}>
-                        {ch.num}
-                      </span>
-                      <span className="text-xs font-bold flex-1 truncate">
-                        {isAr ? ch.ar : ch.en}
-                      </span>
-                      {!ch.free && <Lock className="w-3 h-3 text-zinc-600 flex-shrink-0" />}
-                      {ch.free && <Eye className="w-3 h-3 text-amber-500 flex-shrink-0" />}
-                    </div>
-                  ))}
+                  {CHAPTERS_LIST.map((ch) => {
+                    const isUnlocked = ch.free || hasAccess;
+                    return (
+                      <div
+                        key={ch.num}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer ${
+                          isUnlocked
+                            ? 'hover:bg-amber-500/10 text-white'
+                            : 'text-zinc-600 hover:bg-white/5'
+                        } ${ch.num === 1 ? 'bg-amber-500/10 border border-amber-500/20' : ''}`}
+                        onClick={() => {
+                          if (isUnlocked) {
+                            if (ch.num === 1) setActiveSection(0);
+                            else navigate('/books/sober-trading/read');
+                          } else {
+                            setPaymentOpen(true);
+                          }
+                        }}
+                      >
+                        <span className={`w-6 h-6 flex items-center justify-center rounded-lg text-[10px] font-black ${
+                          ch.num === 1 ? 'bg-amber-500 text-black' : 'bg-white/5 text-zinc-500'
+                        }`}>
+                          {ch.num}
+                        </span>
+                        <span className="text-xs font-bold flex-1 truncate">{isAr ? ch.ar : ch.en}</span>
+                        {!isUnlocked && <Lock className="w-3 h-3 text-zinc-600 flex-shrink-0" />}
+                        {isUnlocked && <Eye className="w-3 h-3 text-amber-500 flex-shrink-0" />}
+                      </div>
+                    );
+                  })}
                 </div>
 
-                <div className="mt-6 p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/20">
-                  <p className="text-amber-500 text-xs font-bold mb-2">
-                    {isAr ? 'الفصل الأول مجاني!' : 'First Chapter is Free!'}
-                  </p>
-                  <p className="text-zinc-500 text-[10px]">
-                    {isAr ? 'اشتر الكتاب لقراءة جميع الفصول' : 'Buy the book to read all chapters'}
-                  </p>
-                </div>
+                {!hasAccess ? (
+                  <div className="mt-6 p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/20">
+                    <p className="text-amber-500 text-xs font-bold mb-2">
+                      {isAr ? 'أول 3 دروس مجانية!' : 'First 3 lessons are free!'}
+                    </p>
+                    <p className="text-zinc-500 text-[10px]">
+                      {isAr ? 'اشتر الكتاب لقراءة جميع الفصول' : 'Buy the book to read all chapters'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mt-6 p-4 rounded-2xl bg-gradient-to-br from-green-500/10 to-emerald-600/5 border border-green-500/20">
+                    <p className="text-green-500 text-xs font-bold mb-2">
+                      {isAr ? 'تم فتح جميع الفصول!' : 'All chapters unlocked!'}
+                    </p>
+                    <p className="text-zinc-500 text-[10px]">
+                      {isAr ? 'يمكنك الآن قراءة الكتاب كاملاً وتحميله.' : 'You can read the entire book and download it.'}
+                    </p>
+                  </div>
+                )}
               </div>
             </motion.div>
 
@@ -310,91 +379,169 @@ const BookDetail = () => {
                       {isAr ? CHAPTER_1.titleAr : CHAPTER_1.titleEn}
                     </h2>
                     <p className="text-amber-500 text-[10px] font-bold uppercase tracking-widest mt-1">
-                      {isAr ? 'معاينة مجانية' : 'Free Preview'}
+                      {isAr ? 'معاينة مجانية — الدروس الثلاثة الأولى' : 'Free Preview — First 3 Lessons'}
                     </p>
                   </div>
                 </div>
 
                 {/* Section Navigation */}
                 <div className="flex flex-wrap gap-2 mb-8 pb-6 border-b border-white/5">
-                  {CHAPTER_1.sections.map((section, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setActiveSection(idx)}
-                      className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                        activeSection === idx
-                          ? 'bg-amber-500 text-black'
-                          : 'bg-white/5 text-zinc-400 hover:bg-white/10'
-                      }`}
-                    >
-                      {isAr ? section.titleAr.substring(0, 30) + '...' : section.titleEn}
-                    </button>
-                  ))}
+                  {CHAPTER_1.sections.map((section, idx) => {
+                    const locked = isSectionLocked(section);
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => handleSectionClick(idx)}
+                        className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                          activeSection === idx
+                            ? locked
+                              ? 'bg-zinc-700 text-zinc-400 border border-zinc-600'
+                              : 'bg-amber-500 text-black'
+                            : locked
+                              ? 'bg-white/3 text-zinc-600 hover:bg-white/5 border border-white/5'
+                              : 'bg-white/5 text-zinc-400 hover:bg-white/10'
+                        }`}
+                      >
+                        {locked && <Lock className="w-2.5 h-2.5" />}
+                        {isAr ? section.titleAr.substring(0, 25) + (section.titleAr.length > 25 ? '...' : '') : section.titleEn.substring(0, 20) + (section.titleEn.length > 20 ? '...' : '')}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 {/* Active Section Content */}
                 <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activeSection}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <h3 className="text-lg font-black text-amber-500 mb-6">
-                      {isAr
-                        ? CHAPTER_1.sections[activeSection].titleAr
-                        : CHAPTER_1.sections[activeSection].titleEn}
-                    </h3>
-                    <div className="prose prose-invert max-w-none">
-                      {CHAPTER_1.sections[activeSection].contentAr.split('\n\n').map((paragraph, idx) => (
-                        <motion.p
-                          key={idx}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: idx * 0.05 }}
-                          className="text-zinc-300 leading-[2] text-base mb-4"
-                          dir="rtl"
-                        >
-                          {paragraph}
-                        </motion.p>
-                      ))}
-                    </div>
-                  </motion.div>
+                  {isSectionLocked(CHAPTER_1.sections[activeSection]) ? (
+                    /* ── PAYWALL OVERLAY ── */
+                    <motion.div
+                      key={`locked-${activeSection}`}
+                      initial={{ opacity: 0, scale: 0.96 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.96 }}
+                      transition={{ duration: 0.3 }}
+                      className="relative overflow-hidden rounded-3xl"
+                    >
+                      {/* Blurred text hint */}
+                      <div
+                        className="select-none pointer-events-none text-zinc-600 leading-[2.2] text-sm mb-6 blur-sm"
+                        dir="rtl"
+                        style={{ fontFamily: 'Amiri, serif' }}
+                      >
+                        هناك ثلاث فئات في السوق. الفئة الأولى - المؤسسات والبنوك يربحون بنسبة 85%. لديهم فرق كاملة وأنظمة صارمة تحميهم من القرارات العاطفية. الفئة الثانية - المتداولون المنضبطون...
+                      </div>
+
+                      {/* Paywall card */}
+                      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-zinc-900/80 to-black/80 backdrop-blur-2xl border border-amber-500/20 p-8 md:p-12 text-center shadow-2xl shadow-amber-500/5">
+                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(212,175,55,0.08),transparent_60%)] pointer-events-none" />
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-1 bg-gradient-to-r from-transparent via-amber-500/60 to-transparent" />
+
+                        <div className="relative">
+                          <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-6">
+                            <Lock className="w-7 h-7 text-amber-500" />
+                          </div>
+
+                          <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2">
+                            {isAr ? 'هذا الدرس مقفل' : 'This Lesson is Locked'}
+                          </h3>
+                          <p className="text-zinc-400 text-sm mb-8 max-w-sm mx-auto leading-relaxed">
+                            {isAr
+                              ? 'احصل على وصول كامل لجميع دروس الكتاب وفصوله الـ 12'
+                              : 'Get full access to all book lessons and all 12 chapters'}
+                          </p>
+
+                          <div className="inline-flex items-baseline gap-3 mb-8">
+                            <span className="text-4xl font-black text-white">${PRICE}</span>
+                            <span className="text-lg text-zinc-600 line-through">${ORIGINAL_PRICE}</span>
+                            <span className="px-2 py-1 rounded-lg bg-red-500/20 text-red-400 text-xs font-black">-{DISCOUNT_PCT}%</span>
+                          </div>
+
+                          <motion.button
+                            whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                            onClick={() => setPaymentOpen(true)}
+                            className="w-full max-w-xs mx-auto flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-amber-500/25 cursor-pointer mb-6"
+                          >
+                            <ShoppingCart className="w-5 h-5" />
+                            {isAr ? 'اشتري الكتاب كاملاً' : 'Buy Full Book'}
+                          </motion.button>
+
+                          {/* Guarantee badge */}
+                          <div className="flex items-center justify-center gap-2 text-zinc-500">
+                            <Shield className="w-4 h-4 text-amber-500/60" />
+                            <span className="text-xs">
+                              {isAr
+                                ? 'ضمان استرداد 7 أيام — إذا قرأت الكتاب كاملاً ولم تستفد أعيد لك المبلغ'
+                                : '7-Day Money-Back — If you read the full book and don\'t benefit, get a full refund'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key={activeSection}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <h3 className="text-lg font-black text-amber-500 mb-6">
+                        {isAr
+                          ? CHAPTER_1.sections[activeSection].titleAr
+                          : CHAPTER_1.sections[activeSection].titleEn}
+                      </h3>
+                      <div className="prose prose-invert max-w-none">
+                        {CHAPTER_1.sections[activeSection].contentAr.split('\n\n').map((paragraph, idx) => (
+                          <motion.p
+                            key={idx}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.05 }}
+                            className="text-zinc-300 leading-[2] text-base mb-4"
+                            dir="rtl"
+                          >
+                            {paragraph}
+                          </motion.p>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
                 </AnimatePresence>
 
                 {/* Navigation between sections */}
-                <div className="flex items-center justify-between mt-10 pt-6 border-t border-white/5">
-                  <button
-                    onClick={() => setActiveSection(Math.max(0, activeSection - 1))}
-                    disabled={activeSection === 0}
-                    className="px-6 py-3 rounded-xl bg-white/5 text-zinc-400 text-xs font-bold uppercase tracking-widest disabled:opacity-30 hover:bg-white/10 transition-all cursor-pointer"
-                  >
-                    {isAr ? 'السابق' : 'Previous'}
-                  </button>
-
-                  <span className="text-zinc-600 text-xs">
-                    {activeSection + 1} / {CHAPTER_1.sections.length}
-                  </span>
-
-                  {activeSection < CHAPTER_1.sections.length - 1 ? (
+                {!isSectionLocked(CHAPTER_1.sections[activeSection]) && (
+                  <div className="flex items-center justify-between mt-10 pt-6 border-t border-white/5">
                     <button
-                      onClick={() => setActiveSection(activeSection + 1)}
-                      className="px-6 py-3 rounded-xl bg-amber-500/10 text-amber-500 text-xs font-bold uppercase tracking-widest hover:bg-amber-500 hover:text-black transition-all cursor-pointer"
+                      onClick={() => setActiveSection(Math.max(0, activeSection - 1))}
+                      disabled={activeSection === 0}
+                      className="px-6 py-3 rounded-xl bg-white/5 text-zinc-400 text-xs font-bold uppercase tracking-widest disabled:opacity-30 hover:bg-white/10 transition-all cursor-pointer"
                     >
-                      {isAr ? 'التالي' : 'Next'}
+                      {isAr ? 'السابق' : 'Previous'}
                     </button>
-                  ) : (
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setPaymentOpen(true)}
-                      className="px-6 py-3 rounded-xl bg-amber-500 text-black text-xs font-bold uppercase tracking-widest hover:bg-amber-400 transition-all cursor-pointer"
-                    >
-                      {isAr ? 'اشتر الكتاب كاملاً' : 'Buy Full Book'}
-                    </motion.button>
-                  )}
-                </div>
+
+                    <span className="text-zinc-600 text-xs">
+                      {activeSection + 1} / {CHAPTER_1.sections.length}
+                    </span>
+
+                    {activeSection < CHAPTER_1.sections.length - 1 ? (
+                      <button
+                        onClick={() => setActiveSection(activeSection + 1)}
+                        className="px-6 py-3 rounded-xl bg-amber-500/10 text-amber-500 text-xs font-bold uppercase tracking-widest hover:bg-amber-500 hover:text-black transition-all cursor-pointer"
+                      >
+                        {isAr ? 'التالي' : 'Next'}
+                      </button>
+                    ) : (
+                      <motion.button
+                        whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                        onClick={() => hasAccess ? navigate('/books/sober-trading/read') : setPaymentOpen(true)}
+                        className="px-6 py-3 rounded-xl bg-amber-500 text-black text-xs font-bold uppercase tracking-widest hover:bg-amber-400 transition-all cursor-pointer"
+                      >
+                        {hasAccess
+                          ? (isAr ? 'اقرأ الكتاب كاملاً' : 'Read Full Book')
+                          : (isAr ? 'اشتر الكتاب كاملاً' : 'Buy Full Book')}
+                      </motion.button>
+                    )}
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>

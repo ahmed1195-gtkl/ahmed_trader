@@ -8,9 +8,13 @@ import {
   Play, Pause, SkipForward, SkipBack, Type, AlignJustify,
   Moon, Sun, Sparkles, Award, BarChart3, Clock, Target,
   Flame, Eye, MessageSquareQuote, Download, ArrowLeft,
-  Mic, MicOff, List, Layers, Zap, Heart, Star
+  Mic, MicOff, List, Layers, Zap, Heart, Star, Lock, ShoppingCart, Shield
 } from 'lucide-react';
 import './ImmersiveBookReader.css';
+import { useBookAccess } from '../hooks/useBookAccess';
+import { db, auth } from '../lib/firebase';
+import { doc, getDoc, updateDoc, setDoc, increment } from 'firebase/firestore';
+import PaymentModal from './PaymentModal';
 
 // ══════════════════════════════════════════════════════════════
 // BOOK CONTENT DATA
@@ -68,39 +72,17 @@ const BOOK_CONTENT = {
         }
       ]
     },
-    {
-      num: 2, title: 'سيكولوجية الخوف والطمع', free: false, pages: []
-    },
-    {
-      num: 3, title: 'إدارة رأس المال', free: false, pages: []
-    },
-    {
-      num: 4, title: 'بناء خطة التداول', free: false, pages: []
-    },
-    {
-      num: 5, title: 'التحليل الفني الأساسي', free: false, pages: []
-    },
-    {
-      num: 6, title: 'الشموع اليابانية', free: false, pages: []
-    },
-    {
-      num: 7, title: 'مستويات الدعم والمقاومة', free: false, pages: []
-    },
-    {
-      num: 8, title: 'المؤشرات الفنية', free: false, pages: []
-    },
-    {
-      num: 9, title: 'استراتيجيات الدخول والخروج', free: false, pages: []
-    },
-    {
-      num: 10, title: 'التداول في الأخبار', free: false, pages: []
-    },
-    {
-      num: 11, title: 'بناء الروتين اليومي', free: false, pages: []
-    },
-    {
-      num: 12, title: 'الطريق إلى الاحتراف', free: false, pages: []
-    }
+    { num: 2, title: 'سيكولوجية الخوف والطمع', free: false, pages: [] },
+    { num: 3, title: 'إدارة رأس المال', free: false, pages: [] },
+    { num: 4, title: 'بناء خطة التداول', free: false, pages: [] },
+    { num: 5, title: 'التحليل الفني الأساسي', free: false, pages: [] },
+    { num: 6, title: 'الشموع اليابانية', free: false, pages: [] },
+    { num: 7, title: 'مستويات الدعم والمقاومة', free: false, pages: [] },
+    { num: 8, title: 'المؤشرات الفنية', free: false, pages: [] },
+    { num: 9, title: 'استراتيجيات الدخول والخروج', free: false, pages: [] },
+    { num: 10, title: 'التداول في الأخبار', free: false, pages: [] },
+    { num: 11, title: 'بناء الروتين اليومي', free: false, pages: [] },
+    { num: 12, title: 'الطريق إلى الاحتراف', free: false, pages: [] }
   ]
 };
 
@@ -132,8 +114,11 @@ const AUDIO = {
 const VIDEO_BG = 'https://Shukritrade.b-cdn.net/0520.mp4';
 
 // ══════════════════════════════════════════════════════════════
-// ACHIEVEMENTS
+// CONSTANTS
 // ══════════════════════════════════════════════════════════════
+const FREE_PAGES_MAX = 7; // Pages 0-7 are free (first 3 lessons)
+const CHAPTER1_LAST_PAGE = 11; // Last page of chapter 1
+
 const ACHIEVEMENTS = {
   'deep-focus': { icon: Target, name: 'ختم التركيز العميق', nameEn: 'Deep Focus Seal', condition: 'Read for 10+ minutes without pause' },
   'chapter-complete': { icon: Award, name: 'ختم إتمام الفصل', nameEn: 'Chapter Completion Seal', condition: 'Finish an entire chapter' },
@@ -142,9 +127,6 @@ const ACHIEVEMENTS = {
   'discipline': { icon: Zap, name: 'ختم الانضباط', nameEn: 'Discipline Seal', condition: 'Read 5 sessions total' }
 };
 
-// ══════════════════════════════════════════════════════════════
-// HELPER: Local Storage
-// ══════════════════════════════════════════════════════════════
 const LS_KEY = 'ibr-sober-trading';
 
 function loadState() {
@@ -167,6 +149,9 @@ const ImmersiveBookReader = () => {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
   const isAr = i18n.language === 'ar';
+
+  // Book access
+  const { hasAccess, userId } = useBookAccess();
 
   // ── State ──
   const [loading, setLoading] = useState(true);
@@ -202,7 +187,6 @@ const ImmersiveBookReader = () => {
   // Bookmarks & Data
   const [bookmarks, setBookmarks] = useState([]);
   const [welcomeBack, setWelcomeBack] = useState(null);
-  const [showQuote, setShowQuote] = useState(null);
   const [showAchievement, setShowAchievement] = useState(null);
 
   // Analytics
@@ -211,14 +195,34 @@ const ImmersiveBookReader = () => {
   const [readingStreak, setReadingStreak] = useState(0);
   const [unlockedAchievements, setUnlockedAchievements] = useState([]);
 
+  // Payment modal
+  const [paymentOpen, setPaymentOpen] = useState(false);
+
+  // Rating modal
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [ratingHover, setRatingHover] = useState(0);
+  const [reviewText, setReviewText] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [hasPromptedRating, setHasPromptedRating] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
+
   // Refs
   const musicRef = useRef(null);
   const pageTurnRef = useRef(null);
   const inactivityTimer = useRef(null);
-  const immersiveTimer = useRef(null);
 
   const pages = BOOK_CONTENT.chapters[0].pages;
   const totalPages = pages.length;
+
+  const PRICE = 11.99;
+  const ORIGINAL_PRICE = 23.98;
+  const DISCOUNT_PCT = Math.round(((ORIGINAL_PRICE - PRICE) / ORIGINAL_PRICE) * 100);
+
+  // Is the current/target page locked?
+  const isPageLocked = useCallback((pageIdx) => {
+    return !hasAccess && pageIdx > FREE_PAGES_MAX;
+  }, [hasAccess]);
 
   // ── Check Desktop ──
   useEffect(() => {
@@ -234,13 +238,42 @@ const ImmersiveBookReader = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // ── Register Reader & Increment Firestore Count ──
+  useEffect(() => {
+    if (loading) return;
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const registerReader = async () => {
+      try {
+        const userRef = doc(db, 'users', user.uid);
+        const snap = await getDoc(userRef);
+        if (snap.exists() && snap.data().hasReadSoberBook) return;
+
+        // Mark user as reader
+        await updateDoc(userRef, { hasReadSoberBook: true });
+
+        // Increment book readers count
+        const bookRef = doc(db, 'books', 'sober-trading');
+        await setDoc(bookRef, { readersCount: 1 }, { merge: true });
+        // Use a second call with increment for actual increment behavior
+        await setDoc(bookRef, { readersCount: increment(1) }, { merge: true });
+      } catch (err) {
+        console.warn('Could not register reader:', err);
+      }
+    };
+
+    registerReader();
+  }, [loading]);
+
   // ── Load Saved State ──
   useEffect(() => {
     const saved = loadState();
     if (saved) {
       if (saved.currentPage > 0) {
-        setCurrentPage(saved.currentPage);
-        setWelcomeBack(saved.currentPage + 1);
+        const page = hasAccess ? saved.currentPage : Math.min(saved.currentPage, FREE_PAGES_MAX);
+        setCurrentPage(page);
+        setWelcomeBack(page + 1);
         setTimeout(() => setWelcomeBack(null), 5000);
       }
       if (saved.bookmarks) setBookmarks(saved.bookmarks);
@@ -250,10 +283,11 @@ const ImmersiveBookReader = () => {
       if (saved.totalSessions) setTotalSessions(saved.totalSessions + 1);
       if (saved.readingStreak) setReadingStreak(saved.readingStreak);
       if (saved.achievements) setUnlockedAchievements(saved.achievements);
+      if (saved.hasPromptedRating) setHasPromptedRating(saved.hasPromptedRating);
     } else {
       setTotalSessions(1);
     }
-  }, []);
+  }, [hasAccess]);
 
   // ── Save State on Change ──
   useEffect(() => {
@@ -267,9 +301,22 @@ const ImmersiveBookReader = () => {
       totalSessions,
       readingStreak,
       achievements: unlockedAchievements,
+      hasPromptedRating,
       lastRead: Date.now()
     });
-  }, [currentPage, bookmarks, fontSize, lineHeight, fontClassic, totalSessions, readingStreak, unlockedAchievements, loading]);
+  }, [currentPage, bookmarks, fontSize, lineHeight, fontClassic, totalSessions, readingStreak, unlockedAchievements, hasPromptedRating, loading]);
+
+  // ── Trigger rating on Chapter 1 completion ──
+  useEffect(() => {
+    if (loading) return;
+    if (currentPage === CHAPTER1_LAST_PAGE && !hasPromptedRating) {
+      setTimeout(() => {
+        setIsExiting(false);
+        setShowRatingModal(true);
+        setHasPromptedRating(true);
+      }, 800);
+    }
+  }, [currentPage, hasPromptedRating, loading]);
 
   // ── Inactivity UI Hide ──
   useEffect(() => {
@@ -292,27 +339,16 @@ const ImmersiveBookReader = () => {
   // ── Achievement Checks ──
   useEffect(() => {
     if (loading) return;
-    // Night reader
     const hour = new Date().getHours();
-    if (hour >= 22 || hour < 4) {
-      unlockAchievement('night-reader');
-    }
-    // Discipline - 5 sessions
-    if (totalSessions >= 5) {
-      unlockAchievement('discipline');
-    }
-    // Chapter complete
-    if (currentPage >= totalPages - 1) {
-      unlockAchievement('chapter-complete');
-    }
+    if (hour >= 22 || hour < 4) unlockAchievement('night-reader');
+    if (totalSessions >= 5) unlockAchievement('discipline');
+    if (currentPage >= totalPages - 1) unlockAchievement('chapter-complete');
   }, [currentPage, totalSessions, loading]);
 
   // Deep focus timer
   useEffect(() => {
     if (loading) return;
-    const timer = setTimeout(() => {
-      unlockAchievement('deep-focus');
-    }, 10 * 60 * 1000); // 10 minutes
+    const timer = setTimeout(() => unlockAchievement('deep-focus'), 10 * 60 * 1000);
     return () => clearTimeout(timer);
   }, [loading]);
 
@@ -341,91 +377,64 @@ const ImmersiveBookReader = () => {
   }, [soundEnabled]);
 
   const playMusic = useCallback((mood) => {
-    if (musicRef.current) {
-      musicRef.current.pause();
-      musicRef.current = null;
-    }
-
-    if (!mood) {
-      setMusicPlaying(false);
-      setCurrentMood(null);
-      return;
-    }
-
+    if (musicRef.current) { musicRef.current.pause(); musicRef.current = null; }
+    if (!mood) { setMusicPlaying(false); setCurrentMood(null); return; }
     const audio = new Audio(mood.url);
     audio.volume = 0;
     audio.loop = true;
     musicRef.current = audio;
-
     audio.play().then(() => {
       setMusicPlaying(true);
       setCurrentMood(mood.id);
-      // Fade in
       let vol = 0;
       const fadeIn = setInterval(() => {
         vol += 0.01;
-        if (vol >= musicVolume) {
-          audio.volume = musicVolume;
-          clearInterval(fadeIn);
-        } else {
-          audio.volume = vol;
-        }
+        if (vol >= musicVolume) { audio.volume = musicVolume; clearInterval(fadeIn); }
+        else { audio.volume = vol; }
       }, 30);
     }).catch(() => {});
   }, [musicVolume]);
 
   const stopMusic = useCallback(() => {
     if (musicRef.current) {
-      // Fade out
       const audio = musicRef.current;
       let vol = audio.volume;
       const fadeOut = setInterval(() => {
         vol -= 0.01;
-        if (vol <= 0) {
-          audio.pause();
-          audio.currentTime = 0;
-          clearInterval(fadeOut);
-          musicRef.current = null;
-        } else {
-          audio.volume = vol;
-        }
+        if (vol <= 0) { audio.pause(); audio.currentTime = 0; clearInterval(fadeOut); musicRef.current = null; }
+        else { audio.volume = vol; }
       }, 30);
     }
     setMusicPlaying(false);
     setCurrentMood(null);
   }, []);
 
-  // Update music volume
   useEffect(() => {
-    if (musicRef.current && musicPlaying) {
-      musicRef.current.volume = musicVolume;
-    }
+    if (musicRef.current && musicPlaying) musicRef.current.volume = musicVolume;
   }, [musicVolume, musicPlaying]);
 
-  // Cleanup audio on unmount
   useEffect(() => {
-    return () => {
-      if (musicRef.current) {
-        musicRef.current.pause();
-        musicRef.current = null;
-      }
-    };
+    return () => { if (musicRef.current) { musicRef.current.pause(); musicRef.current = null; } };
   }, []);
 
   // ── Page Navigation ──
   const goToPage = useCallback((targetPage) => {
     if (isFlipping || targetPage < 0 || targetPage >= totalPages) return;
+    // If target page is locked, show paywall
+    if (isPageLocked(targetPage)) {
+      setPaymentOpen(true);
+      return;
+    }
     const direction = targetPage > currentPage ? 'forward' : 'backward';
     setFlipDirection(direction);
     setIsFlipping(true);
     playPageTurn();
-
     setTimeout(() => {
       setCurrentPage(targetPage);
       setIsFlipping(false);
       setFlipDirection(null);
     }, 700);
-  }, [currentPage, isFlipping, totalPages, playPageTurn]);
+  }, [currentPage, isFlipping, totalPages, playPageTurn, isPageLocked]);
 
   const nextPage = useCallback(() => {
     if (isDesktop) {
@@ -443,11 +452,48 @@ const ImmersiveBookReader = () => {
     }
   }, [currentPage, goToPage, isDesktop]);
 
+  // ── Handle Exit (back button) ──
+  const handleExit = useCallback(() => {
+    if (!hasPromptedRating && currentPage > 0) {
+      setIsExiting(true);
+      setShowRatingModal(true);
+      setHasPromptedRating(true);
+    } else {
+      navigate('/books');
+    }
+  }, [hasPromptedRating, currentPage, navigate]);
+
+  // ── Rating Submit ──
+  const handleRatingSubmit = useCallback(async (skip = false) => {
+    setSubmittingReview(true);
+    if (!skip && rating > 0) {
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          await setDoc(doc(db, 'book_reviews', `${user.uid}_sober-trading`), {
+            rating,
+            reviewText: reviewText.trim(),
+            userId: user.uid,
+            userName: user.displayName || user.email?.split('@')[0] || 'قارئ',
+            userEmail: user.email || '',
+            bookId: 'sober-trading',
+            bookTitle: 'التداول الرصين',
+            timestamp: new Date().toISOString(),
+          });
+        }
+      } catch (err) {
+        console.warn('Could not save review:', err);
+      }
+    }
+    setSubmittingReview(false);
+    setShowRatingModal(false);
+    if (isExiting) navigate('/books');
+  }, [rating, reviewText, isExiting, navigate]);
+
   // Keyboard Navigation
   useEffect(() => {
     const handleKey = (e) => {
       if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-        // RTL: right goes to previous, left goes to next
         if (e.key === 'ArrowRight') prevPage();
         else nextPage();
       }
@@ -458,23 +504,21 @@ const ImmersiveBookReader = () => {
         if (showSettings) setShowSettings(false);
         if (showChapters) setShowChapters(false);
         if (showAnalytics) setShowAnalytics(false);
+        if (showRatingModal) { setShowRatingModal(false); if (isExiting) navigate('/books'); }
       }
-      if (e.key === 'f' || e.key === 'F') {
-        setImmersiveMode(p => !p);
-      }
+      if (e.key === 'f' || e.key === 'F') setImmersiveMode(p => !p);
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [nextPage, prevPage, immersiveMode, showBookmarks, showMusic, showSettings, showChapters, showAnalytics]);
+  }, [nextPage, prevPage, immersiveMode, showBookmarks, showMusic, showSettings, showChapters, showAnalytics, showRatingModal, isExiting, navigate]);
 
   // ── Bookmark Functions ──
   const isBookmarked = useMemo(() => bookmarks.some(b => b.page === currentPage), [bookmarks, currentPage]);
 
   const toggleBookmark = useCallback(() => {
     setBookmarks(prev => {
-      if (prev.some(b => b.page === currentPage)) {
+      if (prev.some(b => b.page === currentPage))
         return prev.filter(b => b.page !== currentPage);
-      }
       return [...prev, { page: currentPage, note: '', timestamp: Date.now() }];
     });
   }, [currentPage]);
@@ -484,30 +528,20 @@ const ImmersiveBookReader = () => {
     if (narrating) {
       window.speechSynthesis.cancel();
       setNarrating(false);
-      // Restore music volume
       if (musicRef.current) musicRef.current.volume = musicVolume;
       return;
     }
-
     const page = pages[currentPage];
     if (!page) return;
-
-    const text = page.text;
-    const utterance = new SpeechSynthesisUtterance(text);
+    const utterance = new SpeechSynthesisUtterance(page.text);
     utterance.lang = 'ar-SA';
     utterance.rate = narrationSpeed;
     utterance.pitch = 1;
-
-    // Duck music volume
-    if (musicRef.current && musicPlaying) {
-      musicRef.current.volume = musicVolume * 0.2;
-    }
-
+    if (musicRef.current && musicPlaying) musicRef.current.volume = musicVolume * 0.2;
     utterance.onend = () => {
       setNarrating(false);
       if (musicRef.current) musicRef.current.volume = musicVolume;
     };
-
     setNarrating(true);
     window.speechSynthesis.speak(utterance);
   }, [narrating, currentPage, pages, narrationSpeed, musicVolume, musicPlaying]);
@@ -525,12 +559,14 @@ const ImmersiveBookReader = () => {
   const progressPercent = ((currentPage + 1) / totalPages) * 100;
   const readingTime = Math.round((Date.now() - sessionStart) / 60000);
   const estimatedRemaining = Math.round((totalPages - currentPage - 1) * 1.5);
-
   const anyPanelOpen = showBookmarks || showMusic || showSettings || showChapters || showAnalytics;
 
   // ── Get pages for display ──
   const leftPageIdx = isDesktop ? (currentPage % 2 === 0 ? currentPage : currentPage - 1) : null;
   const rightPageIdx = isDesktop ? (currentPage % 2 === 0 ? currentPage + 1 : currentPage) : currentPage;
+
+  // ── Is current view the paywall? ──
+  const showPaywall = isPageLocked(currentPage);
 
   // ══════════════════════════════════════════════════════════════
   // LOADING SCREEN
@@ -538,7 +574,6 @@ const ImmersiveBookReader = () => {
   if (loading) {
     return (
       <div className="ibr-loading">
-        {/* Ambient particles on loading */}
         {[...Array(30)].map((_, i) => (
           <motion.div
             key={i}
@@ -583,12 +618,7 @@ const ImmersiveBookReader = () => {
       {/* ── Video Background (Desktop Only) ── */}
       {isDesktop && (
         <div className="ibr-video-bg">
-          <video autoPlay
-            muted
-            loop
-            playsInline
-            src={VIDEO_BG}
-          preload="auto" />
+          <video autoPlay muted loop playsInline src={VIDEO_BG} preload="auto" />
         </div>
       )}
 
@@ -619,7 +649,7 @@ const ImmersiveBookReader = () => {
       {/* ── Top Bar ── */}
       <div className={`ibr-topbar ${(!uiVisible || immersiveMode) && !anyPanelOpen ? 'hidden' : ''}`}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button className="ibr-btn-icon" onClick={() => navigate('/books')} title="العودة">
+          <button className="ibr-btn-icon" onClick={handleExit} title="العودة">
             <ArrowLeft />
           </button>
           <div className="ibr-topbar-title">
@@ -630,74 +660,55 @@ const ImmersiveBookReader = () => {
 
         <div className="ibr-topbar-actions">
           {/* Narration */}
-          <button
-            className={`ibr-btn-icon ${narrating ? 'active' : ''}`}
-            onClick={toggleNarration}
-            title="السرد الصوتي"
-          >
+          <button className={`ibr-btn-icon ${narrating ? 'active' : ''}`} onClick={toggleNarration} title="السرد الصوتي">
             {narrating ? <MicOff /> : <Mic />}
           </button>
 
           {/* Bookmark */}
-          <button
-            className={`ibr-btn-icon ${isBookmarked ? 'active' : ''}`}
-            onClick={toggleBookmark}
-            title="إشارة مرجعية"
-          >
+          <button className={`ibr-btn-icon ${isBookmarked ? 'active' : ''}`} onClick={toggleBookmark} title="إشارة مرجعية">
             {isBookmarked ? <BookmarkCheck /> : <Bookmark />}
           </button>
 
           {/* Chapters */}
-          <button
-            className={`ibr-btn-icon ${showChapters ? 'active' : ''}`}
-            onClick={() => { closeAllPanels(); setShowChapters(!showChapters); }}
-            title="الفصول"
-          >
+          <button className={`ibr-btn-icon ${showChapters ? 'active' : ''}`} onClick={() => { closeAllPanels(); setShowChapters(!showChapters); }} title="الفصول">
             <List />
           </button>
 
           {/* Bookmarks Panel */}
-          <button
-            className={`ibr-btn-icon ${showBookmarks ? 'active' : ''}`}
-            onClick={() => { closeAllPanels(); setShowBookmarks(!showBookmarks); }}
-            title="الإشارات المرجعية"
-          >
+          <button className={`ibr-btn-icon ${showBookmarks ? 'active' : ''}`} onClick={() => { closeAllPanels(); setShowBookmarks(!showBookmarks); }} title="الإشارات المرجعية">
             <Layers />
           </button>
 
           {/* Music */}
-          <button
-            className={`ibr-btn-icon ${showMusic ? 'active' : ''}`}
-            onClick={() => { closeAllPanels(); setShowMusic(!showMusic); }}
-            title="الموسيقى"
-          >
+          <button className={`ibr-btn-icon ${showMusic ? 'active' : ''}`} onClick={() => { closeAllPanels(); setShowMusic(!showMusic); }} title="الموسيقى">
             <Music />
           </button>
 
           {/* Analytics */}
-          <button
-            className={`ibr-btn-icon ${showAnalytics ? 'active' : ''}`}
-            onClick={() => { closeAllPanels(); setShowAnalytics(!showAnalytics); }}
-            title="تحليلات القراءة"
-          >
+          <button className={`ibr-btn-icon ${showAnalytics ? 'active' : ''}`} onClick={() => { closeAllPanels(); setShowAnalytics(!showAnalytics); }} title="تحليلات القراءة">
             <BarChart3 />
           </button>
 
+          {/* PDF Download - only for paid users */}
+          {hasAccess && (
+            <a
+              href="/sober_trading.pdf"
+              download="Sober_Trading.pdf"
+              className="ibr-btn-icon"
+              title="تحميل PDF"
+              style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Download />
+            </a>
+          )}
+
           {/* Settings */}
-          <button
-            className={`ibr-btn-icon ${showSettings ? 'active' : ''}`}
-            onClick={() => { closeAllPanels(); setShowSettings(!showSettings); }}
-            title="الإعدادات"
-          >
+          <button className={`ibr-btn-icon ${showSettings ? 'active' : ''}`} onClick={() => { closeAllPanels(); setShowSettings(!showSettings); }} title="الإعدادات">
             <Settings />
           </button>
 
           {/* Immersive Mode */}
-          <button
-            className={`ibr-btn-icon ${immersiveMode ? 'active' : ''}`}
-            onClick={() => setImmersiveMode(!immersiveMode)}
-            title="وضع الغمر"
-          >
+          <button className={`ibr-btn-icon ${immersiveMode ? 'active' : ''}`} onClick={() => setImmersiveMode(!immersiveMode)} title="وضع الغمر">
             {immersiveMode ? <Minimize /> : <Maximize />}
           </button>
         </div>
@@ -710,22 +721,13 @@ const ImmersiveBookReader = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            style={{
-              position: 'absolute', top: '70px', left: '50%', transform: 'translateX(-50%)',
-              zIndex: 35
-            }}
+            style={{ position: 'absolute', top: '70px', left: '50%', transform: 'translateX(-50%)', zIndex: 35 }}
           >
             <div className="ibr-narration-bar">
-              <button onClick={() => setNarrationSpeed(s => Math.max(0.5, s - 0.25))}>
-                <SkipBack style={{ width: 14, height: 14 }} />
-              </button>
+              <button onClick={() => setNarrationSpeed(s => Math.max(0.5, s - 0.25))}><SkipBack style={{ width: 14, height: 14 }} /></button>
               <span className="speed">{narrationSpeed}x</span>
-              <button onClick={() => setNarrationSpeed(s => Math.min(2, s + 0.25))}>
-                <SkipForward style={{ width: 14, height: 14 }} />
-              </button>
-              <button onClick={toggleNarration}>
-                <Pause style={{ width: 14, height: 14 }} />
-              </button>
+              <button onClick={() => setNarrationSpeed(s => Math.min(2, s + 0.25))}><SkipForward style={{ width: 14, height: 14 }} /></button>
+              <button onClick={toggleNarration}><Pause style={{ width: 14, height: 14 }} /></button>
             </div>
           </motion.div>
         )}
@@ -740,7 +742,7 @@ const ImmersiveBookReader = () => {
           {/* Left Page (desktop only) */}
           {isDesktop && (
             <div className="ibr-page ibr-page-left">
-              {leftPageIdx !== null && leftPageIdx >= 0 && leftPageIdx < totalPages ? (
+              {leftPageIdx !== null && leftPageIdx >= 0 && leftPageIdx < totalPages && !isPageLocked(leftPageIdx) ? (
                 <>
                   <div className="ibr-page-content">
                     {pages[leftPageIdx].header && (
@@ -749,13 +751,8 @@ const ImmersiveBookReader = () => {
                         <h2>{pages[leftPageIdx].header}</h2>
                       </div>
                     )}
-                    <div
-                      className={`ibr-page-text ${!fontClassic ? 'font-modern' : ''}`}
-                      style={{ fontSize: `${fontSize}px`, lineHeight }}
-                    >
-                      {pages[leftPageIdx].text.split('\n\n').map((p, i) => (
-                        <p key={i}>{p}</p>
-                      ))}
+                    <div className={`ibr-page-text ${!fontClassic ? 'font-modern' : ''}`} style={{ fontSize: `${fontSize}px`, lineHeight }}>
+                      {pages[leftPageIdx].text.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
                     </div>
                   </div>
                   <div className="ibr-page-number">{leftPageIdx + 1}</div>
@@ -771,29 +768,99 @@ const ImmersiveBookReader = () => {
             </div>
           )}
 
-          {/* Right Page */}
+          {/* Right Page / Paywall */}
           <div className="ibr-page ibr-page-right">
-            {rightPageIdx >= 0 && rightPageIdx < totalPages ? (
-              <>
-                <div className="ibr-page-content">
-                  {pages[rightPageIdx].header && (
-                    <div className="ibr-page-header">
-                      <span className="ibr-chapter-label">الفصل الأول</span>
-                      <h2>{pages[rightPageIdx].header}</h2>
-                    </div>
-                  )}
-                  <div
-                    className={`ibr-page-text ${!fontClassic ? 'font-modern' : ''}`}
-                    style={{ fontSize: `${fontSize}px`, lineHeight }}
+            {showPaywall ? (
+              /* ══ PAYWALL OVERLAY ══ */
+              <div className="ibr-page-content" style={{ padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  background: 'linear-gradient(135deg, rgba(212,175,55,0.06) 0%, rgba(15,15,16,0.98) 50%)',
+                  backdropFilter: 'blur(2px)'
+                }} />
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <div style={{
+                    width: 64, height: 64, borderRadius: 20,
+                    background: 'rgba(212,175,55,0.1)',
+                    border: '1px solid rgba(212,175,55,0.3)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 1.5rem'
+                  }}>
+                    <Lock style={{ width: 28, height: 28, color: '#D4AF37' }} />
+                  </div>
+
+                  <div style={{
+                    fontFamily: 'var(--ibr-font-ui)',
+                    fontSize: 11, fontWeight: 700, letterSpacing: '0.2em',
+                    color: '#D4AF37', textTransform: 'uppercase', marginBottom: '0.75rem'
+                  }}>
+                    محتوى مقفل
+                  </div>
+
+                  <div style={{
+                    fontFamily: 'var(--ibr-font-book)',
+                    fontSize: 20, fontWeight: 700,
+                    color: 'var(--ibr-cream)', marginBottom: '0.75rem'
+                  }}>
+                    الدرس الرابع: المقامر والمتداول
+                  </div>
+
+                  <p style={{ fontFamily: 'var(--ibr-font-ui)', color: 'var(--ibr-gray)', fontSize: 13, marginBottom: '2rem', lineHeight: 1.7 }}>
+                    احصل على وصول كامل للكتاب وجميع فصوله الـ 12 ودروسه الحصرية
+                  </p>
+
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <span style={{ fontSize: 32, fontWeight: 900, color: 'var(--ibr-cream)', fontFamily: 'var(--ibr-font-ui)' }}>${PRICE}</span>
+                    <span style={{ fontSize: 16, color: 'var(--ibr-gray)', textDecoration: 'line-through', marginRight: '0.5rem', marginLeft: '0.5rem', fontFamily: 'var(--ibr-font-ui)' }}>${ORIGINAL_PRICE}</span>
+                    <span style={{
+                      background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.3)',
+                      color: '#f87171', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 6,
+                      fontFamily: 'var(--ibr-font-ui)'
+                    }}>-{DISCOUNT_PCT}%</span>
+                  </div>
+
+                  <button
+                    onClick={() => setPaymentOpen(true)}
+                    style={{
+                      background: 'linear-gradient(135deg, #D4AF37, #B8960E)',
+                      color: '#0F0F10', fontFamily: 'var(--ibr-font-ui)',
+                      fontSize: 12, fontWeight: 900, letterSpacing: '0.15em',
+                      textTransform: 'uppercase', padding: '0.9rem 2rem',
+                      borderRadius: 14, border: 'none', cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', gap: '0.5rem',
+                      margin: '0 auto 1.25rem', boxShadow: '0 8px 24px rgba(212,175,55,0.25)'
+                    }}
                   >
-                    {pages[rightPageIdx].text.split('\n\n').map((p, i) => (
-                      <p key={i} className={narrating ? 'ibr-narrating' : ''}>{p}</p>
-                    ))}
+                    <ShoppingCart style={{ width: 16, height: 16 }} />
+                    اشتري الكتاب كاملاً
+                  </button>
+
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', color: 'var(--ibr-gray)', fontSize: 10 }}>
+                    <Shield style={{ width: 12, height: 12, color: 'rgba(212,175,55,0.5)' }} />
+                    <span>إذا قرأت الكتاب كاملاً ولم تستفد — أعيد لك المبلغ خلال 7 أيام</span>
                   </div>
                 </div>
-                <div className="ibr-page-number">{rightPageIdx + 1}</div>
-              </>
-            ) : null}
+              </div>
+            ) : (
+              rightPageIdx >= 0 && rightPageIdx < totalPages ? (
+                <>
+                  <div className="ibr-page-content">
+                    {pages[rightPageIdx].header && (
+                      <div className="ibr-page-header">
+                        <span className="ibr-chapter-label">الفصل الأول</span>
+                        <h2>{pages[rightPageIdx].header}</h2>
+                      </div>
+                    )}
+                    <div className={`ibr-page-text ${!fontClassic ? 'font-modern' : ''}`} style={{ fontSize: `${fontSize}px`, lineHeight }}>
+                      {pages[rightPageIdx].text.split('\n\n').map((p, i) => (
+                        <p key={i} className={narrating ? 'ibr-narrating' : ''}>{p}</p>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="ibr-page-number">{rightPageIdx + 1}</div>
+                </>
+              ) : null
+            )}
           </div>
 
           {/* Page Flip Animation Overlay */}
@@ -820,8 +887,8 @@ const ImmersiveBookReader = () => {
       <button
         className="ibr-nav ibr-nav-next"
         onClick={nextPage}
-        disabled={currentPage >= totalPages - 1}
-        style={{ opacity: currentPage >= totalPages - 1 ? 0.2 : undefined }}
+        disabled={showPaywall || currentPage >= totalPages - 1}
+        style={{ opacity: (showPaywall || currentPage >= totalPages - 1) ? 0.2 : undefined }}
       >
         <ChevronLeft />
       </button>
@@ -843,22 +910,12 @@ const ImmersiveBookReader = () => {
               <span style={{ color: 'var(--ibr-gold)', fontSize: 10, fontWeight: 700 }}>
                 {AUDIO.music.find(m => m.id === currentMood)?.nameAr || ''}
               </span>
-              <button
-                onClick={stopMusic}
-                style={{
-                  background: 'none', border: 'none', color: 'var(--ibr-gold)',
-                  cursor: 'pointer', padding: '2px', display: 'flex'
-                }}
-              >
+              <button onClick={stopMusic} style={{ background: 'none', border: 'none', color: 'var(--ibr-gold)', cursor: 'pointer', padding: '2px', display: 'flex' }}>
                 <X style={{ width: 12, height: 12 }} />
               </button>
             </motion.div>
           )}
-          <button
-            className="ibr-btn-icon"
-            onClick={() => setSoundEnabled(!soundEnabled)}
-            style={{ width: 34, height: 34 }}
-          >
+          <button className="ibr-btn-icon" onClick={() => setSoundEnabled(!soundEnabled)} style={{ width: 34, height: 34 }}>
             {soundEnabled ? <Volume2 style={{ width: 14, height: 14 }} /> : <VolumeX style={{ width: 14, height: 14 }} />}
           </button>
         </div>
@@ -874,10 +931,16 @@ const ImmersiveBookReader = () => {
           </div>
         </div>
 
+        {!hasAccess && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <span style={{ color: 'rgba(212,175,55,0.6)', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em' }}>
+              {FREE_PAGES_MAX + 1 - currentPage > 0 ? `${FREE_PAGES_MAX + 1 - currentPage} صفحات مجانية متبقية` : 'معاينة مجانية'}
+            </span>
+          </div>
+        )}
+
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={{ color: 'var(--ibr-gray)', fontSize: 10, fontWeight: 600 }}>
-            {readingTime} دقيقة
-          </span>
+          <span style={{ color: 'var(--ibr-gray)', fontSize: 10, fontWeight: 600 }}>{readingTime} دقيقة</span>
           <Clock style={{ width: 12, height: 12, color: 'var(--ibr-gray)' }} />
         </div>
       </div>
@@ -894,27 +957,39 @@ const ImmersiveBookReader = () => {
           </button>
         </div>
         <div className="ibr-panel-body">
-          {BOOK_CONTENT.chapters.map((ch) => (
-            <div
-              key={ch.num}
-              className={`ibr-chapter-item ${ch.num === 1 ? 'active' : ''}`}
-              onClick={() => { if (ch.free) { setCurrentPage(0); setShowChapters(false); } }}
-            >
-              <div className={`ibr-chapter-num ${ch.free ? 'free' : 'locked'}`}>
-                {ch.free ? ch.num : <span style={{ fontSize: 10 }}>🔒</span>}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ color: ch.free ? 'var(--ibr-cream)' : 'var(--ibr-gray)', fontSize: 12, fontWeight: 700 }}>
-                  {ch.title}
+          {BOOK_CONTENT.chapters.map((ch) => {
+            const chapterUnlocked = ch.free || hasAccess;
+            return (
+              <div
+                key={ch.num}
+                className={`ibr-chapter-item ${ch.num === 1 ? 'active' : ''}`}
+                onClick={() => {
+                  if (chapterUnlocked) {
+                    setCurrentPage(0);
+                    setShowChapters(false);
+                  } else {
+                    setShowChapters(false);
+                    setPaymentOpen(true);
+                  }
+                }}
+              >
+                <div className={`ibr-chapter-num ${chapterUnlocked ? 'free' : 'locked'}`}>
+                  {chapterUnlocked ? ch.num : <span style={{ fontSize: 10 }}>🔒</span>}
                 </div>
-                {ch.free && (
-                  <div style={{ color: 'var(--ibr-gold)', fontSize: 9, fontWeight: 600, marginTop: 2 }}>
-                    مجاني
+                <div style={{ flex: 1 }}>
+                  <div style={{ color: chapterUnlocked ? 'var(--ibr-cream)' : 'var(--ibr-gray)', fontSize: 12, fontWeight: 700 }}>
+                    {ch.title}
                   </div>
-                )}
+                  {ch.free && (
+                    <div style={{ color: 'var(--ibr-gold)', fontSize: 9, fontWeight: 600, marginTop: 2 }}>مجاني</div>
+                  )}
+                  {!chapterUnlocked && (
+                    <div style={{ color: 'var(--ibr-gray)', fontSize: 9, marginTop: 2 }}>يتطلب شراء الكتاب</div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -935,11 +1010,7 @@ const ImmersiveBookReader = () => {
             </div>
           ) : (
             bookmarks.map((bm, idx) => (
-              <div
-                key={idx}
-                className="ibr-bookmark-item"
-                onClick={() => { goToPage(bm.page); setShowBookmarks(false); }}
-              >
+              <div key={idx} className="ibr-bookmark-item" onClick={() => { goToPage(bm.page); setShowBookmarks(false); }}>
                 <div className="page-num">
                   <BookmarkCheck style={{ width: 14, height: 14, display: 'inline', marginLeft: 4 }} />
                   صفحة {bm.page + 1}
@@ -966,20 +1037,10 @@ const ImmersiveBookReader = () => {
             <div
               key={mood.id}
               className={`ibr-mood-card ${currentMood === mood.id ? 'active' : ''}`}
-              onClick={() => {
-                if (currentMood === mood.id) {
-                  stopMusic();
-                } else {
-                  playMusic(mood);
-                }
-              }}
+              onClick={() => { if (currentMood === mood.id) stopMusic(); else playMusic(mood); }}
             >
               <div className="ibr-mood-icon" style={{ background: `${mood.color}15`, color: mood.color }}>
-                {currentMood === mood.id && musicPlaying ? (
-                  <Pause style={{ width: 20, height: 20 }} />
-                ) : (
-                  <Play style={{ width: 20, height: 20 }} />
-                )}
+                {currentMood === mood.id && musicPlaying ? <Pause style={{ width: 20, height: 20 }} /> : <Play style={{ width: 20, height: 20 }} />}
               </div>
               <div className="ibr-mood-info">
                 <h4>{mood.nameAr}</h4>
@@ -987,17 +1048,11 @@ const ImmersiveBookReader = () => {
               </div>
             </div>
           ))}
-
-          {/* Volume control */}
           <div className="ibr-volume-wrapper">
             <Volume2 />
             <input
-              type="range"
-              className="ibr-slider"
-              min="0"
-              max="1"
-              step="0.05"
-              value={musicVolume}
+              type="range" className="ibr-slider"
+              min="0" max="1" step="0.05" value={musicVolume}
               onChange={(e) => setMusicVolume(parseFloat(e.target.value))}
             />
             <span style={{ color: 'var(--ibr-gray)', fontSize: 10, fontWeight: 700, minWidth: 30, textAlign: 'center' }}>
@@ -1016,77 +1071,29 @@ const ImmersiveBookReader = () => {
           </button>
         </div>
         <div className="ibr-panel-body">
-          {/* Font Size */}
           <div className="ibr-setting-group">
-            <label>
-              <Type style={{ width: 14, height: 14, display: 'inline', marginLeft: 6 }} />
-              حجم الخط: {fontSize}px
-            </label>
-            <input
-              type="range"
-              className="ibr-slider"
-              min="14"
-              max="28"
-              value={fontSize}
-              onChange={(e) => setFontSize(parseInt(e.target.value))}
-            />
+            <label><Type style={{ width: 14, height: 14, display: 'inline', marginLeft: 6 }} />حجم الخط: {fontSize}px</label>
+            <input type="range" className="ibr-slider" min="14" max="28" value={fontSize} onChange={(e) => setFontSize(parseInt(e.target.value))} />
           </div>
-
-          {/* Line Height */}
           <div className="ibr-setting-group">
-            <label>
-              <AlignJustify style={{ width: 14, height: 14, display: 'inline', marginLeft: 6 }} />
-              المسافة بين السطور: {lineHeight}
-            </label>
-            <input
-              type="range"
-              className="ibr-slider"
-              min="1.5"
-              max="3"
-              step="0.1"
-              value={lineHeight}
-              onChange={(e) => setLineHeight(parseFloat(e.target.value))}
-            />
+            <label><AlignJustify style={{ width: 14, height: 14, display: 'inline', marginLeft: 6 }} />المسافة بين السطور: {lineHeight}</label>
+            <input type="range" className="ibr-slider" min="1.5" max="3" step="0.1" value={lineHeight} onChange={(e) => setLineHeight(parseFloat(e.target.value))} />
           </div>
-
-          {/* Font Switch */}
           <div className="ibr-setting-group">
             <label>نوع الخط</label>
             <div className="ibr-font-switch">
-              <button
-                className={fontClassic ? 'active' : ''}
-                onClick={() => setFontClassic(true)}
-                style={{ fontFamily: 'Amiri, serif' }}
-              >
-                كلاسيكي
-              </button>
-              <button
-                className={!fontClassic ? 'active' : ''}
-                onClick={() => setFontClassic(false)}
-                style={{ fontFamily: 'Cairo, sans-serif' }}
-              >
-                عصري
-              </button>
+              <button className={fontClassic ? 'active' : ''} onClick={() => setFontClassic(true)} style={{ fontFamily: 'Amiri, serif' }}>كلاسيكي</button>
+              <button className={!fontClassic ? 'active' : ''} onClick={() => setFontClassic(false)} style={{ fontFamily: 'Cairo, sans-serif' }}>عصري</button>
             </div>
           </div>
-
-          {/* Sound Toggle */}
           <div className="ibr-setting-group">
             <label>مؤثرات صوتية</label>
             <div className="ibr-font-switch">
-              <button
-                className={soundEnabled ? 'active' : ''}
-                onClick={() => setSoundEnabled(true)}
-              >
-                <Volume2 style={{ width: 14, height: 14, display: 'inline', marginLeft: 4 }} />
-                مفعّل
+              <button className={soundEnabled ? 'active' : ''} onClick={() => setSoundEnabled(true)}>
+                <Volume2 style={{ width: 14, height: 14, display: 'inline', marginLeft: 4 }} />مفعّل
               </button>
-              <button
-                className={!soundEnabled ? 'active' : ''}
-                onClick={() => setSoundEnabled(false)}
-              >
-                <VolumeX style={{ width: 14, height: 14, display: 'inline', marginLeft: 4 }} />
-                صامت
+              <button className={!soundEnabled ? 'active' : ''} onClick={() => setSoundEnabled(false)}>
+                <VolumeX style={{ width: 14, height: 14, display: 'inline', marginLeft: 4 }} />صامت
               </button>
             </div>
           </div>
@@ -1104,58 +1111,33 @@ const ImmersiveBookReader = () => {
         <div className="ibr-panel-body">
           <div className="ibr-stat-card">
             <div className="ibr-stat-icon"><BarChart3 /></div>
-            <div className="ibr-stat-info">
-              <h4>{Math.round(progressPercent)}%</h4>
-              <p>نسبة الإنجاز</p>
-            </div>
+            <div className="ibr-stat-info"><h4>{Math.round(progressPercent)}%</h4><p>نسبة الإنجاز</p></div>
           </div>
-
           <div className="ibr-stat-card">
             <div className="ibr-stat-icon"><Clock /></div>
-            <div className="ibr-stat-info">
-              <h4>{readingTime} دقيقة</h4>
-              <p>وقت القراءة</p>
-            </div>
+            <div className="ibr-stat-info"><h4>{readingTime} دقيقة</h4><p>وقت القراءة</p></div>
           </div>
-
           <div className="ibr-stat-card">
             <div className="ibr-stat-icon"><Target /></div>
-            <div className="ibr-stat-info">
-              <h4>~{estimatedRemaining} دقيقة</h4>
-              <p>الوقت المتبقي</p>
-            </div>
+            <div className="ibr-stat-info"><h4>~{estimatedRemaining} دقيقة</h4><p>الوقت المتبقي</p></div>
           </div>
-
           <div className="ibr-stat-card">
             <div className="ibr-stat-icon"><Flame /></div>
-            <div className="ibr-stat-info">
-              <h4>{totalSessions}</h4>
-              <p>عدد الجلسات</p>
-            </div>
+            <div className="ibr-stat-info"><h4>{totalSessions}</h4><p>عدد الجلسات</p></div>
           </div>
-
           <div className="ibr-stat-card">
             <div className="ibr-stat-icon"><Eye /></div>
-            <div className="ibr-stat-info">
-              <h4>{currentPage + 1} / {totalPages}</h4>
-              <p>الصفحات المقروءة</p>
-            </div>
+            <div className="ibr-stat-info"><h4>{currentPage + 1} / {totalPages}</h4><p>الصفحات المقروءة</p></div>
           </div>
 
-          {/* Achievements */}
           <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-            <h4 style={{ color: 'var(--ibr-gold)', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', marginBottom: '0.8rem' }}>
-              الأختام المحققة
-            </h4>
+            <h4 style={{ color: 'var(--ibr-gold)', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', marginBottom: '0.8rem' }}>الأختام المحققة</h4>
             {Object.entries(ACHIEVEMENTS).map(([id, ach]) => {
               const unlocked = unlockedAchievements.includes(id);
               const Icon = ach.icon;
               return (
                 <div key={id} className="ibr-stat-card" style={{ opacity: unlocked ? 1 : 0.3 }}>
-                  <div className="ibr-stat-icon" style={unlocked ? {
-                    background: 'rgba(212,175,55,0.15)',
-                    boxShadow: '0 0 15px rgba(212,175,55,0.1)'
-                  } : {}}>
+                  <div className="ibr-stat-icon" style={unlocked ? { background: 'rgba(212,175,55,0.15)', boxShadow: '0 0 15px rgba(212,175,55,0.1)' } : {}}>
                     <Icon />
                   </div>
                   <div className="ibr-stat-info">
@@ -1178,12 +1160,8 @@ const ImmersiveBookReader = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
           >
-            <div className="ibr-toast-icon">
-              <BookOpen />
-            </div>
-            <div className="ibr-toast-text">
-              مرحباً بعودتك، توقفت عند صفحة <span>{welcomeBack}</span>
-            </div>
+            <div className="ibr-toast-icon"><BookOpen /></div>
+            <div className="ibr-toast-text">مرحباً بعودتك، توقفت عند صفحة <span>{welcomeBack}</span></div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -1215,6 +1193,221 @@ const ImmersiveBookReader = () => {
                 تم فتح ختم جديد!
               </motion.div>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ═══════ PAYMENT MODAL ═══════ */}
+      <PaymentModal
+        isOpen={paymentOpen}
+        onClose={() => setPaymentOpen(false)}
+        bookTitle="التداول الرصين"
+        price={PRICE}
+        originalPrice={ORIGINAL_PRICE}
+      />
+
+      {/* ═══════ RATING MODAL ═══════ */}
+      <AnimatePresence>
+        {showRatingModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 9990,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '1rem'
+            }}
+          >
+            {/* Backdrop */}
+            <div
+              style={{
+                position: 'absolute', inset: 0,
+                background: 'rgba(0,0,0,0.85)',
+                backdropFilter: 'blur(16px)'
+              }}
+              onClick={() => { if (!submittingReview) handleRatingSubmit(true); }}
+            />
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 30 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                position: 'relative',
+                width: '100%', maxWidth: 480,
+                background: 'rgba(15,15,16,0.98)',
+                border: '1px solid rgba(212,175,55,0.15)',
+                borderRadius: 28,
+                overflow: 'hidden',
+                boxShadow: '0 40px 100px rgba(0,0,0,0.8), 0 0 0 1px rgba(212,175,55,0.05)',
+              }}
+              dir="rtl"
+            >
+              {/* Top ambient */}
+              <div style={{
+                position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
+                width: 300, height: 120,
+                background: 'radial-gradient(ellipse, rgba(212,175,55,0.12), transparent 70%)',
+                pointerEvents: 'none'
+              }} />
+              <div style={{
+                position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
+                width: '80%', height: 1,
+                background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.5), transparent)'
+              }} />
+
+              <div style={{ padding: '2rem', position: 'relative' }}>
+                {/* Close */}
+                <button
+                  onClick={() => { if (!submittingReview) handleRatingSubmit(true); }}
+                  style={{
+                    position: 'absolute', top: '1.25rem', left: '1.25rem',
+                    width: 32, height: 32, borderRadius: 10,
+                    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
+                    color: 'rgba(255,255,255,0.4)', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}
+                >
+                  <X style={{ width: 14, height: 14 }} />
+                </button>
+
+                {/* Icon */}
+                <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                  <div style={{
+                    width: 64, height: 64, borderRadius: 20,
+                    background: 'rgba(212,175,55,0.1)',
+                    border: '1px solid rgba(212,175,55,0.2)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 1rem'
+                  }}>
+                    <MessageSquareQuote style={{ width: 28, height: 28, color: '#D4AF37' }} />
+                  </div>
+                  <h2 style={{
+                    fontFamily: 'var(--ibr-font-ui)',
+                    fontSize: 20, fontWeight: 900, color: 'var(--ibr-cream)',
+                    letterSpacing: '-0.02em', marginBottom: '0.4rem'
+                  }}>
+                    {isExiting ? 'قبل المغادرة...' : 'كيف كانت تجربتك؟'}
+                  </h2>
+                  <p style={{ fontFamily: 'var(--ibr-font-ui)', color: 'var(--ibr-gray)', fontSize: 13 }}>
+                    {isExiting
+                      ? 'شارك رأيك في الكتاب قبل المغادرة'
+                      : 'أكملت الفصل الأول! أخبرنا برأيك'}
+                  </p>
+                </div>
+
+                {/* Stars */}
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <motion.button
+                      key={star}
+                      whileHover={{ scale: 1.2 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => setRating(star)}
+                      onMouseEnter={() => setRatingHover(star)}
+                      onMouseLeave={() => setRatingHover(0)}
+                      style={{
+                        background: 'none', border: 'none', cursor: 'pointer', padding: '4px'
+                      }}
+                    >
+                      <Star
+                        style={{
+                          width: 36, height: 36,
+                          fill: star <= (ratingHover || rating) ? '#D4AF37' : 'transparent',
+                          color: star <= (ratingHover || rating) ? '#D4AF37' : 'rgba(255,255,255,0.2)',
+                          transition: 'all 0.15s ease'
+                        }}
+                      />
+                    </motion.button>
+                  ))}
+                </div>
+
+                {/* Rating label */}
+                {(ratingHover || rating) > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    style={{
+                      textAlign: 'center', marginBottom: '1rem',
+                      fontFamily: 'var(--ibr-font-ui)', color: '#D4AF37',
+                      fontSize: 12, fontWeight: 700
+                    }}
+                  >
+                    {['', 'ضعيف', 'مقبول', 'جيد', 'ممتاز', 'رائع جداً! 🌟'][ratingHover || rating]}
+                  </motion.div>
+                )}
+
+                {/* Text input */}
+                <textarea
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                  placeholder="اكتب تعليقك أو رأيك (اختياري)..."
+                  rows={3}
+                  style={{
+                    width: '100%', boxSizing: 'border-box',
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(212,175,55,0.15)',
+                    borderRadius: 14, padding: '0.85rem 1rem',
+                    color: 'var(--ibr-cream)', resize: 'none',
+                    fontFamily: 'var(--ibr-font-ui)', fontSize: 13,
+                    outline: 'none', marginBottom: '1.25rem',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onFocus={(e) => { e.target.style.borderColor = 'rgba(212,175,55,0.4)'; }}
+                  onBlur={(e) => { e.target.style.borderColor = 'rgba(212,175,55,0.15)'; }}
+                />
+
+                {/* Buttons */}
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  <button
+                    onClick={() => handleRatingSubmit(true)}
+                    disabled={submittingReview}
+                    style={{
+                      flex: 1, padding: '0.85rem',
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      borderRadius: 14, color: 'var(--ibr-gray)',
+                      fontFamily: 'var(--ibr-font-ui)', fontSize: 12, fontWeight: 700,
+                      cursor: 'pointer', letterSpacing: '0.05em'
+                    }}
+                  >
+                    {isExiting ? 'تخطي والخروج' : 'تخطي'}
+                  </button>
+
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleRatingSubmit(false)}
+                    disabled={submittingReview || rating === 0}
+                    style={{
+                      flex: 2, padding: '0.85rem',
+                      background: rating > 0
+                        ? 'linear-gradient(135deg, #D4AF37, #B8960E)'
+                        : 'rgba(212,175,55,0.15)',
+                      border: 'none', borderRadius: 14,
+                      color: rating > 0 ? '#0F0F10' : 'rgba(212,175,55,0.4)',
+                      fontFamily: 'var(--ibr-font-ui)', fontSize: 12, fontWeight: 900,
+                      cursor: rating > 0 ? 'pointer' : 'not-allowed',
+                      letterSpacing: '0.05em',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    {submittingReview ? (
+                      <span>جاري الإرسال...</span>
+                    ) : (
+                      <>
+                        <Heart style={{ width: 14, height: 14 }} />
+                        {isExiting ? 'أرسل وغادر' : 'أرسل التقييم'}
+                      </>
+                    )}
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

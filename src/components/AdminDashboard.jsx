@@ -11,7 +11,9 @@ import {
   orderBy, 
   serverTimestamp,
   limit,
-  onSnapshot
+  onSnapshot,
+  setDoc,
+  increment
 } from 'firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { 
@@ -190,6 +192,13 @@ const AdminDashboard = () => {
       await updateDoc(doc(db, 'users', user.id), {
         soberBookAccess: newValue
       });
+
+      // If granting access, increment the book's salesCount in Firestore
+      if (newValue) {
+        const bookRef = doc(db, 'books', 'sober-trading');
+        await setDoc(bookRef, { salesCount: increment(1) }, { merge: true });
+      }
+
       await logAdminAction('TOGGLE_BOOK_ACCESS', `Admin changed book access for ${user.email} to ${newValue}`);
       toast.success(i18n.language === 'ar' 
         ? (newValue ? 'تم منح صلاحية الكتاب بنجاح' : 'تم إلغاء صلاحية الكتاب بنجاح')

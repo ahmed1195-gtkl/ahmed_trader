@@ -133,7 +133,7 @@ export default async function handler(req, res) {
     const db  = getAdminDb();
     const auth = getAuth();
 
-    // 5a. Firestore
+    // 5a. Firestore — user access
     await db.collection('users').doc(userId).set(
       {
         soberBookAccess: true,
@@ -154,7 +154,13 @@ export default async function handler(req, res) {
       soberBookAccess: true,
     });
 
-    // 5c. Purchase log
+    // 5c. Increment book salesCount
+    await db.collection('books').doc('sober-trading').set(
+      { salesCount: FieldValue.increment(1) },
+      { merge: true }
+    );
+
+    // 5d. Purchase log
     await db.collection('book_purchases').add({
       userId,
       bookId: 'sober-trading',
@@ -168,7 +174,7 @@ export default async function handler(req, res) {
       createdAt: FieldValue.serverTimestamp(),
     });
 
-    console.log(`[binance/webhook] ✅ Access + Custom Claim granted userId=${userId}`);
+    console.log(`[binance/webhook] ✅ Access + Custom Claim + salesCount++ for userId=${userId}`);
 
     await notifyAdmin(
       `📚 <b>Binance Pay Purchase!</b>\n` +

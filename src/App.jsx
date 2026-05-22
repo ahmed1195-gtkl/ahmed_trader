@@ -229,43 +229,53 @@ function App() {
           <div className="min-h-screen relative bg-black">
             <div className="relative z-10">
               <Routes>
-                <Route path="/" element={<MainLayout />} />
-                <Route path="/auth" element={user ? <Navigate to={onboardingCompleted ? "/" : "/onboarding"} /> : <LazyAuth />} />
-                <Route path="/onboarding" element={user ? (onboardingCompleted ? <Navigate to="/" /> : <LazyOnboarding />) : <Navigate to="/auth" />} />
-                <Route path="/setup-account" element={user ? <LazyOnboardingFlow /> : <Navigate to="/auth" />} />
-                <Route path="/settings" element={user ? <LazySettings /> : <Navigate to="/auth" />} />
-                <Route path="/news" element={<LazyNewsPage />} />
-                <Route path="/global-news" element={<LazyGlobalNews />} />
-                <Route path="/courses" element={<LazyCourses />} />
-                <Route path="/course/:courseId" element={<LazyCourseEnrollment />} />
-                <Route path="/admin/courses" element={isAdmin ? <LazyCoursesAdmin /> : <Navigate to="/" />} />
-                <Route path="/course-registration" element={<LazyCourseRegistration />} />
-                <Route path="/brokers" element={<LazyBrokersPage />} />
-                <Route path="/admin" element={isAdmin ? <LazyAdminDashboard /> : <Navigate to="/" />} />
-                <Route path="/reset-password" element={<LazyResetPassword />} />
-                <Route path="/privacy" element={<LazyPrivacyPolicy />} />
-                <Route path="/ai-bot" element={siteSettings.showAIBot ? <ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}><LazyAITradingBot /></ProtectedRoute> : <Navigate to="/" />} />
-                <Route path="/pip-calculator" element={siteSettings.showPipCalculator ? <LazyPipCalculator /> : <Navigate to="/" />} />
-                <Route path="/messages" element={<LazyMessages />} />
-                <Route path="/profile/:userId" element={<LazyUserProfile />} />
-                <Route path="/friends" element={<LazyFriends />} />
-                <Route path="/challenges" element={<ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}><LazyTradingChallengeTest /></ProtectedRoute>} />
-                <Route path="/challenge/:participantId" element={user ? <ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}><LazyChallengeDashboard /></ProtectedRoute> : <Navigate to="/auth" />} />
-                <Route path="/admin/challenges" element={isAdmin ? <LazyChallengeAdmin /> : <Navigate to="/" />} />
-                <Route path="/global-leaderboard" element={<LazyGlobalLeaderboard />} />
-                <Route path="/join-team/:inviteCode" element={user ? <LazyJoinTeam /> : <Navigate to="/auth" />} />
-                <Route path="/sheets-guide" element={<LazySheetsGuide />} />
-                <Route path="/market-intelligence" element={<LazyMarketIntelligence />} />
-                <Route path="/academy" element={<LazyAcademy />} />
-                <Route path="/academy/:schoolId" element={<LazySchoolPage />} />
-                <Route path="/academy/:schoolId/lesson/:lessonId" element={<LazyLessonPage />} />
-                <Route path="/books" element={<LazyBooksPage />} />
-                <Route path="/books/:bookId" element={<LazyBookDetail />} />
-                <Route path="/books/:bookId/read" element={<LazyImmersiveBookReader />} />
-                <Route path="*" element={<Navigate to="/" />} />
+                {!user ? (
+                  <>
+                    <Route path="/auth" element={<LazyAuth />} />
+                    <Route path="/reset-password" element={<LazyResetPassword />} />
+                    <Route path="*" element={<Navigate to="/auth" replace />} />
+                  </>
+                ) : (
+                  <>
+                    <Route path="/" element={<MainLayout />} />
+                    <Route path="/auth" element={<Navigate to={onboardingCompleted ? "/" : "/onboarding"} />} />
+                    <Route path="/onboarding" element={onboardingCompleted ? <Navigate to="/" /> : <LazyOnboarding />} />
+                    <Route path="/setup-account" element={<LazyOnboardingFlow />} />
+                    <Route path="/settings" element={<LazySettings />} />
+                    <Route path="/news" element={<LazyNewsPage />} />
+                    <Route path="/global-news" element={<LazyGlobalNews />} />
+                    <Route path="/courses" element={<LazyCourses />} />
+                    <Route path="/course/:courseId" element={<LazyCourseEnrollment />} />
+                    <Route path="/admin/courses" element={isAdmin ? <LazyCoursesAdmin /> : <Navigate to="/" />} />
+                    <Route path="/course-registration" element={<LazyCourseRegistration />} />
+                    <Route path="/brokers" element={<LazyBrokersPage />} />
+                    <Route path="/admin" element={isAdmin ? <LazyAdminDashboard /> : <Navigate to="/" />} />
+                    <Route path="/reset-password" element={<LazyResetPassword />} />
+                    <Route path="/privacy" element={<LazyPrivacyPolicy />} />
+                    <Route path="/ai-bot" element={siteSettings.showAIBot ? <ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}><LazyAITradingBot /></ProtectedRoute> : <Navigate to="/" />} />
+                    <Route path="/pip-calculator" element={siteSettings.showPipCalculator ? <LazyPipCalculator /> : <Navigate to="/" />} />
+                    <Route path="/messages" element={<LazyMessages />} />
+                    <Route path="/profile/:userId" element={<LazyUserProfile />} />
+                    <Route path="/friends" element={<LazyFriends />} />
+                    <Route path="/challenges" element={<ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}><LazyTradingChallengeTest /></ProtectedRoute>} />
+                    <Route path="/challenge/:participantId" element={<ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}><LazyChallengeDashboard /></ProtectedRoute>} />
+                    <Route path="/admin/challenges" element={isAdmin ? <LazyChallengeAdmin /> : <Navigate to="/" />} />
+                    <Route path="/global-leaderboard" element={<LazyGlobalLeaderboard />} />
+                    <Route path="/join-team/:inviteCode" element={<LazyJoinTeam />} />
+                    <Route path="/sheets-guide" element={<LazySheetsGuide />} />
+                    <Route path="/market-intelligence" element={<LazyMarketIntelligence />} />
+                    <Route path="/academy" element={<LazyAcademy />} />
+                    <Route path="/academy/:schoolId" element={<LazySchoolPage />} />
+                    <Route path="/academy/:schoolId/lesson/:lessonId" element={<LazyLessonPage />} />
+                    <Route path="/books" element={<LazyBooksPage />} />
+                    <Route path="/books/:bookId" element={<LazyBookDetail />} />
+                    <Route path="/books/:bookId/read" element={<LazyImmersiveBookReader />} />
+                    <Route path="*" element={<Navigate to="/" />} />
+                  </>
+                )}
               </Routes>
             </div>
-            <ChatWidget />
+            {user && <ChatWidget />}
             <CookieConsent />
           </div>
         </Router>
