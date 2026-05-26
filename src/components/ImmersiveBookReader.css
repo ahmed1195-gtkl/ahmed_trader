@@ -14,8 +14,8 @@
   --ibr-cream: #FDFCFB;
   --ibr-cream-dark: #F5F0E8;
   --ibr-gray: #777777;
-  --ibr-paper: #F8F4ED;
-  --ibr-paper-dark: #EDE6D8;
+  --ibr-paper: #EFEBDF;
+  --ibr-paper-dark: #E3DECE;
   --ibr-ink: #2A2218;
   --ibr-font-book: 'Amiri', 'Scheherazade New', serif;
   --ibr-font-modern: 'Cairo', sans-serif;
@@ -151,7 +151,7 @@
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: radial-gradient(ellipse at 50% 30%, rgba(184, 150, 14, 0.06) 0%, rgba(15, 15, 16, 1) 75%);
+  background: radial-gradient(ellipse at 50% 30%, rgba(239, 235, 223, 0.04) 0%, rgba(15, 15, 16, 1) 75%);
 }
 
 .bg-static .ibr-video-bg {
@@ -307,7 +307,7 @@
   overflow-x: hidden;
   padding: 2.5rem 3.5rem;
   box-sizing: border-box;
-  background: linear-gradient(135deg, rgba(25, 25, 26, 0.7) 0%, rgba(20, 20, 21, 0.8) 100%);
+  background: linear-gradient(135deg, rgba(239, 235, 223, 0.03) 0%, rgba(42, 34, 24, 0.85) 100%), rgba(15, 15, 16, 0.95);
   border: 1px solid rgba(212, 175, 55, 0.08);
   border-radius: 24px;
   backdrop-filter: blur(25px);

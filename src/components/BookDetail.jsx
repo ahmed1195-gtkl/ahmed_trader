@@ -7,8 +7,9 @@ import Header from './Header';
 import Footer from './Footer';
 import PaymentModal from './PaymentModal';
 import { useBookAccess } from '../hooks/useBookAccess';
-import { db } from '../lib/firebase';
+import { db, storage } from '../lib/firebase';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { ref, getDownloadURL } from 'firebase/storage';
 
 const CHAPTER_1 = {
   titleAr: 'الفصل الأول: لماذا يخسر أغلب الناس؟',
@@ -107,16 +108,25 @@ const CHAPTER_1 = {
 const CHAPTERS_LIST = [
   { num: 1, ar: 'لماذا يخسر أغلب الناس؟', en: 'Why Do Most People Lose?', free: true },
   { num: 2, ar: 'سيكولوجية الخوف والطمع', en: 'Psychology of Fear & Greed', free: false },
-  { num: 3, ar: 'إدارة رأس المال', en: 'Capital Management', free: false },
-  { num: 4, ar: 'بناء خطة التداول', en: 'Building a Trading Plan', free: false },
-  { num: 5, ar: 'التحليل الفني الأساسي', en: 'Basic Technical Analysis', free: false },
-  { num: 6, ar: 'الشموع اليابانية', en: 'Japanese Candlesticks', free: false },
-  { num: 7, ar: 'مستويات الدعم والمقاومة', en: 'Support & Resistance Levels', free: false },
-  { num: 8, ar: 'المؤشرات الفنية', en: 'Technical Indicators', free: false },
-  { num: 9, ar: 'استراتيجيات الدخول والخروج', en: 'Entry & Exit Strategies', free: false },
-  { num: 10, ar: 'التداول في الأخبار', en: 'News Trading', free: false },
-  { num: 11, ar: 'بناء الروتين اليومي', en: 'Building Daily Routine', free: false },
-  { num: 12, ar: 'الطريق إلى الاحتراف', en: 'Path to Professionalism', free: false },
+  { num: 3, ar: 'عقلية المؤسسات ضد عقلية الأفراد', en: 'Institutions vs Individual Mindset', free: false },
+  { num: 4, ar: 'أشهر الأخطاء التاريخية في التداول', en: 'Famous Historical Trading Mistakes', free: false },
+  { num: 5, ar: 'ما الذي يحرك السعر؟', en: 'What Moves the Price?', free: false },
+  { num: 6, ar: 'أنواع الأسواق — أيها مناسب لك؟', en: 'Types of Markets — Which Suits You?', free: false },
+  { num: 7, ar: 'كيف تقرأ الرسم البياني؟', en: 'How to Read Charts?', free: false },
+  { num: 8, ar: 'فهم دور صناع السوق', en: 'Understanding Market Makers', free: false },
+  { num: 9, ar: 'إدارة رأس المال — لماذا أهم من الاستراتيجية', en: 'Capital Management — More Important Than Strategy', free: false },
+  { num: 10, ar: 'بناء خطة تداول', en: 'Building a Trading Plan', free: false },
+  { num: 11, ar: 'كيفية إدارة الصفقة أثناء تشغيلها', en: 'Managing a Trade While Active', free: false },
+  { num: 12, ar: 'الانضباط والروتين اليومي', en: 'Discipline & Daily Routine', free: false },
+  { num: 13, ar: 'كيف تتعافى من خسارة كبيرة', en: 'Recovering from a Major Loss', free: false },
+  { num: 14, ar: 'كيف تختار أسلوبك واستراتيجيتك؟', en: 'Choosing Your Style & Strategy', free: false },
+  { num: 15, ar: 'كيف يفكر صناع السوق (SMC ببساطة)', en: 'How Market Makers Think (SMC Simply)', free: false },
+  { num: 16, ar: 'التحليل الفني ضد التحليل الأساسي', en: 'Technical vs Fundamental Analysis', free: false },
+  { num: 17, ar: 'بناء أفضلية حقيقية في السوق', en: 'Building a Real Edge in the Market', free: false },
+  { num: 18, ar: 'الجانب المظلم للتداول', en: 'The Dark Side of Trading', free: false },
+  { num: 19, ar: 'كيف تبني مسيرة طويلة؟', en: 'How to Build a Long Career?', free: false },
+  { num: 20, ar: 'التكنولوجيا والذكاء الاصطناعي — هل سيختفي المتداول الفردي؟', en: 'AI & Technology — Will the Individual Trader Disappear?', free: false },
+  { num: 21, ar: 'النهاية الحقيقية — فلسفة الختام', en: 'The Real End — Philosophy of the Conclusion', free: false },
 ];
 
 const BookDetail = () => {
@@ -127,6 +137,7 @@ const BookDetail = () => {
   const [showChapters, setShowChapters] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
+  const [pdfUrl, setPdfUrl] = useState('');
   const isAr = i18n.language === 'ar';
 
   const PRICE = 11.99;
@@ -183,6 +194,22 @@ const BookDetail = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // ── Fetch secure PDF download URL from Firebase Storage when user has access ──
+  useEffect(() => {
+    if (hasAccess) {
+      const fetchPdfUrl = async () => {
+        try {
+          const bookRef = ref(storage, 'books/sober-trading/sober_book.pdf');
+          const url = await getDownloadURL(bookRef);
+          setPdfUrl(url);
+        } catch (err) {
+          console.warn('Could not fetch PDF download URL:', err);
+        }
+      };
+      fetchPdfUrl();
+    }
+  }, [hasAccess]);
 
   const handleSectionClick = (idx) => {
     const section = CHAPTER_1.sections[idx];
@@ -280,7 +307,7 @@ const BookDetail = () => {
                       </motion.button>
                       <motion.a
                         whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                        href="/sober_trading.pdf"
+                        href={pdfUrl || '#'}
                         download="Sober_Trading.pdf"
                         className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-white/5 border border-amber-500/30 hover:bg-amber-500/10 text-amber-400 hover:text-amber-300 font-black text-sm uppercase tracking-widest transition-all cursor-pointer"
                       >
@@ -388,10 +415,10 @@ const BookDetail = () => {
                 {!hasAccess ? (
                   <div className="mt-6 p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/20">
                     <p className="text-amber-500 text-xs font-bold mb-2">
-                      {isAr ? 'أول 3 دروس مجانية!' : 'First 3 lessons are free!'}
+                      {isAr ? 'أول 3 دروس من الفصل الأول مجانية!' : 'First 3 lessons of Chapter 1 are free!'}
                     </p>
                     <p className="text-zinc-500 text-[10px]">
-                      {isAr ? 'اشتر الكتاب لقراءة جميع الفصول' : 'Buy the book to read all chapters'}
+                      {isAr ? 'اشترِ الكتاب لقراءة جميع الفصول الـ 21' : 'Buy the book to read all 21 chapters'}
                     </p>
                   </div>
                 ) : (
@@ -424,7 +451,7 @@ const BookDetail = () => {
                       {isAr ? CHAPTER_1.titleAr : CHAPTER_1.titleEn}
                     </h2>
                     <p className="text-amber-500 text-[10px] font-bold uppercase tracking-widest mt-1">
-                      {isAr ? 'معاينة مجانية — الدروس الثلاثة الأولى' : 'Free Preview — First 3 Lessons'}
+                      {isAr ? 'معاينة مجانية — أول 3 دروس من الفصل الأول' : 'Free Preview — First 3 Lessons of Chapter 1'}
                     </p>
                   </div>
                 </div>
@@ -489,10 +516,10 @@ const BookDetail = () => {
                             {isAr ? 'هذا الدرس مقفل' : 'This Lesson is Locked'}
                           </h3>
                           <p className="text-zinc-400 text-sm mb-8 max-w-sm mx-auto leading-relaxed">
-                            {isAr
-                              ? 'احصل على وصول كامل لجميع دروس الكتاب وفصوله الـ 12'
-                              : 'Get full access to all book lessons and all 12 chapters'}
-                          </p>
+                             {isAr
+                               ? 'احصل على وصول كامل لجميع دروس الكتاب وفصوله الـ 21 كاملةً'
+                               : 'Get full access to all lessons and all 21 chapters of the book'}
+                           </p>
 
                           <div className="inline-flex items-baseline gap-3 mb-8">
                             <span className="text-4xl font-black text-white">${PRICE}</span>

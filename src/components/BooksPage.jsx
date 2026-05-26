@@ -16,20 +16,20 @@ import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firesto
 const BOOKS = [
   {
     id: 'sober-trading',
-    titleAr: 'التداول الرصين: كيف تتداول بعد قرون من الأخطاء',
-    titleEn: 'Sober Trading: How to Trade After Centuries of Mistakes',
+    titleAr: 'التداول الرصين',
+    titleEn: 'Sober Trading',
     authorAr: 'Shukritrade',
     authorEn: 'Shukritrade',
-    descriptionAr: 'استخلص دروساً من 400 عام من انتصارات وانهيارات الأسواق في منهجية عملية: دليلك لاكتساب عقلية المتداول المنضبط الذي يحافظ على رأس المال ويبني الثروة.',
-    descriptionEn: 'Draw lessons from 400 years of market triumphs and crashes into a practical methodology: your guide to acquiring the mindset of a disciplined trader who preserves capital and builds wealth.',
+    descriptionAr: 'دليل شامل يكشف حقيقة الأسواق المالية بعيداً عن الأوهام — سيكولوجية الخوف والطمع، إدارة رأس المال، بناء الأفضلية الحقيقية، وكيف تتداول كالمحترفين في 21 فصلاً متكاملاً.',
+    descriptionEn: 'A comprehensive guide that reveals the truth about financial markets — fear and greed psychology, capital management, building a real edge, and how to trade like professionals across 21 complete chapters.',
     cover: '/book_cover.png',
     price: 11.99,
     originalPrice: 23.98,
     currency: '$',
     rating: 4.8,
     reviews: 342,
-    chapters: 12,
-    pages: 380,
+    chapters: 21,
+    pages: 463,
     language: 'ar',
     tags: [
       { ar: 'سيكولوجية التداول', en: 'Trading Psychology' },
@@ -37,10 +37,10 @@ const BOOKS = [
       { ar: 'الانضباط', en: 'Discipline' }
     ],
     features: [
-      { icon: Brain, ar: 'سيكولوجية التداول العميقة', en: 'Deep Trading Psychology' },
-      { icon: Shield, ar: 'استراتيجيات إدارة المخاطر', en: 'Risk Management Strategies' },
-      { icon: TrendingUp, ar: 'دروس من 400 عام من التاريخ', en: 'Lessons from 400 Years of History' },
-      { icon: Sparkles, ar: 'تطبيقات عملية فورية', en: 'Immediate Practical Applications' }
+      { icon: Brain, ar: 'سيكولوجية الخوف والطمع بعمق علمي', en: 'Fear & Greed Psychology — Scientifically Deep' },
+      { icon: Shield, ar: 'إدارة رأس المال والمخاطر الاحترافية', en: 'Professional Capital & Risk Management' },
+      { icon: TrendingUp, ar: 'أسرار صناع السوق (SMC) بالتفصيل', en: 'Market Makers Secrets (SMC) in Detail' },
+      { icon: Sparkles, ar: '21 فصلاً من الدروس العملية الفورية', en: '21 Chapters of Immediate Practical Lessons' }
     ]
   }
 ];

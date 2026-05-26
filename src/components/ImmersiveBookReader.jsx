@@ -13,8 +13,9 @@ import {
 } from 'lucide-react';
 import './ImmersiveBookReader.css';
 import { useBookAccess } from '../hooks/useBookAccess';
-import { db, auth } from '../lib/firebase';
+import { db, auth, storage } from '../lib/firebase';
 import { doc, getDoc, updateDoc, setDoc, increment } from 'firebase/firestore';
+import { ref, getDownloadURL } from 'firebase/storage';
 import PaymentModal from './PaymentModal';
 import { BOOK_CONTENT } from '../data/bookContent';
 
@@ -167,6 +168,7 @@ const ImmersiveBookReader = () => {
   const [submittingReview, setSubmittingReview] = useState(false);
   const [hasPromptedRating, setHasPromptedRating] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState('');
 
   // Refs
   const scrollRef = useRef(null);
@@ -215,6 +217,22 @@ const ImmersiveBookReader = () => {
 
     registerReader();
   }, [loading]);
+
+  // ── Fetch secure PDF download URL from Firebase Storage when user has access ──
+  useEffect(() => {
+    if (hasAccess) {
+      const fetchPdfUrl = async () => {
+        try {
+          const bookRef = ref(storage, 'books/sober-trading/sober_book.pdf');
+          const url = await getDownloadURL(bookRef);
+          setPdfUrl(url);
+        } catch (err) {
+          console.warn('Could not fetch PDF download URL:', err);
+        }
+      };
+      fetchPdfUrl();
+    }
+  }, [hasAccess]);
 
   // ── Load Google Fonts dynamically ──
   useEffect(() => {
@@ -682,7 +700,7 @@ const ImmersiveBookReader = () => {
           {/* PDF Download Button - STRICTLY FOR PAID MEMBERS */}
           {hasAccess && (
             <a
-              href="/sober_trading_full.pdf"
+              href={pdfUrl || '#'}
               download="Sober_Trading.pdf"
               className="ibr-btn-icon"
               title="تحميل PDF"
@@ -784,65 +802,102 @@ const ImmersiveBookReader = () => {
               </div>
 
               {/* Render Sections and Text Blocks */}
-              {currentChapter.sections.map((section, sIdx) => (
-                <div key={sIdx} className="ibr-chapter-section">
-                  {section.title && section.title !== "الافتتاحية" && (
-                    <h2 className="ibr-section-title">{section.title}</h2>
-                  )}
+              {currentChapter.sections.map((section, sIdx) => {
+                // Limit Chapter 1 free preview to first 3 sections (lessons) for unpaid users
+                const isSectionLocked = !hasAccess && currentChapterIndex === 0 && sIdx >= 3;
+                if (isSectionLocked) return null;
 
-                  <div className="ibr-section-blocks">
-                    {section.blocks.map((block, bIdx) => {
-                      if (block.type === 'header') {
-                        return <h3 key={bIdx} className="ibr-block-header">{block.text}</h3>;
-                      }
-                      if (block.type === 'quote') {
+                return (
+                  <div key={sIdx} className="ibr-chapter-section">
+                    {section.title && section.title !== "الافتتاحية" && (
+                      <h2 className="ibr-section-title">{section.title}</h2>
+                    )}
+
+                    <div className="ibr-section-blocks">
+                      {section.blocks.map((block, bIdx) => {
+                        if (block.type === 'header') {
+                          return <h3 key={bIdx} className="ibr-block-header">{block.text}</h3>;
+                        }
+                        if (block.type === 'quote') {
+                          return (
+                            <blockquote key={bIdx} className="ibr-block-quote">
+                              <MessageSquareQuote className="quote-icon" />
+                              <p>{block.text}</p>
+                            </blockquote>
+                          );
+                        }
+                        if (block.type === 'question') {
+                          return (
+                            <div key={bIdx} className="ibr-block-question">
+                              <span className="q-badge">سؤال للتفكير</span>
+                              <p>{block.text}</p>
+                            </div>
+                          );
+                        }
+                        // Default paragraph
                         return (
-                          <blockquote key={bIdx} className="ibr-block-quote">
-                            <MessageSquareQuote className="quote-icon" />
-                            <p>{block.text}</p>
-                          </blockquote>
+                          <p key={bIdx} className="ibr-block-paragraph">
+                            {block.text}
+                          </p>
                         );
-                      }
-                      if (block.type === 'question') {
-                        return (
-                          <div key={bIdx} className="ibr-block-question">
-                            <span className="q-badge">سؤال للتفكير</span>
-                            <p>{block.text}</p>
-                          </div>
-                        );
-                      }
-                      // Default paragraph
-                      return (
-                        <p key={bIdx} className="ibr-block-paragraph">
-                          {block.text}
-                        </p>
-                      );
-                    })}
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Inline Paywall for Unpaid Users reading Chapter 1 */}
+              {!hasAccess && currentChapterIndex === 0 && (
+                <div className="ibr-paywall-inline" style={{ marginTop: '3rem', padding: '2.5rem', background: 'rgba(0, 0, 0, 0.4)', border: '1px solid rgba(212, 175, 55, 0.2)', borderRadius: '24px', textAlign: 'center' }}>
+                  <div className="ibr-paywall-icon" style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(212, 175, 55, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
+                    <Lock style={{ width: 24, height: 24, color: '#D4AF37' }} />
+                  </div>
+                  <h3 style={{ color: 'var(--ibr-cream)', fontSize: '1.25rem', fontWeight: 900, marginBottom: '0.75rem', fontFamily: 'var(--ibr-font-ui)' }}>بقية فصول ودروس الكتاب مقفلة</h3>
+                  <p style={{ color: 'var(--ibr-gray)', fontSize: '0.875rem', lineHeight: 1.6, maxWidth: '400px', margin: '0 auto 1.5rem', fontFamily: 'var(--ibr-font-ui)' }}>
+                    لقد أكملت قراءة الدروس الـ 3 المجانية المتاحة للمعاينة. اشترك الآن لفتح جميع دروس الفصل الأول والـ 20 فصلاً المتبقية كاملةً.
+                  </p>
+                  
+                  <div className="ibr-price-box" style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                    <span style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--ibr-cream)' }}>${PRICE}</span>
+                    <span style={{ fontSize: '1rem', color: 'var(--ibr-gray)', textDecoration: 'line-through' }}>${ORIGINAL_PRICE}</span>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 900, padding: '0.25rem 0.5rem', background: 'rgba(239, 68, 68, 0.2)', color: '#f87171', borderRadius: '8px' }}>-{DISCOUNT_PCT}%</span>
+                  </div>
+
+                  <button className="ibr-buy-btn" onClick={() => setPaymentOpen(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 2rem', background: 'linear-gradient(135deg, #D4AF37, #B8960E)', color: '#0F0F10', border: 'none', borderRadius: '16px', fontWeight: 900, fontSize: '0.875rem', cursor: 'pointer', margin: '0 auto 1rem', fontFamily: 'var(--ibr-font-ui)' }}>
+                    <ShoppingCart style={{ width: 16, height: 16 }} />
+                    اشترك لفتح الكتاب كاملاً
+                  </button>
+
+                  <div className="ibr-guarantee" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', color: 'var(--ibr-gray)', fontSize: '0.75rem', fontFamily: 'var(--ibr-font-ui)' }}>
+                    <Shield style={{ width: 12, height: 12, color: '#D4AF37' }} />
+                    <span>ضمان استرداد 7 أيام بالكامل</span>
                   </div>
                 </div>
-              ))}
+              )}
 
               {/* End of Chapter Navigation Links */}
               <div className="ibr-chapter-footer">
                 <div className="divider" />
                 
-                <div className="navigation-actions">
-                  {currentChapterIndex > 0 && (
-                    <button className="nav-btn prev" onClick={prevChapter}>
-                      <ChevronRight />
-                      الفصل السابق
-                    </button>
-                  )}
+                {(hasAccess || currentChapterIndex > 0) && (
+                  <div className="navigation-actions">
+                    {currentChapterIndex > 0 && (
+                      <button className="nav-btn prev" onClick={prevChapter}>
+                        <ChevronRight />
+                        الفصل السابق
+                      </button>
+                    )}
 
-                  {currentChapterIndex < totalChapters - 1 ? (
-                    <button className="nav-btn next active-next" onClick={nextChapter}>
-                      الفصل التالي
-                      <ChevronLeft />
-                    </button>
-                  ) : (
-                    <div className="end-badge">لقد أتممت قراءة الكتاب كاملاً! 📚🏆</div>
-                  )}
-                </div>
+                    {currentChapterIndex < totalChapters - 1 ? (
+                      <button className="nav-btn next active-next" onClick={nextChapter}>
+                        الفصل التالي
+                        <ChevronLeft />
+                      </button>
+                    ) : (
+                      <div className="end-badge">لقد أتممت قراءة الكتاب كاملاً! 📚🏆</div>
+                    )}
+                  </div>
+                )}
 
                 {/* Subscriber Extra Section */}
                 {hasAccess && (
@@ -850,7 +905,7 @@ const ImmersiveBookReader = () => {
                     <Download className="icon" />
                     <h4>تحميل نسخة PDF</h4>
                     <p>بصفتك مشتركاً مسجلاً، يمكنك تنزيل النسخة الرقمية الكاملة لقراءتها في أي وقت.</p>
-                    <a href="/sober_trading_full.pdf" download="Sober_Trading.pdf" className="download-action-btn">
+                    <a href={pdfUrl || '#'} download="Sober_Trading.pdf" className="download-action-btn">
                       تنزيل الآن
                     </a>
                   </div>
