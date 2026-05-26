@@ -338,6 +338,46 @@ const MarketRegimeBadge = ({ regime, lang }) => {
   );
 };
 
+// ======================== TRADINGVIEW WIDGET ========================
+const TradingViewWidget = ({ tvSymbol }) => {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.innerHTML = '';
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+    script.type = 'text/javascript';
+    script.async = true;
+    script.innerHTML = JSON.stringify({
+      autosize: true,
+      symbol: tvSymbol,
+      interval: "60",
+      timezone: "Etc/UTC",
+      theme: "dark",
+      style: "1",
+      locale: "en",
+      enable_publishing: false,
+      hide_side_toolbar: false,
+      allow_symbol_change: false,
+      calendar: false,
+      support_host: "https://www.tradingview.com"
+    });
+
+    if (containerRef.current) {
+      containerRef.current.appendChild(script);
+    }
+  }, [tvSymbol]);
+
+  return (
+    <div className="w-full h-full" ref={containerRef}>
+      <div className="tradingview-widget-container__widget w-full h-full"></div>
+    </div>
+  );
+};
+
 // ======================== MAIN COMPONENT ========================
 const AITradingBot = () => {
   const { t } = useTranslation();
@@ -368,6 +408,7 @@ const AITradingBot = () => {
   const [marketRegime, setMarketRegime] = useState('ranging');
   const [activeTab, setActiveTab] = useState('analysis'); // 'analysis' | 'rl' | 'signals'
   const [priceTick, setPriceTick] = useState(null); // 'up' | 'down' | null
+  const [showTVChart, setShowTVChart] = useState(false);
 
   const priceIntervalRef = useRef(null);
   const timeIntervalRef = useRef(null);
@@ -1106,6 +1147,34 @@ const AITradingBot = () => {
                             />
                           </AreaChart>
                         </ResponsiveContainer>
+                      </div>
+
+                      {/* TradingView Chart Toggle - Large Screens Only */}
+                      <div className="hidden lg:block border-t border-white/5 pt-4 mt-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                            {isAr ? 'الرسم البياني المتقدم (TradingView)' : 'Advanced Live Chart (TradingView)'}
+                          </p>
+                          <button
+                            onClick={() => setShowTVChart(!showTVChart)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10 text-amber-400 font-black text-[9px] uppercase tracking-widest transition-all cursor-pointer"
+                          >
+                            <LineChart className="w-3.5 h-3.5" />
+                            {showTVChart ? t('aibot.hide_chart') : t('aibot.show_chart')}
+                          </button>
+                        </div>
+                        {showTVChart && (
+                          <div className="w-full h-[480px] rounded-2xl overflow-hidden border border-white/10 bg-zinc-950/80 shadow-2xl relative">
+                            {/* Live Price Overlay */}
+                            <div className="absolute top-4 left-4 z-10 flex items-center gap-2 px-3 py-1.5 rounded-xl border border-white/10 bg-black/75 backdrop-blur-md">
+                              <div className={`w-2 h-2 rounded-full ${isMarketClosed ? 'bg-red-500' : 'bg-green-500 animate-pulse'}`} />
+                              <span className="text-[10px] font-black text-white uppercase tracking-wider">
+                                {currentAsset.name} · {livePrice > 0 ? livePrice.toFixed(priceDecimals) : '---'}
+                              </span>
+                            </div>
+                            <TradingViewWidget tvSymbol={currentAsset.tvSymbol} />
+                          </div>
+                        )}
                       </div>
 
                     </motion.div>
