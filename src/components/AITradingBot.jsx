@@ -614,7 +614,7 @@ const AITradingBot = () => {
       if (!price || isNaN(price)) return;
       setLivePrice(prev => {
         if (prev !== 0) {
-          setPrevLivePrice(prev);
+          setTimeout(() => setPrevLivePrice(prev), 0);
         }
         if (price > prev) setPriceTick('up');
         else if (price < prev) setPriceTick('down');
