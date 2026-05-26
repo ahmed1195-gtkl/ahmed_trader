@@ -518,7 +518,8 @@ const AITradingBot = () => {
         selectedAsset,
         sentiment: marketSentiment,
         news: newsEvents,
-        globalNews
+        globalNews,
+        rlWeights: advancedBotBrain.getWeights()
       });
 
       // Detect market regime
@@ -535,16 +536,16 @@ const AITradingBot = () => {
         sma: i >= 5 ? history.slice(i - 5, i + 1).reduce((a, b) => a + b, 0) / 6 : p
       }));
 
-      // Build per-dimension scores for AI Analyst panel
+      // Build per-dimension scores dynamically for AI Analyst panel from decision scores
       const scores = {
-        trend: decision.rawScore ? (decision.rawScore / 10) * 25 : 0,
-        momentum: 0,
-        trendStrength: 0,
-        volume: 0,
-        rsi: 0,
-        bb: 0,
-        fvg: 0,
-        news: 0
+        trend: decision.scores?.trend || 0,
+        momentum: decision.scores?.momentum || 0,
+        trendStrength: decision.scores?.trendStrength || 0,
+        volume: decision.scores?.volume || 0,
+        rsi: decision.scores?.rsi || 0,
+        bb: decision.scores?.bb || 0,
+        fvg: decision.scores?.fvg || 0,
+        news: decision.scores?.news || 0
       };
 
       setAnalysis({
@@ -611,8 +612,10 @@ const AITradingBot = () => {
 
     const updatePrice = (price) => {
       if (!price || isNaN(price)) return;
-      setPrevLivePrice(prev => prev);
       setLivePrice(prev => {
+        if (prev !== 0) {
+          setPrevLivePrice(prev);
+        }
         if (price > prev) setPriceTick('up');
         else if (price < prev) setPriceTick('down');
         setTimeout(() => setPriceTick(null), 600);
