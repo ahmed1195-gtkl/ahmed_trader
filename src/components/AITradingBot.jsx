@@ -374,6 +374,7 @@ const AITradingBot = () => {
   const newsIntervalRef = useRef(null);
   const wsRef = useRef(null);
   const priceHistoryRef = useRef({});
+  const prevLivePriceRef = useRef(0);
 
   const assets = [
     { name: 'BTC/USDT', symbol: 'BTCUSDT', tvSymbol: 'BINANCE:BTCUSDT', basePrice: 45000, type: 'crypto' },
@@ -612,16 +613,20 @@ const AITradingBot = () => {
 
     const updatePrice = (price) => {
       if (!price || isNaN(price)) return;
-      setLivePrice(prev => {
-        if (prev !== 0) {
-          setTimeout(() => setPrevLivePrice(prev), 0);
+      const prev = prevLivePriceRef.current;
+      if (Math.abs(prev - price) < 0.0000001) return;
+      // Safely update all states outside any functional updater (prevents React crash)
+      if (prev !== 0) {
+        setPrevLivePrice(prev);
+        if (price > prev) {
+          setPriceTick('up');
+        } else if (price < prev) {
+          setPriceTick('down');
         }
-        if (price > prev) setPriceTick('up');
-        else if (price < prev) setPriceTick('down');
         setTimeout(() => setPriceTick(null), 600);
-        if (Math.abs(prev - price) < 0.0000001) return prev;
-        return price;
-      });
+      }
+      prevLivePriceRef.current = price;
+      setLivePrice(price);
       if (!priceHistoryRef.current[selectedAsset]) {
         priceHistoryRef.current[selectedAsset] = [];
       }
