@@ -259,8 +259,8 @@ const RLStatsPanel = ({ weights, stats, lang }) => {
 const OrderFlowVisual = ({ orderFlow, lang }) => {
   const isAr = lang === 'ar';
   if (!orderFlow) return null;
-  const buy = orderFlow.buyPressure || 50;
-  const sell = orderFlow.sellPressure || 50;
+  const buy = parseFloat(orderFlow.buyPressure) || 50;
+  const sell = parseFloat(orderFlow.sellPressure) || 50;
   const imbalance = orderFlow.imbalance || 'Neutral';
 
   return (
