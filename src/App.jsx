@@ -74,7 +74,7 @@ function MainLayout() {
       </div>
       <main>
         <Hero />
-        <div className="bg-black">
+        <div className="bg-background">
           <Feed />
         </div>
         <Benefits />
@@ -87,23 +87,23 @@ function MainLayout() {
 
 function LoadingScreen() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-black">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background">
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
         className="relative"
       >
-        <div className="w-20 h-20 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin"></div>
+        <div className="w-20 h-20 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-10 h-10 bg-amber-500 rounded-full blur-xl opacity-50 animate-pulse"></div>
+          <div className="w-10 h-10 bg-primary rounded-full blur-xl opacity-50 animate-pulse"></div>
         </div>
       </motion.div>
       <motion.p
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="mt-6 text-amber-500 font-black tracking-[0.2em] uppercase text-xs"
+        className="mt-6 text-primary font-black tracking-[0.2em] uppercase text-xs"
       >
         Shukritrade
       </motion.p>
@@ -113,41 +113,41 @@ function LoadingScreen() {
 
 function BannedScreen({ banData }) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-black p-6 text-center">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6 text-center">
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="max-w-md w-full bg-zinc-900/50 border border-red-500/20 backdrop-blur-xl p-10 rounded-[3rem] shadow-2xl shadow-red-500/5"
+        className="max-w-md w-full bg-card border border-destructive/20 backdrop-blur-xl p-10 rounded-xl shadow-2xl"
       >
-        <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-red-500/20">
-          <Lock className="w-10 h-10 text-red-500" />
+        <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-destructive/20">
+          <Lock className="w-10 h-10 text-destructive" />
         </div>
-        <h1 className="text-2xl font-black text-white uppercase tracking-tighter mb-4">Account Suspended</h1>
-        <div className="space-y-4 text-left bg-black/40 p-6 rounded-2xl border border-white/5 mb-8">
+        <h1 className="text-2xl font-black text-foreground uppercase tracking-tighter mb-4">Account Suspended</h1>
+        <div className="space-y-4 text-left bg-secondary p-6 rounded-md border border-border mb-8">
           <div>
-            <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1">Reason</p>
-            <p className="text-sm text-gray-300">{banData.banReason || 'Violation of community guidelines'}</p>
+            <p className="text-[10px] font-black text-destructive uppercase tracking-widest mb-1">Reason</p>
+            <p className="text-sm text-muted-foreground">{banData.banReason || 'Violation of community guidelines'}</p>
           </div>
           <div>
-            <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1">Duration</p>
-            <p className="text-sm text-gray-300">{banData.banDuration === 'permanent' ? 'Permanent Ban' : `${banData.banDuration} Days`}</p>
+            <p className="text-[10px] font-black text-destructive uppercase tracking-widest mb-1">Duration</p>
+            <p className="text-sm text-muted-foreground">{banData.banDuration === 'permanent' ? 'Permanent Ban' : `${banData.banDuration} Days`}</p>
           </div>
           {banData.banUntil && (
             <div>
-              <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1">Expires On</p>
-              <p className="text-sm text-gray-300">{new Date(banData.banUntil).toLocaleString()}</p>
+              <p className="text-[10px] font-black text-destructive uppercase tracking-widest mb-1">Expires On</p>
+              <p className="text-sm text-muted-foreground">{new Date(banData.banUntil).toLocaleString()}</p>
             </div>
           )}
         </div>
         
         <button 
           onClick={() => signOut(auth)}
-          className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 font-black text-sm uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all mb-6"
+          className="flex items-center justify-center gap-2 w-full py-4 rounded-md bg-destructive/10 border border-destructive/20 text-destructive font-black text-sm uppercase tracking-widest hover:bg-destructive hover:text-white transition-all mb-6 cursor-pointer"
         >
           <LogOut className="w-5 h-5" /> Logout & Switch Account
         </button>
 
-        <p className="text-xs text-gray-500 leading-relaxed">
+        <p className="text-xs text-muted-foreground/60 leading-relaxed">
           If you believe this is a mistake, please contact our support team via Telegram.
         </p>
       </motion.div>

@@ -262,7 +262,7 @@ const Feed = () => {
             href={part} 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="text-amber-500 hover:underline break-all"
+            className="text-primary hover:underline break-all font-semibold"
           >
             {part}
           </a>
@@ -273,18 +273,18 @@ const Feed = () => {
   }, []);
 
   return (
-    <section className="py-12 md:py-20 relative bg-black min-h-screen">
+    <section className="py-12 md:py-20 relative bg-background min-h-screen">
       <div className="container mx-auto px-4 max-w-3xl">
         <div className="flex items-center justify-between mb-10">
-          <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter">
-            {i18n.language === 'ar' ? 'خلاصة' : 'Community'} <span className="text-amber-500">{i18n.language === 'ar' ? 'المجتمع' : 'Feed'}</span>
+          <h2 className="text-3xl md:text-4xl font-black text-foreground uppercase tracking-tighter">
+            {i18n.language === 'ar' ? 'خلاصة' : 'Community'} <span className="text-primary">{i18n.language === 'ar' ? 'المجتمع' : 'Feed'}</span>
           </h2>
           
           <div className="flex items-center gap-3">
             {user && isAdmin && (
               <Button 
                 onClick={() => navigate('/admin')}
-                className="bg-white/5 hover:bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full w-12 h-12 p-0 shadow-lg transition-transform hover:scale-110"
+                className="bg-secondary hover:bg-primary/10 text-primary border border-primary/20 rounded-md w-12 h-12 p-0 shadow-lg transition-transform hover:-translate-y-0.5"
                 title={i18n.language === 'ar' ? 'لوحة الإدارة' : 'Admin Dashboard'}
               >
                 <LayoutDashboard className="w-6 h-6" />
@@ -293,7 +293,7 @@ const Feed = () => {
             {user && isAdmin && (
               <Button 
                 onClick={() => setShowUpload(!showUpload)}
-                className="bg-amber-500 hover:bg-amber-400 text-black rounded-full w-12 h-12 p-0 shadow-lg shadow-amber-500/20 transition-transform hover:scale-110"
+                className="bg-primary text-primary-foreground rounded-md w-12 h-12 p-0 shadow-lg shadow-primary/20 transition-transform hover:-translate-y-0.5 hover:brightness-110 cursor-pointer border-0"
               >
                 {showUpload ? <X /> : <Plus />}
               </Button>
@@ -309,36 +309,36 @@ const Feed = () => {
               exit={{ opacity: 0, y: -20 }}
               className="mb-10"
             >
-              <Card className="bg-zinc-900/50 border-white/10 backdrop-blur-xl rounded-[2rem] overflow-hidden">
+              <Card className="bg-card border-border backdrop-blur-xl rounded-xl overflow-hidden">
                 <CardHeader>
-                  <CardTitle className="text-sm font-bold text-amber-500 uppercase flex items-center gap-2">
+                  <CardTitle className="text-sm font-bold text-primary uppercase flex items-center gap-2">
                     <Plus className="w-4 h-4" /> {i18n.language === 'ar' ? 'إنشاء منشور جديد' : 'Create New Post'}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <textarea 
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:border-amber-500/50 outline-none min-h-[120px] transition-all resize-none"
+                    className="w-full bg-secondary border border-border rounded-md p-4 text-foreground focus:border-primary/50 outline-none min-h-[120px] transition-all resize-none text-sm"
                     placeholder={i18n.language === 'ar' ? 'بماذا تفكر؟ (رابط الصورة اختياري)' : "What's on your mind? (Image URL optional)"}
                     value={newPost}
                     onChange={(e) => setNewPost(e.target.value)}
                   />
-                  <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 h-12">
+                  <div className="flex items-center gap-2 bg-secondary border border-border rounded-md px-4 h-12">
                     <select 
                       value={mediaType} 
                       onChange={(e) => setMediaType(e.target.value)}
-                      className="bg-transparent border-none outline-none text-white flex-1 text-xs font-bold uppercase tracking-widest"
+                      className="bg-transparent border-none outline-none text-foreground flex-1 text-xs font-bold uppercase tracking-widest"
                     >
-                      <option value="image" className="bg-zinc-900">Image URL</option>
-                      <option value="audio" className="bg-zinc-900">Audio URL</option>
-                      <option value="video" className="bg-zinc-900">Video URL</option>
+                      <option value="image" className="bg-card">Image URL</option>
+                      <option value="audio" className="bg-card">Audio URL</option>
+                      <option value="video" className="bg-card">Video URL</option>
                     </select>
                   </div>
-                  <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 h-12">
-                    <ImageIcon className="w-4 h-4 text-gray-500" />
+                  <div className="flex items-center gap-2 bg-secondary border border-border rounded-md px-4 h-12">
+                    <ImageIcon className="w-4 h-4 text-muted-foreground/60" />
                     <input 
                       type="text" 
                       placeholder={i18n.language === 'ar' ? 'رابط الوسائط أو اختر ملفاً' : "Media URL or choose file"}
-                      className="bg-transparent border-none outline-none text-white flex-1 text-xs"
+                      className="bg-transparent border-none outline-none text-foreground flex-1 text-xs"
                       value={imageUrl}
                       onChange={(e) => setImageUrl(e.target.value)}
                     />
@@ -353,18 +353,18 @@ const Feed = () => {
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="text-[10px] text-amber-500"
+                      className="text-[10px] text-primary"
                       onClick={() => document.getElementById('feed-file-input').click()}
                     >
                       {i18n.language === 'ar' ? 'اختر ملف' : 'File'}
                     </Button>
                   </div>
                 </CardContent>
-                <CardFooter className="justify-end p-6 bg-white/[0.02]">
+                <CardFooter className="justify-end p-6 bg-secondary/40">
                   <Button 
                     onClick={handleUpload}
                     disabled={loading || (!newPost && !imageUrl)}
-                    className="bg-amber-500 hover:bg-amber-600 text-black font-black uppercase tracking-widest px-10 h-12 rounded-xl transition-all"
+                    className="bg-primary text-primary-foreground font-black uppercase tracking-widest px-10 h-12 rounded-md transition-all hover:brightness-110 cursor-pointer border-0"
                   >
                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (i18n.language === 'ar' ? 'انشر الآن' : 'Post Now')}
                   </Button>
@@ -376,38 +376,38 @@ const Feed = () => {
 
         <div className="space-y-10">
           {posts.length === 0 ? (
-            <div className="text-center py-20 bg-zinc-900/20 rounded-[3rem] border border-white/5">
-              <p className="text-gray-500 font-black uppercase tracking-[0.2em] text-xs">
+            <div className="text-center py-20 bg-card rounded-xl border border-border">
+              <p className="text-muted-foreground font-black uppercase tracking-[0.2em] text-xs">
                 {i18n.language === 'ar' ? 'لا توجد منشورات بعد. كن أول من يشارك!' : 'No posts yet. Be the first to share!'}
               </p>
             </div>
           ) : (
             posts.map((post) => (
               <motion.div key={post.id} className="contain-layout" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                <Card className="bg-zinc-900/40 border-white/5 backdrop-blur-md overflow-hidden hover:border-amber-500/20 transition-all duration-500 rounded-[2.5rem]">
+                <Card className="bg-card border-border backdrop-blur-md overflow-hidden hover:border-primary/30 transition-all duration-500 rounded-xl">
                   <CardHeader className="p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <div 
-                          className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center overflow-hidden cursor-pointer hover:border-amber-500/50 transition-colors"
+                          className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center overflow-hidden cursor-pointer hover:border-primary/50 transition-colors"
                           onClick={() => navigate(`/profile/${post.authorId}`)}
                           title={i18n.language === 'ar' ? 'عرض الملف الشخصي' : 'View Profile'}
                         >
-                          {post.authorPhoto ? <img src={post.authorPhoto} alt="" className="w-full h-full object-cover" decoding="async" loading="lazy" /> : <User className="w-6 h-6 text-amber-500" />}
+                          {post.authorPhoto ? <img src={post.authorPhoto} alt="" className="w-full h-full object-cover" decoding="async" loading="lazy" /> : <User className="w-5 h-5 text-primary" />}
                         </div>
                         <div>
                           <p 
-                            className="text-white font-black text-sm uppercase tracking-tight cursor-pointer hover:text-amber-500 transition-colors"
+                            className="text-foreground font-black text-sm uppercase tracking-tight cursor-pointer hover:text-primary transition-colors"
                             onClick={() => navigate(`/profile/${post.authorId}`)}
                           >{post.author}</p>
-                          <p className="text-gray-500 text-[9px] font-black uppercase tracking-[0.2em]">{post.createdAt?.toDate ? post.createdAt.toDate().toLocaleDateString() : 'Just now'}</p>
+                          <p className="text-muted-foreground/50 text-[9px] font-black uppercase tracking-[0.2em]">{post.createdAt?.toDate ? post.createdAt.toDate().toLocaleDateString() : 'Just now'}</p>
                         </div>
                       </div>
                       {isAdmin && (
                         <Button 
                           onClick={() => handleDeletePost(post.id)}
                           variant="ghost"
-                          className="text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-full w-8 h-8 p-0"
+                          className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md w-8 h-8 p-0"
                         >
                           <X className="w-4 h-4" />
                         </Button>
@@ -416,16 +416,16 @@ const Feed = () => {
                   </CardHeader>
                   
                   <CardContent className="px-6 pb-6">
-                    <p className="text-gray-300 leading-relaxed whitespace-pre-wrap mb-6 font-medium">
+                    <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-wrap mb-6 font-medium">
                       {renderTextWithLinks(post.text)}
                     </p>
                     {post.image && (
-                      <div className="w-full rounded-3xl overflow-hidden bg-black border border-white/5">
+                      <div className="w-full rounded-md overflow-hidden bg-background border border-border">
                         {post.mediaType === 'video' ? (
                           <video src={post.image} controls className="w-full aspect-video" preload="none" />
                         ) : post.mediaType === 'audio' ? (
-                          <div className="p-6 bg-zinc-800/50 flex items-center gap-4">
-                            <Music className="w-8 h-8 text-amber-500 shrink-0" />
+                          <div className="p-6 bg-secondary/50 flex items-center gap-4">
+                            <Music className="w-8 h-8 text-primary shrink-0" />
                             <audio src={post.image} controls className="w-full" />
                           </div>
                         ) : (
@@ -435,13 +435,13 @@ const Feed = () => {
                     )}
                   </CardContent>
 
-                  <CardFooter className="flex flex-col border-t border-white/5 p-6 bg-white/[0.01]">
+                  <CardFooter className="flex flex-col border-t border-border p-6 bg-secondary/10">
                     <div className="flex items-center gap-8 w-full mb-6">
-                      <button onClick={() => handleLike(post.id, post.likes || [])} className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-colors ${post.likes?.includes(user?.uid) ? 'text-red-500' : 'text-gray-500 hover:text-white'}`}>
+                      <button onClick={() => handleLike(post.id, post.likes || [])} className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-colors ${post.likes?.includes(user?.uid) ? 'text-red-500 animate-pulse' : 'text-muted-foreground hover:text-foreground'}`}>
                         <Heart className={`w-4 h-4 ${post.likes?.includes(user?.uid) ? 'fill-current' : ''}`} />
                         {post.likes?.length || 0} {i18n.language === 'ar' ? 'إعجاب' : 'Likes'}
                       </button>
-                      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500">
+                      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                         <MessageCircle className="w-4 h-4" />
                         {post.comments?.length || 0} {i18n.language === 'ar' ? 'تعليق' : 'Comments'}
                       </div>
@@ -452,12 +452,12 @@ const Feed = () => {
                         <input 
                           type="text"
                           placeholder={i18n.language === 'ar' ? 'اكتب تعليقاً...' : "Write a comment..."}
-                          className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:border-amber-500/50 outline-none transition-all"
+                          className="flex-1 bg-secondary border border-border rounded-md px-4 py-2 text-xs text-foreground focus:border-primary/50 outline-none transition-all"
                           value={commentText[post.id] || ''}
                           onChange={(e) => { const val = e.target.value; setCommentText(prev => ({ ...prev, [post.id]: val })); }}
                           onKeyPress={(e) => e.key === 'Enter' && handleComment(post.id)}
                         />
-                        <Button onClick={() => handleComment(post.id)} disabled={!commentText[post.id]} className="bg-amber-500 hover:bg-amber-600 text-black w-10 h-10 p-0 rounded-xl shrink-0">
+                        <Button onClick={() => handleComment(post.id)} disabled={!commentText[post.id]} className="bg-primary hover:brightness-110 text-primary-foreground w-10 h-10 p-0 rounded-md shrink-0 border-0 cursor-pointer">
                           <Send className="w-4 h-4" />
                         </Button>
                       </div>
@@ -466,20 +466,20 @@ const Feed = () => {
                     {post.comments?.length > 0 && (
                       <div className="mt-6 space-y-4 w-full">
                         {post.comments.map((comment, idx) => (
-                          <div key={idx} className="flex gap-3 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
+                          <div key={idx} className="flex gap-3 p-3 rounded-md bg-secondary border border-border">
                             <div 
-                              className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden shrink-0 cursor-pointer hover:ring-2 hover:ring-amber-500/50 transition-all"
+                              className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center overflow-hidden shrink-0 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
                               onClick={() => navigate(`/profile/${comment.userId}`)}
                               title={i18n.language === 'ar' ? 'عرض الملف الشخصي' : 'View Profile'}
                             >
-                              {comment.userPhoto ? <img src={comment.userPhoto} alt="" className="w-full h-full object-cover" decoding="async" loading="lazy" /> : <User className="w-4 h-4 text-gray-500" />}
+                              {comment.userPhoto ? <img src={comment.userPhoto} alt="" className="w-full h-full object-cover" decoding="async" loading="lazy" /> : <User className="w-4 h-4 text-muted-foreground/60" />}
                             </div>
                             <div className="flex-1">
                               <p 
-                                className="text-[10px] font-black text-white uppercase tracking-tight mb-0.5 cursor-pointer hover:text-amber-500 transition-colors"
+                                className="text-[10px] font-black text-foreground uppercase tracking-tight mb-0.5 cursor-pointer hover:text-primary transition-colors"
                                 onClick={() => navigate(`/profile/${comment.userId}`)}
                               >{comment.userName}</p>
-                              <p className="text-xs text-gray-400 leading-relaxed">
+                              <p className="text-xs text-muted-foreground leading-relaxed">
                                 {renderTextWithLinks(comment.text)}
                               </p>
                             </div>

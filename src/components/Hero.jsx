@@ -57,7 +57,7 @@ const Hero = () => {
   return (
     <section className="min-h-[85vh] flex flex-col items-center justify-center relative overflow-hidden py-16 md:py-24">
       {/* Subtle background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-[#f0bf52]/8 via-transparent to-transparent rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-primary/8 via-transparent to-transparent rounded-full blur-3xl pointer-events-none"></div>
       
       {/* Content */}
       <div className="relative z-20 container mx-auto px-4 text-center">
@@ -76,8 +76,8 @@ const Hero = () => {
           >
             <img src={shukritradeLogo} 
               alt="Shukritrade" 
-              className="h-16 sm:h-20 md:h-28 lg:h-32 w-auto object-contain drop-shadow-[0_0_30px_rgba(240,191,82,0.15)]" 
-            decoding="async" />
+              className="h-16 sm:h-20 md:h-28 lg:h-32 w-auto object-contain drop-shadow-[0_0_30px_var(--gold-shadow)]" 
+              decoding="async" />
           </motion.div>
 
           {/* Tagline */}
@@ -87,7 +87,7 @@ const Hero = () => {
             transition={{ duration: 0.6, delay: 0.5 }}
             className="mb-6"
           >
-            <span className="inline-block px-5 py-2 rounded-full bg-gradient-to-r from-[#f0bf52]/10 to-[#ac8941]/10 border border-[#f0bf52]/20 text-[#d4a94b] text-xs sm:text-sm font-bold uppercase tracking-[0.2em]">
+            <span className="inline-block px-5 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs sm:text-sm font-black uppercase tracking-[0.2em]">
               {isAr ? 'منصة التداول الذكي' : 'Smart Trading Platform'}
             </span>
           </motion.div>
@@ -97,11 +97,9 @@ const Hero = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight px-2"
+            className="text-3xl md:text-5xl lg:text-6xl font-black text-foreground mb-6 leading-tight tracking-tight uppercase px-2 text-wrap-balance"
           >
-            <span className="bg-gradient-to-r from-[#f0bf52] via-[#d4a94b] to-[#ac8941] bg-clip-text text-transparent">
-              {t('hero.title')}
-            </span>
+            {t('hero.title')}
           </motion.h1>
 
           {/* Description */}
@@ -109,7 +107,7 @@ const Hero = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="text-base md:text-lg lg:text-xl text-gray-300 mb-6 max-w-3xl mx-auto leading-relaxed px-4"
+            className="text-base md:text-lg lg:text-xl text-muted-foreground mb-6 max-w-3xl mx-auto leading-relaxed px-4 text-wrap-pretty"
           >
             {t('hero.description')}
           </motion.p>
@@ -119,7 +117,7 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.7 }}
-            className="text-sm md:text-base text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed px-4"
+            className="text-sm md:text-base text-muted-foreground/80 mb-10 max-w-2xl mx-auto leading-relaxed px-4 text-wrap-pretty"
           >
             {isAr 
               ? 'Shukritrade هي منصتك الشاملة للتداول في الفوركس والعملات الرقمية. نوفر لك بوت تداول بالذكاء الاصطناعي، تحليلات متقدمة، أخبار السوق اللحظية، ودورات تعليمية احترافية لمساعدتك على تحقيق أرباح مستدامة.'
@@ -138,7 +136,7 @@ const Hero = () => {
               <Button 
                 size="lg"
                 onClick={() => navigate('/auth')}
-                className="bg-gradient-to-r from-[#f0bf52] to-[#ac8941] hover:from-[#d4a94b] hover:to-[#9a7a3a] text-black font-bold text-base md:text-lg px-8 md:px-10 py-4 md:py-5 rounded-2xl shadow-2xl hover:shadow-[#f0bf52]/20 transition-all duration-300 hover:scale-105 border-0"
+                className="bg-primary text-primary-foreground hover:brightness-110 font-black text-xs md:text-sm uppercase tracking-widest px-8 md:px-10 py-4 md:py-5 rounded-md shadow-lg shadow-primary/20 transition-all duration-300 hover:-translate-y-0.5 border-0 cursor-pointer"
               >
                 {t('hero.cta')}
               </Button>
@@ -150,23 +148,40 @@ const Hero = () => {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1 }}
-            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 max-w-5xl mx-auto mt-8"
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-8 gap-3 md:gap-4 max-w-5xl mx-auto mt-8"
           >
             {features.map((feature, index) => {
               const IconComp = feature.icon;
+              const isFeatured = index === 0 || index === 5;
               return (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 1.1 + index * 0.1 }}
-                  className="glass-card glass-card-hover group flex flex-col items-center p-3 md:p-4 rounded-2xl"
+                  className={`glass-card glass-card-hover group flex flex-col items-center p-3 md:p-4 rounded-md relative ${
+                    isFeatured 
+                      ? 'border-primary/30 bg-primary/5 shadow-md shadow-gold-glow lg:col-span-2 lg:flex-row lg:items-center lg:gap-4 lg:text-left lg:p-5' 
+                      : 'border-border'
+                  }`}
                 >
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-[#f0bf52]/15 to-[#ac8941]/15 flex items-center justify-center mb-2 md:mb-3 group-hover:from-[#f0bf52]/25 group-hover:to-[#ac8941]/25 transition-all duration-300">
-                    <IconComp className="w-5 h-5 md:w-6 md:h-6 text-[#d4a94b] group-hover:text-[#f0bf52] transition-colors duration-300" />
+                  {isFeatured && (
+                    <div className="absolute top-2 right-2 flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                    </div>
+                  )}
+                  <div className={`w-10 h-10 md:w-12 md:h-12 rounded-md flex items-center justify-center mb-2 md:mb-3 transition-all duration-300 ${
+                    isFeatured 
+                      ? 'bg-primary/20 text-primary group-hover:bg-primary/30 lg:mb-0 shrink-0' 
+                      : 'bg-secondary text-muted-foreground group-hover:text-primary group-hover:bg-primary/10 shrink-0'
+                  }`}>
+                    <IconComp className="w-5 h-5 md:w-6 md:h-6" />
                   </div>
-                  <h3 className="text-white text-[10px] md:text-xs font-bold text-center leading-tight mb-1">{feature.title}</h3>
-                  <p className="text-gray-500 text-[8px] md:text-[10px] text-center leading-tight hidden sm:block">{feature.desc}</p>
+                  <div className={isFeatured ? 'lg:flex lg:flex-col' : ''}>
+                    <h3 className="text-foreground text-[10px] md:text-xs font-black uppercase tracking-wider leading-tight mb-1 text-center lg:text-left">{feature.title}</h3>
+                    <p className="text-muted-foreground text-[8px] md:text-[10px] leading-tight hidden sm:block text-center lg:text-left">{feature.desc}</p>
+                  </div>
                 </motion.div>
               );
             })}

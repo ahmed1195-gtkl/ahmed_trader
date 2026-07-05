@@ -183,7 +183,7 @@ const Header = () => {
     // إظهار إشعار مؤقت
     if (newStatus) {
       toast.info(i18n.language === 'ar' ? 'تم تفعيل التحليل الخلفي. تنبيه: قد يزداد استهلاك موارد الجهاز.' : 'Background analysis activated. Warning: Resource usage may increase.', {
-        icon: <Activity className="w-4 h-4 text-amber-500" />,
+        icon: <Activity className="w-4 h-4 text-primary" />,
         duration: 4000
       });
     } else {
@@ -224,13 +224,13 @@ const Header = () => {
   return (
     <header className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${isScrolled ? 'py-2' : 'py-6'}`}>
       <div className="container mx-auto px-4 max-w-7xl">
-        <div className={`relative flex items-center justify-between bg-zinc-900/40 backdrop-blur-2xl border border-white/10 rounded-2xl px-4 md:px-6 py-3 transition-all duration-500 ${isScrolled ? 'shadow-2xl shadow-[#f0bf52]/10 border-white/20' : ''}`}>
+        <div className={`relative flex items-center justify-between bg-card/40 backdrop-blur-2xl border border-border rounded-xl px-4 md:px-6 py-3 transition-all duration-500 ${isScrolled ? 'shadow-lg shadow-gold-glow border-border' : ''}`}>
           
           {/* Logo + Site Name */}
           <Link to="/" className="flex items-center gap-2 group shrink-0">
             <div className="relative">
-              <img src={shukritradeLogo} alt="Shukritrade" className="h-7 sm:h-8 md:h-9 w-auto object-contain transition-all duration-500 group-hover:brightness-110 group-hover:drop-shadow-[0_0_15px_rgba(240,191,82,0.4)]" decoding="async" />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#f0bf52]/20 to-[#ac8941]/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+              <img src={shukritradeLogo} alt="Shukritrade" className="h-7 sm:h-8 md:h-9 w-auto object-contain transition-all duration-500 group-hover:brightness-110 group-hover:drop-shadow-[0_0_15px_var(--gold-shadow)]" decoding="async" />
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/10 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
             </div>
           </Link>
 
@@ -242,7 +242,7 @@ const Header = () => {
             {user && (
               <button
                 onClick={() => setIsSubscriptionModalOpen(true)}
-                className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-lg hover:shadow-xl"
+                className="hidden md:flex items-center gap-2 px-4 py-2 rounded-md bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-lg hover:shadow-xl"
               >
                 <Crown size={16} />
                 {i18n.language === 'ar' ? 'الاشتراكات' : 'Subscriptions'}
@@ -252,7 +252,7 @@ const Header = () => {
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
-              className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all"
+              className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-md bg-secondary border border-border text-foreground hover:bg-muted transition-all"
               title={theme === 'light' ? 'Dark Mode' : 'Light Mode'}
             >
               {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
@@ -260,7 +260,7 @@ const Header = () => {
 
             {/* Language Switcher */}
             <div className="relative">
-              <button onClick={toggleLang} className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all">
+              <button onClick={toggleLang} className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-md bg-secondary border border-border text-foreground hover:bg-muted transition-all">
                 <Globe className="w-4 h-4" />
               </button>
               <AnimatePresence>
@@ -269,10 +269,10 @@ const Header = () => {
                     initial={{ opacity: 0, y: 10 }} 
                     animate={{ opacity: 1, y: 0 }} 
                     exit={{ opacity: 0, y: 10 }} 
-                    className="absolute top-full right-0 mt-4 w-40 bg-zinc-900/95 backdrop-blur-2xl border border-white/10 rounded-2xl p-2 shadow-2xl"
+                    className="absolute top-full right-0 mt-4 w-40 bg-card/95 backdrop-blur-2xl border border-border rounded-lg p-2 shadow-2xl z-[102]"
                   >
                     {languages.map((lang) => (
-                      <button key={lang.code} onClick={() => changeLanguage(lang.code)} className={`flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all ${i18n.language === lang.code ? 'bg-amber-500 text-black' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>
+                      <button key={lang.code} onClick={() => changeLanguage(lang.code)} className={`flex items-center justify-between w-full px-4 py-3 rounded-md transition-all ${i18n.language === lang.code ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}>
                         <span className="text-[10px] font-black uppercase tracking-widest">{lang.name}</span>
                         <span>{lang.flag}</span>
                       </button>
@@ -284,21 +284,21 @@ const Header = () => {
 
             {/* User Profile / Login */}
             {user ? (
-              <div className="flex items-center gap-2 md:gap-3 pl-2 md:pl-4 border-l border-white/10">
+              <div className="flex items-center gap-2 md:gap-3 pl-2 md:pl-4 border-l border-border">
                 <button 
                   onClick={() => navigate('/settings')} 
                   onMouseEnter={() => prefetchRoute('/settings')}
-                  className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 hover:bg-amber-500 hover:text-black transition-all"
+                  className="w-9 h-9 md:w-10 md:h-10 rounded-md bg-primary/10 border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition-all"
                 >
                   <User className="w-4 h-4" />
                 </button>
-                <button onClick={() => signOut(auth)} className="hidden md:flex w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all">
+                <button onClick={() => signOut(auth)} className="hidden md:flex w-10 h-10 rounded-md bg-destructive/10 border border-destructive/20 items-center justify-center text-destructive hover:bg-destructive hover:text-white transition-all">
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Link to="/auth" className="px-4 md:px-6 py-2 md:py-2.5 rounded-xl bg-amber-500 text-black text-[10px] font-black uppercase tracking-widest hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20">
+                <Link to="/auth" className="px-4 md:px-6 py-2 md:py-2.5 rounded-md bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-widest hover:brightness-110 transition-all shadow-lg shadow-primary/20">
                   {t('nav.login')}
                 </Link>
               </div>
@@ -307,7 +307,7 @@ const Header = () => {
             {/* Menu Toggle (always visible on all devices) */}
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
-              className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white"
+              className="w-9 h-9 flex items-center justify-center rounded-md bg-secondary border border-border text-foreground hover:bg-muted"
             >
               {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -324,18 +324,18 @@ const Header = () => {
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }} 
               onClick={() => setIsSidebarOpen(false)}
-              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[90]"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90]"
             />
             <motion.div 
               initial={{ x: '100%' }} 
               animate={{ x: 0 }} 
               exit={{ x: '100%' }} 
-              className="fixed top-0 right-0 bottom-0 w-[280px] sm:w-[320px] bg-zinc-950 border-l border-white/10 z-[101] p-6 overflow-y-auto"
+              className="fixed top-0 right-0 bottom-0 w-[280px] sm:w-[320px] bg-card border-l border-border z-[101] p-6 overflow-y-auto"
             >
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between mb-10">
-                  <span className="text-white font-black uppercase tracking-widest text-sm">Menu</span>
-                  <button onClick={() => setIsSidebarOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 text-gray-400">
+                  <span className="text-foreground font-black uppercase tracking-widest text-sm">Menu</span>
+                  <button onClick={() => setIsSidebarOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-md bg-secondary text-muted-foreground hover:text-foreground">
                     <X className="w-4 h-4" />
                   </button>
                 </div>
@@ -346,21 +346,21 @@ const Header = () => {
                       to={link.path} 
                       onClick={() => setIsSidebarOpen(false)}
                       onMouseEnter={() => prefetchRoute(link.path)}
-                      className={`flex items-center gap-4 px-4 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${location.pathname === link.path ? 'bg-amber-500 text-black' : 'text-gray-400 hover:bg-white/5'}`}
+                      className={`flex items-center gap-4 px-4 py-4 rounded-md text-xs font-black uppercase tracking-widest transition-all ${location.pathname === link.path ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'}`}
                     >
                       {link.icon} {link.name}
                     </Link>
                   ))}
                   {user && isAdmin && (
-                    <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-white/5">
-                      <span className="text-[10px] text-amber-500 font-bold uppercase tracking-widest px-4 mb-1">
+                    <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-border">
+                      <span className="text-[10px] text-primary font-bold uppercase tracking-widest px-4 mb-1">
                         {i18n.language === 'ar' ? 'الإدارة' : 'Administration'}
                       </span>
                       <Link 
                         to="/admin" 
                         onClick={() => setIsSidebarOpen(false)}
                         onMouseEnter={() => prefetchRoute('/admin')}
-                        className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${location.pathname === '/admin' ? 'bg-amber-500 text-black' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}`}
+                        className={`flex items-center gap-4 p-4 rounded-md transition-all ${location.pathname === '/admin' ? 'bg-primary text-primary-foreground' : 'bg-primary/10 text-primary border border-primary/20'}`}
                       >
                         <Plus className="w-5 h-5" />
                         <span className="text-xs font-black uppercase tracking-widest">{t('nav.admin', 'Admin')}</span>
@@ -369,7 +369,7 @@ const Header = () => {
                         to="/admin/courses" 
                         onClick={() => setIsSidebarOpen(false)}
                         onMouseEnter={() => prefetchRoute('/admin/courses')}
-                        className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${location.pathname === '/admin/courses' ? 'bg-amber-500 text-black' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}`}
+                        className={`flex items-center gap-4 p-4 rounded-md transition-all ${location.pathname === '/admin/courses' ? 'bg-primary text-primary-foreground' : 'bg-primary/10 text-primary border border-primary/20'}`}
                       >
                         <GraduationCap className="w-5 h-5" />
                         <span className="text-xs font-black uppercase tracking-widest">{i18n.language === 'ar' ? 'إدارة الكورسات' : 'Manage Courses'}</span>
@@ -378,7 +378,7 @@ const Header = () => {
                         to="/admin/challenges" 
                         onClick={() => setIsSidebarOpen(false)}
                         onMouseEnter={() => prefetchRoute('/admin/challenges')}
-                        className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${location.pathname === '/admin/challenges' ? 'bg-amber-500 text-black' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}`}
+                        className={`flex items-center gap-4 p-4 rounded-md transition-all ${location.pathname === '/admin/challenges' ? 'bg-primary text-primary-foreground' : 'bg-primary/10 text-primary border border-primary/20'}`}
                       >
                         <Trophy className="w-5 h-5" />
                         <span className="text-xs font-black uppercase tracking-widest">{i18n.language === 'ar' ? 'إدارة التحديات' : 'Manage Challenges'}</span>
@@ -390,14 +390,14 @@ const Header = () => {
                       <Link 
                         to="/auth" 
                         onClick={() => setIsSidebarOpen(false)}
-                        className="flex items-center gap-4 px-4 py-4 rounded-2xl text-xs font-black uppercase tracking-widest bg-amber-500 text-black mt-4"
+                        className="flex items-center gap-4 px-4 py-4 rounded-md text-xs font-black uppercase tracking-widest bg-primary text-primary-foreground mt-4"
                       >
                         <LogIn className="w-4 h-4" /> {t('nav.login')}
                       </Link>
                       <Link 
                         to="/auth" 
                         onClick={() => setIsSidebarOpen(false)}
-                        className="flex items-center gap-4 px-4 py-4 rounded-2xl text-xs font-black uppercase tracking-widest bg-white/5 text-white border border-white/10"
+                        className="flex items-center gap-4 px-4 py-4 rounded-md text-xs font-black uppercase tracking-widest bg-secondary text-foreground border border-border"
                       >
                         <User className="w-4 h-4" /> {t('auth.signup')}
                       </Link>
@@ -407,16 +407,16 @@ const Header = () => {
                   {user && (
                     <button 
                       onClick={() => { signOut(auth); setIsSidebarOpen(false); }}
-                      className="flex items-center gap-4 px-4 py-4 rounded-2xl text-xs font-black uppercase tracking-widest text-red-500 bg-red-500/10 border border-red-500/20 mt-4 text-left"
+                      className="flex items-center gap-4 px-4 py-4 rounded-md text-xs font-black uppercase tracking-widest text-destructive bg-destructive/10 border border-destructive/20 mt-4 text-left"
                     >
                       <LogOut className="w-4 h-4" /> {t('nav.logout')}
                     </button>
                   )}
                 </div>
-                <div className="mt-auto pt-6 border-t border-white/5">
+                <div className="mt-auto pt-6 border-t border-border">
                   <div className="flex justify-center gap-6">
                     {socialChannels.map((channel) => (
-                      <a key={channel.name} href={channel.url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 text-gray-400 hover:text-amber-500 transition-all">
+                      <a key={channel.name} href={channel.url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-md bg-secondary text-muted-foreground hover:text-primary transition-all">
                         {channel.icon}
                       </a>
                     ))}

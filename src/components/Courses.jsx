@@ -94,10 +94,10 @@ const Courses = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white font-bold">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-foreground font-bold">
             {i18n.language === 'ar' ? 'جاري التحميل...' : 'Loading...'}
           </p>
         </div>
@@ -106,7 +106,7 @@ const Courses = () => {
   }
 
   return (
-    <section className="min-h-screen bg-black py-20">
+    <section className="min-h-screen bg-background py-20">
       <div className="container mx-auto px-4 max-w-7xl">
         {/* Header */}
         <motion.div
@@ -114,10 +114,10 @@ const Courses = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-16"
         >
-          <h1 className="text-5xl md:text-7xl font-black text-white uppercase mb-4 tracking-tighter">
+          <h1 className="text-5xl md:text-7xl font-black text-foreground uppercase mb-4 tracking-tighter">
             {i18n.language === 'ar' ? 'الكورسات' : 'Courses'}
           </h1>
-          <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             {i18n.language === 'ar' 
               ? 'اختر الكورس المناسب لك وابدأ رحلتك في عالم التداول' 
               : 'Choose the right course for you and start your trading journey'}
@@ -126,7 +126,7 @@ const Courses = () => {
           {isAdmin && (
             <Button
               onClick={() => navigate('/admin/courses')}
-              className="mt-6 bg-amber-500 hover:bg-amber-400 text-black font-black uppercase tracking-widest rounded-xl px-8 py-3"
+              className="mt-6 bg-primary text-primary-foreground font-black uppercase tracking-widest rounded-md px-8 py-3 hover:brightness-110 cursor-pointer"
             >
               {i18n.language === 'ar' ? 'إدارة الكورسات' : 'Manage Courses'}
             </Button>
@@ -140,14 +140,14 @@ const Courses = () => {
             animate={{ opacity: 1 }}
             className="text-center py-20"
           >
-            <BookOpen className="w-24 h-24 text-zinc-700 mx-auto mb-6" />
-            <h3 className="text-2xl font-black text-white uppercase mb-4">
+            <BookOpen className="w-24 h-24 text-muted-foreground/30 mx-auto mb-6" />
+            <h3 className="text-2xl font-black text-foreground uppercase mb-4">
               {i18n.language === 'ar' ? 'لا توجد كورسات حالياً' : 'No Courses Available'}
             </h3>
-            <p className="text-zinc-500">
+            <p className="text-muted-foreground/50">
               {i18n.language === 'ar' 
                 ? 'سيتم إضافة كورسات قريباً' 
-                : 'Courses will be added soon'}
+                 : 'Courses will be added soon'}
             </p>
           </motion.div>
         ) : (
@@ -159,17 +159,17 @@ const Courses = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="bg-zinc-900/50 border-white/10 backdrop-blur-xl rounded-[2rem] overflow-hidden hover:border-amber-500/50 transition-all group h-full flex flex-col">
+                <Card className="bg-card border-border backdrop-blur-xl rounded-xl overflow-hidden hover:border-primary/50 transition-all group h-full flex flex-col">
                   {/* Course Image */}
                   <div className="relative h-56 overflow-hidden">
                     {course.imageUrl ? (
                       <img src={course.imageUrl}
                         alt={course.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        className="w-full h-full object-cover transition-transform duration-500"
                       decoding="async" loading="lazy" />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-amber-500/20 to-amber-600/20 flex items-center justify-center">
-                        <BookOpen className="w-20 h-20 text-amber-500/50" />
+                      <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                        <BookOpen className="w-20 h-20 text-primary/40" />
                       </div>
                     )}
                     <div className="absolute top-4 right-4">
@@ -180,10 +180,10 @@ const Courses = () => {
                   <CardHeader className="pb-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
-                        <CardTitle className="text-2xl font-black text-white uppercase tracking-tight mb-2">
+                        <CardTitle className="text-2xl font-black text-foreground uppercase tracking-tight mb-2">
                           {i18n.language === 'ar' ? course.nameAr : course.nameEn}
                         </CardTitle>
-                        <div className="flex items-center gap-4 text-xs text-zinc-500">
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <Users className="w-3 h-3" />
                             <span>{course.enrolledCount || 0}</span>
@@ -201,7 +201,7 @@ const Courses = () => {
                   </CardHeader>
 
                   <CardContent className="flex-1 flex flex-col">
-                    <p className="text-zinc-400 text-sm mb-6 line-clamp-3">
+                    <p className="text-muted-foreground text-sm mb-6 line-clamp-3">
                       {i18n.language === 'ar' ? course.descriptionAr : course.descriptionEn}
                     </p>
 
@@ -209,8 +209,8 @@ const Courses = () => {
                     {course.features && course.features.length > 0 && (
                       <div className="space-y-2 mb-6">
                         {course.features.slice(0, 3).map((feature, idx) => (
-                          <div key={idx} className="flex items-center gap-2 text-xs text-zinc-400">
-                            <Star className="w-3 h-3 text-amber-500" />
+                          <div key={idx} className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Star className="w-3 h-3 text-primary" />
                             <span>{i18n.language === 'ar' ? feature.ar : feature.en}</span>
                           </div>
                         ))}
@@ -219,7 +219,7 @@ const Courses = () => {
 
                     <Button
                       onClick={() => navigate(`/course/${course.id}`)}
-                      className="w-full bg-amber-500 hover:bg-amber-400 text-black font-black uppercase tracking-widest rounded-xl py-6 mt-auto group"
+                      className="w-full bg-primary hover:brightness-110 text-primary-foreground font-black uppercase tracking-widest rounded-md py-6 mt-auto group cursor-pointer"
                     >
                       {i18n.language === 'ar' ? 'التسجيل الآن' : 'Enroll Now'}
                       <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />

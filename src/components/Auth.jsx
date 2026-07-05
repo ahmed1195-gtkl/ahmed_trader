@@ -368,7 +368,7 @@ const Auth = () => {
     <button
       type="button"
       onClick={() => setShowPassword(prev => !prev)}
-      className="w-8 h-8 flex items-center justify-center rounded-lg text-white/30 hover:text-amber-400 transition-colors"
+      className="w-8 h-8 flex items-center justify-center rounded-lg text-white/30 hover:text-primary transition-colors"
     >
       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
     </button>
@@ -378,21 +378,13 @@ const Auth = () => {
      RENDER
   ══════════════════════════════════════════════ */
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-8 bg-black overflow-hidden relative">
+    <div className="min-h-screen flex items-center justify-center px-4 py-8 bg-background overflow-hidden relative">
 
       {/* ── Ambient background glows ── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[600px] h-[500px] bg-amber-500/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] left-[10%] w-[300px] h-[300px] bg-amber-600/4 rounded-full blur-[100px]" />
-        <div className="absolute top-[30%] right-[5%] w-[200px] h-[200px] bg-amber-400/3 rounded-full blur-[80px]" />
-        {/* Subtle grid overlay */}
-        <div
-          className="absolute inset-0 opacity-[0.015]"
-          style={{
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-            backgroundSize: '60px 60px'
-          }}
-        />
+        <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[600px] h-[500px] bg-primary/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] left-[10%] w-[300px] h-[300px] bg-primary/4 rounded-full blur-[100px]" />
+        <div className="absolute top-[30%] right-[5%] w-[200px] h-[200px] bg-primary/3 rounded-full blur-[80px]" />
       </div>
 
       <motion.div
@@ -411,18 +403,18 @@ const Auth = () => {
           <div className="inline-flex items-center justify-center gap-2 mb-3">
             <img src={shukritradeLogo} alt="ShükriTrade" className="h-10 sm:h-12 w-auto object-contain" decoding="async" />
           </div>
-          <div className="w-12 h-[1px] bg-gradient-to-r from-transparent via-amber-500/40 to-transparent mx-auto" />
+          <div className="w-12 h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent mx-auto" />
         </motion.div>
 
         {/* ── Main glass card ── */}
         <div className="relative">
           {/* Card glow border */}
-          <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-b from-amber-500/10 via-transparent to-transparent blur-sm pointer-events-none" />
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-b from-primary/10 via-transparent to-transparent blur-sm pointer-events-none" />
 
-          <div className="relative bg-zinc-950/60 backdrop-blur-3xl border border-white/[0.06] rounded-[2rem] overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.03)]">
+          <div className="relative bg-card/60 backdrop-blur-3xl border border-border rounded-xl overflow-hidden shadow-lg shadow-gold-glow">
 
             {/* Top accent line */}
-            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
             <div className="px-8 pt-9 pb-8">
 
@@ -436,10 +428,10 @@ const Auth = () => {
                   transition={{ duration: 0.25 }}
                   className="text-center mb-8"
                 >
-                  <h1 className="text-2xl font-black bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 bg-clip-text text-transparent uppercase tracking-tight mb-2">
+                  <h1 className="text-2xl font-black text-primary uppercase tracking-tight mb-2">
                     {pageTitle}
                   </h1>
-                  <p className="text-white/35 text-xs font-medium leading-relaxed">{pageSub}</p>
+                  <p className="text-muted-foreground/50 text-xs font-medium leading-relaxed">{pageSub}</p>
                 </motion.div>
               </AnimatePresence>
 
@@ -456,11 +448,11 @@ const Auth = () => {
                     className="space-y-5"
                   >
                     <div className="text-center py-4">
-                      <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-4">
-                        <Shield className="w-7 h-7 text-amber-400" />
+                      <div className="w-16 h-16 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
+                        <Shield className="w-7 h-7 text-primary" />
                       </div>
-                      <h3 className="text-base font-black uppercase tracking-widest text-white mb-1">{t('auth.securityCheck')}</h3>
-                      <p className="text-xs text-white/30">{t('auth.enterCode')}</p>
+                      <h3 className="text-base font-black uppercase tracking-widest text-foreground mb-1">{t('auth.securityCheck')}</h3>
+                      <p className="text-xs text-muted-foreground">{t('auth.enterCode')}</p>
                     </div>
 
                     <div>
@@ -470,7 +462,7 @@ const Auth = () => {
                         placeholder="• • • • • •"
                         value={verificationCode}
                         onChange={(e) => setVerificationCode(e.target.value)}
-                        className="w-full h-14 rounded-xl bg-white/[0.04] border border-white/10 text-center text-2xl tracking-[0.6em] font-black text-white outline-none focus:border-amber-500/50 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(245,158,11,0.08)] transition-all duration-300 text-[16px]"
+                        className="w-full h-14 rounded-md bg-white/[0.04] border border-border text-center text-2xl tracking-[0.6em] font-black text-foreground outline-none focus:border-primary/50 focus:bg-white/[0.07] focus:shadow-md focus:shadow-gold-glow transition-all duration-300 text-[16px]"
                         maxLength={6}
                         required
                       />
@@ -478,9 +470,9 @@ const Auth = () => {
 
                     <motion.button
                       type="submit"
-                      whileHover={{ scale: 1.01 }}
+                      whileHover={{ y: -1 }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full h-12 rounded-xl bg-gradient-to-r from-amber-400 to-amber-600 text-black font-black text-sm uppercase tracking-widest shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 transition-all duration-300"
+                      className="w-full h-12 rounded-md bg-primary text-primary-foreground font-black text-xs uppercase tracking-widest shadow-lg shadow-primary/25 hover:brightness-110 transition-all duration-300 cursor-pointer"
                     >
                       {t('auth.verifyLogin')}
                     </motion.button>
@@ -488,7 +480,7 @@ const Auth = () => {
                     <button
                       type="button"
                       onClick={() => setShow2FA(false)}
-                      className="w-full flex items-center justify-center gap-1 text-[10px] font-black uppercase tracking-widest text-white/30 hover:text-white/60 transition-colors pt-1"
+                      className="w-full flex items-center justify-center gap-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 hover:text-foreground transition-colors pt-1"
                     >
                       <ArrowLeft className="w-3 h-3" />
                       {t('auth.backToLogin')}
@@ -541,12 +533,12 @@ const Auth = () => {
                                 <Globe className="w-4 h-4" />
                               </div>
                               <Select onValueChange={setCountry} value={country}>
-                                <SelectTrigger className="w-full h-12 pl-11 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white text-[16px] font-medium hover:border-white/15 focus:border-amber-500/60 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(245,158,11,0.08)] transition-all duration-300 outline-none">
-                                  <SelectValue placeholder={t('auth.country')} className="text-white/20" />
+                                <SelectTrigger className="w-full h-12 pl-11 rounded-md bg-white/[0.04] border border-border text-foreground text-[16px] font-medium hover:border-border/80 focus:border-primary/60 focus:bg-white/[0.07] focus:shadow-md focus:shadow-gold-glow transition-all duration-300 outline-none">
+                                  <SelectValue placeholder={t('auth.country')} className="text-muted-foreground/30" />
                                 </SelectTrigger>
-                                <SelectContent className="bg-zinc-900/95 backdrop-blur-2xl border-white/10 text-white max-h-60 rounded-xl shadow-2xl">
+                                <SelectContent className="bg-card backdrop-blur-2xl border-border text-foreground max-h-60 rounded-md shadow-2xl">
                                   {countries.map((c) => (
-                                    <SelectItem key={c.code} value={c.code} className="focus:bg-amber-500/20 focus:text-amber-300 rounded-lg text-sm">
+                                    <SelectItem key={c.code} value={c.code} className="focus:bg-primary/20 focus:text-primary rounded-md text-sm">
                                       {c.name}
                                     </SelectItem>
                                   ))}
@@ -559,7 +551,7 @@ const Auth = () => {
                           <div>
                             <FieldLabel htmlFor="phone">{t('auth.phone')}</FieldLabel>
                             <div className="flex gap-2">
-                              <div className="flex items-center justify-center bg-white/[0.04] border border-white/[0.08] rounded-xl px-3 text-sm text-white/40 font-medium min-w-[72px] h-12 shrink-0">
+                              <div className="flex items-center justify-center bg-white/[0.04] border border-border rounded-md px-3 text-sm text-muted-foreground font-medium min-w-[72px] h-12 shrink-0">
                                 {selectedCountry ? selectedCountry.phone : '+···'}
                               </div>
                               <PremiumInput
@@ -600,14 +592,14 @@ const Auth = () => {
                     {!isForgotPassword && (
                       <div>
                         <div className="flex items-center justify-between mb-1.5 pl-0.5">
-                          <label htmlFor="password" className="text-[10px] font-black uppercase tracking-[0.15em] text-amber-400/70">
+                          <label htmlFor="password" className="text-[10px] font-black uppercase tracking-[0.15em] text-primary/70">
                             {t('auth.password')}
                           </label>
                           {isLogin && (
                             <button
                               type="button"
                               onClick={() => { setIsForgotPassword(true); setError(''); setMessage(''); }}
-                              className="text-[10px] font-bold text-white/30 hover:text-amber-400 transition-colors uppercase tracking-widest"
+                              className="text-[10px] font-bold text-muted-foreground/40 hover:text-primary transition-colors uppercase tracking-widest"
                             >
                               {t('auth.forgotPassword')}
                             </button>
@@ -635,10 +627,10 @@ const Auth = () => {
                               className="mt-2.5 overflow-hidden"
                             >
                               <div className="flex justify-between text-[9px] uppercase font-black tracking-widest mb-1.5 px-0.5">
-                                <span className="text-white/25">{t('auth.passwordStrength')}</span>
+                                <span className="text-muted-foreground/35">{t('auth.passwordStrength')}</span>
                                 <span className={
                                   passwordStrength <= 1 ? 'text-red-400' :
-                                  passwordStrength === 2 ? 'text-amber-400' :
+                                  passwordStrength === 2 ? 'text-primary' :
                                   passwordStrength === 3 ? 'text-blue-400' : 'text-green-400'
                                 }>
                                   {getStrengthText()}
@@ -667,7 +659,7 @@ const Auth = () => {
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: -4, scale: 0.98 }}
                           transition={{ duration: 0.25 }}
-                          className="flex items-start gap-3 p-3.5 rounded-xl bg-red-500/8 border border-red-500/15 backdrop-blur-sm"
+                          className="flex items-start gap-3 p-3.5 rounded-md bg-red-500/8 border border-red-500/15 backdrop-blur-sm"
                         >
                           <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
                           <p className="text-red-300 text-xs font-semibold leading-relaxed">{error}</p>
@@ -680,7 +672,7 @@ const Auth = () => {
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: -4, scale: 0.98 }}
                           transition={{ duration: 0.25 }}
-                          className="flex items-start gap-3 p-3.5 rounded-xl bg-green-500/8 border border-green-500/15 backdrop-blur-sm"
+                          className="flex items-start gap-3 p-3.5 rounded-md bg-green-500/8 border border-green-500/15 backdrop-blur-sm"
                         >
                           <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0 mt-0.5" />
                           <p className="text-green-300 text-xs font-semibold leading-relaxed">{message}</p>
@@ -692,19 +684,17 @@ const Auth = () => {
                     <motion.button
                       type="submit"
                       disabled={loading}
-                      whileHover={!loading ? { scale: 1.01 } : {}}
+                      whileHover={!loading ? { y: -1 } : {}}
                       whileTap={!loading ? { scale: 0.98 } : {}}
-                      className="relative w-full h-12 rounded-xl font-black text-sm uppercase tracking-widest overflow-hidden transition-all duration-300 mt-1
-                        bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600
-                        text-black shadow-lg shadow-amber-500/20
-                        hover:shadow-amber-500/35 hover:from-amber-300 hover:to-amber-500
-                        disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
+                      className="relative w-full h-12 rounded-md font-black text-xs uppercase tracking-widest overflow-hidden transition-all duration-300 mt-1
+                        bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:brightness-110
+                        disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100 cursor-pointer"
                     >
                       {/* Shimmer effect */}
                       {!loading && (
                         <motion.div
-                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full"
-                          animate={{ translateX: ['−100%', '200%'] }}
+                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full"
+                          animate={{ translateX: ['-100%', '200%'] }}
                           transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 2, ease: 'easeInOut' }}
                         />
                       )}
@@ -725,10 +715,10 @@ const Auth = () => {
                       <>
                         <div className="relative py-1">
                           <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-white/[0.06]" />
+                            <div className="w-full border-t border-border" />
                           </div>
                           <div className="relative flex justify-center">
-                            <span className="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-white/20 bg-zinc-950/60">
+                            <span className="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/35 bg-card">
                               {t('auth.or')}
                             </span>
                           </div>
@@ -738,9 +728,9 @@ const Auth = () => {
                           type="button"
                           onClick={handleGoogleLogin}
                           disabled={loading}
-                          whileHover={!loading ? { scale: 1.01, borderColor: 'rgba(245,158,11,0.3)' } : {}}
+                          whileHover={!loading ? { y: -1, borderColor: 'var(--primary)' } : {}}
                           whileTap={!loading ? { scale: 0.98 } : {}}
-                          className="w-full h-11 rounded-xl border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.07] text-white font-bold text-sm flex items-center justify-center gap-3 transition-all duration-300 disabled:opacity-50"
+                          className="w-full h-11 rounded-md border border-border bg-white/[0.03] hover:bg-white/[0.07] text-foreground font-bold text-sm flex items-center justify-center gap-3 transition-all duration-300 disabled:opacity-50 cursor-pointer"
                         >
                           <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -760,8 +750,8 @@ const Auth = () => {
             {/* ── Footer toggle ── */}
             {!show2FA && (
               <div className="px-8 pb-7 pt-0">
-                <div className="border-t border-white/[0.04] pt-5 flex items-center justify-center gap-2 flex-wrap">
-                  <span className="text-xs text-white/25 font-medium">
+                <div className="border-t border-border pt-5 flex items-center justify-center gap-2 flex-wrap">
+                  <span className="text-xs text-muted-foreground/35 font-medium">
                     {isForgotPassword
                       ? t('auth.rememberPassword')
                       : isLogin ? t('auth.noAccount') : t('auth.hasAccount')}
@@ -771,7 +761,7 @@ const Auth = () => {
                     onClick={switchMode}
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
-                    className="text-xs font-black text-amber-400 hover:text-amber-300 transition-colors uppercase tracking-widest"
+                    className="text-xs font-black text-primary hover:brightness-110 transition-colors uppercase tracking-widest cursor-pointer"
                   >
                     {isForgotPassword ? t('auth.login') : isLogin ? t('auth.signup') : t('auth.login')}
                   </motion.button>
@@ -789,8 +779,8 @@ const Auth = () => {
           className="flex items-center justify-center gap-5 mt-6"
         >
           {[t('auth.sslBadge'), t('auth.firebaseBadge'), t('auth.encryptedBadge')].map((badge) => (
-            <div key={badge} className="flex items-center gap-1.5 text-white/15">
-              <div className="w-1 h-1 rounded-full bg-amber-500/40" />
+            <div key={badge} className="flex items-center gap-1.5 text-muted-foreground/20">
+              <div className="w-1 h-1 rounded-full bg-primary/40" />
               <span className="text-[9px] font-bold uppercase tracking-widest">{badge}</span>
             </div>
           ))}

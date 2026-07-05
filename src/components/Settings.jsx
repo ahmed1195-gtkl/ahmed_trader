@@ -146,24 +146,24 @@ const Settings = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-black overflow-x-hidden">
+    <div className="min-h-screen flex flex-col bg-background overflow-x-hidden">
       <Header />
       <main className="flex-1 container mx-auto px-4 pt-32 pb-12 max-w-full">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl mx-auto">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
-            <h1 className="text-3xl sm:text-4xl font-black text-white uppercase tracking-tighter bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl sm:text-4xl font-black text-foreground uppercase tracking-tighter">
               Settings
             </h1>
             <AnimatePresence>
               {message.text && (
-                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${message.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}>
+                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className={`flex items-center gap-2 px-4 py-2 rounded-md border ${message.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}>
                   {message.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
                   <span className="text-[10px] font-black uppercase tracking-widest">{message.text}</span>
                 </motion.div>
@@ -172,21 +172,21 @@ const Settings = () => {
           </div>
         
           <form onSubmit={handleSaveProfile} className="grid gap-8">
-            <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white overflow-hidden rounded-[2rem]">
-              <CardHeader className="border-b border-white/5 pb-8">
+            <Card className="bg-card backdrop-blur-xl border-border text-foreground overflow-hidden rounded-xl">
+              <CardHeader className="border-b border-border pb-8">
                 <div className="flex flex-col md:flex-row items-center gap-8">
                   <div className="relative group">
-                    <div className="w-24 h-24 rounded-full bg-amber-500/10 border-2 border-amber-500/20 flex items-center justify-center overflow-hidden shadow-2xl shadow-amber-500/5">
+                    <div className="w-24 h-24 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center overflow-hidden shadow-2xl shadow-primary/5">
                       {profileData.photoURL ? (
                         <img src={profileData.photoURL} alt="Profile" className="w-full h-full object-cover" decoding="async" loading="lazy" onError={(e) => { e.target.onerror = null; e.target.src = ''; }} />
                       ) : (
-                        <User className="w-10 h-10 text-amber-500" />
+                        <User className="w-10 h-10 text-primary" />
                       )}
                     </div>
                     <button 
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="absolute bottom-0 right-0 w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-black shadow-lg hover:bg-amber-400 transition-all"
+                      className="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground shadow-lg hover:brightness-110 transition-all cursor-pointer border-0"
                     >
                       <Camera className="w-4 h-4" />
                     </button>
@@ -200,74 +200,74 @@ const Settings = () => {
                   </div>
                   <div className="text-center md:text-left">
                     <CardTitle className="text-2xl font-black uppercase tracking-tight">{profileData.fullName || 'User'}</CardTitle>
-                    <CardDescription className="text-gray-400 font-medium">{user?.email}</CardDescription>
+                    <CardDescription className="text-muted-foreground font-medium">{user?.email}</CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="p-6 sm:p-8 space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-amber-500/70">First Name</label>
-                    <Input value={profileData.fullName} onChange={(e) => setProfileData({...profileData, fullName: e.target.value})} className="bg-white/5 border-white/10 focus:border-amber-500/50 h-12 rounded-xl" />
+                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/70">First Name</label>
+                    <Input value={profileData.fullName} onChange={(e) => setProfileData({...profileData, fullName: e.target.value})} className="bg-secondary border-border focus-visible:border-primary/50 h-12 rounded-md" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-amber-500/70">Last Name</label>
-                    <Input value={profileData.lastName} onChange={(e) => setProfileData({...profileData, lastName: e.target.value})} className="bg-white/5 border-white/10 focus:border-amber-500/50 h-12 rounded-xl" />
+                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/70">Last Name</label>
+                    <Input value={profileData.lastName} onChange={(e) => setProfileData({...profileData, lastName: e.target.value})} className="bg-secondary border-border focus-visible:border-primary/50 h-12 rounded-md" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-amber-500/70">Country</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/70">Country</label>
                     <div className="relative">
-                      <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                      <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <select 
                         value={profileData.country} 
                         onChange={(e) => setProfileData({...profileData, country: e.target.value})}
-                        className="w-full pl-12 pr-4 bg-white/5 border border-white/10 focus:border-amber-500/50 h-12 rounded-xl text-white appearance-none outline-none"
+                        className="w-full pl-12 pr-4 bg-secondary border border-border focus:border-primary/50 h-12 rounded-md text-foreground appearance-none outline-none text-sm"
                       >
-                        <option value="" className="bg-zinc-900">Select Country</option>
+                        <option value="" className="bg-card">Select Country</option>
                         {countries.map(country => (
-                          <option key={country} value={country} className="bg-zinc-900">{country}</option>
+                          <option key={country} value={country} className="bg-card">{country}</option>
                         ))}
                       </select>
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-amber-500/70">Age</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/70">Age</label>
                     <div className="relative">
-                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                      <Input type="number" value={profileData.age} onChange={(e) => setProfileData({...profileData, age: e.target.value})} className="pl-12 bg-white/5 border-white/10 focus:border-amber-500/50 h-12 rounded-xl" />
+                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input type="number" value={profileData.age} onChange={(e) => setProfileData({...profileData, age: e.target.value})} className="pl-12 bg-secondary border-border focus-visible:border-primary/50 h-12 rounded-md" />
                     </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
         
-            <Card className="bg-zinc-900/40 backdrop-blur-xl border-white/10 text-white rounded-[2rem]">
+            <Card className="bg-card backdrop-blur-xl border-border text-foreground rounded-xl">
               <CardHeader>
-                <div className="flex items-center gap-2 text-amber-500 mb-2">
+                <div className="flex items-center gap-2 text-primary mb-2">
                   <Shield className="w-5 h-5" />
                   <span className="font-bold uppercase tracking-widest text-xs">Security</span>
                 </div>
                 <CardTitle>Two-Factor Authentication</CardTitle>
-                <CardDescription className="text-gray-400">Add an extra layer of security to your account.</CardDescription>
+                <CardDescription className="text-muted-foreground">Add an extra layer of security to your account.</CardDescription>
               </CardHeader>
               <CardContent className="p-6 sm:p-8 pt-0">
-                <div className="flex items-center justify-between p-6 bg-white/5 rounded-2xl border border-white/5">
+                <div className="flex items-center justify-between p-6 bg-secondary rounded-md border border-border">
                   <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-xl bg-amber-500/10 text-amber-500">
+                    <div className="p-3 rounded-md bg-primary/10 text-primary">
                       <Lock className="w-5 h-5" />
                     </div>
                     <div>
                       <p className="font-bold uppercase tracking-tight">Enable 2FA</p>
-                      <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest">{profileData.twoFactorEnabled ? 'Active' : 'Inactive'}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">{profileData.twoFactorEnabled ? 'Active' : 'Inactive'}</p>
                     </div>
                   </div>
-                  <Switch checked={profileData.twoFactorEnabled} onCheckedChange={(checked) => setProfileData({...profileData, twoFactorEnabled: checked})} className="data-[state=checked]:bg-amber-500" />
+                  <Switch checked={profileData.twoFactorEnabled} onCheckedChange={(checked) => setProfileData({...profileData, twoFactorEnabled: checked})} className="data-[state=checked]:bg-primary" />
                 </div>
               </CardContent>
             </Card>
         
             <div className="flex justify-end">
-              <Button type="submit" disabled={saving} className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-black font-black uppercase tracking-widest px-12 h-14 rounded-2xl shadow-lg shadow-amber-500/20 transition-all active:scale-95">
+              <Button type="submit" disabled={saving} className="w-full sm:w-auto bg-primary text-primary-foreground hover:brightness-110 font-black uppercase tracking-widest px-12 h-12 rounded-md shadow-lg shadow-primary/20 transition-all active:scale-95 cursor-pointer border-0">
                 {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-4 h-4 mr-2" /> Save Changes</>}
               </Button>
             </div>

@@ -4,10 +4,11 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: 'Inter', 'Cairo', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -26,74 +27,157 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Dynamic zinc mapping for auto light/dark conversion */
+  --color-zinc-950: var(--zinc-950);
+  --color-zinc-900: var(--zinc-900);
+  --color-zinc-800: var(--zinc-800);
+  --color-zinc-700: var(--zinc-700);
+  --color-zinc-600: var(--zinc-600);
+  --color-zinc-500: var(--zinc-500);
+  --color-zinc-400: var(--zinc-400);
+  --color-zinc-300: var(--zinc-300);
+  --color-zinc-200: var(--zinc-200);
+  --color-zinc-100: var(--zinc-100);
+
+  /* Dynamic amber/gold mapping */
+  --color-amber-500: var(--amber-500);
+  --color-amber-400: var(--amber-400);
+
+  /* Custom shadows */
+  --shadow-gold-glow: 0 0 24px var(--gold-shadow);
 }
 
 :root {
-  --radius: 0.625rem;
-  /* Force Dark Mode by default */
-  --background: #000000;
-  --foreground: #ffffff;
-  --card: #0a0a0a;
-  --card-foreground: #ffffff;
-  --popover: #0a0a0a;
-  --popover-foreground: #ffffff;
-  --primary: #eab308;
-  --primary-foreground: #000000;
-  --secondary: #1a1a1a;
-  --secondary-foreground: #ffffff;
-  --muted: #1a1a1a;
-  --muted-foreground: #a1a1aa;
-  --accent: #1a1a1a;
-  --accent-foreground: #ffffff;
-  --destructive: #ef4444;
-  --border: rgba(255, 255, 255, 0.1);
-  --input: rgba(255, 255, 255, 0.1);
-  --ring: #eab308;
+  /* Default: Dark mode */
+  --background: oklch(0.08 0.00 0); /* Near black #0d0d0d */
+  --foreground: oklch(0.97 0.00 0); /* Off white */
+  
+  --card: oklch(0.12 0.005 85); /* #121214 */
+  --card-foreground: oklch(0.97 0.00 0);
+  
+  --popover: oklch(0.12 0.005 85);
+  --popover-foreground: oklch(0.97 0.00 0);
+  
+  --primary: oklch(0.82 0.14 85); /* #f0bf52 */
+  --primary-foreground: oklch(0.08 0.00 0);
+  
+  --secondary: oklch(0.16 0.01 85); /* #1a1a1c */
+  --secondary-foreground: oklch(0.97 0.00 0);
+  
+  --muted: oklch(0.16 0.01 85);
+  --muted-foreground: oklch(0.65 0.01 85);
+  
+  --accent: oklch(0.16 0.01 85);
+  --accent-foreground: oklch(0.97 0.00 0);
+  
+  --destructive: oklch(0.60 0.20 25);
+  --border: rgba(255, 255, 255, 0.06);
+  --input: rgba(255, 255, 255, 0.05);
+  --ring: oklch(0.82 0.14 85);
+
+  /* Zinc variables for dark mode */
+  --zinc-950: oklch(0.06 0.00 0);
+  --zinc-900: oklch(0.11 0.005 85);
+  --zinc-800: oklch(0.16 0.005 85);
+  --zinc-700: oklch(0.24 0.005 85);
+  --zinc-600: oklch(0.32 0.005 85);
+  --zinc-500: oklch(0.48 0.005 85);
+  --zinc-400: oklch(0.64 0.005 85);
+  --zinc-300: oklch(0.78 0.005 85);
+  --zinc-200: oklch(0.88 0.005 85);
+  --zinc-100: oklch(0.94 0.005 85);
+
+  --amber-500: oklch(0.82 0.14 85);
+  --amber-400: oklch(0.86 0.12 85);
+  --gold-shadow: rgba(240, 191, 82, 0.12);
+}
+
+html.light {
+  /* Light mode equivalents */
+  --background: oklch(0.98 0.002 85); /* Premium off-white #f8f9fa */
+  --foreground: oklch(0.15 0.015 240); /* Slate-900 #0f172a */
+  
+  --card: oklch(1.00 0.00 0); /* Pure white */
+  --card-foreground: oklch(0.15 0.015 240);
+  
+  --popover: oklch(1.00 0.00 0);
+  --popover-foreground: oklch(0.15 0.015 240);
+  
+  --primary: oklch(0.59 0.10 72); /* #ac8941 readable luxury gold */
+  --primary-foreground: oklch(1.00 0.00 0);
+  
+  --secondary: oklch(0.95 0.005 240); /* Cool gray #f1f3f5 */
+  --secondary-foreground: oklch(0.15 0.015 240);
+  
+  --muted: oklch(0.95 0.005 240);
+  --muted-foreground: oklch(0.45 0.02 240); /* Slate-500 for WCAG contrast */
+  
+  --accent: oklch(0.95 0.005 240);
+  --accent-foreground: oklch(0.15 0.015 240);
+  
+  --destructive: oklch(0.55 0.22 25);
+  --border: rgba(0, 0, 0, 0.06);
+  --input: rgba(0, 0, 0, 0.04);
+  --ring: oklch(0.59 0.10 72);
+
+  /* Zinc light-mode mappings to preserve design intent beautifully */
+  --zinc-950: oklch(1.00 0.00 0);
+  --zinc-900: oklch(1.00 0.00 0);
+  --zinc-800: oklch(0.97 0.002 85);
+  --zinc-700: oklch(0.90 0.005 240);
+  --zinc-600: oklch(0.75 0.01 240);
+  --zinc-500: oklch(0.55 0.015 240);
+  --zinc-400: oklch(0.45 0.02 240);
+  --zinc-300: oklch(0.35 0.02 240);
+  --zinc-200: oklch(0.25 0.02 240);
+  --zinc-100: oklch(0.15 0.015 240);
+
+  --amber-500: oklch(0.59 0.10 72);
+  --amber-400: oklch(0.65 0.10 72);
+  --gold-shadow: rgba(172, 137, 65, 0.08);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/40;
   }
   body {
-    @apply bg-black text-white;
-    background-color: #000000 !important;
-    color: #ffffff !important;
+    @apply bg-background text-foreground font-sans antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
 
-/* Custom premium card utilities */
+/* Custom premium card utilities with correct design-token bounds */
 @utility glass-card {
   background-color: rgba(24, 24, 27, 0.4);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 1.5rem;
+  border-radius: var(--radius-lg);
 }
 
 @utility glass-card-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
   
   &:hover {
-    background-color: rgba(234, 179, 8, 0.05);
-    border-color: rgba(234, 179, 8, 0.3);
-    box-shadow: 0 10px 30px -10px rgba(234, 179, 8, 0.15);
+    background-color: rgba(234, 179, 8, 0.03);
+    border-color: rgba(234, 179, 8, 0.2);
+    box-shadow: 0 10px 30px -10px rgba(234, 179, 8, 0.08);
     transform: translateY(-2px);
   }
+}
+
+html.light .glass-card {
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+html.light .glass-card-hover:hover {
+  background-color: rgba(172, 137, 65, 0.03);
+  border-color: rgba(172, 137, 65, 0.2);
+  box-shadow: 0 10px 30px -10px rgba(172, 137, 65, 0.08);
 }
 
 

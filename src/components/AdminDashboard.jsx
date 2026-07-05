@@ -216,21 +216,21 @@ const AdminDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       <Header />
       <main className="container mx-auto px-6 pt-32 pb-20">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
           <div>
-            <div className="flex items-center gap-2 text-amber-500 mb-2">
+            <div className="flex items-center gap-2 text-primary mb-2">
               <ShieldAlert className="w-4 h-4" />
               <span className="text-[10px] font-black uppercase tracking-[0.4em]">Admin Control</span>
             </div>
             <h1 className="text-4xl font-black uppercase tracking-tighter">
-              {i18n.language === 'ar' ? 'مركز' : 'Management'} <span className="text-amber-500">{i18n.language === 'ar' ? 'الإدارة' : 'Center'}</span>
+              {i18n.language === 'ar' ? 'مركز' : 'Management'} <span className="text-primary">{i18n.language === 'ar' ? 'الإدارة' : 'Center'}</span>
             </h1>
           </div>
           
-            <div className="flex flex-wrap bg-white/5 p-1 rounded-xl border border-white/10">
+            <div className="flex flex-wrap bg-secondary p-1 rounded-xl border border-border">
             {[
               { id: 'users', icon: Users, label: i18n.language === 'ar' ? 'المستخدمين' : 'Users' },
               { id: 'subscriptions', icon: Crown, label: i18n.language === 'ar' ? 'الاشتراكات' : 'Subscriptions' },
@@ -242,7 +242,7 @@ const AdminDashboard = () => {
               <button 
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20' : 'text-gray-400 hover:text-white'}`}
+                className={`px-6 py-2 rounded-md text-xs font-black uppercase tracking-widest transition-all cursor-pointer ${activeTab === tab.id ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' : 'text-muted-foreground hover:text-foreground'}`}
               >
                 <tab.icon className="w-4 h-4 inline-block mr-2 mb-0.5" /> {tab.label}
               </button>
@@ -253,13 +253,13 @@ const AdminDashboard = () => {
         <AnimatePresence mode="wait">
           {activeTab === 'courses' && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
-              <div className="bg-zinc-900/40 border border-white/5 p-12 rounded-[3rem] text-center">
-                <GraduationCap className="w-16 h-16 text-amber-500 mx-auto mb-6" />
+              <div className="bg-card border border-border p-12 rounded-xl text-center">
+                <GraduationCap className="w-16 h-16 text-primary mx-auto mb-6" />
                 <h2 className="text-2xl font-black uppercase mb-4">{i18n.language === 'ar' ? 'إدارة الكورسات' : 'Course Management'}</h2>
-                <p className="text-gray-400 mb-8 max-w-md mx-auto">{i18n.language === 'ar' ? 'يمكنك إضافة وتعديل وحذف الكورسات من خلال لوحة التحكم المخصصة.' : 'You can add, edit, and delete courses through the dedicated control panel.'}</p>
+                <p className="text-muted-foreground mb-8 max-w-md mx-auto">{i18n.language === 'ar' ? 'يمكنك إضافة وتعديل وحذف الكورسات من خلال لوحة التحكم المخصصة.' : 'You can add, edit, and delete courses through the dedicated control panel.'}</p>
                 <Button 
                   onClick={() => navigate('/admin/courses')}
-                  className="bg-amber-500 hover:bg-amber-400 text-black font-black uppercase tracking-widest px-8 py-4 rounded-2xl"
+                  className="bg-primary text-primary-foreground hover:brightness-110 font-black uppercase tracking-widest px-8 py-4 rounded-md border-0 cursor-pointer"
                 >
                   {i18n.language === 'ar' ? 'فتح لوحة إدارة الكورسات' : 'Open Course Management'}
                 </Button>
@@ -274,37 +274,37 @@ const AdminDashboard = () => {
           {activeTab === 'users' && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
               <div className="relative max-w-md">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
                 <Input 
                   placeholder={i18n.language === 'ar' ? 'البحث عن مستخدم...' : 'Search users...'}
-                  className="pl-12 bg-white/5 border-white/10 h-12 rounded-xl"
+                  className="pl-12 bg-secondary border-border h-12 rounded-md"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
               <div className="grid gap-4">
                 {filteredUsers.map(user => (
-                  <div key={user.id} className="bg-zinc-900/40 border border-white/5 p-6 rounded-[2rem] flex flex-col md:flex-row justify-between items-center gap-6 hover:border-amber-500/20 transition-all">
+                  <div key={user.id} className="bg-card border border-border p-6 rounded-xl flex flex-col md:flex-row justify-between items-center gap-6 hover:border-primary/20 transition-all">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 font-bold">
+                      <div className="w-12 h-12 rounded-md bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold">
                         {user.fullName?.[0] || user.email?.[0]?.toUpperCase()}
                       </div>
                       <div>
                         <h3 className="font-black uppercase tracking-tight flex items-center gap-2">
                           {user.fullName || 'User'}
                           {user.isBanned && <span className="text-[8px] bg-red-500 text-white px-2 py-0.5 rounded-full">BANNED</span>}
-                          {user.soberBookAccess && <span className="text-[8px] bg-amber-500/20 text-amber-500 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">SOBER BOOK</span>}
+                          {user.soberBookAccess && <span className="text-[8px] bg-primary/20 text-primary border border-primary/30 px-2 py-0.5 rounded-full font-bold">SOBER BOOK</span>}
                         </h3>
-                        <p className="text-xs text-gray-500">{user.email}</p>
+                        <p className="text-xs text-muted-foreground/60">{user.email}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <Button 
                         onClick={() => toggleBookAccess(user)}
-                        className={`h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                        className={`h-10 px-4 rounded-md text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer ${
                           user.soberBookAccess 
-                            ? 'bg-amber-500/20 hover:bg-amber-500 text-amber-500 hover:text-black border border-amber-500/30' 
-                            : 'bg-white/5 hover:bg-amber-500/10 text-amber-500 border border-amber-500/20'
+                            ? 'bg-primary/20 hover:bg-primary text-primary hover:text-primary-foreground border border-primary/30' 
+                            : 'bg-secondary hover:bg-primary/10 text-primary border border-primary/20'
                         }`}
                       >
                         <BookOpen className="w-3 h-3 mr-2" />
@@ -314,11 +314,11 @@ const AdminDashboard = () => {
                       </Button>
                       <Button 
                         onClick={() => handleWarnUser(user)}
-                        className="bg-white/5 hover:bg-amber-500/10 text-amber-500 border border-amber-500/20 h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
+                        className="bg-secondary hover:bg-primary/10 text-primary border border-primary/20 h-10 px-4 rounded-md text-[10px] font-black uppercase tracking-widest cursor-pointer"
                       >
                         <AlertCircle className="w-3 h-3 mr-2" /> {i18n.language === 'ar' ? 'تحذير' : 'Warn'}
                       </Button>
-                      <Button onClick={() => { setSelectedUser(user); setIsBanModalOpen(true); }} className="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-black border border-red-500/20 h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                      <Button onClick={() => { setSelectedUser(user); setIsBanModalOpen(true); }} className="bg-destructive/10 hover:bg-destructive text-destructive hover:text-white border border-destructive/20 h-10 px-4 rounded-md text-[10px] font-black uppercase tracking-widest cursor-pointer">
                         <Ban className="w-3 h-3 mr-2" /> {i18n.language === 'ar' ? 'حظر' : 'Ban'}
                       </Button>
                     </div>
@@ -330,25 +330,25 @@ const AdminDashboard = () => {
 
           {activeTab === 'logs' && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-4">
-              <div className="bg-zinc-900/40 border border-white/5 rounded-[2rem] p-8">
-                <h3 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2 mb-8">
-                  <Clock className="w-4 h-4 text-amber-500" /> {i18n.language === 'ar' ? 'سجل الأنشطة الأخير' : 'Recent Activity Logs'}
+              <div className="bg-card border border-border rounded-xl p-8">
+                <h3 className="text-sm font-black text-foreground uppercase tracking-widest flex items-center gap-2 mb-8">
+                  <Clock className="w-4 h-4 text-primary" /> {i18n.language === 'ar' ? 'سجل الأنشطة الأخير' : 'Recent Activity Logs'}
                 </h3>
                 <div className="space-y-3">
                   {logs.map((log) => (
-                    <div key={log.id} className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-white/10 transition-all">
-                      <div className={`mt-1 w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${log.action.includes('BAN') ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500'}`}>
+                    <div key={log.id} className="flex items-start gap-4 p-4 rounded-md bg-secondary border border-border hover:border-border/80 transition-all">
+                      <div className={`mt-1 w-8 h-8 rounded-md flex items-center justify-center shrink-0 ${log.action.includes('BAN') ? 'bg-red-500/10 text-red-500' : 'bg-primary/10 text-primary'}`}>
                         <Activity className="w-4 h-4" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-4 mb-1">
-                          <p className="text-[10px] font-black text-white uppercase tracking-widest truncate">{log.userEmail}</p>
-                          <span className="text-[9px] text-gray-500 whitespace-nowrap">{log.timestamp?.toDate().toLocaleString()}</span>
+                          <p className="text-[10px] font-black text-foreground uppercase tracking-widest truncate">{log.userEmail}</p>
+                          <span className="text-[9px] text-muted-foreground/50 whitespace-nowrap">{log.timestamp?.toDate().toLocaleString()}</span>
                         </div>
-                        <p className="text-[11px] text-gray-400 font-medium">{log.details}</p>
+                        <p className="text-[11px] text-muted-foreground font-medium">{log.details}</p>
                         <div className="mt-2 flex items-center gap-2">
-                          <span className="px-2 py-0.5 rounded-md bg-zinc-800 text-[8px] font-black text-gray-500 uppercase tracking-widest">{log.action}</span>
-                          <span className="px-2 py-0.5 rounded-md bg-zinc-800 text-[8px] font-black text-gray-500 uppercase tracking-widest">{log.platform}</span>
+                          <span className="px-2 py-0.5 rounded-md bg-background border border-border text-[8px] font-black text-muted-foreground/60 uppercase tracking-widest">{log.action}</span>
+                          <span className="px-2 py-0.5 rounded-md bg-background border border-border text-[8px] font-black text-muted-foreground/60 uppercase tracking-widest">{log.platform}</span>
                         </div>
                       </div>
                     </div>
@@ -365,23 +365,23 @@ const AdminDashboard = () => {
                   <Newspaper className="w-6 h-6 text-amber-500" /> {i18n.language === 'ar' ? 'إدارة المنشورات' : 'Manage Posts'}
                 </h3>
               </div>
-              <div className="bg-zinc-900/40 border border-white/5 rounded-[2rem] p-8">
-                <p className="text-gray-400 text-sm mb-8">{i18n.language === 'ar' ? 'استخدم الزر العائم في الأسفل لإضافة منشور جديد.' : 'Use the floating button below to add a new post.'}</p>
+              <div className="bg-card border border-border rounded-xl p-8">
+                <p className="text-muted-foreground text-sm mb-8">{i18n.language === 'ar' ? 'استخدم الزر العائم في الأسفل لإضافة منشور جديد.' : 'Use the floating button below to add a new post.'}</p>
                 <CreatePost onPostCreated={() => toast.success(i18n.language === 'ar' ? 'تم إضافة المنشور بنجاح' : 'Post created successfully')} />
               </div>
               <div className="space-y-4">
                 {posts.length === 0 ? (
-                  <div className="text-center py-12 bg-zinc-900/20 rounded-[2rem] border border-white/5">
-                    <p className="text-gray-500 text-sm">{i18n.language === 'ar' ? 'لا توجد منشورات بعد' : 'No posts yet'}</p>
+                  <div className="text-center py-12 bg-card rounded-xl border border-border">
+                    <p className="text-muted-foreground text-sm">{i18n.language === 'ar' ? 'لا توجد منشورات بعد' : 'No posts yet'}</p>
                   </div>
                 ) : (
                   posts.map((post) => (
-                    <Card key={post.id} className="bg-zinc-900/40 border-white/5 rounded-[2rem] overflow-hidden">
+                    <Card key={post.id} className="bg-card border-border rounded-xl overflow-hidden">
                       <CardContent className="p-6">
                         <div className="flex justify-between items-start mb-4">
                           <div className="flex-1">
-                            <p className="text-white font-bold text-sm mb-2">{post.author}</p>
-                            <p className="text-gray-400 text-xs">{post.createdAt?.toDate ? post.createdAt.toDate().toLocaleDateString() : 'Just now'}</p>
+                            <p className="text-foreground font-bold text-sm mb-2">{post.author}</p>
+                            <p className="text-muted-foreground/60 text-xs">{post.createdAt?.toDate ? post.createdAt.toDate().toLocaleDateString() : 'Just now'}</p>
                           </div>
                           <Button 
                             onClick={async () => {
@@ -395,12 +395,12 @@ const AdminDashboard = () => {
                               }
                             }}
                             variant="ghost"
-                            className="text-red-500 hover:bg-red-500/10 rounded-full w-8 h-8 p-0"
+                            className="text-destructive hover:bg-destructive/10 rounded-md w-8 h-8 p-0"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
-                        <p className="text-gray-300 text-sm mb-4 whitespace-pre-wrap">{post.text}</p>
+                        <p className="text-muted-foreground text-sm mb-4 whitespace-pre-wrap">{post.text}</p>
                         {post.image && (
                           <div className="rounded-xl overflow-hidden">
                             {post.mediaType === 'video' ? (
@@ -426,30 +426,30 @@ const AdminDashboard = () => {
 
           {activeTab === 'settings' && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="max-w-2xl mx-auto space-y-8">
-              <Card className="bg-zinc-900/40 border-white/5 rounded-[2rem] overflow-hidden">
-                <CardHeader className="p-8 border-b border-white/5">
+              <Card className="bg-card border-border rounded-xl overflow-hidden">
+                <CardHeader className="p-8 border-b border-border">
                   <CardTitle className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
-                    <Settings className="w-6 h-6 text-amber-500" /> {i18n.language === 'ar' ? 'إعدادات الظهور' : 'Page Visibility'}
+                    <Settings className="w-6 h-6 text-primary" /> {i18n.language === 'ar' ? 'إعدادات الظهور' : 'Page Visibility'}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-8 space-y-6">
                   {[
-                    { id: 'showAIBot', label: 'AI Trading Bot', icon: Zap, color: 'yellow' },
-                    { id: 'showPipCalculator', label: 'Pip Calculator', icon: Calculator, color: 'blue' }
+                    { id: 'showAIBot', label: 'AI Trading Bot', icon: Zap },
+                    { id: 'showPipCalculator', label: 'Pip Calculator', icon: Calculator }
                   ].map(setting => (
-                    <div key={setting.id} className="flex items-center justify-between p-6 bg-white/5 rounded-2xl border border-white/5 hover:border-white/10 transition-all">
+                    <div key={setting.id} className="flex items-center justify-between p-6 bg-secondary rounded-md border border-border hover:border-primary/20 transition-all">
                       <div className="flex items-center gap-4">
-                        <div className={`w-10 h-10 rounded-xl bg-${setting.color}-500/10 flex items-center justify-center text-${setting.color}-500`}>
+                        <div className="w-10 h-10 rounded-md bg-primary/10 flex items-center justify-center text-primary">
                           <setting.icon className="w-5 h-5" />
                         </div>
                         <div>
                           <h4 className="font-black uppercase tracking-widest text-sm">{setting.label}</h4>
-                          <p className="text-[10px] text-gray-500 mt-1">{i18n.language === 'ar' ? 'التحكم في ظهور الصفحة للمستخدمين' : 'Control page visibility for users'}</p>
+                          <p className="text-[10px] text-muted-foreground/60 mt-1">{i18n.language === 'ar' ? 'التحكم في ظهور الصفحة للمستخدمين' : 'Control page visibility for users'}</p>
                         </div>
                       </div>
                       <button 
                         onClick={() => toggleSetting(setting.id)}
-                        className={`w-16 h-9 rounded-full transition-all duration-300 relative shadow-lg ${siteSettings[setting.id] ? 'bg-amber-500 shadow-amber-500/20' : 'bg-zinc-800/80 shadow-black/20'}`}
+                        className={`w-16 h-9 rounded-full transition-all duration-300 relative shadow-lg cursor-pointer ${siteSettings[setting.id] ? 'bg-primary shadow-primary/20' : 'bg-secondary border border-border shadow-none'}`}
                       >
                         <div className={`absolute top-1 w-7 h-7 rounded-full bg-white shadow-md transition-all duration-300 ${siteSettings[setting.id] ? 'left-8' : 'left-1'}`} />
                       </button>
@@ -477,31 +477,31 @@ const AdminDashboard = () => {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-zinc-900 border border-red-500/20 rounded-[2rem] p-8 max-w-md w-full shadow-2xl shadow-red-500/10"
+              className="bg-card border border-destructive/20 rounded-xl p-8 max-w-md w-full shadow-2xl"
             >
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-black uppercase tracking-tight text-white flex items-center gap-3">
-                  <Ban className="w-6 h-6 text-red-500" />
+                <h3 className="text-xl font-black uppercase tracking-tight text-foreground flex items-center gap-3">
+                  <Ban className="w-6 h-6 text-destructive" />
                   {i18n.language === 'ar' ? 'حظر المستخدم' : 'Ban User'}
                 </h3>
                 <button
                   onClick={() => setIsBanModalOpen(false)}
-                  className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
+                  className="w-8 h-8 rounded-md bg-secondary hover:bg-secondary/80 flex items-center justify-center transition-colors cursor-pointer"
                 >
-                  <X className="w-4 h-4 text-gray-400" />
+                  <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
 
               {selectedUser && (
-                <div className="mb-6 p-4 bg-white/5 rounded-xl border border-white/5">
-                  <p className="text-sm text-gray-400 mb-1">{i18n.language === 'ar' ? 'المستخدم' : 'User'}</p>
-                  <p className="text-white font-bold">{selectedUser.fullName || selectedUser.email}</p>
-                  <p className="text-xs text-gray-500 mt-1">{selectedUser.email}</p>
+                <div className="mb-6 p-4 bg-secondary rounded-md border border-border">
+                  <p className="text-sm text-muted-foreground mb-1">{i18n.language === 'ar' ? 'المستخدم' : 'User'}</p>
+                  <p className="text-foreground font-bold">{selectedUser.fullName || selectedUser.email}</p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">{selectedUser.email}</p>
                 </div>
               )}
 
               <div className="space-y-4 mb-6">
-                <label className="text-sm font-bold text-gray-300 block">
+                <label className="text-sm font-bold text-foreground block">
                   {i18n.language === 'ar' ? 'مدة الحظر' : 'Ban Duration'}
                 </label>
                 <div className="space-y-2">
@@ -514,10 +514,10 @@ const AdminDashboard = () => {
                     <button
                       key={option.value}
                       onClick={() => setBanDuration(option.value)}
-                      className={`w-full p-3 rounded-xl text-sm font-bold transition-all ${
+                      className={`w-full p-3 rounded-md text-sm font-bold transition-all cursor-pointer ${
                         banDuration === option.value
-                          ? 'bg-red-500 text-black'
-                          : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                          ? 'bg-destructive text-white'
+                          : 'bg-secondary text-foreground hover:bg-secondary/60'
                       }`}
                     >
                       {option.label}
@@ -529,13 +529,13 @@ const AdminDashboard = () => {
               <div className="flex gap-3">
                 <Button
                   onClick={() => setIsBanModalOpen(false)}
-                  className="flex-1 bg-white/5 hover:bg-white/10 text-white border-0 h-12 rounded-xl font-black uppercase tracking-widest"
+                  className="flex-1 bg-secondary hover:bg-secondary/60 text-foreground border-0 h-12 rounded-md font-black uppercase tracking-widest cursor-pointer"
                 >
                   {i18n.language === 'ar' ? 'إلغاء' : 'Cancel'}
                 </Button>
                 <Button
                   onClick={handleBanUser}
-                  className="flex-1 bg-red-500 hover:bg-red-600 text-black border-0 h-12 rounded-xl font-black uppercase tracking-widest"
+                  className="flex-1 bg-destructive hover:brightness-90 text-white border-0 h-12 rounded-md font-black uppercase tracking-widest cursor-pointer"
                 >
                   <Ban className="w-4 h-4 mr-2" />
                   {i18n.language === 'ar' ? 'حظر' : 'Ban'}
