@@ -59,6 +59,10 @@ const AdminDashboard = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isBanModalOpen, setIsBanModalOpen] = useState(false);
   const [banDuration, setBanDuration] = useState('permanent');
+  const [banReason, setBanReason] = useState('');
+  const [isWarnModalOpen, setIsWarnModalOpen] = useState(false);
+  const [warnTarget, setWarnTarget] = useState(null);
+  const [warnMessage, setWarnMessage] = useState('');
   const [platformSettings, setPlatformSettings] = useState({
     pages: {},
     features: {},
@@ -207,16 +211,27 @@ const AdminDashboard = () => {
   const handleBanUser = async () => {
     if (!selectedUser) return;
     try {
+      // Calculate banUntil date based on selected duration
+      let banUntil = null;
+      const now = new Date();
+      if (banDuration === '1day') banUntil = new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString();
+      else if (banDuration === '7days') banUntil = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      else if (banDuration === '30days') banUntil = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
       const banData = {
         isBanned: true,
-        banType: banDuration,
+        banDuration: banDuration,
+        banReason: banReason.trim() || (i18n.language === 'ar' ? 'انتهاك قواعد المجتمع' : 'Violation of community guidelines'),
+        banUntil: banUntil,
         bannedAt: new Date().toISOString()
       };
       await updateDoc(doc(db, 'users', selectedUser.id), banData);
-      await logAdminAction('BAN_USER', `Admin banned user ${selectedUser.email} (${banDuration})`);
+      await logAdminAction('BAN_USER', `Admin banned user ${selectedUser.email} (${banDuration}): ${banData.banReason}`);
       setIsBanModalOpen(false);
       setSelectedUser(null);
-      toast.success('User banned');
+      setBanReason('');
+      setBanDuration('permanent');
+      toast.success(i18n.language === 'ar' ? 'تم حظر المستخدم' : 'User banned');
     } catch (error) {
       toast.error('Error banning user');
     }
@@ -226,7 +241,11 @@ const AdminDashboard = () => {
     if (!user) return;
     try {
       await updateDoc(doc(db, 'users', user.id), {
-        isBanned: false
+        isBanned: false,
+        banDuration: null,
+        banReason: null,
+        banUntil: null,
+        unbannedAt: new Date().toISOString()
       });
       await logAdminAction('UNBAN_USER', `Admin unbanned user ${user.email}`);
       toast.success(i18n.language === 'ar' ? 'تم إلغاء حظر المستخدم' : 'User unbanned');
@@ -235,17 +254,24 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleWarnUser = async (user) => {
-    const warningMessage = prompt(i18n.language === 'ar' ? 'أدخل رسالة التحذير:' : 'Enter warning message:');
-    if (!warningMessage) return;
+  const handleOpenWarnModal = (user) => {
+    setWarnTarget(user);
+    setWarnMessage('');
+    setIsWarnModalOpen(true);
+  };
 
+  const handleWarnUser = async () => {
+    if (!warnTarget || !warnMessage.trim()) return;
     try {
-      await updateDoc(doc(db, 'users', user.id), {
-        warning: warningMessage,
+      await updateDoc(doc(db, 'users', warnTarget.id), {
+        warning: warnMessage.trim(),
         warningRead: false,
         warnedAt: serverTimestamp()
       });
-      await logAdminAction('WARN_USER', `Admin warned user ${user.email}: ${warningMessage}`);
+      await logAdminAction('WARN_USER', `Admin warned user ${warnTarget.email}: ${warnMessage.trim()}`);
+      setIsWarnModalOpen(false);
+      setWarnTarget(null);
+      setWarnMessage('');
       toast.success(i18n.language === 'ar' ? 'تم إرسال التحذير' : 'Warning sent');
     } catch (error) {
       toast.error('Error sending warning');
@@ -380,7 +406,7 @@ const AdminDashboard = () => {
                           : (i18n.language === 'ar' ? 'منح صلاحية الكتاب' : 'Grant Book Access')}
                       </Button>
                       <Button 
-                        onClick={() => handleWarnUser(user)}
+                        onClick={() => handleOpenWarnModal(user)}
                         className="bg-secondary hover:bg-primary/10 text-primary border border-primary/20 h-10 px-4 rounded-md text-[10px] font-black uppercase tracking-widest cursor-pointer"
                       >
                         <AlertCircle className="w-3 h-3 mr-2" /> {i18n.language === 'ar' ? 'تحذير' : 'Warn'}
@@ -676,6 +702,15 @@ const AdminDashboard = () => {
 
               <div className="space-y-4 mb-6">
                 <label className="text-sm font-bold text-foreground block">
+                  {i18n.language === 'ar' ? 'سبب الحظر' : 'Ban Reason'}
+                </label>
+                <Input
+                  placeholder={i18n.language === 'ar' ? 'اكتب سبب الحظر (اختياري)...' : 'Enter ban reason (optional)...'}
+                  value={banReason}
+                  onChange={(e) => setBanReason(e.target.value)}
+                  className="bg-secondary border-border h-11 rounded-md text-sm"
+                />
+                <label className="text-sm font-bold text-foreground block">
                   {i18n.language === 'ar' ? 'مدة الحظر' : 'Ban Duration'}
                 </label>
                 <div className="space-y-2">
@@ -713,6 +748,76 @@ const AdminDashboard = () => {
                 >
                   <Ban className="w-4 h-4 mr-2" />
                   {i18n.language === 'ar' ? 'حظر' : 'Ban'}
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Warn Modal */}
+      <AnimatePresence>
+        {isWarnModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setIsWarnModalOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-card border border-amber-500/20 rounded-xl p-8 max-w-md w-full shadow-2xl"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-black uppercase tracking-tight text-foreground flex items-center gap-3">
+                  <AlertCircle className="w-6 h-6 text-amber-500" />
+                  {i18n.language === 'ar' ? 'إرسال تحذير' : 'Send Warning'}
+                </h3>
+                <button
+                  onClick={() => setIsWarnModalOpen(false)}
+                  className="w-8 h-8 rounded-md bg-secondary hover:bg-secondary/80 flex items-center justify-center transition-colors cursor-pointer"
+                  aria-label="Close"
+                >
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+              {warnTarget && (
+                <div className="mb-4 p-4 bg-secondary rounded-md border border-border">
+                  <p className="text-sm text-muted-foreground mb-1">{i18n.language === 'ar' ? 'المستخدم' : 'User'}</p>
+                  <p className="text-foreground font-bold">{warnTarget.fullName || warnTarget.email}</p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">{warnTarget.email}</p>
+                </div>
+              )}
+              <div className="mb-6">
+                <label className="text-sm font-bold text-foreground block mb-2">
+                  {i18n.language === 'ar' ? 'رسالة التحذير' : 'Warning Message'}
+                </label>
+                <textarea
+                  value={warnMessage}
+                  onChange={(e) => setWarnMessage(e.target.value)}
+                  placeholder={i18n.language === 'ar' ? 'اكتب رسالة التحذير...' : 'Enter warning message...'}
+                  rows={4}
+                  className="w-full bg-secondary border border-border rounded-md p-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-amber-500/50 resize-none"
+                />
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => setIsWarnModalOpen(false)}
+                  className="flex-1 bg-secondary hover:bg-secondary/60 text-foreground border-0 h-12 rounded-md font-black uppercase tracking-widest cursor-pointer"
+                >
+                  {i18n.language === 'ar' ? 'إلغاء' : 'Cancel'}
+                </Button>
+                <Button
+                  onClick={handleWarnUser}
+                  disabled={!warnMessage.trim()}
+                  className="flex-1 bg-amber-500 hover:brightness-90 text-black border-0 h-12 rounded-md font-black uppercase tracking-widest cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <AlertCircle className="w-4 h-4 mr-2" />
+                  {i18n.language === 'ar' ? 'إرسال التحذير' : 'Send Warning'}
                 </Button>
               </div>
             </motion.div>

@@ -92,10 +92,10 @@ const Footer = () => {
             <Link to="/privacy" className="text-muted-foreground/85 hover:text-primary transition-colors text-xs font-semibold uppercase tracking-wider">
               {t('footer.privacy')}
             </Link>
-            <a href="#" className="text-muted-foreground/85 hover:text-primary transition-colors text-xs font-semibold uppercase tracking-wider">
+            <Link to="/privacy" className="text-muted-foreground/85 hover:text-primary transition-colors text-xs font-semibold uppercase tracking-wider">
               {t('footer.terms')}
-            </a>
-            <a href="#" className="text-muted-foreground/85 hover:text-primary transition-colors text-xs font-semibold uppercase tracking-wider">
+            </Link>
+            <a href="https://t.me/ahmed_trader_123" target="_blank" rel="noopener noreferrer" className="text-muted-foreground/85 hover:text-primary transition-colors text-xs font-semibold uppercase tracking-wider">
               {t('footer.contact')}
             </a>
           </div>

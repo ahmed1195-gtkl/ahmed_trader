@@ -55,6 +55,12 @@
 ### Task 8: Production Release Audit
 - Audited the codebase to align with UX, Translation, SEO, Security, Accessibility, and Performance parameters.
 - Fixed a missing user-management workflow by implementing an **Unban** option for banned users inside `AdminDashboard.jsx`.
+- Fixed a critical ban duration display bug in `AdminDashboard.jsx` (mismatch between `banType` in Firestore and `banDuration` in React frontend code).
+- Added a **Ban Reason** input field to the ban modal to let admins explain the suspension reason (shown on the banned screen).
+- Replaced the browser native dialog `prompt()` with a premium, accessible modal for sending warnings to users in `AdminDashboard.jsx`.
+- Corrected the favicon file naming from `favicon.ic` to `favicon.ico` in `/public` and updated `index.html` to reference both the SVG and ICO formats for maximum compatibility.
+- Cleaned up two dead links (`href="#"`) in `Footer.jsx` — Terms now links to `/privacy` and Contact opens the official Telegram channel link.
+- Removed the redundant backup file `CourseRegistration.backup.jsx` from `src/components/` to keep the production code clean.
 - Validated Vite builds to ensure complete compatibility.
 
 ---
