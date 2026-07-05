@@ -222,6 +222,19 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleUnbanUser = async (user) => {
+    if (!user) return;
+    try {
+      await updateDoc(doc(db, 'users', user.id), {
+        isBanned: false
+      });
+      await logAdminAction('UNBAN_USER', `Admin unbanned user ${user.email}`);
+      toast.success(i18n.language === 'ar' ? 'تم إلغاء حظر المستخدم' : 'User unbanned');
+    } catch (error) {
+      toast.error('Error unbanning user');
+    }
+  };
+
   const handleWarnUser = async (user) => {
     const warningMessage = prompt(i18n.language === 'ar' ? 'أدخل رسالة التحذير:' : 'Enter warning message:');
     if (!warningMessage) return;
@@ -372,9 +385,15 @@ const AdminDashboard = () => {
                       >
                         <AlertCircle className="w-3 h-3 mr-2" /> {i18n.language === 'ar' ? 'تحذير' : 'Warn'}
                       </Button>
-                      <Button onClick={() => { setSelectedUser(user); setIsBanModalOpen(true); }} className="bg-destructive/10 hover:bg-destructive text-destructive hover:text-white border border-destructive/20 h-10 px-4 rounded-md text-[10px] font-black uppercase tracking-widest cursor-pointer">
-                        <Ban className="w-3 h-3 mr-2" /> {i18n.language === 'ar' ? 'حظر' : 'Ban'}
-                      </Button>
+                      {user.isBanned ? (
+                        <Button onClick={() => handleUnbanUser(user)} className="bg-green-500/10 hover:bg-green-500 text-green-500 hover:text-black border border-green-500/20 h-10 px-4 rounded-md text-[10px] font-black uppercase tracking-widest cursor-pointer">
+                          <UserCheck className="w-3 h-3 mr-2" /> {i18n.language === 'ar' ? 'فك الحظر' : 'Unban'}
+                        </Button>
+                      ) : (
+                        <Button onClick={() => { setSelectedUser(user); setIsBanModalOpen(true); }} className="bg-destructive/10 hover:bg-destructive text-destructive hover:text-white border border-destructive/20 h-10 px-4 rounded-md text-[10px] font-black uppercase tracking-widest cursor-pointer">
+                          <Ban className="w-3 h-3 mr-2" /> {i18n.language === 'ar' ? 'حظر' : 'Ban'}
+                        </Button>
+                      )}
                     </div>
                   </div>
                 ))}
