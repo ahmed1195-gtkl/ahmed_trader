@@ -254,13 +254,18 @@ const Header = () => {
               onClick={toggleTheme}
               className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-md bg-secondary border border-border text-foreground hover:bg-muted transition-all"
               title={theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+              aria-label={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
             >
               {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
             </button>
 
             {/* Language Switcher */}
             <div className="relative">
-              <button onClick={toggleLang} className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-md bg-secondary border border-border text-foreground hover:bg-muted transition-all">
+              <button 
+                onClick={toggleLang} 
+                aria-label="Switch Language"
+                className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-md bg-secondary border border-border text-foreground hover:bg-muted transition-all"
+              >
                 <Globe className="w-4 h-4" />
               </button>
               <AnimatePresence>
@@ -288,11 +293,16 @@ const Header = () => {
                 <button 
                   onClick={() => navigate('/settings')} 
                   onMouseEnter={() => prefetchRoute('/settings')}
+                  aria-label="Profile Settings"
                   className="w-9 h-9 md:w-10 md:h-10 rounded-md bg-primary/10 border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition-all"
                 >
                   <User className="w-4 h-4" />
                 </button>
-                <button onClick={() => signOut(auth)} className="hidden md:flex w-10 h-10 rounded-md bg-destructive/10 border border-destructive/20 items-center justify-center text-destructive hover:bg-destructive hover:text-white transition-all">
+                <button 
+                  onClick={() => signOut(auth)} 
+                  aria-label="Sign Out"
+                  className="hidden md:flex w-10 h-10 rounded-md bg-destructive/10 border border-destructive/20 items-center justify-center text-destructive hover:bg-destructive hover:text-white transition-all"
+                >
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>

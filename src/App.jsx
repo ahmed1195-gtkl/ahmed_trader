@@ -9,7 +9,6 @@ import { AlertTriangle, Lock, LogOut } from 'lucide-react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Benefits from './components/Benefits';
-import Coach from './components/Coach';
 import Brokers from './components/Brokers';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -18,9 +17,11 @@ import Feed from './components/Feed';
 import ChatWidget from './components/ChatWidget';
 import CookieConsent from './components/CookieConsent';
 import { FeedSkeleton, DashboardSkeleton, ChatSkeleton, BooksSkeleton, ProfileSkeleton } from './components/ui/PageSkeletons';
+import { PlatformProvider, usePlatform } from './context/PlatformContext';
+import ComingSoonPage from './components/ui/ComingSoonPage';
 import './App.css';
 
-// Lazy loading high-performance wrapper
+// ─── Lazy loading high-performance wrapper ───────────────────────────────────
 const withSuspense = (Component, Fallback) => {
   const WrappedComponent = (props) => (
     <Suspense fallback={<Fallback />}>
@@ -64,7 +65,13 @@ const LazyBooksPage = withSuspense(lazy(() => import('./components/BooksPage')),
 const LazyBookDetail = withSuspense(lazy(() => import('./components/BookDetail')), BooksSkeleton);
 const LazyImmersiveBookReader = withSuspense(lazy(() => import('./components/ImmersiveBookReader')), BooksSkeleton);
 
+// ─── Helper: render page or ComingSoon ─────────────────────────────────────
+function PageGuard({ enabled, children }) {
+  if (enabled === false) return <ComingSoonPage />;
+  return children;
+}
 
+// ─── Homepage layout (Coach section removed) ────────────────────────────────
 function MainLayout() {
   return (
     <>
@@ -78,13 +85,13 @@ function MainLayout() {
           <Feed />
         </div>
         <Benefits />
-        <Coach />
       </main>
       <Footer />
     </>
   );
 }
 
+// ─── Loading screen ─────────────────────────────────────────────────────────
 function LoadingScreen() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background">
@@ -111,6 +118,7 @@ function LoadingScreen() {
   );
 }
 
+// ─── Banned screen ──────────────────────────────────────────────────────────
 function BannedScreen({ banData }) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6 text-center">
@@ -144,7 +152,7 @@ function BannedScreen({ banData }) {
           onClick={() => signOut(auth)}
           className="flex items-center justify-center gap-2 w-full py-4 rounded-md bg-destructive/10 border border-destructive/20 text-destructive font-black text-sm uppercase tracking-widest hover:bg-destructive hover:text-white transition-all mb-6 cursor-pointer"
         >
-          <LogOut className="w-5 h-5" /> Logout & Switch Account
+          <LogOut className="w-5 h-5" /> Logout &amp; Switch Account
         </button>
 
         <p className="text-xs text-muted-foreground/60 leading-relaxed">
@@ -155,6 +163,168 @@ function BannedScreen({ banData }) {
   );
 }
 
+// ─── Authenticated routes with platform context ──────────────────────────────
+function AuthenticatedRoutes({ user, userData, onboardingCompleted, isAdmin, hasDemoAccount }) {
+  const { pages, features, maintenance } = usePlatform();
+
+  return (
+    <Routes>
+      <Route path="/" element={<MainLayout />} />
+      <Route path="/auth" element={<Navigate to={onboardingCompleted ? "/" : "/onboarding"} />} />
+      <Route path="/onboarding" element={onboardingCompleted ? <Navigate to="/" /> : <LazyOnboarding />} />
+      <Route path="/setup-account" element={<LazyOnboardingFlow />} />
+      <Route path="/settings" element={<LazySettings />} />
+      <Route path="/reset-password" element={<LazyResetPassword />} />
+      <Route path="/privacy" element={<LazyPrivacyPolicy />} />
+
+      {/* News */}
+      <Route path="/news" element={
+        <PageGuard enabled={pages.news}>
+          <LazyNewsPage />
+        </PageGuard>
+      } />
+      <Route path="/global-news" element={
+        <PageGuard enabled={pages.news}>
+          <LazyGlobalNews />
+        </PageGuard>
+      } />
+
+      {/* Academy */}
+      <Route path="/academy" element={
+        <PageGuard enabled={pages.academy}>
+          <LazyAcademy />
+        </PageGuard>
+      } />
+      <Route path="/academy/:schoolId" element={
+        <PageGuard enabled={pages.academy}>
+          <LazySchoolPage />
+        </PageGuard>
+      } />
+      <Route path="/academy/:schoolId/lesson/:lessonId" element={
+        <PageGuard enabled={pages.academy}>
+          <LazyLessonPage />
+        </PageGuard>
+      } />
+
+      {/* Books */}
+      <Route path="/books" element={
+        <PageGuard enabled={pages.books}>
+          <LazyBooksPage />
+        </PageGuard>
+      } />
+      <Route path="/books/:bookId" element={
+        <PageGuard enabled={pages.books}>
+          <LazyBookDetail />
+        </PageGuard>
+      } />
+      <Route path="/books/:bookId/read" element={
+        <PageGuard enabled={pages.books}>
+          <LazyImmersiveBookReader />
+        </PageGuard>
+      } />
+
+      {/* Courses */}
+      <Route path="/courses" element={
+        <PageGuard enabled={pages.courses}>
+          <LazyCourses />
+        </PageGuard>
+      } />
+      <Route path="/course/:courseId" element={
+        <PageGuard enabled={pages.courses}>
+          <LazyCourseEnrollment />
+        </PageGuard>
+      } />
+      <Route path="/course-registration" element={<LazyCourseRegistration />} />
+
+      {/* Challenges */}
+      <Route path="/challenges" element={
+        <PageGuard enabled={pages.challenges}>
+          <ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}>
+            <LazyTradingChallengeTest />
+          </ProtectedRoute>
+        </PageGuard>
+      } />
+      <Route path="/challenge/:participantId" element={
+        <PageGuard enabled={pages.challenges}>
+          <ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}>
+            <LazyChallengeDashboard />
+          </ProtectedRoute>
+        </PageGuard>
+      } />
+
+      {/* Messages */}
+      <Route path="/messages" element={
+        <PageGuard enabled={pages.messages}>
+          <LazyMessages />
+        </PageGuard>
+      } />
+
+      {/* Community / Friends */}
+      <Route path="/friends" element={
+        <PageGuard enabled={pages.friends}>
+          <LazyFriends />
+        </PageGuard>
+      } />
+
+      {/* AI Bot */}
+      <Route path="/ai-bot" element={
+        <PageGuard enabled={pages.aiBot}>
+          <ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}>
+            <LazyAITradingBot />
+          </ProtectedRoute>
+        </PageGuard>
+      } />
+
+      {/* Pip Calculator */}
+      <Route path="/pip-calculator" element={
+        <PageGuard enabled={pages.pipCalculator}>
+          <LazyPipCalculator />
+        </PageGuard>
+      } />
+
+      {/* Market Intelligence */}
+      <Route path="/market-intelligence" element={
+        <PageGuard enabled={pages.marketIntelligence}>
+          <LazyMarketIntelligence />
+        </PageGuard>
+      } />
+
+      {/* Global Leaderboard */}
+      <Route path="/global-leaderboard" element={
+        <PageGuard enabled={pages.globalLeaderboard}>
+          <LazyGlobalLeaderboard />
+        </PageGuard>
+      } />
+
+      {/* Brokers */}
+      <Route path="/brokers" element={
+        <PageGuard enabled={pages.brokers}>
+          <LazyBrokersPage />
+        </PageGuard>
+      } />
+
+      {/* Sheets Guide */}
+      <Route path="/sheets-guide" element={
+        <PageGuard enabled={pages.sheetsGuide}>
+          <LazySheetsGuide />
+        </PageGuard>
+      } />
+
+      {/* User profile + join team (always available) */}
+      <Route path="/profile/:userId" element={<LazyUserProfile />} />
+      <Route path="/join-team/:inviteCode" element={<LazyJoinTeam />} />
+
+      {/* Admin routes */}
+      <Route path="/admin" element={isAdmin ? <LazyAdminDashboard /> : <Navigate to="/" />} />
+      <Route path="/admin/courses" element={isAdmin ? <LazyCoursesAdmin /> : <Navigate to="/" />} />
+      <Route path="/admin/challenges" element={isAdmin ? <LazyChallengeAdmin /> : <Navigate to="/" />} />
+
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
+  );
+}
+
+// ─── Root App ────────────────────────────────────────────────────────────────
 function App() {
   const { i18n } = useTranslation();
   const [user, setUser] = useState(null);
@@ -163,17 +333,6 @@ function App() {
   const [onboardingCompleted, setOnboardingCompleted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [hasDemoAccount, setHasDemoAccount] = useState(false);
-  const [siteSettings, setSiteSettings] = useState({ showAIBot: true, showPipCalculator: true });
-
-  useEffect(() => {
-    const settingsRef = collection(db, 'site_settings');
-    const unsubscribeSettings = onSnapshot(settingsRef, (snapshot) => {
-      if (!snapshot.empty) {
-        setSiteSettings(snapshot.docs[0].data());
-      }
-    });
-    return () => unsubscribeSettings();
-  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -225,60 +384,31 @@ function App() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <Router>
-          <div className="min-h-screen relative bg-black">
-            <div className="relative z-10">
-              <Routes>
+        <PlatformProvider>
+          <Router>
+            <div className="min-h-screen relative bg-background">
+              <div className="relative z-10">
                 {!user ? (
-                  <>
+                  <Routes>
                     <Route path="/auth" element={<LazyAuth />} />
                     <Route path="/reset-password" element={<LazyResetPassword />} />
                     <Route path="*" element={<Navigate to="/auth" replace />} />
-                  </>
+                  </Routes>
                 ) : (
-                  <>
-                    <Route path="/" element={<MainLayout />} />
-                    <Route path="/auth" element={<Navigate to={onboardingCompleted ? "/" : "/onboarding"} />} />
-                    <Route path="/onboarding" element={onboardingCompleted ? <Navigate to="/" /> : <LazyOnboarding />} />
-                    <Route path="/setup-account" element={<LazyOnboardingFlow />} />
-                    <Route path="/settings" element={<LazySettings />} />
-                    <Route path="/news" element={<LazyNewsPage />} />
-                    <Route path="/global-news" element={<LazyGlobalNews />} />
-                    <Route path="/courses" element={<LazyCourses />} />
-                    <Route path="/course/:courseId" element={<LazyCourseEnrollment />} />
-                    <Route path="/admin/courses" element={isAdmin ? <LazyCoursesAdmin /> : <Navigate to="/" />} />
-                    <Route path="/course-registration" element={<LazyCourseRegistration />} />
-                    <Route path="/brokers" element={<LazyBrokersPage />} />
-                    <Route path="/admin" element={isAdmin ? <LazyAdminDashboard /> : <Navigate to="/" />} />
-                    <Route path="/reset-password" element={<LazyResetPassword />} />
-                    <Route path="/privacy" element={<LazyPrivacyPolicy />} />
-                    <Route path="/ai-bot" element={siteSettings.showAIBot ? <ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}><LazyAITradingBot /></ProtectedRoute> : <Navigate to="/" />} />
-                    <Route path="/pip-calculator" element={siteSettings.showPipCalculator ? <LazyPipCalculator /> : <Navigate to="/" />} />
-                    <Route path="/messages" element={<LazyMessages />} />
-                    <Route path="/profile/:userId" element={<LazyUserProfile />} />
-                    <Route path="/friends" element={<LazyFriends />} />
-                    <Route path="/challenges" element={<ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}><LazyTradingChallengeTest /></ProtectedRoute>} />
-                    <Route path="/challenge/:participantId" element={<ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}><LazyChallengeDashboard /></ProtectedRoute>} />
-                    <Route path="/admin/challenges" element={isAdmin ? <LazyChallengeAdmin /> : <Navigate to="/" />} />
-                    <Route path="/global-leaderboard" element={<LazyGlobalLeaderboard />} />
-                    <Route path="/join-team/:inviteCode" element={<LazyJoinTeam />} />
-                    <Route path="/sheets-guide" element={<LazySheetsGuide />} />
-                    <Route path="/market-intelligence" element={<LazyMarketIntelligence />} />
-                    <Route path="/academy" element={<LazyAcademy />} />
-                    <Route path="/academy/:schoolId" element={<LazySchoolPage />} />
-                    <Route path="/academy/:schoolId/lesson/:lessonId" element={<LazyLessonPage />} />
-                    <Route path="/books" element={<LazyBooksPage />} />
-                    <Route path="/books/:bookId" element={<LazyBookDetail />} />
-                    <Route path="/books/:bookId/read" element={<LazyImmersiveBookReader />} />
-                    <Route path="*" element={<Navigate to="/" />} />
-                  </>
+                  <AuthenticatedRoutes
+                    user={user}
+                    userData={userData}
+                    onboardingCompleted={onboardingCompleted}
+                    isAdmin={isAdmin}
+                    hasDemoAccount={hasDemoAccount}
+                  />
                 )}
-              </Routes>
+              </div>
+              {user && <ChatWidget />}
+              <CookieConsent />
             </div>
-            {user && <ChatWidget />}
-            <CookieConsent />
-          </div>
-        </Router>
+          </Router>
+        </PlatformProvider>
       </motion.div>
     </AnimatePresence>
   );

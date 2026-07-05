@@ -7,12 +7,22 @@ import { auth } from '../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Bot, BarChart3, Newspaper, GraduationCap, Shield, TrendingUp } from 'lucide-react';
 import shukritradeLogo from '../assets/shukritrade_logo.svg';
+import { useSEO } from '../hooks/useSEO';
 
 const Hero = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const isAr = i18n.language === 'ar';
+
+  useSEO({
+    title: isAr ? 'منصة التداول والتعليم الذكي' : 'Smart Trading & Education Platform',
+    description: isAr 
+      ? 'تعلم الفوركس والعملات الرقمية، بوت التداول الذكي، التوصيات والتحليلات مجاناً مع Shukritrade.'
+      : 'Master the Forex & Crypto markets with AI-driven insights, real-time market news, professional courses, and live trading challenges.',
+    canonicalPath: '/',
+    ogType: 'website'
+  });
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {

@@ -12,6 +12,7 @@ import PaymentModal from './PaymentModal';
 import { useBookAccess } from '../hooks/useBookAccess';
 import { db } from '../lib/firebase';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { useSEO } from '../hooks/useSEO';
 
 const BOOKS = [
   {
@@ -51,6 +52,37 @@ const BooksPage = () => {
   const [hoveredBook, setHoveredBook] = useState(null);
   const [paymentBook, setPaymentBook] = useState(null);
   const isAr = i18n.language === 'ar';
+
+  const bookSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Book',
+    'name': isAr ? 'التداول الرصين' : 'Sober Trading',
+    'author': {
+      '@type': 'Organization',
+      'name': 'Shukritrade'
+    },
+    'bookFormat': 'https://schema.org/EBook',
+    'description': isAr 
+      ? 'دليل شامل يكشف حقيقة الأسواق المالية بعيداً عن الأوهام — سيكولوجية الخوف والطمع، إدارة رأس المال، بناء الأفضلية الحقيقية.'
+      : 'A comprehensive guide that reveals the truth about financial markets — fear and greed psychology, capital management, building a real edge.',
+    'image': 'https://shukritrade.com/book_cover.png',
+    'offers': {
+      '@type': 'Offer',
+      'price': '11.99',
+      'priceCurrency': 'USD',
+      'availability': 'https://schema.org/InStock'
+    }
+  };
+
+  useSEO({
+    title: isAr ? 'كتب التداول والتعليم' : 'Trading Books & Guides',
+    description: isAr 
+      ? 'اكتشف كتاب التداول الرصين والكتب التعليمية الحصرية على منصة Shukritrade.'
+      : 'Discover Sober Trading and other premium educational books and guides on Shukritrade.',
+    canonicalPath: '/books',
+    ogType: 'book',
+    schemaData: bookSchema
+  });
 
   const { hasAccess } = useBookAccess();
   const [bookStats, setBookStats] = useState({ rating: 4.8, reviews: 342, purchases: 1540 });

@@ -59,6 +59,11 @@ const AdminDashboard = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isBanModalOpen, setIsBanModalOpen] = useState(false);
   const [banDuration, setBanDuration] = useState('permanent');
+  const [platformSettings, setPlatformSettings] = useState({
+    pages: {},
+    features: {},
+    maintenance: false
+  });
 
   useEffect(() => {
     // جلب المستخدمين
@@ -100,11 +105,19 @@ const AdminDashboard = () => {
       }
     });
 
+    // جلب إعدادات المنصة
+    const unsubscribePlatform = onSnapshot(doc(db, 'platformSettings', 'main'), (docSnap) => {
+      if (docSnap.exists()) {
+        setPlatformSettings(docSnap.data());
+      }
+    });
+
     return () => {
       unsubscribeUsers();
       unsubscribePosts();
       unsubscribeLogs();
       unsubscribeSettings();
+      unsubscribePlatform();
     };
   }, []);
 
@@ -148,6 +161,46 @@ const AdminDashboard = () => {
       // إرجاع التغيير في حالة الفشل
       setSiteSettings(prev => ({ ...prev, [setting]: !newValue }));
       toast.error(i18n.language === 'ar' ? 'فشل التحديث' : 'Error updating settings');
+    }
+  };
+
+  const togglePlatformPage = async (pageKey) => {
+    const currentVal = platformSettings.pages?.[pageKey] !== false; // default true
+    const newVal = !currentVal;
+    const updatedPages = { ...platformSettings.pages, [pageKey]: newVal };
+    try {
+      await setDoc(doc(db, 'platformSettings', 'main'), { pages: updatedPages }, { merge: true });
+      await logAdminAction('TOGGLE_PAGE_AVAILABILITY', `Admin changed page ${pageKey} availability to ${newVal}`);
+      toast.success(i18n.language === 'ar' ? 'تم تحديث الصفحة' : 'Page availability updated');
+    } catch (err) {
+      console.error(err);
+      toast.error('Error updating platform setting');
+    }
+  };
+
+  const togglePlatformFeature = async (featureKey) => {
+    const currentVal = platformSettings.features?.[featureKey] !== false; // default true
+    const newVal = !currentVal;
+    const updatedFeatures = { ...platformSettings.features, [featureKey]: newVal };
+    try {
+      await setDoc(doc(db, 'platformSettings', 'main'), { features: updatedFeatures }, { merge: true });
+      await logAdminAction('TOGGLE_FEATURE_SWITCH', `Admin changed feature ${featureKey} switch to ${newVal}`);
+      toast.success(i18n.language === 'ar' ? 'تم تحديث الميزة' : 'Feature switch updated');
+    } catch (err) {
+      console.error(err);
+      toast.error('Error updating platform setting');
+    }
+  };
+
+  const togglePlatformMaintenance = async () => {
+    const newVal = !platformSettings.maintenance;
+    try {
+      await setDoc(doc(db, 'platformSettings', 'main'), { maintenance: newVal }, { merge: true });
+      await logAdminAction('TOGGLE_MAINTENANCE', `Admin changed maintenance mode to ${newVal}`);
+      toast.success(i18n.language === 'ar' ? 'تم تحديث حالة الصيانة' : 'Maintenance mode updated');
+    } catch (err) {
+      console.error(err);
+      toast.error('Error updating maintenance mode');
     }
   };
 
@@ -237,6 +290,7 @@ const AdminDashboard = () => {
               { id: 'posts', icon: Newspaper, label: i18n.language === 'ar' ? 'المنشورات' : 'Posts' },
               { id: 'courses', icon: GraduationCap, label: i18n.language === 'ar' ? 'الكورسات' : 'Courses' },
               { id: 'logs', icon: History, label: i18n.language === 'ar' ? 'السجلات' : 'Logs' },
+              { id: 'platform', icon: ShieldAlert, label: i18n.language === 'ar' ? 'أدوات التحكم' : 'Platform Controls' },
               { id: 'settings', icon: Settings, label: i18n.language === 'ar' ? 'الإعدادات' : 'Settings' }
             ].map(tab => (
               <button 
@@ -421,6 +475,107 @@ const AdminDashboard = () => {
                   ))
                 )}
               </div>
+            </motion.div>
+          )}
+
+          {activeTab === 'platform' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-8 max-w-4xl mx-auto">
+              {/* Pages Grid */}
+              <Card className="bg-card border-border rounded-xl overflow-hidden">
+                <CardHeader className="p-8 border-b border-border">
+                  <CardTitle className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
+                    <ShieldAlert className="w-6 h-6 text-primary" /> {t('admin.platformControls')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-8 space-y-8">
+                  {/* Maintenance Mode */}
+                  <div className="flex items-center justify-between p-6 bg-secondary rounded-md border border-border">
+                    <div>
+                      <h4 className="font-black uppercase tracking-widest text-sm text-destructive">{t('admin.maintenance')}</h4>
+                      <p className="text-[10px] text-muted-foreground/60 mt-1">Enable Maintenance/Coming Soon Banner Globally</p>
+                    </div>
+                    <button 
+                      onClick={togglePlatformMaintenance}
+                      aria-checked={platformSettings.maintenance === true}
+                      role="switch"
+                      className={`w-16 h-9 rounded-full transition-all duration-300 relative shadow-lg cursor-pointer ${platformSettings.maintenance === true ? 'bg-destructive shadow-destructive/20' : 'bg-secondary border border-border shadow-none'}`}
+                    >
+                      <div className={`absolute top-1 w-7 h-7 rounded-full bg-white shadow-md transition-all duration-300 ${platformSettings.maintenance === true ? 'left-8' : 'left-1'}`} />
+                    </button>
+                  </div>
+
+                  {/* Section Label */}
+                  <div>
+                    <h3 className="text-xs font-black uppercase tracking-[0.25em] text-primary mb-4">{t('admin.pages')}</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {[
+                        { key: 'academy', label: 'Academy', icon: GraduationCap },
+                        { key: 'books', label: 'Books', icon: BookOpen },
+                        { key: 'news', label: 'News', icon: Newspaper },
+                        { key: 'courses', label: 'Free Course', icon: GraduationCap },
+                        { key: 'challenges', label: 'Challenges', icon: Crown },
+                        { key: 'messages', label: 'Messages / Contact', icon: ShieldAlert },
+                        { key: 'aiBot', label: 'AI Bot', icon: Zap },
+                        { key: 'pipCalculator', label: 'Pip Calculator', icon: Calculator },
+                        { key: 'marketIntelligence', label: 'Market Intelligence', icon: Zap },
+                        { key: 'globalLeaderboard', label: 'Global Leaderboard', icon: Crown },
+                        { key: 'brokers', label: 'Brokers', icon: Users },
+                        { key: 'sheetsGuide', label: 'Sheets Guide', icon: BookOpen },
+                        { key: 'friends', label: 'Community Friends', icon: Users }
+                      ].map(p => {
+                        const isEnabled = platformSettings.pages?.[p.key] !== false;
+                        return (
+                          <div key={p.key} className="flex items-center justify-between p-4 bg-secondary rounded-md border border-border">
+                            <div className="flex items-center gap-3">
+                              <p.icon className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-xs font-bold uppercase tracking-wider">{p.label}</span>
+                            </div>
+                            <button 
+                              onClick={() => togglePlatformPage(p.key)}
+                              aria-checked={isEnabled}
+                              role="switch"
+                              className={`w-12 h-7 rounded-full transition-all duration-300 relative cursor-pointer ${isEnabled ? 'bg-primary' : 'bg-secondary border border-border'}`}
+                            >
+                              <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-all duration-300 ${isEnabled ? 'left-6' : 'left-0.5'}`} />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Section Label: Features */}
+                  <div>
+                    <h3 className="text-xs font-black uppercase tracking-[0.25em] text-primary mb-4">{t('admin.features')}</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {[
+                        { key: 'messagesEnabled', label: t('admin.messagesEnabled'), icon: ShieldAlert },
+                        { key: 'bookPurchase', label: t('admin.bookPurchase'), icon: BookOpen },
+                        { key: 'community', label: t('admin.community'), icon: Users },
+                        { key: 'notificationsEnabled', label: t('admin.notifications'), icon: ShieldAlert }
+                      ].map(f => {
+                        const isEnabled = platformSettings.features?.[f.key] !== false;
+                        return (
+                          <div key={f.key} className="flex items-center justify-between p-4 bg-secondary rounded-md border border-border">
+                            <div className="flex items-center gap-3">
+                              <f.icon className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-xs font-bold uppercase tracking-wider">{f.label}</span>
+                            </div>
+                            <button 
+                              onClick={() => togglePlatformFeature(f.key)}
+                              aria-checked={isEnabled}
+                              role="switch"
+                              className={`w-12 h-7 rounded-full transition-all duration-300 relative cursor-pointer ${isEnabled ? 'bg-primary' : 'bg-secondary border border-border'}`}
+                            >
+                              <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-all duration-300 ${isEnabled ? 'left-6' : 'left-0.5'}`} />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </motion.div>
           )}
 

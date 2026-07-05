@@ -11,9 +11,38 @@ import Header from './Header';
 import Footer from './Footer';
 import AuthGuardPopup from './AuthGuardPopup';
 import { auth } from '@/lib/firebase';
+import { useSEO } from '../hooks/useSEO';
 
 export default function NewsPage() {
   const { t, i18n } = useTranslation();
+
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    'headline': 'Real-Time Crypto & Forex Market Intelligence',
+    'description': 'Stay ahead of the market with real-time news, automated sentiment scores, and AI accuracy metrics on Shukritrade.',
+    'image': 'https://shukritrade.com/shukritrade_logo.svg',
+    'author': {
+      '@type': 'Organization',
+      'name': 'Shukritrade'
+    },
+    'publisher': {
+      '@type': 'Organization',
+      'name': 'Shukritrade',
+      'logo': {
+        '@type': 'ImageObject',
+        'url': 'https://shukritrade.com/shukritrade_logo.svg'
+      }
+    }
+  };
+
+  useSEO({
+    title: t('nav.news') || 'Market News',
+    description: 'Track the latest live financial news, currency movements, and AI-powered market sentiment on Shukritrade.',
+    canonicalPath: '/news',
+    ogType: 'article',
+    schemaData: articleSchema
+  });
   const [newsEvents, setNewsEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('daily');

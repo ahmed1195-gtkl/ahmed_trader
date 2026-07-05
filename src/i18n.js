@@ -195,7 +195,21 @@ const resources = {
       "aibot.trend": "Trend",
       "aibot.high": "High",
       "aibot.medium": "Medium",
-      "aibot.low": "Low"
+      "aibot.low": "Low",
+      "page.comingSoon": "Coming Soon",
+      "page.comingSoonBadge": "Coming Soon",
+      "page.comingSoonDesc": "This page is currently unavailable. Our team is working to make it available soon.",
+      "page.comingSoonStatus": "Temporarily Unavailable",
+      "page.comingSoonSubDesc": "This feature has been temporarily disabled by the administrator. Please check back later.",
+      "messages.unavailable": "Messaging is temporarily unavailable.",
+      "admin.platformControls": "Platform Controls",
+      "admin.pages": "Pages",
+      "admin.features": "Features",
+      "admin.maintenance": "Maintenance Mode",
+      "admin.messagesEnabled": "Message System",
+      "admin.bookPurchase": "Book Purchase",
+      "admin.community": "Community",
+      "admin.notifications": "Notifications"
     }
   },
   ar: {
@@ -390,7 +404,21 @@ const resources = {
       "aibot.trend": "الاتجاه",
       "aibot.high": "عالي",
       "aibot.medium": "متوسط",
-      "aibot.low": "منخفض"
+      "aibot.low": "منخفض",
+      "page.comingSoon": "قريباً",
+      "page.comingSoonBadge": "قريباً",
+      "page.comingSoonDesc": "هذه الصفحة غير متاحة حالياً. فريقنا يعمل على إتاحتها قريباً.",
+      "page.comingSoonStatus": "غير متاح مؤقتاً",
+      "page.comingSoonSubDesc": "تم تعطيل هذه الميزة مؤقتاً من قِبل المسؤول. يرجى المحاولة لاحقاً.",
+      "messages.unavailable": "خدمة الرسائل غير متاحة مؤقتاً.",
+      "admin.platformControls": "إعدادات المنصة",
+      "admin.pages": "الصفحات",
+      "admin.features": "الميزات",
+      "admin.maintenance": "وضع الصيانة",
+      "admin.messagesEnabled": "نظام الرسائل",
+      "admin.bookPurchase": "شراء الكتب",
+      "admin.community": "المجتمع",
+      "admin.notifications": "الإشعارات"
     }
   },
   fr: {
@@ -585,7 +613,21 @@ const resources = {
       "aibot.trend": "Tendance",
       "aibot.high": "Élevé",
       "aibot.medium": "Moyen",
-      "aibot.low": "Faible"
+      "aibot.low": "Faible",
+      "page.comingSoon": "Bientôt Disponible",
+      "page.comingSoonBadge": "Bientôt",
+      "page.comingSoonDesc": "Cette page est actuellement indisponible. Notre équipe travaille à la rendre disponible prochainement.",
+      "page.comingSoonStatus": "Temporairement Indisponible",
+      "page.comingSoonSubDesc": "Cette fonctionnalité a été temporairement désactivée par l'administrateur. Veuillez réessayer plus tard.",
+      "messages.unavailable": "La messagerie est temporairement indisponible.",
+      "admin.platformControls": "Contrôles de la Plateforme",
+      "admin.pages": "Pages",
+      "admin.features": "Fonctionnalités",
+      "admin.maintenance": "Mode Maintenance",
+      "admin.messagesEnabled": "Système de Messagerie",
+      "admin.bookPurchase": "Achat de Livre",
+      "admin.community": "Communauté",
+      "admin.notifications": "Notifications"
     }
   }
 };

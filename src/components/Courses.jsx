@@ -11,12 +11,38 @@ import {
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Button } from './ui/button';
+import { useSEO } from '../hooks/useSEO';
 
 const ADMIN_EMAILS = ['mchokri100@gmail.com', 'ahmed1195@gmail.com'];
 
 const Courses = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const isAr = i18n.language === 'ar';
+
+  const courseSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Course',
+    'name': isAr ? 'دورة التداول الشاملة' : 'Comprehensive Trading Course',
+    'description': isAr 
+      ? 'تعلم التداول والأسواق المالية مع استراتيجيات SMC و ICT و SK مجاناً.'
+      : 'Learn SMC, ICT, and SK trading strategies for free with our comprehensive course.',
+    'provider': {
+      '@type': 'Organization',
+      'name': 'Shukritrade',
+      'sameAs': 'https://shukritrade.com'
+    }
+  };
+
+  useSEO({
+    title: isAr ? 'الدورات التدريبية' : 'Trading Courses',
+    description: isAr 
+      ? 'قائمة الدورات التعليمية لتداول العملات والعملات الرقمية من الصفر إلى الاحتراف مجاناً.'
+      : 'Access our catalog of free and premium Forex and Crypto trading courses on Shukritrade.',
+    canonicalPath: '/courses',
+    schemaData: courseSchema
+  });
+
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);

@@ -15,17 +15,20 @@ import {
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Send, MessageCircle, User, Loader2, ArrowLeft } from 'lucide-react';
+import { Send, MessageCircle, User, Loader2, ArrowLeft, MessageSquareOff } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { usePlatform } from '../context/PlatformContext';
 
 const ADMIN_EMAILS = ['mchokri100@gmail.com', 'ahmed1195@gmail.com'];
 
 const Messages = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const { features } = usePlatform();
+  const messagesEnabled = features?.messagesEnabled !== false;
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [users, setUsers] = useState([]);
@@ -363,28 +366,44 @@ const Messages = () => {
               )}
             </div>
 
-            {/* حقل الإدخال */}
-            <div className="p-4 border-t border-amber-500/20 bg-black/80 backdrop-blur-xl">
-              <form onSubmit={handleSend} className="max-w-4xl mx-auto flex items-center gap-3">
-                <Input
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder={i18n.language === 'ar' ? 'اكتب رسالتك...' : 'Type a message...'}
-                  className="flex-1 bg-zinc-900/60 border-zinc-800 text-white rounded-full px-6 py-6 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 placeholder:text-zinc-600"
-                  disabled={loading}
-                />
-                <Button
-                  type="submit"
-                  disabled={loading || !newMessage.trim()}
-                  className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black rounded-full w-12 h-12 p-0 shadow-lg shadow-amber-500/30 disabled:opacity-50 transition-all hover:scale-105"
+            {/* Input area */}
+            <div className="p-4 border-t border-primary/20 bg-background/80 backdrop-blur-xl">
+              {/* Show disabled notice for non-admins when messaging is off */}
+              {!messagesEnabled && !isAdmin ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="max-w-4xl mx-auto flex items-center gap-3 px-4 py-3 rounded-md bg-secondary border border-border"
                 >
-                  {loading ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <Send className="w-5 h-5" />
-                  )}
-                </Button>
-              </form>
+                  <MessageSquareOff className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                  <p className="text-sm text-muted-foreground font-medium">
+                    {t('messages.unavailable')}
+                  </p>
+                </motion.div>
+              ) : (
+                <form onSubmit={handleSend} className="max-w-4xl mx-auto flex items-center gap-3">
+                  <Input
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    placeholder={i18n.language === 'ar' ? 'اكتب رسالتك...' : 'Type a message...'}
+                    className="flex-1 bg-secondary border-border text-foreground rounded-full px-6 py-6 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground/40"
+                    disabled={loading}
+                    aria-label={i18n.language === 'ar' ? 'اكتب رسالتك' : 'Type your message'}
+                  />
+                  <Button
+                    type="submit"
+                    disabled={loading || !newMessage.trim()}
+                    aria-label={i18n.language === 'ar' ? 'إرسال الرسالة' : 'Send message'}
+                    className="bg-primary hover:brightness-110 text-primary-foreground font-black rounded-full w-12 h-12 p-0 shadow-lg shadow-primary/20 disabled:opacity-50 transition-all hover:-translate-y-0.5 border-0 cursor-pointer"
+                  >
+                    {loading ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <Send className="w-5 h-5" />
+                    )}
+                  </Button>
+                </form>
+              )}
             </div>
           </>
         ) : (
