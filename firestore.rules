@@ -112,6 +112,11 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    match /platformSettings/{settingsId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
     match /activity_logs/{logId} {
       allow read: if isAdmin();
       allow create: if isAdmin();
