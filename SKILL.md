@@ -50,12 +50,14 @@
 - Created a new tab **"Platform Controls"** (tab ID: `platform`) inside `AdminDashboard.jsx`.
 - Added dynamic switch toggles for Maintenance mode, all 13 customizable pages, and 4 platform features.
 - Persists state instantly to Firestore under `platformSettings/main`.
+- **Security Rules**: Updated `firestore.rules` to permit authenticated reads and admin writes on the `platformSettings` collection.
 
 ---
 
 ## 2. Modified Files
 
 - `index.html` — Injected DNS-prefetch, preconnect headers, base OpenGraph attributes.
+- `firestore.rules` — Added read/write access constraints for the new `platformSettings` collection.
 - `public/robots.txt` [NEW] — Crawling policies and sitemap location.
 - `public/sitemap.xml` [NEW] — XML index of primary routes.
 - `src/App.jsx` — Dynamic page availability route wrappers, Coach section removal, PlatformProvider wrap.
@@ -75,12 +77,12 @@
 ## 3. Firebase Collections Added / Used
 
 - **`platformSettings`**:
-  - Document `main`: Holds pages config maps, feature switches maps, and maintenance mode status.
+  - Document `main`: Holds pages config maps, feature switches maps, and maintenance mode status. Secured in `firestore.rules`.
 
 ---
 
 ## 4. Current State & Remaining Work
-- **Status**: All 7 tasks completed successfully.
+- **Status**: All 7 tasks completed successfully, including database security rules updates.
 - **Verification**: Production build verified successfully via Vite.
 - **Remaining Work**: None. All requirements of the user request are completed.
 
