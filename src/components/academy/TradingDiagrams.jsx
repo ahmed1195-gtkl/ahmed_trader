@@ -5,6 +5,417 @@ const DiagramSVG = ({ type, className = '' }) => {
   const baseClass = `w-full h-auto ${className}`;
   
   const diagrams = {
+    tradingIntro: (
+      <svg viewBox="0 0 600 350" className={baseClass} xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="tiBg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#0b0b14" />
+            <stop offset="100%" stopColor="#030307" />
+          </linearGradient>
+          <linearGradient id="goldGlow" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#f59e0b" />
+            <stop offset="100%" stopColor="#d97706" />
+          </linearGradient>
+          <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="8" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+        </defs>
+        <rect width="600" height="350" fill="url(#tiBg)" rx="16" stroke="rgba(245,158,11,0.15)" strokeWidth="1.5" />
+        <text x="300" y="35" textAnchor="middle" fill="#d4a94b" fontSize="16" fontWeight="bold" letterSpacing="0.05em">WHAT IS TRADING? / ما هو التداول؟</text>
+        
+        {/* Core Concept: Capital -> Market -> Assets -> Profit */}
+        <g transform="translate(50, 70)">
+          {/* Capital Node */}
+          <rect x="20" y="70" width="110" height="60" fill="rgba(255,255,255,0.03)" stroke="rgba(245,158,11,0.2)" strokeWidth="1.5" rx="10" />
+          <text x="75" y="95" textAnchor="middle" fill="#e2e8f0" fontSize="12" fontWeight="bold">Capital / رأس المال</text>
+          <text x="75" y="115" textAnchor="middle" fill="#10b981" fontSize="13" fontWeight="bold">$ $ $</text>
+
+          {/* Flow Arrow to Right */}
+          <path d="M 140 100 L 210 100" fill="none" stroke="url(#goldGlow)" strokeWidth="2.5" markerEnd="url(#arrowGold)" />
+          
+          {/* Market Node */}
+          <rect x="220" y="40" width="120" height="120" fill="rgba(245,158,11,0.05)" stroke="url(#goldGlow)" strokeWidth="2" rx="60" filter="url(#glow)" />
+          <text x="280" y="95" textAnchor="middle" fill="#f59e0b" fontSize="13" fontWeight="bold">Market / السوق</text>
+          <text x="280" y="115" textAnchor="middle" fill="#94a3b8" fontSize="9">Exchange / تبادل</text>
+
+          {/* Flow Arrow to Right */}
+          <path d="M 350 100 L 420 100" fill="none" stroke="url(#goldGlow)" strokeWidth="2.5" markerEnd="url(#arrowGold)" />
+          
+          {/* Assets Node */}
+          <rect x="430" y="70" width="110" height="60" fill="rgba(255,255,255,0.03)" stroke="rgba(245,158,11,0.2)" strokeWidth="1.5" rx="10" />
+          <text x="485" y="95" textAnchor="middle" fill="#e2e8f0" fontSize="12" fontWeight="bold">Assets / الأصول</text>
+          <text x="485" y="115" textAnchor="middle" fill="#3b82f6" fontSize="10">Stocks, Forex, Crypto</text>
+
+          {/* Return flow: Profits */}
+          <path d="M 485 140 C 485 220, 75 220, 75 140" fill="none" stroke="#10b981" strokeWidth="2" strokeDasharray="6,3" markerEnd="url(#arrowGreen)" />
+          <text x="280" y="215" textAnchor="middle" fill="#10b981" fontSize="12" fontWeight="bold">Returns & Profits / الأرباح والعوائد</text>
+        </g>
+        
+        <defs>
+          <marker id="arrowGold" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <polygon points="0 0, 6 3, 0 6" fill="#f59e0b" />
+          </marker>
+          <marker id="arrowGreen" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <polygon points="6 6, 0 3, 6 0" fill="#10b981" />
+          </marker>
+        </defs>
+      </svg>
+    ),
+
+    supplyDemand: (
+      <svg viewBox="0 0 600 350" className={baseClass} xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sdBg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#0b0b14" />
+            <stop offset="100%" stopColor="#030307" />
+          </linearGradient>
+        </defs>
+        <rect width="600" height="350" fill="url(#sdBg)" rx="16" stroke="rgba(245,158,11,0.15)" strokeWidth="1.5" />
+        <text x="300" y="35" textAnchor="middle" fill="#d4a94b" fontSize="16" fontWeight="bold" letterSpacing="0.05em">SUPPLY & DEMAND / العرض والطلب</text>
+        
+        <g transform="translate(100, 60)">
+          {/* Axis */}
+          <line x1="50" y1="50" x2="50" y2="250" stroke="#475569" strokeWidth="2" />
+          <line x1="50" y1="250" x2="450" y2="250" stroke="#475569" strokeWidth="2" />
+          <text x="30" y="55" fill="#94a3b8" fontSize="11" fontWeight="bold">Price / السعر</text>
+          <text x="450" y="270" textAnchor="end" fill="#94a3b8" fontSize="11" fontWeight="bold">Quantity / الكمية</text>
+          
+          {/* Demand Curve (Downward sloping) */}
+          <path d="M 80 80 L 400 220" fill="none" stroke="#10b981" strokeWidth="3" strokeLinecap="round" />
+          <text x="70" y="75" fill="#10b981" fontSize="11" fontWeight="bold">Demand / الطلب</text>
+          
+          {/* Supply Curve (Upward sloping) */}
+          <path d="M 80 220 L 400 80" fill="none" stroke="#ef4444" strokeWidth="3" strokeLinecap="round" />
+          <text x="410" y="75" fill="#ef4444" fontSize="11" fontWeight="bold">Supply / العرض</text>
+          
+          {/* Equilibrium Point */}
+          <circle cx="240" cy="150" r="7" fill="#f59e0b" />
+          <circle cx="240" cy="150" r="14" fill="none" stroke="#f59e0b" strokeWidth="2" strokeDasharray="4,2" />
+          
+          {/* Dotted lines to Axis */}
+          <line x1="240" y1="150" x2="50" y2="150" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="4,4" />
+          <line x1="240" y1="150" x2="240" y2="250" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="4,4" />
+          
+          <text x="250" y="140" fill="#f59e0b" fontSize="12" fontWeight="bold">Equilibrium Price / سعر التوازن</text>
+        </g>
+      </svg>
+    ),
+
+    marketParticipants: (
+      <svg viewBox="0 0 600 350" className={baseClass} xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="mpBg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#0b0b14" />
+            <stop offset="100%" stopColor="#030307" />
+          </linearGradient>
+          <linearGradient id="blueGlow" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#3b82f6" />
+            <stop offset="100%" stopColor="#1d4ed8" />
+          </linearGradient>
+          <linearGradient id="goldGlow2" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#f59e0b" />
+            <stop offset="100%" stopColor="#d97706" />
+          </linearGradient>
+        </defs>
+        <rect width="600" height="350" fill="url(#mpBg)" rx="16" stroke="rgba(245,158,11,0.15)" strokeWidth="1.5" />
+        <text x="300" y="35" textAnchor="middle" fill="#d4a94b" fontSize="16" fontWeight="bold" letterSpacing="0.05em">MARKET PARTICIPANTS / صناع السوق</text>
+        
+        {/* Institutions/Banks card */}
+        <g transform="translate(50, 70)">
+          <rect x="0" y="0" width="230" height="230" fill="rgba(251,191,36,0.03)" stroke="url(#goldGlow2)" strokeWidth="2" rx="12" />
+          <circle cx="115" cy="65" r="35" fill="rgba(245,158,11,0.1)" stroke="#f59e0b" strokeWidth="2" />
+          <text x="115" y="72" textAnchor="middle" fill="#f59e0b" fontSize="24" fontWeight="bold">🏦</text>
+          <text x="115" y="130" textAnchor="middle" fill="#f59e0b" fontSize="14" fontWeight="bold">Institutions / المؤسسات</text>
+          <text x="115" y="160" textAnchor="middle" fill="#e2e8f0" fontSize="11">Central Banks & Hedge Funds</text>
+          <text x="115" y="178" textAnchor="middle" fill="#e2e8f0" fontSize="11">بنوك استثمارية وصناديق تحوط</text>
+          <rect x="45" y="195" width="140" height="25" fill="#d97706" rx="6" />
+          <text x="115" y="212" textAnchor="middle" fill="#ffffff" fontSize="11" fontWeight="bold">90% of Volume / السيولة</text>
+        </g>
+        
+        {/* Retail Traders card */}
+        <g transform="translate(320, 70)">
+          <rect x="0" y="0" width="230" height="230" fill="rgba(59,130,246,0.03)" stroke="url(#blueGlow)" strokeWidth="2" rx="12" />
+          <circle cx="115" cy="65" r="35" fill="rgba(59,130,246,0.1)" stroke="#3b82f6" strokeWidth="2" />
+          <text x="115" y="72" textAnchor="middle" fill="#3b82f6" fontSize="24" fontWeight="bold">💻</text>
+          <text x="115" y="130" textAnchor="middle" fill="#3b82f6" fontSize="14" fontWeight="bold">Retail Traders / الأفراد</text>
+          <text x="115" y="160" textAnchor="middle" fill="#e2e8f0" fontSize="11">Individual Retail Accounts</text>
+          <text x="115" y="178" textAnchor="middle" fill="#e2e8f0" fontSize="11">المتداولون الأفراد والمبتدئون</text>
+          <rect x="45" y="195" width="140" height="25" fill="#2563eb" rx="6" />
+          <text x="115" y="212" textAnchor="middle" fill="#ffffff" fontSize="11" fontWeight="bold">10% of Volume / السيولة</text>
+        </g>
+      </svg>
+    ),
+
+    priceImbalance: (
+      <svg viewBox="0 0 600 350" className={baseClass} xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="piBg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#0b0b14" />
+            <stop offset="100%" stopColor="#030307" />
+          </linearGradient>
+        </defs>
+        <rect width="600" height="350" fill="url(#piBg)" rx="16" stroke="rgba(245,158,11,0.15)" strokeWidth="1.5" />
+        <text x="300" y="35" textAnchor="middle" fill="#d4a94b" fontSize="16" fontWeight="bold" letterSpacing="0.05em">IMBALANCE / خلل التوازن</text>
+        
+        {/* Demand > Supply -> Rise */}
+        <g transform="translate(60, 80)">
+          <rect x="0" y="0" width="220" height="210" fill="rgba(16,185,129,0.03)" stroke="rgba(16,185,129,0.3)" strokeWidth="1.5" rx="12" />
+          <text x="110" y="30" textAnchor="middle" fill="#10b981" fontSize="13" fontWeight="bold">Demand &gt; Supply</text>
+          <text x="110" y="50" textAnchor="middle" fill="#94a3b8" fontSize="10">الطلب أكبر من العرض</text>
+          
+          {/* Green Candle shooting up */}
+          <line x1="110" y1="75" x2="110" y2="185" stroke="#10b981" strokeWidth="2.5" />
+          <rect x="95" y="90" width="30" height="75" fill="#10b981" rx="4" />
+          <path d="M 110 85 L 110 70" fill="none" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowGreenSmall)" />
+          <text x="110" y="195" textAnchor="middle" fill="#10b981" fontSize="11" fontWeight="bold">Price Rises / يرتفع السعر</text>
+        </g>
+        
+        {/* Supply > Demand -> Fall */}
+        <g transform="translate(320, 80)">
+          <rect x="0" y="0" width="220" height="210" fill="rgba(239,68,68,0.03)" stroke="rgba(239,68,68,0.3)" strokeWidth="1.5" rx="12" />
+          <text x="110" y="30" textAnchor="middle" fill="#ef4444" fontSize="13" fontWeight="bold">Supply &gt; Demand</text>
+          <text x="110" y="50" textAnchor="middle" fill="#94a3b8" fontSize="10">العرض أكبر من الطلب</text>
+          
+          {/* Red Candle collapsing */}
+          <line x1="110" y1="75" x2="110" y2="185" stroke="#ef4444" strokeWidth="2.5" />
+          <rect x="95" y="95" width="30" height="75" fill="#ef4444" rx="4" />
+          <path d="M 110 165 L 110 180" fill="none" stroke="#ef4444" strokeWidth="3" markerEnd="url(#arrowRedSmall)" />
+          <text x="110" y="195" textAnchor="middle" fill="#ef4444" fontSize="11" fontWeight="bold">Price Falls / ينخفض السعر</text>
+        </g>
+
+        <defs>
+          <marker id="arrowGreenSmall" markerWidth="4" markerHeight="4" refX="2" refY="2" orient="auto">
+            <polygon points="0 4, 2 0, 4 4" fill="#10b981" />
+          </marker>
+          <marker id="arrowRedSmall" markerWidth="4" markerHeight="4" refX="2" refY="2" orient="auto">
+            <polygon points="0 0, 2 4, 4 0" fill="#ef4444" />
+          </marker>
+        </defs>
+      </svg>
+    ),
+
+    marketTypes: (
+      <svg viewBox="0 0 600 350" className={baseClass} xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="mtBoxBg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#0b0b14" />
+            <stop offset="100%" stopColor="#030307" />
+          </linearGradient>
+        </defs>
+        <rect width="600" height="350" fill="url(#mtBoxBg)" rx="16" stroke="rgba(245,158,11,0.15)" strokeWidth="1.5" />
+        <text x="300" y="35" textAnchor="middle" fill="#d4a94b" fontSize="16" fontWeight="bold" letterSpacing="0.05em">TYPES OF MARKETS / أنواع الأسواق</text>
+        
+        {/* Grid of 4 markets */}
+        <g transform="translate(60, 65)">
+          {/* Forex */}
+          <rect x="0" y="0" width="220" height="110" fill="rgba(255,255,255,0.02)" stroke="rgba(245,158,11,0.1)" strokeWidth="1" rx="8" />
+          <text x="25" y="35" fill="#f59e0b" fontSize="20">💱</text>
+          <text x="60" y="32" fill="#ffffff" fontSize="13" fontWeight="bold">Forex / الفوركس</text>
+          <text x="60" y="55" fill="#94a3b8" fontSize="10">Currencies (EUR/USD)</text>
+          <text x="60" y="75" fill="#94a3b8" fontSize="10">تداول العملات الأجنبية</text>
+          <rect x="60" y="85" width="70" height="15" fill="rgba(16,185,129,0.1)" rx="3" />
+          <text x="95" y="96" textAnchor="middle" fill="#10b981" fontSize="9" fontWeight="bold">24/5 Open</text>
+
+          {/* Crypto */}
+          <rect x="260" y="0" width="220" height="110" fill="rgba(255,255,255,0.02)" stroke="rgba(245,158,11,0.1)" strokeWidth="1" rx="8" />
+          <text x="285" y="35" fill="#f59e0b" fontSize="20">🪙</text>
+          <text x="320" y="32" fill="#ffffff" fontSize="13" fontWeight="bold">Crypto / الكريبتو</text>
+          <text x="320" y="55" fill="#94a3b8" fontSize="10">Bitcoin, Ethereum</text>
+          <text x="320" y="75" fill="#94a3b8" fontSize="10">العملات الرقمية المشفرة</text>
+          <rect x="320" y="85" width="70" height="15" fill="rgba(16,185,129,0.1)" rx="3" />
+          <text x="355" y="96" textAnchor="middle" fill="#10b981" fontSize="9" fontWeight="bold">24/7 Open</text>
+
+          {/* Stocks */}
+          <rect x="0" y="130" width="220" height="110" fill="rgba(255,255,255,0.02)" stroke="rgba(245,158,11,0.1)" strokeWidth="1" rx="8" />
+          <text x="25" y="165" fill="#f59e0b" fontSize="20">📈</text>
+          <text x="60" y="162" fill="#ffffff" fontSize="13" fontWeight="bold">Stocks / الأسهم</text>
+          <text x="60" y="185" fill="#94a3b8" fontSize="10">Apple, Tesla Shares</text>
+          <text x="60" y="205" fill="#94a3b8" fontSize="10">أسهم الشركات العالمية</text>
+          <rect x="60" y="215" width="70" height="15" fill="rgba(239,68,68,0.1)" rx="3" />
+          <text x="95" y="226" textAnchor="middle" fill="#ef4444" fontSize="9" fontWeight="bold">Sessions</text>
+
+          {/* Commodities */}
+          <rect x="260" y="130" width="220" height="110" fill="rgba(255,255,255,0.02)" stroke="rgba(245,158,11,0.1)" strokeWidth="1" rx="8" />
+          <text x="285" y="165" fill="#f59e0b" fontSize="20">✨</text>
+          <text x="320" y="162" fill="#ffffff" fontSize="13" fontWeight="bold">Commodities / السلع</text>
+          <text x="320" y="185" fill="#94a3b8" fontSize="10">Gold, Silver, Crude Oil</text>
+          <text x="320" y="205" fill="#94a3b8" fontSize="10">الذهب، الفضة، النفط</text>
+          <rect x="320" y="215" width="70" height="15" fill="rgba(239,68,68,0.1)" rx="3" />
+          <text x="355" y="226" textAnchor="middle" fill="#ef4444" fontSize="9" fontWeight="bold">Sessions</text>
+        </g>
+      </svg>
+    ),
+
+    orderTypes: (
+      <svg viewBox="0 0 600 350" className={baseClass} xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="otBg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#0b0b14" />
+            <stop offset="100%" stopColor="#030307" />
+          </linearGradient>
+        </defs>
+        <rect width="600" height="350" fill="url(#otBg)" rx="16" stroke="rgba(245,158,11,0.15)" strokeWidth="1.5" />
+        <text x="300" y="35" textAnchor="middle" fill="#d4a94b" fontSize="16" fontWeight="bold" letterSpacing="0.05em">ORDER TYPES / أنواع الأوامر</text>
+        
+        {/* Market Order */}
+        <g transform="translate(40, 70)">
+          <rect x="0" y="0" width="140" height="220" fill="rgba(16,185,129,0.02)" stroke="rgba(16,185,129,0.3)" strokeWidth="1.5" rx="10" />
+          <text x="70" y="35" textAnchor="middle" fill="#10b981" fontSize="12" fontWeight="bold">Market Order</text>
+          <text x="70" y="55" textAnchor="middle" fill="#e2e8f0" fontSize="11" fontWeight="bold">أمر السوق</text>
+          <text x="70" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">Executes instantly</text>
+          <text x="70" y="112" textAnchor="middle" fill="#94a3b8" fontSize="10">at current price</text>
+          <rect x="20" y="145" width="100" height="25" fill="#10b981" rx="5" />
+          <text x="70" y="162" textAnchor="middle" fill="#ffffff" fontSize="10" fontWeight="bold">Instant / فوري</text>
+        </g>
+        
+        {/* Limit Order */}
+        <g transform="translate(230, 70)">
+          <rect x="0" y="0" width="140" height="220" fill="rgba(245,158,11,0.02)" stroke="rgba(245,158,11,0.3)" strokeWidth="1.5" rx="10" />
+          <text x="70" y="35" textAnchor="middle" fill="#f59e0b" fontSize="12" fontWeight="bold">Limit Order</text>
+          <text x="70" y="55" textAnchor="middle" fill="#e2e8f0" fontSize="11" fontWeight="bold">الأمر المحدد</text>
+          <text x="70" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">Executes only at</text>
+          <text x="70" y="112" textAnchor="middle" fill="#94a3b8" fontSize="10">specified price</text>
+          <rect x="20" y="145" width="100" height="25" fill="#d97706" rx="5" />
+          <text x="70" y="162" textAnchor="middle" fill="#ffffff" fontSize="10" fontWeight="bold">Pending / معلق</text>
+        </g>
+        
+        {/* Stop Order */}
+        <g transform="translate(420, 70)">
+          <rect x="0" y="0" width="140" height="220" fill="rgba(239,68,68,0.02)" stroke="rgba(239,68,68,0.3)" strokeWidth="1.5" rx="10" />
+          <text x="70" y="35" textAnchor="middle" fill="#ef4444" fontSize="12" fontWeight="bold">Stop Loss</text>
+          <text x="70" y="55" textAnchor="middle" fill="#e2e8f0" fontSize="11" fontWeight="bold">إيقاف الخسارة</text>
+          <text x="70" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">Triggers automatically</text>
+          <text x="70" y="112" textAnchor="middle" fill="#94a3b8" fontSize="10">to protect account</text>
+          <rect x="20" y="145" width="100" height="25" fill="#ef4444" rx="5" />
+          <text x="70" y="162" textAnchor="middle" fill="#ffffff" fontSize="10" fontWeight="bold">Protection / حماية</text>
+        </g>
+      </svg>
+    ),
+
+    platformMockup: (
+      <svg viewBox="0 0 600 350" className={baseClass} xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="pmBg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#0b0b14" />
+            <stop offset="100%" stopColor="#030307" />
+          </linearGradient>
+        </defs>
+        <rect width="600" height="350" fill="url(#pmBg)" rx="16" stroke="rgba(245,158,11,0.15)" strokeWidth="1.5" />
+        <text x="300" y="35" textAnchor="middle" fill="#d4a94b" fontSize="16" fontWeight="bold" letterSpacing="0.05em">TRADING PLATFORM / منصة التداول</text>
+        
+        {/* Stylized Trading Terminal Mockup */}
+        <g transform="translate(50, 60)">
+          {/* Main frame */}
+          <rect x="0" y="0" width="500" height="240" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.1)" strokeWidth="2" rx="8" />
+          
+          {/* Top toolbar */}
+          <rect x="0" y="0" width="500" height="30" fill="rgba(255,255,255,0.05)" rx="8" />
+          <circle cx="15" cy="15" r="5" fill="#ef4444" />
+          <circle cx="30" cy="15" r="5" fill="#f59e0b" />
+          <circle cx="45" cy="15" r="5" fill="#10b981" />
+          <text x="250" y="20" textAnchor="middle" fill="#94a3b8" fontSize="10" fontWeight="bold">TradingView Chart - EURUSD H4</text>
+          
+          {/* Sidebar */}
+          <rect x="0" y="30" width="100" height="210" fill="rgba(255,255,255,0.01)" stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+          <text x="10" y="55" fill="#ffffff" fontSize="10" fontWeight="bold">Watchlist</text>
+          <text x="10" y="80" fill="#10b981" fontSize="9">🟢 EURUSD</text>
+          <text x="10" y="105" fill="#ef4444" fontSize="9">🔴 GBPUSD</text>
+          <text x="10" y="130" fill="#10b981" fontSize="9">🟢 BTCUSD</text>
+          <text x="10" y="155" fill="#94a3b8" fontSize="9">⚪ XAUUSD</text>
+          
+          {/* Chart area */}
+          <g transform="translate(100, 30)">
+            {/* Grid lines */}
+            <line x1="0" y1="50" x2="400" y2="50" stroke="rgba(255,255,255,0.03)" strokeWidth="1" />
+            <line x1="0" y1="100" x2="400" y2="100" stroke="rgba(255,255,255,0.03)" strokeWidth="1" />
+            <line x1="0" y1="150" x2="400" y2="150" stroke="rgba(255,255,255,0.03)" strokeWidth="1" />
+            
+            {/* Candles */}
+            {/* Candle 1 (Green) */}
+            <line x1="50" y1="100" x2="50" y2="180" stroke="#10b981" strokeWidth="2" />
+            <rect x="40" y="120" width="20" height="50" fill="#10b981" rx="2" />
+            
+            {/* Candle 2 (Green) */}
+            <line x1="100" y1="70" x2="100" y2="160" stroke="#10b981" strokeWidth="2" />
+            <rect x="90" y="90" width="20" height="50" fill="#10b981" rx="2" />
+            
+            {/* Candle 3 (Red) */}
+            <line x1="150" y1="60" x2="150" y2="140" stroke="#ef4444" strokeWidth="2" />
+            <rect x="140" y="80" width="20" height="45" fill="#ef4444" rx="2" />
+            
+            {/* Candle 4 (Green) */}
+            <line x1="200" y1="30" x2="200" y2="120" stroke="#10b981" strokeWidth="2" />
+            <rect x="190" y="50" width="20" height="55" fill="#10b981" rx="2" />
+            
+            {/* Candle 5 (Red) */}
+            <line x1="250" y1="40" x2="250" y2="150" stroke="#ef4444" strokeWidth="2" />
+            <rect x="240" y="65" width="20" height="70" fill="#ef4444" rx="2" />
+
+            {/* Price Line */}
+            <line x1="0" y1="65" x2="400" y2="65" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="3,3" />
+            <rect x="340" y="55" width="60" height="18" fill="#ef4444" rx="3" />
+            <text x="370" y="68" textAnchor="middle" fill="#ffffff" fontSize="9" fontWeight="bold">1.08542</text>
+          </g>
+        </g>
+      </svg>
+    ),
+
+    candlestickIntro: (
+      <svg viewBox="0 0 600 350" className={baseClass} xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="ciBg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#0b0b14" />
+            <stop offset="100%" stopColor="#030307" />
+          </linearGradient>
+        </defs>
+        <rect width="600" height="350" fill="url(#ciBg)" rx="16" stroke="rgba(245,158,11,0.15)" strokeWidth="1.5" />
+        <text x="300" y="35" textAnchor="middle" fill="#d4a94b" fontSize="16" fontWeight="bold" letterSpacing="0.05em">CANDLESTICK ANATOMY / تشريح الشمعة</text>
+        
+        {/* Bullish Candle (Green) */}
+        <g transform="translate(80, 60)">
+          <line x1="100" y1="40" x2="100" y2="240" stroke="#10b981" strokeWidth="3" strokeLinecap="round" />
+          <rect x="75" y="80" width="50" height="120" fill="#10b981" stroke="#10b981" strokeWidth="1" rx="4" />
+          
+          <text x="100" y="270" textAnchor="middle" fill="#10b981" fontSize="13" fontWeight="bold">Bullish / صاعدة</text>
+          
+          {/* Anatomical Lines */}
+          <line x1="100" y1="40" x2="170" y2="40" stroke="rgba(255,255,255,0.15)" strokeWidth="1" strokeDasharray="3,2" />
+          <text x="180" y="44" fill="#94a3b8" fontSize="10">High / أعلى سعر</text>
+          
+          <line x1="125" y1="80" x2="170" y2="80" stroke="rgba(255,255,255,0.15)" strokeWidth="1" strokeDasharray="3,2" />
+          <text x="180" y="84" fill="#10b981" fontSize="10" fontWeight="bold">Close / الإغلاق</text>
+          
+          <line x1="125" y1="200" x2="170" y2="200" stroke="rgba(255,255,255,0.15)" strokeWidth="1" strokeDasharray="3,2" />
+          <text x="180" y="204" fill="#94a3b8" fontSize="10">Open / الافتتاح</text>
+          
+          <line x1="100" y1="240" x2="170" y2="240" stroke="rgba(255,255,255,0.15)" strokeWidth="1" strokeDasharray="3,2" />
+          <text x="180" y="244" fill="#94a3b8" fontSize="10">Low / أدنى سعر</text>
+        </g>
+        
+        {/* Bearish Candle (Red) */}
+        <g transform="translate(340, 60)">
+          <line x1="100" y1="40" x2="100" y2="240" stroke="#ef4444" strokeWidth="3" strokeLinecap="round" />
+          <rect x="75" y="80" width="50" height="120" fill="#ef4444" stroke="#ef4444" strokeWidth="1" rx="4" />
+          
+          <text x="100" y="270" textAnchor="middle" fill="#ef4444" fontSize="13" fontWeight="bold">Bearish / هابطة</text>
+          
+          {/* Anatomical Lines */}
+          <line x1="100" y1="40" x2="170" y2="40" stroke="rgba(255,255,255,0.15)" strokeWidth="1" strokeDasharray="3,2" />
+          <text x="180" y="44" fill="#94a3b8" fontSize="10">High / أعلى سعر</text>
+          
+          <line x1="125" y1="80" x2="170" y2="80" stroke="rgba(255,255,255,0.15)" strokeWidth="1" strokeDasharray="3,2" />
+          <text x="180" y="84" fill="#94a3b8" fontSize="10">Open / الافتتاح</text>
+          
+          <line x1="125" y1="200" x2="170" y2="200" stroke="rgba(255,255,255,0.15)" strokeWidth="1" strokeDasharray="3,2" />
+          <text x="180" y="204" fill="#ef4444" fontSize="10" fontWeight="bold">Close / الإغلاق</text>
+          
+          <line x1="100" y1="240" x2="170" y2="240" stroke="rgba(255,255,255,0.15)" strokeWidth="1" strokeDasharray="3,2" />
+          <text x="180" y="244" fill="#94a3b8" fontSize="10">Low / أدنى سعر</text>
+        </g>
+      </svg>
+    ),
+
     supportResistance: (
       <svg viewBox="0 0 600 350" className={baseClass} xmlns="http://www.w3.org/2000/svg">
         <defs>

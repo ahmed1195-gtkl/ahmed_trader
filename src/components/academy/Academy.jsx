@@ -8,9 +8,15 @@ import { tradingTips } from '../../data/academy/schoolsData';
 import Header from '../Header';
 import Footer from '../Footer';
 
-const iconMap = { BarChart3, Brain, Target, Zap };
+const iconMap = { BarChart3, Brain, Target, Zap, BookOpen };
 
 const schoolTranslations = {
+  foundation: {
+    en: { name: 'Foundation of Trading', desc: 'Build a solid understanding from scratch about the market, price movements, and basic trading mindset.' },
+    ar: { name: 'المحور الأول: التأسيس', desc: 'ابنِ فهماً صحيحاً من الصفر عن السوق، حركة السعر، وطريقة التفكير الأساسية في التداول.' },
+    fr: { name: 'Fondation du Trading', desc: 'Construisez une base solide sur le marché et l\'état d\'esprit.' },
+    es: { name: 'Fundación de Trading', desc: 'Construye una base sólida sobre el mercado y la mentalidad.' }
+  },
   classical: {
     en: { name: 'Classical Technical Analysis', desc: 'Master the foundations of technical analysis including trends, support & resistance, chart patterns, and candlestick analysis.' },
     ar: { name: 'التحليل الفني الكلاسيكي', desc: 'أتقن أساسيات التحليل الفني بما في ذلك الاتجاهات والدعم والمقاومة وأنماط الشارت وتحليل الشموع.' },
@@ -137,8 +143,8 @@ const Academy = () => {
             {/* Stats */}
             <div className="flex flex-wrap justify-center gap-6 sm:gap-10 mb-12">
               {[
-                { icon: BookOpen, value: '4', label: texts.schools },
-                { icon: Star, value: '49+', label: texts.lessons },
+                { icon: BookOpen, value: '5', label: texts.schools },
+                { icon: Star, value: '57+', label: texts.lessons },
                 { icon: Users, value: '4', label: texts.languages },
               ].map((stat, i) => (
                 <motion.div
