@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Header from './Header';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Copy, Check, Table, Code, FileSpreadsheet, ExternalLink } from 'lucide-react';
@@ -101,7 +102,9 @@ const SheetsGuide = () => {
   ];
 
   return (
-    <section className="min-h-screen bg-background text-foreground py-20">
+    <>
+      <Header />
+      <section className="min-h-screen bg-background text-foreground py-20">
       <div className="container mx-auto px-4 max-w-7xl">
         {/* Header */}
         <motion.div
@@ -343,6 +346,7 @@ const SheetsGuide = () => {
         </motion.div>
       </div>
     </section>
+    </>
   );
 };
 

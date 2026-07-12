@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Header from './Header';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -63,40 +64,48 @@ function JoinTeam() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-20 h-20 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
-      </div>
+      <>
+        <Header />
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="w-20 h-20 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
+        </div>
+      </>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-md w-full glass-card border border-red-500/20 rounded-3xl p-8 text-center"
-        >
-          <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-            <X className="w-8 h-8 text-red-500" />
-          </div>
-          <h2 className="text-2xl font-black text-foreground uppercase mb-4">
-            {i18n.language === 'ar' ? 'خطأ' : 'Error'}
-          </h2>
-          <p className="text-muted-foreground mb-6">{error}</p>
-          <button
-            onClick={() => navigate('/challenges')}
-            className="px-8 py-4 bg-amber-500 text-black rounded-xl font-black text-sm uppercase hover:bg-amber-400 transition-all"
+      <>
+        <Header />
+        <div className="min-h-screen bg-background flex items-center justify-center p-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-md w-full glass-card border border-red-500/20 rounded-3xl p-8 text-center"
           >
-            {i18n.language === 'ar' ? 'العودة للتحديات' : 'Back to Challenges'}
-          </button>
-        </motion.div>
-      </div>
+            <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+              <X className="w-8 h-8 text-red-500" />
+            </div>
+            <h2 className="text-2xl font-black text-foreground uppercase mb-4">
+              {i18n.language === 'ar' ? 'خطأ' : 'Error'}
+            </h2>
+            <p className="text-muted-foreground mb-6">{error}</p>
+            <button
+              onClick={() => navigate('/challenges')}
+              className="px-8 py-4 bg-amber-500 text-black rounded-xl font-black text-sm uppercase hover:bg-amber-400 transition-all"
+            >
+              {i18n.language === 'ar' ? 'العودة للتحديات' : 'Back to Challenges'}
+            </button>
+          </motion.div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-6">
+    <>
+      <Header />
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -205,6 +214,7 @@ function JoinTeam() {
         </div>
       </motion.div>
     </div>
+    </>
   );
 }
 

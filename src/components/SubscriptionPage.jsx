@@ -8,6 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { SubscriptionService, SUBSCRIPTION_TIERS } from '../lib/subscriptionService';
 import { Check, X, Crown, Zap, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import Header from './Header';
 
 export default function SubscriptionPage() {
   const { user } = useAuth();
@@ -50,14 +51,19 @@ export default function SubscriptionPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
-      </div>
+      <>
+        <Header />
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground py-12 px-4">
+    <>
+      <Header />
+      <div className="min-h-screen bg-background text-foreground py-12 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
@@ -118,6 +124,7 @@ export default function SubscriptionPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 

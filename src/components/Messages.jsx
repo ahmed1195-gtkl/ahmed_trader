@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import Header from './Header';
 import { db, auth } from '../lib/firebase';
 import { 
   collection, 
@@ -160,30 +161,35 @@ const Messages = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="glass-card border border-border rounded-[2rem] p-8 text-center max-w-md">
-          <MessageCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-black text-foreground uppercase mb-4">
-            {i18n.language === 'ar' ? 'يجب تسجيل الدخول' : 'Login Required'}
-          </h2>
-          <p className="text-muted-foreground mb-6">
-            {i18n.language === 'ar' 
-              ? 'يرجى تسجيل الدخول للوصول إلى الرسائل' 
-              : 'Please login to access messages'}
-          </p>
-          <Button 
-            onClick={() => navigate('/')}
-            className="bg-amber-500 hover:bg-amber-400 text-black font-black uppercase tracking-widest text-xs rounded-xl px-6 py-3"
-          >
-            {i18n.language === 'ar' ? 'العودة للرئيسية' : 'Back to Home'}
-          </Button>
+      <>
+        <Header />
+        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+          <div className="glass-card border border-border rounded-[2rem] p-8 text-center max-w-md">
+            <MessageCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-black text-foreground uppercase mb-4">
+              {i18n.language === 'ar' ? 'يجب تسجيل الدخول' : 'Login Required'}
+            </h2>
+            <p className="text-muted-foreground mb-6">
+              {i18n.language === 'ar' 
+                ? 'يرجى تسجيل الدخول للوصول إلى الرسائل' 
+                : 'Please login to access messages'}
+            </p>
+            <Button 
+              onClick={() => navigate('/')}
+              className="bg-amber-500 hover:bg-amber-400 text-black font-black uppercase tracking-widest text-xs rounded-xl px-6 py-3"
+            >
+              {i18n.language === 'ar' ? 'العودة للرئيسية' : 'Back to Home'}
+            </Button>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex">
+    <>
+      <Header />
+      <div className="min-h-screen bg-background text-foreground flex">
       {/* قائمة المستخدمين - للأدمن فقط */}
       {isAdmin && (
         <div className={`${selectedUser ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-80 border-r border-border bg-card`}>
@@ -425,6 +431,7 @@ const Messages = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 

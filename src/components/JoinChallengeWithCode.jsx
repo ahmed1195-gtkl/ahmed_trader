@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Header from './Header';
 import { motion } from 'framer-motion';
 import { Trophy, Key, Link as LinkIcon, AlertCircle, CheckCircle, Loader } from 'lucide-react';
 import { auth } from '../lib/firebase';
@@ -108,24 +109,29 @@ function JoinChallengeWithCode() {
 
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
-        <div className="text-center">
-          <AlertCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-2">Login Required</h2>
-          <p className="text-gray-400 mb-4">You must be logged in to join a challenge</p>
-          <button
-            onClick={() => navigate('/login')}
-            className="px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg font-bold"
-          >
-            Go to Login
-          </button>
+      <>
+        <Header />
+        <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
+          <div className="text-center">
+            <AlertCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-2">Login Required</h2>
+            <p className="text-gray-400 mb-4">You must be logged in to join a challenge</p>
+            <button
+              onClick={() => navigate('/login')}
+              className="px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg font-bold"
+            >
+              Go to Login
+            </button>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-4">
+    <>
+      <Header />
+      <div className="min-h-screen bg-background text-foreground p-4">
       <div className="max-w-2xl mx-auto pt-20">
         {/* Header */}
         <motion.div
@@ -320,6 +326,7 @@ function JoinChallengeWithCode() {
         )}
       </div>
     </div>
+    </>
   );
 }
 

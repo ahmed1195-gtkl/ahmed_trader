@@ -9,6 +9,7 @@ import {
 import { Card, CardHeader, CardContent, CardFooter } from './ui/card';
 import { Button } from './ui/button';
 import { useTranslation } from 'react-i18next';
+import Header from './Header';
 
 const CourseRegistration = ({ course }) => {
   const { t, i18n } = useTranslation();
@@ -267,7 +268,9 @@ const CourseRegistration = ({ course }) => {
   const filteredBrokers = allBrokers.filter(b => b.toLowerCase().includes(brokerSearch.toLowerCase()));
 
   return (
-    <section className="min-h-screen bg-background text-foreground pt-32 pb-20 px-4 relative overflow-hidden">
+    <>
+      <Header />
+      <section className="min-h-screen bg-background text-foreground pt-32 pb-20 px-4 relative overflow-hidden">
       {/* Language Toggle Button */}
       <div className="absolute top-8 right-8 z-50" ref={langRef}>
         <button 
@@ -588,6 +591,7 @@ const CourseRegistration = ({ course }) => {
         )}
       </div>
     </section>
+    </>
   );
 };
 

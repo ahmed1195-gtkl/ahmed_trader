@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Header from './Header';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -120,14 +121,19 @@ export default function CopyTrading() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-foreground text-xl">{t('loading')}...</div>
-      </div>
+      <>
+        <Header />
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="text-foreground text-xl">{t('loading')}...</div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-6">
+    <>
+      <Header />
+      <div className="min-h-screen bg-background text-foreground p-6">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -482,6 +488,7 @@ export default function CopyTrading() {
           </motion.div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

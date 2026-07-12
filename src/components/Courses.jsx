@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Header from './Header';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -132,7 +133,9 @@ const Courses = () => {
   }
 
   return (
-    <section className="min-h-screen bg-background py-20">
+    <>
+      <Header />
+      <section className="min-h-screen bg-background py-20">
       <div className="container mx-auto px-4 max-w-7xl">
         {/* Header */}
         <motion.div
@@ -258,6 +261,7 @@ const Courses = () => {
         )}
       </div>
     </section>
+    </>
   );
 };
 

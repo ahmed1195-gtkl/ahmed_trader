@@ -18,6 +18,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { toast } from 'sonner';
 import ImageUploader from './ImageUploader';
+import Header from './Header';
 
 const ADMIN_EMAILS = ['mchokri100@gmail.com', 'ahmed1195@gmail.com'];
 
@@ -215,14 +216,19 @@ const CoursesAdmin = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-12 h-12 text-amber-500 animate-spin" />
-      </div>
+      <>
+        <Header />
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <Loader2 className="w-12 h-12 text-amber-500 animate-spin" />
+        </div>
+      </>
     );
   }
 
   return (
-    <section className="min-h-screen bg-background text-foreground py-20">
+    <>
+      <Header />
+      <section className="min-h-screen bg-background text-foreground py-20">
       <div className="container mx-auto px-4 max-w-7xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-12">
@@ -574,6 +580,7 @@ const CoursesAdmin = () => {
         )}
       </div>
     </section>
+    </>
   );
 };
 

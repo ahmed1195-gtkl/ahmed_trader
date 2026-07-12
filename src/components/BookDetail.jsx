@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, BookOpen, ShoppingCart, Star, ChevronDown, ChevronUp, Lock, Eye, AlertTriangle, Download, Shield } from 'lucide-react';
+import { ChevronLeft, BookOpen, ShoppingCart, Star, ChevronDown, ChevronUp, Lock, Eye, AlertTriangle, Download, Shield, FileText, Maximize2 } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import PaymentModal from './PaymentModal';
@@ -11,98 +11,9 @@ import { db, storage } from '../lib/firebase';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { ref, getDownloadURL } from 'firebase/storage';
 
-const CHAPTER_1 = {
+const CHAPTER_1_STUB = {
   titleAr: 'الفصل الأول: لماذا يخسر أغلب الناس؟',
   titleEn: 'Chapter 1: Why Do Most People Lose?',
-  sections: [
-    {
-      titleAr: 'الافتتاحية: وهم المعرفة المسبقة',
-      titleEn: 'Opening: The Illusion of Prior Knowledge',
-      free: true,
-      contentAr: `تخيل معي للحظة أنني أعطيتك القدرة على رؤية المستقبل. تحديداً، أعطيتك صحيفة وول ستريت جورنال قبل 24 ساعة من نشرها. أنت تعرف ماذا سيكتبون غداً.
-
-هل تعتقد أنك ستجني أرباحاً خيالية؟
-
-هذه تجربة حقيقية أجرتها شركة Elm Wealth الاستشارية. أعطوا 118 طالباً في كلية المال والأعمال صفحة الجريدة الأولى قبل 24 ساعة من نشرها.
-
-النتائج صدمت الجميع: نصف المشاركين خسروا أموالهم. و16% منهم خسروا كل شيء - تم محو حساباتهم بالكامل.
-
-هؤلاء الطلاب توقعوا الاتجاه الصحيح في 51.5% من الحالات. إذا كانوا يعرفون المستقبل… لماذا خسروا؟
-
-لأن التداول ليس مجرد معرفة أين سيتحرك السوق. التداول هو معرفة كم يجب أن تراهن، ومتى تتوقف، وكيف تحمي نفسك عندما تكون مخطئاً.`,
-    },
-    {
-      titleAr: 'الدرس الأول: وهم الثراء السريع',
-      titleEn: 'Lesson 1: The Illusion of Quick Wealth',
-      free: true,
-      contentAr: `كارلوس، شاب في التاسعة والعشرين من عمره، كان يعمل مهندساً. في أحد الأيام، ظهر له إعلان بعنوان "كيف حولت 500 دولار إلى 50,000 دولار في شهر واحد".
-
-أودع 3000 دولار. في الأسبوع الأول، ربح 400 دولار. زاد حجم صفقاته. في الأسبوع الثاني، خسر 2500 دولار. بدأ يدخل صفقات عشوائية "لتعويض" ما خسره.
-
-بعد شهر واحد فقط، كان حسابه صفراً.
-
-لماذا وهم الثراء السريع قوي جداً؟ عندما ترى صورة لشخص حقق أرباحاً خيالية، يفرز دماغك مادة الدوبامين. هذه المادة تقلل من قدرتك على تقييم المخاطر بشكل موضوعي.
-
-يقول مارك دوغلاس: "السوق لا يكافئ الأذكياء. السوق يكافئ المنضبطين."`,
-    },
-    {
-      titleAr: 'الدرس الثاني: تأثير السوشيال ميديا',
-      titleEn: 'Lesson 2: Social Media Effect',
-      free: true,
-      contentAr: `محمد، شاب في الثانية والعشرين، كان يتابع أحد "المؤثرين" الماليين. دفع 200 دولار شهرياً للانضمام لمجموعته. تلقى إشارات تداول. خسر كل مرة.
-
-محمد لم يكن يعلم أن هذا "المؤثر" لم يكن يتداول أصلاً. كان يكسب ماله من الاشتراكات الشهرية.
-
-بحسب التقارير: 1 من كل 3 متداولين جدد ينسحبون تماماً خلال 6 أشهر. و58% من المبتدئين يخسرون كل أموالهم تقريباً خلال عامهم الأول.
-
-الأسباب الأكثر شيوعاً:
-• ضعف البحث وفهم السوق - 55%
-• الخوف من تفويت الفرصة (FOMO) - 44%`,
-    },
-    {
-      titleAr: 'الدرس الثالث: لماذا يربح القليل فقط؟',
-      titleEn: 'Lesson 3: Why Do Only Few Win?',
-      free: false,
-      contentAr: `هناك ثلاث فئات في السوق:
-
-الفئة الأولى - المؤسسات والبنوك: 85% منهم يربحون. لديهم فرق كاملة وأنظمة صارمة.
-
-الفئة الثانية - المتداولون المنضبطون: 45% منهم يحققون أرباحاً. يلتزمون بإدارة المخاطر، لديهم خطة مكتوبة، يتوقفون عند التعب النفسي.
-
-الفئة الثالثة - "المحظوظون" المؤقتون: أقل من 2% يستمرون في الربح بعد 5-10 سنوات.
-
-الفرق الحقيقي: الناجح يحدد مسبقاً كم سيخسر. الخاسر لا يحدد أو يخالف قاعدته. الناجح يدخل فقط عندما تتوفر شروط خطته. الخاسر يدخل لأن "السوق يبدو صاعداً".`,
-    },
-    {
-      titleAr: 'الدرس الرابع: المقامر والمتداول',
-      titleEn: 'Lesson 4: Gambler vs Trader',
-      free: false,
-      contentAr: `المقامر لا يعرف متى يتوقف. المقامر يخاطر بأكثر مما يستطيع تحمل خسارته. يلاحق الخسارة محاولاً "تعويضها".
-
-المتداول الحقيقي يعرف بالضبط كم سيخسر قبل أن يدخل الصفقة. يعرف أن الخسارة جزء من اللعبة.
-
-اختبار بسيط لنفسك:
-• هل تترك صفقاتك الخاسرة مفتوحة بعد وقف الخسارة؟
-• هل تتداول أكثر بعد سلسلة خسائر؟
-• هل تشعر بالنشوة عند الربح والاكتئاب عند الخسارة؟
-
-إذا أجبت بنعم على 3 أو أكثر، فأنت تتداول بعقلية المقامر.`,
-    },
-    {
-      titleAr: 'ماذا تعلمت في هذا الفصل؟',
-      titleEn: 'What Did You Learn?',
-      free: false,
-      contentAr: `ثلاث نقاط أساسية:
-
-أولاً: وهم الثراء السريع فخ كيميائي حقيقي في دماغك. الدوبامين يقلل من قدرتك على تقييم المخاطر.
-
-ثانياً: صناع المحتوى المالي نموذج أعمالهم لا يعتمد على نجاحك. يعتمد على مشاركتك.
-
-ثالثاً: الفرق بين الخاسر والناجح ليس في الذكاء. الفرق في الانضباط وإدارة المخاطر واحترام الخسارة.
-
-"السوق لا يدمر الناس… الناس يدمرون أنفسهم داخل السوق."`,
-    }
-  ]
 };
 
 const CHAPTERS_LIST = [
@@ -133,18 +44,17 @@ const BookDetail = () => {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
   const { hasAccess } = useBookAccess();
-  const [activeSection, setActiveSection] = useState(0);
   const [showChapters, setShowChapters] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
   const [pdfUrl, setPdfUrl] = useState('');
+  const [pdfFullscreen, setPdfFullscreen] = useState(false);
   const isAr = i18n.language === 'ar';
 
   const PRICE = 11.99;
   const ORIGINAL_PRICE = 23.98;
   const DISCOUNT_PCT = Math.round(((ORIGINAL_PRICE - PRICE) / ORIGINAL_PRICE) * 100);
 
-  const isSectionLocked = (section) => !section.free && !hasAccess;
 
   const [bookStats, setBookStats] = useState({ rating: 4.8, reviews: 342, purchases: 1540 });
 
@@ -211,14 +121,6 @@ const BookDetail = () => {
     }
   }, [hasAccess]);
 
-  const handleSectionClick = (idx) => {
-    const section = CHAPTER_1.sections[idx];
-    if (isSectionLocked(section)) {
-      setActiveSection(idx);
-    } else {
-      setActiveSection(idx);
-    }
-  };
 
   return (
     <>
@@ -434,186 +336,98 @@ const BookDetail = () => {
               </div>
             </motion.div>
 
-            {/* Chapter Content */}
+            {/* Chapter 1 — PDF Preview */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
               className="flex-1 min-w-0"
             >
-              <div className="glass-card border border-border rounded-3xl p-6 md:p-10">
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center">
-                    <BookOpen className="w-5 h-5 text-black" />
+              <div className="glass-card border border-border rounded-3xl p-6 md:p-8">
+
+                {/* Chapter Header */}
+                <div className="flex items-center justify-between gap-3 mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center flex-shrink-0">
+                      <FileText className="w-5 h-5 text-black" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl md:text-2xl font-black text-foreground uppercase tracking-tight">
+                        {isAr ? CHAPTER_1_STUB.titleAr : CHAPTER_1_STUB.titleEn}
+                      </h2>
+                      <p className="text-amber-500 text-[10px] font-bold uppercase tracking-widest mt-1">
+                        {isAr ? 'معاينة مجانية — الفصل الأول كاملاً' : 'Free Preview — Full Chapter 1'}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">
-                      {isAr ? CHAPTER_1.titleAr : CHAPTER_1.titleEn}
-                    </h2>
-                    <p className="text-amber-500 text-[10px] font-bold uppercase tracking-widest mt-1">
-                      {isAr ? 'معاينة مجانية — أول 3 دروس من الفصل الأول' : 'Free Preview — First 3 Lessons of Chapter 1'}
-                    </p>
-                  </div>
+                  <button
+                    onClick={() => setPdfFullscreen(!pdfFullscreen)}
+                    title={pdfFullscreen ? (isAr ? 'تصغير' : 'Exit Fullscreen') : (isAr ? 'تكبير' : 'Fullscreen')}
+                    className="w-9 h-9 flex items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500 hover:text-black transition-all flex-shrink-0 cursor-pointer"
+                  >
+                    <Maximize2 className="w-4 h-4" />
+                  </button>
                 </div>
 
-                {/* Section Navigation */}
-                <div className="flex flex-wrap gap-2 mb-8 pb-6 border-b border-white/5">
-                  {CHAPTER_1.sections.map((section, idx) => {
-                    const locked = isSectionLocked(section);
-                    return (
-                      <button
-                        key={idx}
-                        onClick={() => handleSectionClick(idx)}
-                        className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
-                          activeSection === idx
-                            ? locked
-                              ? 'bg-zinc-700 text-zinc-400 border border-zinc-600'
-                              : 'bg-amber-500 text-black'
-                            : locked
-                              ? 'bg-white/3 text-zinc-600 hover:bg-white/5 border border-white/5'
-                              : 'bg-white/5 text-zinc-400 hover:bg-white/10'
-                        }`}
-                      >
-                        {locked && <Lock className="w-2.5 h-2.5" />}
-                        {isAr ? section.titleAr.substring(0, 25) + (section.titleAr.length > 25 ? '...' : '') : section.titleEn.substring(0, 20) + (section.titleEn.length > 20 ? '...' : '')}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Active Section Content */}
+                {/* PDF Viewer */}
                 <AnimatePresence mode="wait">
-                  {isSectionLocked(CHAPTER_1.sections[activeSection]) ? (
-                    /* ── PAYWALL OVERLAY ── */
-                    <motion.div
-                      key={`locked-${activeSection}`}
-                      initial={{ opacity: 0, scale: 0.96 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.96 }}
-                      transition={{ duration: 0.3 }}
-                      className="relative overflow-hidden rounded-3xl"
-                    >
-                      {/* Blurred text hint */}
-                      <div
-                        className="select-none pointer-events-none text-zinc-600 leading-[2.2] text-sm mb-6 blur-sm"
-                        dir="rtl"
-                        style={{ fontFamily: 'Amiri, serif' }}
+                  <motion.div
+                    key={pdfFullscreen ? 'full' : 'normal'}
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    transition={{ duration: 0.25 }}
+                    className={`relative rounded-2xl overflow-hidden border border-border bg-zinc-900/30 ${
+                      pdfFullscreen
+                        ? 'fixed inset-4 z-[200] rounded-2xl shadow-2xl'
+                        : ''
+                    }`}
+                  >
+                    {pdfFullscreen && (
+                      <button
+                        onClick={() => setPdfFullscreen(false)}
+                        className="absolute top-3 right-3 z-10 w-9 h-9 flex items-center justify-center rounded-xl bg-black/70 border border-white/10 text-white hover:bg-black transition-all cursor-pointer"
                       >
-                        هناك ثلاث فئات في السوق. الفئة الأولى - المؤسسات والبنوك يربحون بنسبة 85%. لديهم فرق كاملة وأنظمة صارمة تحميهم من القرارات العاطفية. الفئة الثانية - المتداولون المنضبطون...
-                      </div>
-
-                      {/* Paywall card */}
-                      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-zinc-900/80 to-black/80 backdrop-blur-2xl border border-amber-500/20 p-8 md:p-12 text-center shadow-2xl shadow-amber-500/5">
-                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(212,175,55,0.08),transparent_60%)] pointer-events-none" />
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-1 bg-gradient-to-r from-transparent via-amber-500/60 to-transparent" />
-
-                        <div className="relative">
-                          <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-6">
-                            <Lock className="w-7 h-7 text-amber-500" />
-                          </div>
-
-                          <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2">
-                            {isAr ? 'هذا الدرس مقفل' : 'This Lesson is Locked'}
-                          </h3>
-                          <p className="text-zinc-400 text-sm mb-8 max-w-sm mx-auto leading-relaxed">
-                             {isAr
-                               ? 'احصل على وصول كامل لجميع دروس الكتاب وفصوله الـ 21 كاملةً'
-                               : 'Get full access to all lessons and all 21 chapters of the book'}
-                           </p>
-
-                          <div className="inline-flex items-baseline gap-3 mb-8">
-                            <span className="text-4xl font-black text-white">${PRICE}</span>
-                            <span className="text-lg text-zinc-600 line-through">${ORIGINAL_PRICE}</span>
-                            <span className="px-2 py-1 rounded-lg bg-red-500/20 text-red-400 text-xs font-black">-{DISCOUNT_PCT}%</span>
-                          </div>
-
-                          <motion.button
-                            whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                            onClick={() => setPaymentOpen(true)}
-                            className="w-full max-w-xs mx-auto flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-amber-500/25 cursor-pointer mb-6"
-                          >
-                            <ShoppingCart className="w-5 h-5" />
-                            {isAr ? 'اشتري الكتاب كاملاً' : 'Buy Full Book'}
-                          </motion.button>
-
-                          {/* Guarantee badge */}
-                          <div className="flex items-center justify-center gap-2 text-zinc-500">
-                            <Shield className="w-4 h-4 text-amber-500/60" />
-                            <span className="text-xs">
-                              {isAr
-                                ? 'ضمان استرداد 7 أيام — إذا قرأت الكتاب كاملاً ولم تستفد أعيد لك المبلغ'
-                                : '7-Day Money-Back — If you read the full book and don\'t benefit, get a full refund'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key={activeSection}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <h3 className="text-lg font-black text-amber-500 mb-6">
-                        {isAr
-                          ? CHAPTER_1.sections[activeSection].titleAr
-                          : CHAPTER_1.sections[activeSection].titleEn}
-                      </h3>
-                      <div className="prose prose-invert max-w-none">
-                        {CHAPTER_1.sections[activeSection].contentAr.split('\n\n').map((paragraph, idx) => (
-                          <motion.p
-                            key={idx}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: idx * 0.05 }}
-                            className="text-zinc-300 leading-[2] text-base mb-4"
-                            dir="rtl"
-                          >
-                            {paragraph}
-                          </motion.p>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
+                        <Maximize2 className="w-4 h-4" />
+                      </button>
+                    )}
+                    <iframe
+                      src="/chapter1_sample.pdf#toolbar=1&navpanes=0&scrollbar=1&view=FitH"
+                      title={isAr ? 'الفصل الأول — التداول الرصين' : 'Chapter 1 — Sober Trading'}
+                      className="w-full border-0"
+                      style={{ height: pdfFullscreen ? '100%' : '75vh', minHeight: '500px' }}
+                      loading="lazy"
+                    />
+                  </motion.div>
                 </AnimatePresence>
 
-                {/* Navigation between sections */}
-                {!isSectionLocked(CHAPTER_1.sections[activeSection]) && (
-                  <div className="flex items-center justify-between mt-10 pt-6 border-t border-white/5">
-                    <button
-                      onClick={() => setActiveSection(Math.max(0, activeSection - 1))}
-                      disabled={activeSection === 0}
-                      className="px-6 py-3 rounded-xl bg-white/5 text-zinc-400 text-xs font-bold uppercase tracking-widest disabled:opacity-30 hover:bg-white/10 transition-all cursor-pointer"
+                {/* CTA below PDF */}
+                <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-border">
+                  <p className="text-muted-foreground text-xs text-center sm:text-start">
+                    {isAr
+                      ? 'أعجبك الفصل الأول؟ احصل على الكتاب كاملاً مع جميع الفصول الـ 21'
+                      : 'Enjoyed Chapter 1? Get the complete book with all 21 chapters'}
+                  </p>
+                  {!hasAccess ? (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                      onClick={() => setPaymentOpen(true)}
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-amber-500/20 cursor-pointer whitespace-nowrap flex-shrink-0"
                     >
-                      {isAr ? 'السابق' : 'Previous'}
-                    </button>
-
-                    <span className="text-zinc-600 text-xs">
-                      {activeSection + 1} / {CHAPTER_1.sections.length}
-                    </span>
-
-                    {activeSection < CHAPTER_1.sections.length - 1 ? (
-                      <button
-                        onClick={() => setActiveSection(activeSection + 1)}
-                        className="px-6 py-3 rounded-xl bg-amber-500/10 text-amber-500 text-xs font-bold uppercase tracking-widest hover:bg-amber-500 hover:text-black transition-all cursor-pointer"
-                      >
-                        {isAr ? 'التالي' : 'Next'}
-                      </button>
-                    ) : (
-                      <motion.button
-                        whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                        onClick={() => hasAccess ? navigate('/books/sober-trading/read') : setPaymentOpen(true)}
-                        className="px-6 py-3 rounded-xl bg-amber-500 text-black text-xs font-bold uppercase tracking-widest hover:bg-amber-400 transition-all cursor-pointer"
-                      >
-                        {hasAccess
-                          ? (isAr ? 'اقرأ الكتاب كاملاً' : 'Read Full Book')
-                          : (isAr ? 'اشتر الكتاب كاملاً' : 'Buy Full Book')}
-                      </motion.button>
-                    )}
-                  </div>
-                )}
+                      <ShoppingCart className="w-4 h-4" />
+                      {isAr ? 'اشترِ الكتاب كاملاً — ${PRICE}' : `Buy Full Book — $${PRICE}`}
+                    </motion.button>
+                  ) : (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                      onClick={() => navigate('/books/sober-trading/read')}
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-amber-500/20 cursor-pointer whitespace-nowrap flex-shrink-0"
+                    >
+                      <BookOpen className="w-4 h-4" />
+                      {isAr ? 'اقرأ الكتاب كاملاً' : 'Read Full Book'}
+                    </motion.button>
+                  )}
+                </div>
               </div>
             </motion.div>
           </div>

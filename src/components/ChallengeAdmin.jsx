@@ -5,6 +5,7 @@ import { Trophy, Plus, Users, Activity, DollarSign, TrendingUp, Eye, Trash2 } fr
 import { auth, db } from '../lib/firebase';
 import { collection, getDocs, query, orderBy, deleteDoc, doc } from 'firebase/firestore';
 import { createChallenge, CHALLENGE_LEVELS } from '../lib/challengeEngine';
+import Header from './Header';
 
 function ChallengeAdmin() {
   const { t, i18n } = useTranslation();
@@ -107,14 +108,19 @@ function ChallengeAdmin() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-20 h-20 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
-      </div>
+      <>
+        <Header />
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="w-20 h-20 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-8">
+    <>
+      <Header />
+      <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-12">
@@ -370,6 +376,7 @@ function ChallengeAdmin() {
         )}
       </div>
     </div>
+    </>
   );
 }
 

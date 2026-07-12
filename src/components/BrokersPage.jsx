@@ -1,3 +1,4 @@
+import Header from './Header';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button.jsx';
@@ -32,7 +33,9 @@ const BrokersPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground pt-24 pb-12">
+    <>
+      <Header />
+      <div className="min-h-screen bg-background text-foreground pt-24 pb-12">
       <div className="container mx-auto px-4">
         {/* Hero Section */}
         <motion.div
@@ -231,6 +234,7 @@ const BrokersPage = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 
