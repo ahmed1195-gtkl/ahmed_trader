@@ -11,6 +11,7 @@ import Footer from '../Footer';
 const iconMap = { BarChart3, Brain, Target, Zap };
 
 const schoolTranslations = {
+  foundation: { en: 'Foundation of Trading', ar: 'المحور الأول: التأسيس', fr: 'Fondation du Trading', es: 'Fundación de Trading' },
   classical: { en: 'Classical Technical Analysis', ar: 'التحليل الفني الكلاسيكي', fr: 'Analyse Technique Classique', es: 'Análisis Técnico Clásico' },
   smc: { en: 'Smart Money Concepts', ar: 'مفاهيم المال الذكي', fr: 'Smart Money Concepts', es: 'Smart Money Concepts' },
   ict: { en: 'ICT Trading Method', ar: 'منهجية ICT للتداول', fr: 'Méthode ICT', es: 'Método ICT' },
@@ -20,7 +21,7 @@ const schoolTranslations = {
 const levelLabels = {
   en: { beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced' },
   ar: { beginner: 'مبتدئ', intermediate: 'متوسط', advanced: 'متقدم' },
-  fr: { beginner: 'Débutant', intermediate: 'Intermédiaire', advanced: 'Avancé' },
+  fr: { beginner: 'Débutant', border: 'border-green-500/20', intermediate: 'Intermédiaire', advanced: 'Avancé' },
   es: { beginner: 'Principiante', intermediate: 'Intermedio', advanced: 'Avanzado' }
 };
 
@@ -41,7 +42,8 @@ const SchoolPage = () => {
 
   // Get lessons based on school
   let lessons = [];
-  if (schoolId === 'classical') lessons = lessonsData.classical || [];
+  if (schoolId === 'foundation') lessons = lessonsData.foundation || [];
+  else if (schoolId === 'classical') lessons = lessonsData.classical || [];
   else if (schoolId === 'smc') lessons = smcLessons || [];
   else if (schoolId === 'ict') lessons = ictLessons || [];
   else if (schoolId === 'sk') lessons = skLessons || [];
