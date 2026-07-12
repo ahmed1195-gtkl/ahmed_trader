@@ -98,7 +98,7 @@ function GlobalLeaderboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-20 h-20 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
       </div>
     );
@@ -107,9 +107,9 @@ function GlobalLeaderboard() {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-black pt-20">
+      <div className="min-h-screen bg-background text-foreground pt-20">
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-b from-amber-500/10 to-black border-b border-amber-500/20">
+      <div className="relative overflow-hidden bg-gradient-to-b from-amber-500/10 to-background border-b border-amber-500/20">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-30" />
         
         <div className="relative max-w-7xl mx-auto px-6 py-20">
@@ -121,10 +121,10 @@ function GlobalLeaderboard() {
             <div className="flex items-center justify-center gap-4 mb-6">
               <Trophy className="w-16 h-16 text-amber-500" />
             </div>
-            <h1 className="text-6xl md:text-7xl font-black text-white uppercase tracking-tight mb-4">
+            <h1 className="text-6xl md:text-7xl font-black text-foreground uppercase tracking-tight mb-4">
               {i18n.language === 'ar' ? 'قادة المنصة' : i18n.language === 'fr' ? 'Leaders de la Plateforme' : 'Platform Leaders'}
             </h1>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               {i18n.language === 'ar' 
                 ? 'أفضل 10 متداولين على مستوى المنصة بناءً على الأداء الإجمالي'
                 : i18n.language === 'fr'
@@ -143,7 +143,7 @@ function GlobalLeaderboard() {
             className={`px-6 py-3 rounded-xl font-black text-sm uppercase transition-all ${
               filter === 'all'
                 ? 'bg-amber-500 text-black'
-                : 'bg-zinc-900 text-gray-400 hover:bg-zinc-800'
+                : 'bg-card border border-border text-muted-foreground hover:bg-muted'
             }`}
           >
             {i18n.language === 'ar' ? 'الكل' : i18n.language === 'fr' ? 'Tous' : 'All'}
@@ -153,7 +153,7 @@ function GlobalLeaderboard() {
             className={`px-6 py-3 rounded-xl font-black text-sm uppercase transition-all ${
               filter === 'bronze'
                 ? 'bg-amber-500 text-black'
-                : 'bg-zinc-900 text-gray-400 hover:bg-zinc-800'
+                : 'bg-card border border-border text-muted-foreground hover:bg-muted'
             }`}
           >
             {i18n.language === 'ar' ? 'برونزي' : i18n.language === 'fr' ? 'Bronze' : 'Bronze'}
@@ -163,7 +163,7 @@ function GlobalLeaderboard() {
             className={`px-6 py-3 rounded-xl font-black text-sm uppercase transition-all ${
               filter === 'silver'
                 ? 'bg-amber-500 text-black'
-                : 'bg-zinc-900 text-gray-400 hover:bg-zinc-800'
+                : 'bg-card border border-border text-muted-foreground hover:bg-muted'
             }`}
           >
             {i18n.language === 'ar' ? 'فضي' : i18n.language === 'fr' ? 'Argent' : 'Silver'}
@@ -173,7 +173,7 @@ function GlobalLeaderboard() {
             className={`px-6 py-3 rounded-xl font-black text-sm uppercase transition-all ${
               filter === 'gold'
                 ? 'bg-amber-500 text-black'
-                : 'bg-zinc-900 text-gray-400 hover:bg-zinc-800'
+                : 'bg-card border border-border text-muted-foreground hover:bg-muted'
             }`}
           >
             {i18n.language === 'ar' ? 'ذهبي' : i18n.language === 'fr' ? 'Or' : 'Gold'}
@@ -190,13 +190,13 @@ function GlobalLeaderboard() {
               transition={{ delay: 0.1 }}
               className="order-2 md:order-1"
             >
-              <div className="bg-gradient-to-br from-gray-400/20 to-gray-500/20 border-2 border-gray-400 rounded-3xl p-8 text-center h-full flex flex-col justify-between">
+              <div className="glass-card border border-border rounded-3xl p-8 text-center h-full flex flex-col justify-between">
                 <div>
                   <Medal className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <div className="text-4xl font-black text-white mb-2">
+                  <div className="text-4xl font-black text-foreground mb-2">
                     {leaderboard[1].userName}
                   </div>
-                  <div className="text-sm text-gray-400 mb-6">
+                  <div className="text-sm text-muted-foreground mb-6">
                     {i18n.language === 'ar' ? 'المركز الثاني' : '2nd Place'}
                   </div>
                 </div>
@@ -205,24 +205,24 @@ function GlobalLeaderboard() {
                     <div className="text-3xl font-black text-green-500 mb-1">
                       ${leaderboard[1].totalProfit?.toLocaleString()}
                     </div>
-                    <div className="text-xs text-gray-500 uppercase">
+                    <div className="text-xs text-muted-foreground uppercase">
                       {i18n.language === 'ar' ? 'إجمالي الأرباح' : 'Total Profit'}
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-center">
                     <div>
-                      <div className="text-xl font-black text-white">
+                      <div className="text-xl font-black text-foreground">
                         {leaderboard[1].passedChallenges}/{leaderboard[1].totalChallenges}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-muted-foreground">
                         {i18n.language === 'ar' ? 'النجاحات' : 'Passed'}
                       </div>
                     </div>
                     <div>
-                      <div className="text-xl font-black text-white">
+                      <div className="text-xl font-black text-foreground">
                         {leaderboard[1].averageReturn?.toFixed(1)}%
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-muted-foreground">
                         {i18n.language === 'ar' ? 'متوسط العائد' : 'Avg Return'}
                       </div>
                     </div>
@@ -237,10 +237,10 @@ function GlobalLeaderboard() {
               animate={{ opacity: 1, y: 0 }}
               className="order-1 md:order-2"
             >
-              <div className="bg-gradient-to-br from-amber-500/20 to-amber-600/20 border-2 border-amber-500 rounded-3xl p-8 text-center h-full flex flex-col justify-between transform md:scale-110">
+              <div className="glass-card border-2 border-amber-500 rounded-3xl p-8 text-center h-full flex flex-col justify-between transform md:scale-110">
                 <div>
                   <Crown className="w-20 h-20 text-amber-500 mx-auto mb-4" />
-                  <div className="text-5xl font-black text-white mb-2">
+                  <div className="text-5xl font-black text-foreground mb-2">
                     {leaderboard[0].userName}
                   </div>
                   <div className="text-sm text-amber-500 mb-6 font-black uppercase">
@@ -252,24 +252,24 @@ function GlobalLeaderboard() {
                     <div className="text-4xl font-black text-green-500 mb-1">
                       ${leaderboard[0].totalProfit?.toLocaleString()}
                     </div>
-                    <div className="text-xs text-gray-500 uppercase">
+                    <div className="text-xs text-muted-foreground uppercase">
                       {i18n.language === 'ar' ? 'إجمالي الأرباح' : 'Total Profit'}
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-center">
                     <div>
-                      <div className="text-2xl font-black text-white">
+                      <div className="text-2xl font-black text-foreground">
                         {leaderboard[0].passedChallenges}/{leaderboard[0].totalChallenges}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-muted-foreground">
                         {i18n.language === 'ar' ? 'النجاحات' : 'Passed'}
                       </div>
                     </div>
                     <div>
-                      <div className="text-2xl font-black text-white">
+                      <div className="text-2xl font-black text-foreground">
                         {leaderboard[0].averageReturn?.toFixed(1)}%
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-muted-foreground">
                         {i18n.language === 'ar' ? 'متوسط العائد' : 'Avg Return'}
                       </div>
                     </div>
@@ -285,13 +285,13 @@ function GlobalLeaderboard() {
               transition={{ delay: 0.2 }}
               className="order-3"
             >
-              <div className="bg-gradient-to-br from-orange-500/20 to-orange-600/20 border-2 border-orange-500 rounded-3xl p-8 text-center h-full flex flex-col justify-between">
+              <div className="glass-card border border-border rounded-3xl p-8 text-center h-full flex flex-col justify-between">
                 <div>
                   <Award className="w-16 h-16 text-orange-500 mx-auto mb-4" />
-                  <div className="text-4xl font-black text-white mb-2">
+                  <div className="text-4xl font-black text-foreground mb-2">
                     {leaderboard[2].userName}
                   </div>
-                  <div className="text-sm text-gray-400 mb-6">
+                  <div className="text-sm text-muted-foreground mb-6">
                     {i18n.language === 'ar' ? 'المركز الثالث' : '3rd Place'}
                   </div>
                 </div>
@@ -300,24 +300,24 @@ function GlobalLeaderboard() {
                     <div className="text-3xl font-black text-green-500 mb-1">
                       ${leaderboard[2].totalProfit?.toLocaleString()}
                     </div>
-                    <div className="text-xs text-gray-500 uppercase">
+                    <div className="text-xs text-muted-foreground uppercase">
                       {i18n.language === 'ar' ? 'إجمالي الأرباح' : 'Total Profit'}
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-center">
                     <div>
-                      <div className="text-xl font-black text-white">
+                      <div className="text-xl font-black text-foreground">
                         {leaderboard[2].passedChallenges}/{leaderboard[2].totalChallenges}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-muted-foreground">
                         {i18n.language === 'ar' ? 'النجاحات' : 'Passed'}
                       </div>
                     </div>
                     <div>
-                      <div className="text-xl font-black text-white">
+                      <div className="text-xl font-black text-foreground">
                         {leaderboard[2].averageReturn?.toFixed(1)}%
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-muted-foreground">
                         {i18n.language === 'ar' ? 'متوسط العائد' : 'Avg Return'}
                       </div>
                     </div>
@@ -330,30 +330,30 @@ function GlobalLeaderboard() {
 
         {/* Rest of Leaderboard (4-10) */}
         {leaderboard.length > 3 && (
-          <div className="bg-zinc-900/50 border border-white/5 rounded-3xl overflow-hidden">
+          <div className="glass-card border border-border rounded-3xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-white/5">
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">
+                  <tr className="border-b border-border">
+                    <th className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase">
                       {i18n.language === 'ar' ? 'المركز' : 'Rank'}
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">
+                    <th className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase">
                       {i18n.language === 'ar' ? 'المتداول' : 'Trader'}
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">
+                    <th className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase">
                       {i18n.language === 'ar' ? 'إجمالي الأرباح' : 'Total Profit'}
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">
+                    <th className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase">
                       {i18n.language === 'ar' ? 'النجاحات' : 'Passed'}
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">
+                    <th className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase">
                       {i18n.language === 'ar' ? 'متوسط العائد' : 'Avg Return'}
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">
+                    <th className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase">
                       {i18n.language === 'ar' ? 'معدل الفوز' : 'Win Rate'}
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">
+                    <th className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase">
                       {i18n.language === 'ar' ? 'أفضل تحدي' : 'Best Challenge'}
                     </th>
                   </tr>

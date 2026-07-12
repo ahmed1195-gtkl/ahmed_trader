@@ -267,12 +267,12 @@ const CourseRegistration = ({ course }) => {
   const filteredBrokers = allBrokers.filter(b => b.toLowerCase().includes(brokerSearch.toLowerCase()));
 
   return (
-    <section className="min-h-screen bg-black pt-32 pb-20 px-4 relative overflow-hidden">
+    <section className="min-h-screen bg-background text-foreground pt-32 pb-20 px-4 relative overflow-hidden">
       {/* Language Toggle Button */}
       <div className="absolute top-8 right-8 z-50" ref={langRef}>
         <button 
           onClick={() => setShowLangDropdown(!showLangDropdown)}
-          className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-amber-500 hover:text-black transition-all duration-300 backdrop-blur-xl group"
+          className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-foreground hover:bg-amber-500 hover:text-black transition-all duration-300 backdrop-blur-xl group"
         >
           <Languages className="w-4 h-4 group-hover:rotate-12 transition-transform" />
           <span className="text-[10px] font-black uppercase tracking-widest">
@@ -310,11 +310,11 @@ const CourseRegistration = ({ course }) => {
             <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
             <span className="text-amber-500 text-[10px] font-black uppercase tracking-[0.2em]">{isAr ? 'التسجيل في الكورس الاحترافي' : 'Professional Course Registration'}</span>
           </motion.div>
-          <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4">{isAr ? 'ابدأ رحلتك' : 'Start Your'} <span className="text-amber-500">{isAr ? 'الآن' : 'Journey'}</span></h2>
+          <h2 className="text-4xl md:text-6xl font-black text-foreground uppercase tracking-tighter mb-4">{isAr ? 'ابدأ رحلتك' : 'Start Your'} <span className="text-amber-500">{isAr ? 'الآن' : 'Journey'}</span></h2>
         </div>
 
         {!submitted ? (
-          <Card className="bg-zinc-900/60 border-white/10 backdrop-blur-2xl rounded-[2.5rem] overflow-hidden border shadow-2xl">
+          <Card className="glass-card border border-border backdrop-blur-2xl rounded-[2.5rem] overflow-hidden shadow-2xl">
             <CardHeader className="p-8 border-b border-white/5">
               <div className="flex items-center justify-between mb-8">
                 {steps.map((s, idx) => (

@@ -223,7 +223,7 @@ const BookDetail = () => {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-black relative">
+      <div className="min-h-screen bg-background text-foreground relative">
         {/* Hero Section with Background */}
         <div className="relative h-[60vh] md:h-[70vh] overflow-hidden">
           <div className="absolute inset-0">
@@ -366,7 +366,7 @@ const BookDetail = () => {
               transition={{ delay: 0.3 }}
               className="lg:w-80 flex-shrink-0"
             >
-              <div className="sticky top-28 bg-zinc-900/50 backdrop-blur-xl border border-white/5 rounded-3xl p-6">
+              <div className="sticky top-28 glass-card border border-border rounded-3xl p-6">
                 <button
                   onClick={() => setShowChapters(!showChapters)}
                   className="flex items-center justify-between w-full mb-4 cursor-pointer"
@@ -441,7 +441,7 @@ const BookDetail = () => {
               transition={{ delay: 0.4 }}
               className="flex-1 min-w-0"
             >
-              <div className="bg-zinc-900/30 backdrop-blur-xl border border-white/5 rounded-3xl p-6 md:p-10">
+              <div className="glass-card border border-border rounded-3xl p-6 md:p-10">
                 <div className="flex items-center gap-3 mb-8">
                   <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center">
                     <BookOpen className="w-5 h-5 text-black" />

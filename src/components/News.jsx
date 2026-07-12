@@ -84,7 +84,7 @@ const News = () => {
   }, [fetchNews]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-black">
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
       <Header />
       <main className="flex-1 container mx-auto px-4 md:px-6 pt-24 md:pt-32 pb-12 md:pb-20">
         <div className="max-w-6xl mx-auto">

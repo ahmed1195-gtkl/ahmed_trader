@@ -107,22 +107,22 @@ function ChallengeAdmin() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-20 h-20 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black p-8">
+    <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-12">
           <div>
-            <h1 className="text-4xl font-black text-white uppercase tracking-tight mb-2">
+            <h1 className="text-4xl font-black text-foreground uppercase tracking-tight mb-2">
               {i18n.language === 'ar' ? 'إدارة التحديات' : 'Challenge Management'}
             </h1>
-            <p className="text-gray-400">
+            <p className="text-muted-foreground">
               {i18n.language === 'ar' ? 'إنشاء وإدارة التحديات التنافسية' : 'Create and manage trading challenges'}
             </p>
           </div>
@@ -145,7 +145,7 @@ function ChallengeAdmin() {
             <div className="text-3xl font-black text-white mb-1">
               {stats.totalChallenges}
             </div>
-            <div className="text-xs text-gray-500 uppercase tracking-wider">
+            <div className="text-xs text-muted-foreground uppercase tracking-wider">
               {i18n.language === 'ar' ? 'إجمالي التحديات' : 'Total Challenges'}
             </div>
           </div>
@@ -157,7 +157,7 @@ function ChallengeAdmin() {
             <div className="text-3xl font-black text-white mb-1">
               {stats.activeChallenges}
             </div>
-            <div className="text-xs text-gray-500 uppercase tracking-wider">
+            <div className="text-xs text-muted-foreground uppercase tracking-wider">
               {i18n.language === 'ar' ? 'التحديات النشطة' : 'Active Challenges'}
             </div>
           </div>
@@ -169,7 +169,7 @@ function ChallengeAdmin() {
             <div className="text-3xl font-black text-white mb-1">
               {stats.totalParticipants}
             </div>
-            <div className="text-xs text-gray-500 uppercase tracking-wider">
+            <div className="text-xs text-muted-foreground uppercase tracking-wider">
               {i18n.language === 'ar' ? 'إجمالي المشاركين' : 'Total Participants'}
             </div>
           </div>
@@ -181,7 +181,7 @@ function ChallengeAdmin() {
             <div className="text-3xl font-black text-white mb-1">
               ${stats.totalRevenue}
             </div>
-            <div className="text-xs text-gray-500 uppercase tracking-wider">
+            <div className="text-xs text-muted-foreground uppercase tracking-wider">
               {i18n.language === 'ar' ? 'إجمالي الإيرادات' : 'Total Revenue'}
             </div>
           </div>
@@ -190,7 +190,7 @@ function ChallengeAdmin() {
         {/* Challenges List */}
         <div className="bg-zinc-900/50 border border-white/5 rounded-2xl overflow-hidden">
           <div className="p-6 border-b border-white/5">
-            <h2 className="text-xl font-black text-white uppercase">
+            <h2 className="text-xl font-black text-foreground uppercase">
               {i18n.language === 'ar' ? 'جميع التحديات' : 'All Challenges'}
             </h2>
           </div>
@@ -199,13 +199,13 @@ function ChallengeAdmin() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/5">
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-wider">
                     {i18n.language === 'ar' ? 'المعرف' : 'ID'}
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-wider">
                     {i18n.language === 'ar' ? 'المستوى' : 'Level'}
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-wider">
                     {i18n.language === 'ar' ? 'الحالة' : 'Status'}
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">

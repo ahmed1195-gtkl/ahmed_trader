@@ -101,7 +101,7 @@ const SheetsGuide = () => {
   ];
 
   return (
-    <section className="min-h-screen bg-black py-20">
+    <section className="min-h-screen bg-background text-foreground py-20">
       <div className="container mx-auto px-4 max-w-7xl">
         {/* Header */}
         <motion.div

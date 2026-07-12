@@ -78,7 +78,7 @@ const PrivacyPolicy = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-black text-white overflow-x-hidden">
+    <div className="min-h-screen flex flex-col bg-background text-foreground overflow-x-hidden">
       <Header />
       
       <main className="flex-1 pt-32 pb-20 container mx-auto px-4">

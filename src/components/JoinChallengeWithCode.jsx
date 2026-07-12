@@ -108,7 +108,7 @@ function JoinChallengeWithCode() {
 
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
         <div className="text-center">
           <AlertCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Login Required</h2>
@@ -125,7 +125,7 @@ function JoinChallengeWithCode() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-4">
+    <div className="min-h-screen bg-background text-foreground p-4">
       <div className="max-w-2xl mx-auto pt-20">
         {/* Header */}
         <motion.div
@@ -145,9 +145,9 @@ function JoinChallengeWithCode() {
 
         {/* Demo Account Status */}
         {checkingAccount ? (
-          <div className="bg-gray-900 rounded-xl p-6 mb-6 flex items-center justify-center gap-3">
+          <div className="glass-card border border-border rounded-xl p-6 mb-6 flex items-center justify-center gap-3">
             <Loader className="w-5 h-5 animate-spin text-amber-500" />
-            <span className="text-gray-400">Checking demo account...</span>
+            <span className="text-muted-foreground">Checking demo account...</span>
           </div>
         ) : demoAccount ? (
           <motion.div
@@ -159,7 +159,7 @@ function JoinChallengeWithCode() {
               <CheckCircle className="w-6 h-6 text-green-500" />
               <div>
                 <h3 className="font-bold text-green-400">Demo Account Connected</h3>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-muted-foreground">
                   {demoAccount.brokerName} - {demoAccount.accountNumber}
                 </p>
               </div>
@@ -175,7 +175,7 @@ function JoinChallengeWithCode() {
               <AlertCircle className="w-6 h-6 text-red-500" />
               <div>
                 <h3 className="font-bold text-red-400">No Demo Account Connected</h3>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-muted-foreground">
                   You must connect a demo account before joining a challenge
                 </p>
               </div>
@@ -193,7 +193,7 @@ function JoinChallengeWithCode() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gray-900 rounded-xl p-8 mb-6"
+          className="glass-card border border-border rounded-xl p-8 mb-6"
         >
           <form onSubmit={handleFindChallenge} className="space-y-6">
             <div>
@@ -210,7 +210,7 @@ function JoinChallengeWithCode() {
                 className="w-full px-4 py-3 bg-black border border-gray-700 rounded-lg text-center text-2xl font-bold tracking-widest focus:outline-none focus:border-amber-500"
                 disabled={loading}
               />
-              <p className="text-xs text-gray-500 mt-2 text-center">
+              <p className="text-xs text-muted-foreground mt-2 text-center">
                 Enter the 6-character invite code
               </p>
             </div>
@@ -264,35 +264,35 @@ function JoinChallengeWithCode() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-br from-gray-900 to-black border border-amber-500/30 rounded-xl p-8"
+            className="glass-card border border-amber-500/30 rounded-xl p-8"
           >
             <div className="flex items-center gap-3 mb-6">
               <Trophy className="w-8 h-8 text-amber-500" />
               <div>
                 <h2 className="text-2xl font-bold">{challenge.name}</h2>
-                <p className="text-gray-400 text-sm">{challenge.description}</p>
+                <p className="text-muted-foreground text-sm">{challenge.description}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="bg-black/50 rounded-lg p-4">
-                <p className="text-xs text-gray-500 mb-1">Initial Balance</p>
+              <div className="bg-black/20 rounded-lg p-4">
+                <p className="text-xs text-muted-foreground mb-1">Initial Balance</p>
                 <p className="text-xl font-bold text-amber-500">
                   ${challenge.initialBalance?.toLocaleString()}
                 </p>
               </div>
-              <div className="bg-black/50 rounded-lg p-4">
-                <p className="text-xs text-gray-500 mb-1">Profit Target</p>
+              <div className="bg-black/20 rounded-lg p-4">
+                <p className="text-xs text-muted-foreground mb-1">Profit Target</p>
                 <p className="text-xl font-bold text-green-500">
                   {challenge.profitTargetPercent}%
                 </p>
               </div>
-              <div className="bg-black/50 rounded-lg p-4">
-                <p className="text-xs text-gray-500 mb-1">Duration</p>
+              <div className="bg-black/20 rounded-lg p-4">
+                <p className="text-xs text-muted-foreground mb-1">Duration</p>
                 <p className="text-xl font-bold">{challenge.duration} days</p>
               </div>
-              <div className="bg-black/50 rounded-lg p-4">
-                <p className="text-xs text-gray-500 mb-1">Participants</p>
+              <div className="bg-black/20 rounded-lg p-4">
+                <p className="text-xs text-muted-foreground mb-1">Participants</p>
                 <p className="text-xl font-bold">
                   {challenge.currentParticipants} / {challenge.maxParticipants}
                 </p>

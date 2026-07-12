@@ -94,7 +94,7 @@ const Friends = () => {
 
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-black pt-24 pb-12 px-4">
+      <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-zinc-400">{t('pleaseLogin') || 'Please login to view friends'}</p>
         </div>
@@ -105,12 +105,12 @@ const Friends = () => {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-black pt-24 pb-12 px-4">
+      <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* زر الرجوع */}
         <button
           onClick={() => navigate(-1)}
-          className="mb-6 flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
+          className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>{t('back') || 'Back'}</span>
@@ -123,10 +123,10 @@ const Friends = () => {
 
         {/* قائمة الأصدقاء */}
         <div>
-          <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
             <Users className="w-6 h-6 text-amber-500" />
             {t('myFriends') || 'My Friends'}
-            <span className="text-sm font-normal text-zinc-400">({friends.length})</span>
+            <span className="text-sm font-normal text-muted-foreground">({friends.length})</span>
           </h2>
 
           {loading ? (
@@ -134,9 +134,9 @@ const Friends = () => {
               <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : friends.length === 0 ? (
-            <div className="text-center py-12 bg-zinc-900/50 backdrop-blur-xl border border-amber-500/20 rounded-2xl">
-              <Users className="w-16 h-16 text-zinc-600 mx-auto mb-4" />
-              <p className="text-zinc-400">{t('noFriendsYet') || 'No friends yet'}</p>
+            <div className="text-center py-12 glass-card border border-border rounded-2xl">
+              <Users className="w-16 h-16 text-muted-foreground/55 mx-auto mb-4" />
+              <p className="text-muted-foreground">{t('noFriendsYet') || 'No friends yet'}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -145,7 +145,7 @@ const Friends = () => {
                   key={friend.id}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="bg-zinc-900/50 backdrop-blur-xl border border-amber-500/20 rounded-2xl p-4 flex items-center gap-4 hover:border-amber-500/40 transition-colors"
+                  className="glass-card border border-border rounded-2xl p-4 flex items-center gap-4 hover:border-amber-500/40 transition-colors"
                 >
                   {/* الصورة الشخصية */}
                   {friend.photo ? (
@@ -168,12 +168,12 @@ const Friends = () => {
                   {/* المعلومات */}
                   <div className="flex-1">
                     <h3 
-                      className="text-white font-bold cursor-pointer hover:text-amber-500 transition-colors"
+                      className="text-foreground font-bold cursor-pointer hover:text-amber-500 transition-colors"
                       onClick={() => navigate(`/profile/${friend.id}`)}
                     >
                       {friend.name}
                     </h3>
-                    <p className="text-sm text-zinc-400">{t('friend') || 'Friend'}</p>
+                    <p className="text-sm text-muted-foreground">{t('friend') || 'Friend'}</p>
                   </div>
 
                   {/* زر المراسلة */}

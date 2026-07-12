@@ -84,7 +84,7 @@ const LessonPage = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-black text-white ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className={`min-h-screen bg-background text-foreground ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <Header />
 
       <div className="pt-24 pb-20 max-w-4xl mx-auto px-4 sm:px-6">
@@ -92,7 +92,7 @@ const LessonPage = () => {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-2 text-sm text-gray-400 mb-6 flex-wrap"
+          className="flex items-center gap-2 text-sm text-muted-foreground mb-6 flex-wrap"
         >
           <button onClick={() => navigate('/academy')} className="hover:text-amber-500 transition-colors">
             {lang === 'ar' ? 'الأكاديمية' : 'Academy'}
@@ -115,13 +115,13 @@ const LessonPage = () => {
             <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${school.color} flex items-center justify-center text-white font-bold text-sm`}>
               {lesson.id}
             </div>
-            <span className="text-xs text-gray-500 uppercase tracking-wider">{ui.lessonOf} {lesson.id} / {lessons.length}</span>
+            <span className="text-xs text-muted-foreground uppercase tracking-wider">{ui.lessonOf} {lesson.id} / {lessons.length}</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">
             {lessonData?.title}
           </h1>
           {/* Progress bar */}
-          <div className="w-full h-1.5 bg-gray-800 rounded-full mt-4">
+          <div className="w-full h-1.5 bg-secondary rounded-full mt-4">
             <div
               className={`h-full bg-gradient-to-r ${school.color} rounded-full transition-all duration-500`}
               style={{ width: `${((currentIndex + 1) / lessons.length) * 100}%` }}
@@ -134,7 +134,7 @@ const LessonPage = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
-          className="mb-10 rounded-2xl overflow-hidden border border-gray-800"
+          className="mb-10 rounded-2xl overflow-hidden border border-border"
         >
           <DiagramSVG type={diagramKey} />
         </motion.div>
@@ -144,9 +144,9 @@ const LessonPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="prose prose-invert max-w-none mb-10"
+          className="prose dark:prose-invert max-w-none mb-10"
         >
-          <div className="text-gray-300 text-base sm:text-lg leading-relaxed">
+          <div className="text-foreground text-base sm:text-lg leading-relaxed">
             {renderContent(lessonData?.content)}
           </div>
         </motion.div>
@@ -157,9 +157,9 @@ const LessonPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="mb-10 bg-gray-900/60 backdrop-blur-sm rounded-2xl border border-gray-800 p-5 sm:p-7"
+            className="mb-10 bg-card rounded-2xl border border-border p-5 sm:p-7"
           >
-            <h3 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
+            <h3 className="text-lg font-bold text-foreground mb-5 flex items-center gap-2">
               <ListOrdered className="w-5 h-5 text-amber-500" />
               {ui.steps}
             </h3>
@@ -169,7 +169,7 @@ const LessonPage = () => {
                   <div className={`flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br ${school.color} flex items-center justify-center text-white text-xs font-bold mt-0.5`}>
                     {i + 1}
                   </div>
-                  <p className="text-gray-300 text-sm sm:text-base leading-relaxed">{step}</p>
+                  <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">{step}</p>
                 </div>
               ))}
             </div>
@@ -188,7 +188,7 @@ const LessonPage = () => {
               <Target className="w-5 h-5" />
               {ui.example}
             </h3>
-            <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
+            <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
               {lessonData.example}
             </p>
           </motion.div>
@@ -210,7 +210,7 @@ const LessonPage = () => {
               {lessonData.keyTakeaways.map((takeaway, i) => (
                 <div key={i} className="flex items-start gap-2.5">
                   <CheckCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-1" />
-                  <p className="text-gray-300 text-sm sm:text-base">{takeaway}</p>
+                  <p className="text-muted-foreground text-sm sm:text-base">{takeaway}</p>
                 </div>
               ))}
             </div>
@@ -222,12 +222,12 @@ const LessonPage = () => {
           {prevLesson ? (
             <button
               onClick={() => navigate(`/academy/${schoolId}/lesson/${prevLesson.id}`)}
-              className={`flex items-center gap-2 px-4 sm:px-6 py-3 bg-gray-900 hover:bg-gray-800 rounded-xl border border-gray-700 hover:border-amber-500/30 transition-all text-sm sm:text-base ${isRTL ? 'flex-row-reverse' : ''}`}
+              className={`flex items-center gap-2 px-4 sm:px-6 py-3 bg-secondary hover:bg-secondary/80 rounded-xl border border-border hover:border-amber-500/30 transition-all text-sm sm:text-base ${isRTL ? 'flex-row-reverse' : ''}`}
             >
               <ChevronLeft className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
               <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
-                <div className="text-xs text-gray-500">{ui.prev}</div>
-                <div className="text-white font-medium truncate max-w-[120px] sm:max-w-[200px]">
+                <div className="text-xs text-muted-foreground">{ui.prev}</div>
+                <div className="text-foreground font-medium truncate max-w-[120px] sm:max-w-[200px]">
                   {(prevLesson[lang] || prevLesson.en)?.title}
                 </div>
               </div>

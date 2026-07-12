@@ -147,7 +147,7 @@ const UserProfile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -162,12 +162,12 @@ const UserProfile = () => {
   return (
     <>
       <Header />
-    <div className="min-h-screen bg-black pt-24 pb-12 px-4">
+    <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* زر الرجوع */}
         <button
           onClick={() => navigate(-1)}
-          className="mb-6 flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
+          className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>{t('back') || 'Back'}</span>
@@ -191,10 +191,10 @@ const UserProfile = () => {
               {profileUser.photoURL ? (
                 <img src={profileUser.photoURL}
                   alt={profileUser.displayName}
-                  className="w-32 h-32 rounded-full object-cover border-4 border-black"
+                  className="w-32 h-32 rounded-full object-cover border-4 border-background"
                 decoding="async" loading="lazy" />
               ) : (
-                <div className="w-32 h-32 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 flex items-center justify-center border-4 border-black">
+                <div className="w-32 h-32 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 flex items-center justify-center border-4 border-background">
                   <User className="w-16 h-16 text-black" />
                 </div>
               )}
@@ -208,11 +208,11 @@ const UserProfile = () => {
 
             {/* الاسم والمعلومات الأساسية */}
             <div className="mb-6">
-              <h1 className="text-3xl font-bold text-white mb-2">
+              <h1 className="text-3xl font-bold text-foreground mb-2">
                 {profileUser.displayName || profileUser.email}
               </h1>
               
-              <div className="flex flex-wrap gap-4 text-zinc-400">
+              <div className="flex flex-wrap gap-4 text-muted-foreground">
                 {profileUser.age && (
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />

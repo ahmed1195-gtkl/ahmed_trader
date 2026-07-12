@@ -88,7 +88,7 @@ function TradingChallenge() {
   };
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-background text-foreground">
       <Header />
       
       <div className="pt-32 pb-20 px-6">

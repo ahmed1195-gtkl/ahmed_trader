@@ -160,13 +160,13 @@ const Messages = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center p-4">
-        <div className="bg-zinc-900/60 border border-white/10 rounded-[2rem] p-8 text-center max-w-md">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="glass-card border border-border rounded-[2rem] p-8 text-center max-w-md">
           <MessageCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-black text-white uppercase mb-4">
+          <h2 className="text-2xl font-black text-foreground uppercase mb-4">
             {i18n.language === 'ar' ? 'يجب تسجيل الدخول' : 'Login Required'}
           </h2>
-          <p className="text-gray-400 mb-6">
+          <p className="text-muted-foreground mb-6">
             {i18n.language === 'ar' 
               ? 'يرجى تسجيل الدخول للوصول إلى الرسائل' 
               : 'Please login to access messages'}
@@ -183,18 +183,18 @@ const Messages = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black flex">
+    <div className="min-h-screen bg-background text-foreground flex">
       {/* قائمة المستخدمين - للأدمن فقط */}
       {isAdmin && (
-        <div className={`${selectedUser ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-80 border-r border-amber-500/20 bg-zinc-900/30`}>
+        <div className={`${selectedUser ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-80 border-r border-border bg-card`}>
           {/* Header */}
-          <div className="p-4 border-b border-amber-500/20 bg-black/50">
+          <div className="p-4 border-b border-border bg-secondary/40">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full flex items-center justify-center shadow-lg shadow-amber-500/30">
                 <MessageCircle className="w-5 h-5 text-black" />
               </div>
               <div className="flex-1">
-                <h1 className="text-lg font-black text-white uppercase tracking-tight">
+                <h1 className="text-lg font-black text-foreground uppercase tracking-tight">
                   {i18n.language === 'ar' ? 'الرسائل' : 'Messages'}
                 </h1>
                 <span className="text-[10px] text-amber-500 font-black uppercase">

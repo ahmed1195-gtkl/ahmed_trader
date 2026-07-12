@@ -261,7 +261,7 @@ const PipCalculator = () => {
   const currentCurrency = accountCurrencies.find(c => c.code === accountCurrency);
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-amber-500/30 overflow-x-hidden">
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-amber-500/30 overflow-x-hidden">
       <Header />
       <main className="pt-32 md:pt-40 pb-20 px-4 md:px-6 max-w-5xl mx-auto">
         {/* Alert Banner */}

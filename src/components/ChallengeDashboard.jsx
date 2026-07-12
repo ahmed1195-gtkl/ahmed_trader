@@ -203,7 +203,7 @@ function ChallengeDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-20 h-20 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
       </div>
     );
@@ -211,7 +211,7 @@ function ChallengeDashboard() {
 
   if (!participant || !challenge) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <p className="text-white text-xl">
@@ -228,7 +228,7 @@ function ChallengeDashboard() {
     : challenge.duration;
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-background text-foreground">
       <Header />
       
       <div className="pt-32 pb-20 px-6">
@@ -236,7 +236,7 @@ function ChallengeDashboard() {
           {/* Back Button */}
           <button
             onClick={() => navigate('/challenges')}
-            className="flex items-center gap-2 text-gray-400 hover:text-white mb-8 transition-colors"
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             <span className="font-bold">

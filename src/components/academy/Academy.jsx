@@ -94,12 +94,12 @@ const Academy = () => {
   const texts = heroTexts[lang] || heroTexts.en;
 
   return (
-    <div className={`min-h-screen bg-black text-white ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className={`min-h-screen bg-background text-foreground ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <Header />
 
       {/* Hero Section */}
       <section className="relative pt-24 pb-16 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-amber-900/10 via-black to-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-amber-500/10 via-background to-background" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-amber-500/5 rounded-full blur-3xl" />
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 text-center">
@@ -108,7 +108,7 @@ const Academy = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             onClick={() => navigate('/')}
-            className={`absolute top-4 ${isRTL ? 'right-4 sm:right-6' : 'left-4 sm:left-6'} flex items-center gap-2 text-gray-400 hover:text-amber-500 transition-colors`}
+            className={`absolute top-4 ${isRTL ? 'right-4 sm:right-6' : 'left-4 sm:left-6'} flex items-center gap-2 text-muted-foreground hover:text-amber-500 transition-colors`}
           >
             {isRTL ? <ChevronLeft className="w-5 h-5 rotate-180" /> : <ArrowLeft className="w-5 h-5" />}
             <span className="text-sm">{isRTL ? 'الرئيسية' : 'Home'}</span>
@@ -130,7 +130,7 @@ const Academy = () => {
               </span>
             </h1>
 
-            <p className="text-gray-400 text-lg sm:text-xl max-w-3xl mx-auto mb-10 leading-relaxed">
+            <p className="text-muted-foreground text-lg sm:text-xl max-w-3xl mx-auto mb-10 leading-relaxed">
               {texts.subtitle}
             </p>
 
@@ -142,7 +142,7 @@ const Academy = () => {
                 { icon: Users, value: '4', label: texts.languages },
               ].map((stat, i) => (
                 <motion.div
-                  key={i}
+                   key={i}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 + i * 0.1 }}
@@ -152,8 +152,8 @@ const Academy = () => {
                     <stat.icon className="w-5 h-5 text-amber-500" />
                   </div>
                   <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
-                    <div className="text-xl font-bold text-white">{stat.value}</div>
-                    <div className="text-xs text-gray-500">{stat.label}</div>
+                    <div className="text-xl font-bold text-foreground">{stat.value}</div>
+                    <div className="text-xs text-muted-foreground">{stat.label}</div>
                   </div>
                 </motion.div>
               ))}
@@ -179,7 +179,7 @@ const Academy = () => {
                 onClick={() => navigate(`/academy/${school.id}`)}
                 className="cursor-pointer group"
               >
-                <div className="relative h-full bg-gray-900/60 backdrop-blur-sm rounded-2xl border border-gray-800 hover:border-amber-500/40 transition-all duration-300 overflow-hidden p-6">
+                <div className="relative h-full glass-card border border-border hover:border-amber-500/40 transition-all duration-300 overflow-hidden p-6">
                   {/* Gradient overlay */}
                   <div className={`absolute inset-0 bg-gradient-to-br ${school.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
                   
@@ -189,16 +189,16 @@ const Academy = () => {
                   </div>
 
                   {/* Content */}
-                  <h3 className="text-lg font-bold text-white mb-2 group-hover:text-amber-400 transition-colors">
+                  <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-amber-400 transition-colors">
                     {schoolText?.name}
                   </h3>
-                  <p className="text-gray-400 text-sm leading-relaxed mb-4">
+                  <p className="text-muted-foreground text-sm leading-relaxed mb-4">
                     {schoolText?.desc}
                   </p>
 
                   {/* Footer */}
-                  <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-800">
-                    <span className="flex items-center gap-1.5 text-xs text-gray-500">
+                  <div className="flex items-center justify-between mt-auto pt-4 border-t border-border">
+                    <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <BookOpen className="w-3.5 h-3.5" />
                       {school.lessons} {lang === 'ar' ? 'درس' : 'lessons'}
                     </span>
@@ -221,7 +221,7 @@ const Academy = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="relative bg-gradient-to-br from-amber-500/10 to-amber-900/10 rounded-2xl border border-amber-500/20 p-6 sm:p-8"
+            className="relative bg-gradient-to-br from-amber-500/10 to-amber-500/5 rounded-2xl border border-amber-500/20 p-6 sm:p-8"
           >
             <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
               <Lightbulb className="w-8 h-8 text-amber-500 opacity-50" />
@@ -230,7 +230,7 @@ const Academy = () => {
               <Lightbulb className="w-5 h-5" />
               {texts.tipTitle}
             </h3>
-            <p className="text-gray-300 text-base sm:text-lg leading-relaxed italic">
+            <p className="text-foreground/90 text-base sm:text-lg leading-relaxed italic">
               "{dailyTip[lang] || dailyTip.en}"
             </p>
           </motion.div>

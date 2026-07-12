@@ -120,14 +120,14 @@ export default function CopyTrading() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">{t('loading')}...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-foreground text-xl">{t('loading')}...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
+    <div className="min-h-screen bg-background text-foreground p-6">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -140,7 +140,7 @@ export default function CopyTrading() {
             {t('copyTrading.title')}
           </h1>
         </div>
-        <p className="text-gray-400">
+        <p className="text-muted-foreground">
           {t('copyTrading.description')}
         </p>
       </motion.div>
@@ -166,10 +166,10 @@ export default function CopyTrading() {
       )}
 
       {teams.length === 0 && (
-        <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 mb-6">
+        <div className="bg-card border border-border rounded-lg p-6 mb-6">
           <AlertCircle className="w-12 h-12 text-amber-500 mb-3" />
           <h3 className="text-xl font-bold mb-2">{t('copyTrading.noTeams')}</h3>
-          <p className="text-gray-400 mb-4">
+          <p className="text-muted-foreground mb-4">
             {t('copyTrading.joinTeamFirst')}
           </p>
           <a
@@ -197,7 +197,7 @@ export default function CopyTrading() {
               <motion.div
                 key={leader.userId}
                 whileHover={{ scale: 1.02 }}
-                className="bg-gray-900 border border-gray-800 rounded-lg p-6 hover:border-amber-500 transition"
+                className="bg-card border border-border rounded-lg p-6 hover:border-amber-500 transition"
               >
                 <div className="flex items-center gap-3 mb-4">
                   {leader.photoURL ? (

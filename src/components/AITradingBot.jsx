@@ -743,8 +743,7 @@ const AITradingBot = () => {
   const priceChangeColor = priceTick === 'up' ? 'text-green-400' : priceTick === 'down' ? 'text-red-400' : 'text-amber-400';
 
   return (
-    <div className="min-h-screen text-white selection:bg-amber-500/30"
-      style={{ background: 'linear-gradient(135deg, #050505 0%, #0a0a0f 50%, #05050a 100%)' }}>
+    <div className="min-h-screen bg-background text-foreground selection:bg-amber-500/30">
       <Header />
 
       {/* === BACKGROUND AMBIENT === */}

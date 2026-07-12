@@ -69,7 +69,7 @@ const ResetPassword = () => {
 
   if (verifying) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-12 h-12 text-amber-500 animate-spin" />
           <p className="text-amber-500 font-black uppercase tracking-widest text-xs">Verifying Link...</p>

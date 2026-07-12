@@ -68,7 +68,7 @@ const Onboarding = () => {
   };
 
   if (checking) return (
-    <div className="min-h-screen flex items-center justify-center bg-black">
+    <div className="min-h-screen flex items-center justify-center bg-background">
       <Loader2 className="w-10 h-10 text-amber-500 animate-spin" />
     </div>
   );

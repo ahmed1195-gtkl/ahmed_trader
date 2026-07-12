@@ -215,14 +215,14 @@ const CoursesAdmin = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-12 h-12 text-amber-500 animate-spin" />
       </div>
     );
   }
 
   return (
-    <section className="min-h-screen bg-black py-20">
+    <section className="min-h-screen bg-background text-foreground py-20">
       <div className="container mx-auto px-4 max-w-7xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-12">
@@ -266,7 +266,7 @@ const CoursesAdmin = () => {
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.9, y: 20 }}
                 onClick={(e) => e.stopPropagation()}
-                className="bg-zinc-900 border border-white/10 rounded-3xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+                className="glass-card border border-border rounded-3xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
               >
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-black text-white uppercase">
@@ -520,7 +520,7 @@ const CoursesAdmin = () => {
         {/* Courses List */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map((course) => (
-            <Card key={course.id} className="bg-zinc-900/50 border-white/10 rounded-2xl overflow-hidden">
+            <Card key={course.id} className="glass-card border border-border rounded-2xl overflow-hidden">
               <div className="relative h-48">
                 {course.imageUrl ? (
                   <img src={course.imageUrl} alt={course.nameAr} className="w-full h-full object-cover" decoding="async" loading="lazy" />

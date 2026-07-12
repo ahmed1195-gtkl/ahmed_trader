@@ -32,7 +32,7 @@ const BrokersPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black pt-24 pb-12">
+    <div className="min-h-screen bg-background text-foreground pt-24 pb-12">
       <div className="container mx-auto px-4">
         {/* Hero Section */}
         <motion.div
@@ -41,10 +41,10 @@ const BrokersPage = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white mb-6">
+          <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-foreground mb-6">
             {currentLanguage === 'ar' ? 'الوسطاء' : currentLanguage === 'fr' ? 'Courtiers' : 'Brokers'} <span className="text-amber-500">{currentLanguage === 'ar' ? 'الموصى بهم' : currentLanguage === 'fr' ? 'Recommandés' : 'Recommended'}</span>
           </h1>
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-8">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
             {currentLanguage === 'ar' 
               ? 'شركاؤنا الموثوقون في عالم التداول - اختر الوسيط المناسب لك وابدأ رحلتك نحو النجاح'
               : currentLanguage === 'fr'
@@ -59,7 +59,7 @@ const BrokersPage = () => {
         {loading && (
           <div className="flex justify-center items-center py-20">
             <Loader2 className="h-10 w-10 animate-spin text-amber-500" />
-            <span className="ml-3 text-white text-lg font-bold">
+            <span className="ml-3 text-foreground text-lg font-bold">
               {currentLanguage === 'ar' ? 'جاري التحميل...' : currentLanguage === 'fr' ? 'Chargement...' : 'Loading...'}
             </span>
           </div>
@@ -90,20 +90,20 @@ const BrokersPage = () => {
                 variants={itemVariants}
                 className="group"
               >
-                <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/10 rounded-[3rem] p-8 md:p-12 hover:border-amber-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-500/10">
+                <div className="glass-card border border-border rounded-[3rem] p-8 md:p-12 hover:border-amber-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-500/10">
                   {/* Broker Header */}
                   <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-10">
-                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-[2rem] bg-white/5 p-4 flex items-center justify-center border border-white/10 group-hover:border-amber-500/30 transition-all duration-500">
+                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-[2rem] bg-white/5 p-4 flex items-center justify-center border border-border group-hover:border-amber-500/30 transition-all duration-500">
                       <img src={broker.logo} 
                         alt={`${broker.name} Logo`} 
                         className="w-full h-full object-contain"
                       decoding="async" loading="lazy" />
                     </div>
                     <div className="flex-1 text-center md:text-left">
-                      <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-white group-hover:text-amber-500 transition-colors duration-300 mb-4">
+                      <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-foreground group-hover:text-amber-500 transition-colors duration-300 mb-4">
                         {broker.name}
                       </h2>
-                      <p className="text-lg text-gray-300 leading-relaxed">
+                      <p className="text-lg text-muted-foreground leading-relaxed">
                         {broker.description}
                       </p>
                     </div>
@@ -111,7 +111,7 @@ const BrokersPage = () => {
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
                     {/* Features */}
-                    <div className="bg-white/5 rounded-[2rem] p-6 border border-white/5">
+                    <div className="bg-card rounded-[2rem] p-6 border border-border">
                       <h3 className="text-xl font-black uppercase tracking-tight text-amber-500 mb-6 flex items-center gap-3">
                         <CheckCircle className="w-6 h-6" />
                         {currentLanguage === 'ar' ? 'المميزات' : currentLanguage === 'fr' ? 'Caractéristiques' : 'Features'}
@@ -130,7 +130,7 @@ const BrokersPage = () => {
                     <div className="space-y-6">
                       {/* Bonuses */}
                       {broker.bonuses && broker.bonuses.length > 0 && (
-                        <div className="bg-white/5 rounded-[2rem] p-6 border border-white/5">
+                        <div className="bg-card rounded-[2rem] p-6 border border-border">
                           <h3 className="text-xl font-black uppercase tracking-tight text-amber-500 mb-6 flex items-center gap-3">
                             <Gift className="w-6 h-6" />
                             {currentLanguage === 'ar' ? 'العروض والمكافآت' : currentLanguage === 'fr' ? 'Bonus et Offres' : 'Bonuses & Offers'}
@@ -146,24 +146,24 @@ const BrokersPage = () => {
                       )}
 
                       {/* Contact Info */}
-                      <div className="bg-white/5 rounded-[2rem] p-6 border border-white/5">
+                      <div className="bg-card rounded-[2rem] p-6 border border-border">
                         <h3 className="text-xl font-black uppercase tracking-tight text-amber-500 mb-6">
                           {currentLanguage === 'ar' ? 'تواصل مع الكوتش أحمد' : currentLanguage === 'fr' ? 'Contactez le Coach Ahmed' : 'Contact Coach Ahmed'}
                         </h3>
                         <div className="space-y-4">
-                          <a href={`tel:${broker.contact.phone}`} className="flex items-center gap-3 text-gray-300 hover:text-amber-500 transition-colors group/link">
+                          <a href={`tel:${broker.contact.phone}`} className="flex items-center gap-3 text-muted-foreground hover:text-amber-500 transition-colors group/link">
                             <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center group-hover/link:bg-amber-500/20 transition-colors">
                               <Phone className="w-5 h-5 text-amber-500" />
                             </div>
                             <span className="text-sm font-bold">{broker.contact.phone}</span>
                           </a>
-                          <a href={`https://t.me/${broker.contact.telegram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-gray-300 hover:text-amber-500 transition-colors group/link">
+                          <a href={`https://t.me/${broker.contact.telegram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-muted-foreground hover:text-amber-500 transition-colors group/link">
                             <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center group-hover/link:bg-amber-500/20 transition-colors">
                               <Send className="w-5 h-5 text-amber-500" />
                             </div>
                             <span className="text-sm font-bold">{broker.contact.telegram}</span>
                           </a>
-                          <a href={`mailto:${broker.contact.email}`} className="flex items-center gap-3 text-gray-300 hover:text-amber-500 transition-colors group/link">
+                          <a href={`mailto:${broker.contact.email}`} className="flex items-center gap-3 text-muted-foreground hover:text-amber-500 transition-colors group/link">
                             <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center group-hover/link:bg-amber-500/20 transition-colors">
                               <Mail className="w-5 h-5 text-amber-500" />
                             </div>
@@ -196,8 +196,8 @@ const BrokersPage = () => {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="mt-16 text-center"
           >
-            <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/10 rounded-[3rem] p-10 max-w-4xl mx-auto">
-              <h3 className="text-2xl font-black uppercase tracking-tight text-white mb-6">
+            <div className="glass-card border border-border rounded-[3rem] p-10 max-w-4xl mx-auto">
+              <h3 className="text-2xl font-black uppercase tracking-tight text-foreground mb-6">
                 {currentLanguage === 'ar' ? 'تابعنا على وسائل التواصل' : currentLanguage === 'fr' ? 'Suivez-nous sur les réseaux sociaux' : 'Follow Us on Social Media'}
               </h3>
               <div className="flex justify-center gap-6 mb-8">
@@ -218,7 +218,7 @@ const BrokersPage = () => {
                   <Send className="w-8 h-8 text-white" />
                 </a>
               </div>
-              <p className="text-gray-300 text-lg leading-relaxed">
+              <p className="text-muted-foreground text-lg leading-relaxed">
                 {currentLanguage === 'ar' 
                   ? 'إذا كان لديك حساب مفعل وترغب في الانضمام للتوصيات، تواصل معنا عبر الطرق المذكورة أعلاه. نحن هنا لدعمك في رحلتك نحو النجاح المالي!'
                   : currentLanguage === 'fr'

@@ -40,10 +40,10 @@ const CourseEnrollment = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-16 h-16 text-amber-500 animate-spin mx-auto mb-4" />
-          <p className="text-white font-bold">
+          <p className="text-foreground font-bold">
             {i18n.language === 'ar' ? 'جاري التحميل...' : 'Loading...'}
           </p>
         </div>
@@ -53,12 +53,12 @@ const CourseEnrollment = () => {
 
   if (error || !course) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="text-center max-w-md">
           <div className="w-24 h-24 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
             <ArrowLeft className="w-12 h-12 text-red-500" />
           </div>
-          <h2 className="text-2xl font-black text-white uppercase mb-4">
+          <h2 className="text-2xl font-black text-foreground uppercase mb-4">
             {error || (i18n.language === 'ar' ? 'الكورس غير موجود' : 'Course Not Found')}
           </h2>
           <Button

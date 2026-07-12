@@ -116,7 +116,7 @@ function TradingChallengeTest() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-white font-bold">
@@ -129,7 +129,7 @@ function TradingChallengeTest() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-background text-foreground">
         <Header />
         <div className="pt-32 pb-20 px-6">
           <div className="max-w-7xl mx-auto text-center">
@@ -145,7 +145,7 @@ function TradingChallengeTest() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-background text-foreground">
       <Header />
       
       <div className="pt-32 pb-20 px-6">
