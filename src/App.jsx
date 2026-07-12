@@ -6,6 +6,7 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, onSnapshot, collection } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, Lock, LogOut } from 'lucide-react';
+import { isAdminUser } from './lib/adminService';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Benefits from './components/Benefits';
@@ -344,7 +345,7 @@ function App() {
             const data = docSnap.data();
             setUserData(data);
             setOnboardingCompleted(data.onboardingCompleted);
-            setIsAdmin(data.isAdmin || ['mchokri100@gmail.com', 'ahmed1195@gmail.com'].includes(currentUser.email?.toLowerCase()));
+            setIsAdmin(isAdminUser(data));
             setHasDemoAccount(!!data.demoAccountId);
           }
           setLoading(false);

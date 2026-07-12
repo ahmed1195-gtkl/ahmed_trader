@@ -13,8 +13,7 @@ import {
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { useSEO } from '../hooks/useSEO';
-
-const ADMIN_EMAILS = ['mchokri100@gmail.com', 'ahmed1195@gmail.com'];
+import { isAdminUser } from '../lib/adminService';
 
 const Courses = () => {
   const { t, i18n } = useTranslation();
@@ -50,10 +49,14 @@ const Courses = () => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        setIsAdmin(ADMIN_EMAILS.includes(currentUser.email?.toLowerCase()));
+        const { getDoc, doc } = await import('firebase/firestore');
+        const snap = await getDoc(doc(db, 'users', currentUser.uid));
+        setIsAdmin(isAdminUser(snap.exists() ? snap.data() : null));
+      } else {
+        setIsAdmin(false);
       }
     });
     return () => unsubscribe();

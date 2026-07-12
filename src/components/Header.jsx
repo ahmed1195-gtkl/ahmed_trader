@@ -40,6 +40,7 @@ import shukritradeLogo from '../assets/shukritrade_logo.svg';
 import { toast } from 'sonner';
 import SubscriptionModal from './SubscriptionModal';
 import { useTheme } from '../context/ThemeContext';
+import { isAdminUser } from '../lib/adminService';
 
 const Header = () => {
   const { t, i18n } = useTranslation();
@@ -66,19 +67,15 @@ const Header = () => {
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     
-    const adminEmails = ['mchokri100@gmail.com', 'ahmed1195@gmail.com'];
-    
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        setIsAdmin(adminEmails.includes(currentUser.email?.toLowerCase()));
-        
         const userRef = doc(db, 'users', currentUser.uid);
         const unsubscribeDoc = onSnapshot(userRef, (docSnap) => {
           if (docSnap.exists()) {
             const data = docSnap.data();
             setUserData(data);
-            setIsAdmin(data.isAdmin || adminEmails.includes(currentUser.email?.toLowerCase()));
+            setIsAdmin(isAdminUser(data));
             if (data.warning && !data.warningRead) {
               setShowWarning(true);
             } else {

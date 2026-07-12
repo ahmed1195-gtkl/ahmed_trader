@@ -22,8 +22,7 @@ import { Input } from './ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { usePlatform } from '../context/PlatformContext';
-
-const ADMIN_EMAILS = ['mchokri100@gmail.com', 'ahmed1195@gmail.com'];
+import { isAdminUser } from '../lib/adminService';
 
 const Messages = () => {
   const { t, i18n } = useTranslation();
@@ -44,7 +43,8 @@ const Messages = () => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        const adminCheck = ADMIN_EMAILS.includes(currentUser.email?.toLowerCase());
+        const snap = await getDoc(doc(db, 'users', currentUser.uid));
+        const adminCheck = isAdminUser(snap.exists() ? snap.data() : null);
         setIsAdmin(adminCheck);
         
         // إذا كان مستخدم عادي، اختر الأدمن تلقائياً
@@ -75,7 +75,7 @@ const Messages = () => {
             uid: doc.id,
             ...doc.data()
           }))
-          .filter(u => !ADMIN_EMAILS.includes(u.email?.toLowerCase()));
+          .filter(u => !u.isAdmin);
         
         setUsers(usersList);
       } catch (error) {

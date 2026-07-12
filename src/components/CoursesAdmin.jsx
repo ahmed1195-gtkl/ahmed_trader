@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { db, auth } from '../lib/firebase';
 import { 
-  collection, addDoc, getDocs, doc, updateDoc, deleteDoc, 
+  collection, addDoc, getDocs, getDoc, doc, updateDoc, deleteDoc, 
   query, orderBy, serverTimestamp 
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -19,8 +19,7 @@ import { Input } from './ui/input';
 import { toast } from 'sonner';
 import ImageUploader from './ImageUploader';
 import Header from './Header';
-
-const ADMIN_EMAILS = ['mchokri100@gmail.com', 'ahmed1195@gmail.com'];
+import { isAdminUser } from '../lib/adminService';
 
 const CoursesAdmin = () => {
   const { t, i18n } = useTranslation();
@@ -52,10 +51,11 @@ const CoursesAdmin = () => {
   });
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        const adminCheck = ADMIN_EMAILS.includes(currentUser.email?.toLowerCase());
+        const snap = await getDoc(doc(db, 'users', currentUser.uid));
+        const adminCheck = isAdminUser(snap.exists() ? snap.data() : null);
         setIsAdmin(adminCheck);
         if (!adminCheck) {
           navigate('/');

@@ -22,6 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card'
 import { Heart, MessageCircle, Plus, Image as ImageIcon, Send, X, Music, Video, Loader2, User, LayoutDashboard } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { isAdminUser } from '../lib/adminService';
 
 const Feed = () => {
   const { t, i18n } = useTranslation();
@@ -45,11 +46,9 @@ const Feed = () => {
         if (docSnap.exists()) {
           const data = docSnap.data();
           setUserData(data);
-          const adminEmails = ['mchokri100@gmail.com', 'ahmed1195@gmail.com'];
-          setIsAdmin(data.isAdmin === true || adminEmails.includes(u.email?.toLowerCase()));
+          setIsAdmin(isAdminUser(data));
         } else {
-          const adminEmails = ['mchokri100@gmail.com', 'ahmed1195@gmail.com'];
-          setIsAdmin(adminEmails.includes(u.email?.toLowerCase()));
+          setIsAdmin(false);
         }
       } else {
         setUserData(null);
