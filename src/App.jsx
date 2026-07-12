@@ -20,6 +20,7 @@ import CookieConsent from './components/CookieConsent';
 import { FeedSkeleton, DashboardSkeleton, ChatSkeleton, BooksSkeleton, ProfileSkeleton } from './components/ui/PageSkeletons';
 import { PlatformProvider, usePlatform } from './context/PlatformContext';
 import ComingSoonPage from './components/ui/ComingSoonPage';
+import EmailVerificationGate from './components/EmailVerificationGate';
 import './App.css';
 
 // ─── Lazy loading high-performance wrapper ───────────────────────────────────
@@ -334,11 +335,13 @@ function App() {
   const [onboardingCompleted, setOnboardingCompleted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [hasDemoAccount, setHasDemoAccount] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
+        setIsEmailVerified(currentUser.emailVerified);
         const userRef = doc(db, "users", currentUser.uid);
         const unsubscribeDoc = onSnapshot(userRef, (docSnap) => {
           if (docSnap.exists()) {
@@ -354,6 +357,7 @@ function App() {
       } else {
         setUserData(null);
         setIsAdmin(false);
+        setIsEmailVerified(false);
         setLoading(false);
       }
     });
@@ -395,6 +399,8 @@ function App() {
                     <Route path="/reset-password" element={<LazyResetPassword />} />
                     <Route path="*" element={<Navigate to="/auth" replace />} />
                   </Routes>
+                ) : !isEmailVerified ? (
+                  <EmailVerificationGate onVerified={() => setIsEmailVerified(true)} />
                 ) : (
                   <AuthenticatedRoutes
                     user={user}
@@ -405,7 +411,7 @@ function App() {
                   />
                 )}
               </div>
-              {user && <ChatWidget />}
+              {user && isEmailVerified && <ChatWidget />}
               <CookieConsent />
             </div>
           </Router>
