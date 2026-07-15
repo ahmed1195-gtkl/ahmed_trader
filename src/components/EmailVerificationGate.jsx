@@ -4,7 +4,7 @@ import { auth } from '../lib/firebase';
 import { sendEmailVerification, signOut } from 'firebase/auth';
 import { useTranslation } from 'react-i18next';
 import { Mail, CheckCircle, RefreshCw, LogOut, Loader2, AlertCircle } from 'lucide-react';
-import shukritradeLogo from '../assets/shukritrade_logo.svg';
+import shukritradeLogo from '../assets/logo.png';
 
 const EmailVerificationGate = ({ onVerified }) => {
   const { i18n } = useTranslation();

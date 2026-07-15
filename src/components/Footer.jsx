@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import shukritradeLogo from '../assets/shukritrade_logo.svg';
+import shukritradeLogo from '../assets/logo.png';
 import { Send, Instagram } from 'lucide-react';
 
 const Footer = () => {

@@ -20,7 +20,7 @@ import {
   Shield, ArrowLeft, CheckCircle2, AlertCircle,
   Loader2, ChevronRight
 } from 'lucide-react';
-import shukritradeLogo from '../assets/shukritrade_logo.svg';
+import shukritradeLogo from '../assets/logo.png';
 
 /* ─────────────────────────────────────────────
    Reusable Premium Input with left icon + glow

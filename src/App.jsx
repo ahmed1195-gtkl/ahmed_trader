@@ -66,6 +66,7 @@ const LazyLessonPage = withSuspense(lazy(() => import('./components/academy/Less
 const LazyBooksPage = withSuspense(lazy(() => import('./components/BooksPage')), BooksSkeleton);
 const LazyBookDetail = withSuspense(lazy(() => import('./components/BookDetail')), BooksSkeleton);
 const LazyImmersiveBookReader = withSuspense(lazy(() => import('./components/ImmersiveBookReader')), BooksSkeleton);
+const LazySubscriptionPage = withSuspense(lazy(() => import('./components/SubscriptionPage')), DashboardSkeleton);
 
 // ─── Helper: render page or ComingSoon ─────────────────────────────────────
 function PageGuard({ enabled, children }) {
@@ -320,6 +321,9 @@ function AuthenticatedRoutes({ user, userData, onboardingCompleted, isAdmin, has
       <Route path="/admin" element={isAdmin ? <LazyAdminDashboard /> : <Navigate to="/" />} />
       <Route path="/admin/courses" element={isAdmin ? <LazyCoursesAdmin /> : <Navigate to="/" />} />
       <Route path="/admin/challenges" element={isAdmin ? <LazyChallengeAdmin /> : <Navigate to="/" />} />
+
+      {/* Subscription */}
+      <Route path="/subscription" element={<LazySubscriptionPage />} />
 
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

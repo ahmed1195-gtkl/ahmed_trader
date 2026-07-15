@@ -36,7 +36,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, onSnapshot, updateDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import shukritradeLogo from '../assets/shukritrade_logo.svg';
+import shukritradeLogo from '../assets/logo.png';
 import { toast } from 'sonner';
 import SubscriptionModal from './SubscriptionModal';
 import { useTheme } from '../context/ThemeContext';
