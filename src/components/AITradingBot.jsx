@@ -409,6 +409,9 @@ const AITradingBot = () => {
   const [activeTab, setActiveTab] = useState('analysis'); // 'analysis' | 'rl' | 'signals'
   const [priceTick, setPriceTick] = useState(null); // 'up' | 'down' | null
   const [showTVChart, setShowTVChart] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(() => {
+    return localStorage.getItem('hide_bot_disclaimer') !== 'true';
+  });
 
   const priceIntervalRef = useRef(null);
   const timeIntervalRef = useRef(null);
@@ -432,7 +435,6 @@ const AITradingBot = () => {
     { name: 'UNI/USDT', symbol: 'UNIUSDT', tvSymbol: 'BINANCE:UNIUSDT', basePrice: 6, type: 'crypto' },
     { name: 'ATOM/USDT', symbol: 'ATOMUSDT', tvSymbol: 'BINANCE:ATOMUSDT', basePrice: 10, type: 'crypto' },
     { name: 'NEAR/USDT', symbol: 'NEARUSDT', tvSymbol: 'BINANCE:NEARUSDT', basePrice: 3, type: 'crypto' },
-    { name: 'XAU/USD (Gold)', symbol: 'XAUUSD', tvSymbol: 'OANDA:XAUUSD', basePrice: 2650, type: 'commodity' },
   ];
 
   const timeframes = [
@@ -890,6 +892,44 @@ const AITradingBot = () => {
             </button>
           </div>
         </div>
+
+        {/* === LEGAL DISCLAIMER BANNER === */}
+        <AnimatePresence>
+          {showDisclaimer && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, height: 0, y: -10 }}
+              className="mb-8 p-5 rounded-3xl border border-amber-500/20 bg-amber-500/5 backdrop-blur-xl relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 left-0 h-[1px] bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                  <AlertTriangle className="w-5 h-5 text-amber-500" />
+                </div>
+                <div className="flex-1 min-w-0 pr-6">
+                  <h4 className="text-xs font-black text-amber-400 uppercase tracking-widest mb-1.5">
+                    {isAr ? '⚠️ إخلاء مسؤولية قانونية وتحذير مخاطر' : '⚠️ Risk Warning & Legal Disclaimer'}
+                  </h4>
+                  <p className="text-[10px] text-gray-300 leading-relaxed">
+                    {isAr
+                      ? 'إشارات هذا البوت يتم إنتاجها تلقائياً عبر نماذج إحصائية متطورة (RSI, MACD, ADX, Bollinger Bands, FVG, Order Flow, Reinforcement Learning). التداول في العملات الرقمية ينطوي على مخاطر عالية جداً لخسارة رأس المال. منصة Shukritrade تقدم هذه البيانات لأغراض تعليمية وإعلامية فقط، ولا تقدم نصائح استثمارية. أنت وحدك المسؤول عن قراراتك الاستثمارية وخسائرك.'
+                      : 'Signals from this bot are generated automatically using quantitative models (RSI, MACD, ADX, Bollinger Bands, FVG, Order Flow, and Reinforcement Learning). Cryptocurrency trading carries a high level of risk and may not be suitable for all investors. Shukritrade provides this data for educational and informational purposes only and does not assume any liability for trading losses. You trade at your own risk.'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowDisclaimer(false);
+                    localStorage.setItem('hide_bot_disclaimer', 'true');
+                  }}
+                  className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors cursor-pointer text-xs font-bold"
+                >
+                  ✕
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* === MAIN GRID === */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -1402,6 +1442,15 @@ const AITradingBot = () => {
               </div>
             )}
           </div>
+        </div>
+
+        {/* === PERMANENT LEGAL FOOTER === */}
+        <div className="mt-10 p-4 rounded-2xl border border-white/5 bg-white/[0.01] text-center">
+          <p className="text-[9px] text-gray-500 leading-relaxed uppercase tracking-wider">
+            {isAr
+              ? 'تنبيه: التداول بالهامش وفي العملات المشفرة ينطوي على مخاطر خسارة فادحة. Shukritrade لا تقدم خدمات وساطة أو إدارة محافظ ولا تتحمل مسؤولية قانونية عن نتائج قراراتك.'
+              : 'Warning: Cryptocurrency trading and leverage involve substantial risk of loss. Shukritrade does not provide brokerage services or fund management, and bears no liability for investment results.'}
+          </p>
         </div>
       </main>
 

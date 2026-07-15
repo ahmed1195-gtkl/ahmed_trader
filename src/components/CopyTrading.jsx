@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Header from './Header';
-import { useAuth } from '../contexts/AuthContext';
+import { auth } from '../lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { 
@@ -14,17 +15,28 @@ import {
   AlertCircle
 } from 'lucide-react';
 import {
-  enableCopyTrading,
-  disableCopyTrading,
-  getAvailableLeadersInTeam,
+  getTopTraders,
+  copyTrader,
+  stopCopyingTrader,
   getUserCopyTradingRelations,
   updateCopyTradingSettings
 } from '../lib/copyTradingService';
 import { getUserTeams } from '../lib/teamService';
 
 export default function CopyTrading() {
-  const { currentUser } = useAuth();
+  const [currentUser, setCurrentUser] = useState(null);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      if (!user) {
+        setLoading(false);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   const [loading, setLoading] = useState(true);
   const [teams, setTeams] = useState([]);
   const [selectedTeam, setSelectedTeam] = useState(null);

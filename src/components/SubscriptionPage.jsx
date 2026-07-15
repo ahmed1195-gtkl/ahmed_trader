@@ -4,17 +4,28 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { auth } from '../lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import { SubscriptionService, SUBSCRIPTION_TIERS } from '../lib/subscriptionService';
 import { Check, X, Crown, Zap, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Header from './Header';
 
 export default function SubscriptionPage() {
-  const { user } = useAuth();
+  const [user, setUser] = useState(null);
   const { t, i18n } = useTranslation();
   const [currentSubscription, setCurrentSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (!currentUser) {
+        setLoading(false);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (user) {

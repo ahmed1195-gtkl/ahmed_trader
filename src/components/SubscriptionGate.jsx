@@ -4,7 +4,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { auth } from '../lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import { SubscriptionService } from '../lib/subscriptionService';
 import { Lock, Crown, Zap } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -18,14 +19,26 @@ export function SubscriptionGate({
   fallback,
   showUpgradeButton = true 
 }) {
-  const { user } = useAuth();
+  const [user, setUser] = useState(null);
   const { t } = useTranslation();
   const [hasAccess, setHasAccess] = useState(false);
   const [loading, setLoading] = useState(true);
   const [subscription, setSubscription] = useState(null);
 
   useEffect(() => {
-    checkAccess();
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (!currentUser) {
+        setLoading(false);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      checkAccess();
+    }
   }, [user, feature]);
 
   const checkAccess = async () => {
