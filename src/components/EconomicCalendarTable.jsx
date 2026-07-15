@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Clock, TrendingUp, TrendingDown, AlertCircle, RefreshCw, Calendar } from 'lucide-react';
-import { forexFactoryScraperReal } from '../lib/forexFactoryScraperReal';
+import { forexFactoryScraper } from '../lib/forexFactoryScraper';
 
 const EconomicCalendarTable = () => {
   const { t } = useTranslation();
@@ -16,13 +16,13 @@ const EconomicCalendarTable = () => {
     const fetchEconomicEvents = async () => {
       setLoading(true);
       try {
-        const allEvents = await forexFactoryScraperReal.fetchEvents();
-        const filtered = forexFactoryScraperReal.filterEvents(allEvents, selectedCurrencies, selectedImpacts);
-        const sorted = forexFactoryScraperReal.sortEventsByTime(filtered);
+        const allEvents = await forexFactoryScraper.fetchEvents();
+        const filtered = forexFactoryScraper.filterEvents(allEvents, selectedCurrencies, selectedImpacts);
+        const sorted = forexFactoryScraper.sortEventsByTime(filtered);
         setEvents(sorted);
       } catch (error) {
         console.error('Error fetching events:', error);
-        setEvents(forexFactoryScraperReal.getFallbackEvents());
+        setEvents(forexFactoryScraper.getFallbackEvents());
       } finally {
         setLoading(false);
       }
@@ -90,7 +90,7 @@ const EconomicCalendarTable = () => {
         </div>
         <button
           onClick={() => {
-            forexFactoryScraperReal.clearCache();
+            forexFactoryScraper.clearCache();
             setLoading(true);
           }}
           className="flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-lg bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 transition-all"
