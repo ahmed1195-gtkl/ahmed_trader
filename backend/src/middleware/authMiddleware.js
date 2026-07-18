@@ -32,7 +32,7 @@ export async function checkAuth(req, res, next) {
  * ─────────────────────────────────────────────────────────────
  * After checkAuth, ensures that the userId in the request
  * matches the authenticated user's uid.
- * Admins (isAdmin custom claim) bypass this check.
+ * Admins (isAdmin custom claim OR fallback admin emails) bypass this check.
  */
 export function requireOwnership(req, res, next) {
   const requestedUserId = req.body.userId || req.query.userId;
@@ -41,7 +41,10 @@ export function requireOwnership(req, res, next) {
     return res.status(400).json({ error: 'userId is required' });
   }
 
-  const isAdmin = req.user?.isAdmin === true;
+  // Check admin via custom claim OR fallback emails (guarantees immediate access)
+  const userEmail = req.user?.email ? req.user.email.toLowerCase() : '';
+  const ADMIN_EMAILS = ['mchokri100@gmail.com', 'ahmed1195@gmail.com'];
+  const isAdmin = req.user?.isAdmin === true || ADMIN_EMAILS.includes(userEmail);
   const isOwner = req.user?.uid === requestedUserId;
 
   if (!isAdmin && !isOwner) {
