@@ -96,15 +96,13 @@ const Messages = () => {
       // الأدمن يرى رسائل المستخدم المحدد فقط
       q = query(
         collection(db, 'messages'),
-        where('participants', 'array-contains', selectedUser.uid),
-        orderBy('createdAt', 'asc')
+        where('participants', 'array-contains', selectedUser.uid)
       );
     } else if (!isAdmin) {
       // المستخدم العادي يرى رسائله مع الأدمن فقط
       q = query(
         collection(db, 'messages'),
-        where('userId', '==', user.uid),
-        orderBy('createdAt', 'asc')
+        where('userId', '==', user.uid)
       );
     } else {
       return; // لا توجد رسائل للعرض
@@ -115,8 +113,18 @@ const Messages = () => {
         id: doc.id,
         ...doc.data()
       }));
+      
+      // ترتيب الرسائل محلياً لتجنب الحاجة لكشافات مركبة (Composite Indexes) في Firebase
+      msgList.sort((a, b) => {
+        const timeA = a.createdAt?.seconds || (a.timestamp ? new Date(a.timestamp).getTime() / 1000 : 0);
+        const timeB = b.createdAt?.seconds || (b.timestamp ? new Date(b.timestamp).getTime() / 1000 : 0);
+        return timeA - timeB;
+      });
+
       setMessages(msgList);
       requestAnimationFrame(scrollToBottom);
+    }, (error) => {
+      console.error("Messages subscription error:", error);
     });
 
     return () => unsubscribe();
