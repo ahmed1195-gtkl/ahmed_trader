@@ -11,12 +11,13 @@ import {
   where,
   getDocs,
   doc,
-  getDoc
+  getDoc,
+  deleteDoc
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Send, MessageCircle, User, Loader2, ArrowLeft, MessageSquareOff } from 'lucide-react';
+import { Send, MessageCircle, User, Loader2, ArrowLeft, MessageSquareOff, Trash2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -144,14 +145,14 @@ const Messages = () => {
     try {
       const messageData = {
         text: newMessage,
-        userId: isAdmin ? selectedUser.uid : user.uid,
-        userName: isAdmin ? selectedUser.displayName || selectedUser.email : (user.displayName || user.email),
-        userPhoto: isAdmin ? selectedUser.photoURL : user.photoURL,
-        senderId: user.uid,
-        senderName: user.displayName || user.email,
-        senderPhoto: user.photoURL || null,
+        userId: (isAdmin ? selectedUser?.uid : user?.uid) || '',
+        userName: (isAdmin ? (selectedUser?.displayName || selectedUser?.email) : (user?.displayName || user?.email)) || 'User',
+        userPhoto: (isAdmin ? selectedUser?.photoURL : user?.photoURL) || null,
+        senderId: user?.uid || '',
+        senderName: (user?.displayName || user?.email) || 'User',
+        senderPhoto: user?.photoURL || null,
         isAdmin: isAdmin,
-        participants: isAdmin ? [selectedUser.uid, user.uid] : [user.uid],
+        participants: isAdmin ? [selectedUser?.uid || '', user?.uid || ''] : [user?.uid || ''],
         createdAt: serverTimestamp(),
         timestamp: new Date().toISOString()
       };
@@ -166,6 +167,16 @@ const Messages = () => {
       setLoading(false);
     }
   }, [newMessage, user, isAdmin, selectedUser, i18n.language, scrollToBottom]);
+
+  const handleDeleteMessage = useCallback(async (messageId) => {
+    try {
+      await deleteDoc(doc(db, 'messages', messageId));
+      toast.success(i18n.language === 'ar' ? 'تم حذف الرسالة بنجاح' : 'Message deleted successfully');
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      toast.error(i18n.language === 'ar' ? 'فشل حذف الرسالة' : 'Failed to delete message');
+    }
+  }, [i18n.language]);
 
   if (!user) {
     return (
@@ -335,7 +346,7 @@ const Messages = () => {
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, scale: 0.95 }}
-                          className={`flex gap-2 ${isOwn ? 'flex-row-reverse' : 'flex-row'} items-end`}
+                          className={`flex gap-2 ${isOwn ? 'flex-row-reverse' : 'flex-row'} items-end group`}
                         >
                           <div className="w-8 flex-shrink-0">
                             {showAvatar && (
@@ -355,12 +366,24 @@ const Messages = () => {
                           </div>
 
                           <div className={`flex flex-col ${isOwn ? 'items-end' : 'items-start'} max-w-[70%]`}>
-                            <div className={`rounded-3xl px-4 py-2.5 shadow-lg ${
-                              isOwn 
-                                ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-black shadow-amber-500/20' 
-                                : 'bg-zinc-800/80 text-white border border-zinc-700/50'
-                            }`}>
-                              <p className="text-sm leading-relaxed break-words">{msg.text}</p>
+                            <div className="flex items-center gap-2">
+                              <div className={`rounded-3xl px-4 py-2.5 shadow-lg ${
+                                isOwn 
+                                  ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-black shadow-amber-500/20' 
+                                  : 'bg-zinc-800/80 text-white border border-zinc-700/50'
+                              }`}>
+                                <p className="text-sm leading-relaxed break-words">{msg.text}</p>
+                              </div>
+                              
+                              {(isAdmin || isOwn) && (
+                                <button
+                                  onClick={() => handleDeleteMessage(msg.id)}
+                                  className="opacity-0 group-hover:opacity-100 p-1.5 hover:text-destructive text-zinc-500 transition-all rounded-full hover:bg-zinc-800/50 cursor-pointer"
+                                  title={i18n.language === 'ar' ? 'حذف الرسالة' : 'Delete Message'}
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              )}
                             </div>
                             {(index === messages.length - 1 || messages[index + 1].senderId !== msg.senderId) && (
                               <span className="text-[9px] text-zinc-600 mt-1 px-3">
