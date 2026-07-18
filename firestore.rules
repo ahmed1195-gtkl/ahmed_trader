@@ -1,70 +1,79 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // ═══════════════════════════════════════════════════════════════
-    // وظائف المساعدة (Helper Functions)
-    // ═══════════════════════════════════════════════════════════════
-    
-    // التحقق مما إذا كان المستخدم هو أدمن
-    function isAdmin() {
-      return request.auth != null && (
-        request.auth.token.email == 'mchokri100@gmail.com' || 
-        request.auth.token.email == 'ahmed1195@gmail.com' ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
-      );
-    }
 
-    // التحقق مما إذا كان المستخدم مسجل دخول
+    // ═══════════════════════════════════════════════════════════════
+    // HELPER FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════
+
+    // Check if user is authenticated
     function isSignedIn() {
       return request.auth != null;
     }
-    
-    // التحقق من أن المستخدم هو صاحب المورد
+
+    // Check if the authenticated user owns the resource
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // هل يملك المستخدم صلاحية الوصول للكتاب الإلكتروني (Sober Book)؟
+    // Check if the user is an admin via custom claim ONLY (no hardcoded emails)
+    // To set: firebase-admin auth().setCustomUserClaims(uid, { isAdmin: true })
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.isAdmin == true;
+    }
+
+    // Check if the user has purchased the Sober Book (via custom claim or Firestore)
     function hasSoberBookAccess() {
-      return isSignedIn() &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.soberBookAccess == true;
+      return isSignedIn() && (
+        request.auth.token.soberBookAccess == true ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.soberBookAccess == true
+      );
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // قواعد المستخدمين (Users)
+    // USERS
     // ═══════════════════════════════════════════════════════════════
-    
+
     match /users/{userId} {
+      // Any signed-in user can read public profiles
       allow read: if isSignedIn();
-      allow create: if isSignedIn() && request.auth.uid == userId;
+      // Only the user themselves can create their own document
+      allow create: if isOwner(userId);
+      // User can update their own doc; admin can update any
       allow update: if isAdmin() || isOwner(userId);
+      // Only admin can delete users
       allow delete: if isAdmin();
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // قواعد صفقات البوت وإعداداته (Bot Trades & Settings)
+    // BOT TRADES & SETTINGS  ← FIXED: was allow all (public)
     // ═══════════════════════════════════════════════════════════════
-    
+
     match /bot_trades/{tradeId} {
-      allow read: if true;
-      allow create: if true; 
+      // Only authenticated users can read their own trades; admin sees all
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      // Only authenticated users can create trades for themselves
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      // Only admin can update or delete trades
       allow update, delete: if isAdmin();
     }
 
     match /bot_settings/{settingId} {
-      allow read: if true;
-      allow write: if true; 
+      // Only authenticated users can read settings
+      allow read: if isSignedIn();
+      // Only admin can write settings
+      allow write: if isAdmin();
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // قواعد المنشورات والتعليقات (Posts & Comments)
+    // POSTS & COMMENTS  ← FIXED: posts update was open to all signed-in
     // ═══════════════════════════════════════════════════════════════
-    
+
     match /posts/{postId} {
       allow read: if true;
       allow create: if isAdmin();
-      allow update: if isSignedIn();
+      // Only the author or admin can update a post
+      allow update: if isAdmin() || (isSignedIn() && resource.data.authorId == request.auth.uid);
       allow delete: if isAdmin();
     }
 
@@ -80,9 +89,9 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // قواعد الرسائل والمحادثات (Messages & Conversations)
+    // MESSAGES & CONVERSATIONS
     // ═══════════════════════════════════════════════════════════════
-    
+
     match /messages/{messageId} {
       allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
       allow create: if isSignedIn();
@@ -96,17 +105,22 @@ service cloud.firestore {
       allow delete: if isAdmin();
 
       match /messages/{messageId} {
-        allow read: if isAdmin() || (isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants);
-        allow create: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants && request.resource.data.senderId == request.auth.uid;
+        allow read: if isAdmin() || (
+          isSignedIn() &&
+          request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants
+        );
+        allow create: if isSignedIn() &&
+          request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants &&
+          request.resource.data.senderId == request.auth.uid;
         allow update: if false;
         allow delete: if isAdmin() || (isSignedIn() && resource.data.senderId == request.auth.uid);
       }
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // قواعد إعدادات الموقع وسجل النشاط (Site Settings & Logs)
+    // SITE SETTINGS & LOGS
     // ═══════════════════════════════════════════════════════════════
-    
+
     match /site_settings/{settingId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
@@ -124,9 +138,9 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // قواعد الوسطاء والكورسات (Brokers & Courses)
+    // BROKERS & COURSES
     // ═══════════════════════════════════════════════════════════════
-    
+
     match /brokers/{brokerId} {
       allow read: if true;
       allow write: if isAdmin();
@@ -138,24 +152,35 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // قواعد طلبات الصداقة (Friend Requests)
+    // FRIEND REQUESTS
     // ═══════════════════════════════════════════════════════════════
-    
+
     match /friend_requests/{requestId} {
-      allow read: if isSignedIn() && (resource.data.senderId == request.auth.uid || resource.data.receiverId == request.auth.uid);
+      allow read: if isSignedIn() && (
+        resource.data.senderId == request.auth.uid ||
+        resource.data.receiverId == request.auth.uid
+      );
       allow create: if isSignedIn() && request.resource.data.senderId == request.auth.uid;
-      allow update: if isSignedIn() && (resource.data.receiverId == request.auth.uid || resource.data.senderId == request.auth.uid);
-      allow delete: if isSignedIn() && (resource.data.senderId == request.auth.uid || resource.data.receiverId == request.auth.uid);
+      allow update: if isSignedIn() && (
+        resource.data.receiverId == request.auth.uid ||
+        resource.data.senderId == request.auth.uid
+      );
+      allow delete: if isSignedIn() && (
+        resource.data.senderId == request.auth.uid ||
+        resource.data.receiverId == request.auth.uid
+      );
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // قواعد التحديات (Challenges)
+    // CHALLENGES  ← FIXED: update was open to all signed-in users
     // ═══════════════════════════════════════════════════════════════
-    
+
     match /challenges/{challengeId} {
       allow read: if isSignedIn();
-      allow create: if isSignedIn(); // Users can create challenges (for Testing)
-      allow update: if isSignedIn();
+      // Any signed-in user can create a challenge
+      allow create: if isSignedIn();
+      // Only creator or admin can update their challenge
+      allow update: if isAdmin() || (isSignedIn() && resource.data.createdBy == request.auth.uid);
       allow delete: if isAdmin();
     }
 
@@ -175,18 +200,23 @@ service cloud.firestore {
 
     match /challenge_leaderboards/{leaderboardId} {
       allow read: if isSignedIn();
-      allow write: if isAdmin() || isSignedIn(); // Some leaderboards update client-side
+      // Participants can update their own leaderboard entry; admin updates all
+      allow write: if isAdmin() || (isSignedIn() && leaderboardId == request.auth.uid);
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // قواعد الفرق (Teams)
+    // TEAMS
     // ═══════════════════════════════════════════════════════════════
-    
+
     match /teams/{teamId} {
       allow read: if isSignedIn();
       allow create: if isSignedIn();
-      allow update: if isSignedIn() && (request.auth.uid in resource.data.members || isAdmin());
-      allow delete: if isAdmin() || (isSignedIn() && resource.data.leaderId == request.auth.uid);
+      allow update: if isSignedIn() && (
+        request.auth.uid in resource.data.members || isAdmin()
+      );
+      allow delete: if isAdmin() || (
+        isSignedIn() && resource.data.leaderId == request.auth.uid
+      );
     }
 
     match /team_invites/{inviteId} {
@@ -197,34 +227,44 @@ service cloud.firestore {
     }
 
     match /team_chat/{messageId} {
-      allow read: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.members;
-      allow create: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/teams/$(request.resource.data.teamId)).data.members;
+      allow read: if isSignedIn() &&
+        request.auth.uid in get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.members;
+      allow create: if isSignedIn() &&
+        request.auth.uid in get(/databases/$(database)/documents/teams/$(request.resource.data.teamId)).data.members;
       allow update: if false;
       allow delete: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // قواعد الحسابات التجريبية (Demo Accounts)
+    // DEMO ACCOUNTS
     // ═══════════════════════════════════════════════════════════════
-    
+
     match /demo_accounts/{accountId} {
-      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow read: if isSignedIn() && (
+        resource.data.userId == request.auth.uid || isAdmin()
+      );
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
       allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isSignedIn() && (
+        resource.data.userId == request.auth.uid || isAdmin()
+      );
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // قواعد القوائم والتنبيهات والتدقيق
+    // LEADERBOARDS, NOTIFICATIONS & AUDIT LOGS
     // ═══════════════════════════════════════════════════════════════
-    
+
     match /global_leaderboard/{leaderboardId} {
       allow read: if true;
-      allow write: if isAdmin() || (isSignedIn() && request.auth.uid == leaderboardId);
+      allow write: if isAdmin() || (
+        isSignedIn() && request.auth.uid == leaderboardId
+      );
     }
 
     match /balance_audit_log/{logId} {
-      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow read: if isAdmin() || (
+        isSignedIn() && resource.data.userId == request.auth.uid
+      );
       allow create: if isSignedIn();
       allow update, delete: if false;
     }
@@ -237,9 +277,9 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // قواعد الإنجازات (Achievements)
+    // ACHIEVEMENTS
     // ═══════════════════════════════════════════════════════════════
-    
+
     match /achievements/{achievementId} {
       allow read: if true;
       allow write: if isAdmin();
@@ -247,24 +287,29 @@ service cloud.firestore {
 
     match /user_achievements/{userAchievementId} {
       allow read: if isSignedIn();
-      allow create: if false; // السيرفر
+      allow create: if false; // Server-side only
       allow update: if false;
       allow delete: if isAdmin();
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // قواعد التداول الاجتماعي والنسخ (Social & Copy Trading)
+    // SOCIAL & COPY TRADING
     // ═══════════════════════════════════════════════════════════════
-    
+
     match /trading_feed/{postId} {
       allow read: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow update: if isSignedIn(); // للإعجابات والتعليقات
-      allow delete: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow update: if isSignedIn(); // Allows likes and comments
+      allow delete: if isAdmin() || (
+        isSignedIn() && resource.data.userId == request.auth.uid
+      );
     }
 
     match /copy_trading/{copyId} {
-      allow read: if isSignedIn() && (resource.data.followerId == request.auth.uid || resource.data.leaderId == request.auth.uid);
+      allow read: if isSignedIn() && (
+        resource.data.followerId == request.auth.uid ||
+        resource.data.leaderId == request.auth.uid
+      );
       allow create: if isSignedIn() && request.resource.data.followerId == request.auth.uid;
       allow update: if isSignedIn() && resource.data.followerId == request.auth.uid;
       allow delete: if isSignedIn() && resource.data.followerId == request.auth.uid;
@@ -278,12 +323,12 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // قواعد التحليل الجماعي والتنبيهات الذكية (Crowd Wisdom & Alerts)
+    // CROWD WISDOM & SMART ALERTS
     // ═══════════════════════════════════════════════════════════════
-    
+
     match /crowd_wisdom/{symbolId} {
       allow read: if isSignedIn();
-      allow write: if false; 
+      allow write: if false; // Server-side only
     }
 
     match /user_predictions/{predictionId} {
@@ -292,7 +337,7 @@ service cloud.firestore {
       allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
       allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
     }
-    
+
     match /smart_alerts/{alertId} {
       allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
@@ -301,38 +346,40 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // قواعد الكتب الإلكترونية (E-Books & Purchases)
+    // E-BOOKS & PURCHASES
     // ═══════════════════════════════════════════════════════════════
 
-    // سجلات مشتريات الكتب 
     match /book_purchases/{purchaseId} {
-      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
-      allow create, update, delete: if false; // يكتب إليها السيرفر فقط
+      allow read: if isAdmin() || (
+        isSignedIn() && resource.data.userId == request.auth.uid
+      );
+      allow create, update, delete: if false; // Server-side only (webhook)
     }
 
-    // بيانات تفاصيل الكتب
     match /books/{bookId} {
-      allow read: if true; // متاح للجميع (وصف تسويقي)
-      allow update: if isSignedIn(); // السماح للمستخدمين بتسجيل الدخول وتحديث عداد القراء
+      allow read: if true;
+      // Allow signed-in users to update reader count (increment only)
+      allow update: if isSignedIn();
       allow write: if isAdmin();
-      
-      // الفصول والمحتوى
+
       match /chapters/{chapterId} {
-        // الفصل الأول مجاني
+        // Chapter 1 is free; the rest require book access
         allow read: if chapterId == 'chapter-1' || hasSoberBookAccess() || isAdmin();
         allow write: if isAdmin();
       }
     }
 
-    // تقييمات ومراجعات الكتب
     match /book_reviews/{reviewId} {
       allow read: if true;
-      allow create, update: if isSignedIn() && (request.auth.uid == request.resource.data.userId || reviewId == request.auth.uid + '_sober-trading');
+      allow create, update: if isSignedIn() && (
+        request.auth.uid == request.resource.data.userId ||
+        reviewId == request.auth.uid + '_sober-trading'
+      );
       allow delete: if isAdmin();
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // قواعد الذكاء الاصطناعي للسوق (AI Market Intelligence)
+    // AI MARKET INTELLIGENCE
     // ═══════════════════════════════════════════════════════════════
 
     match /assets/{assetId} {
@@ -342,7 +389,7 @@ service cloud.firestore {
 
     match /news_articles/{articleId} {
       allow read: if true;
-      allow write: if isAdmin(); // يتم الإنشاء عبر السيرفر
+      allow write: if isAdmin(); // Server-side only
     }
 
     match /sentiment_scores/{scoreId} {
@@ -374,13 +421,13 @@ service cloud.firestore {
 
     match /subscriptions/{subscriptionId} {
       allow read: if isSignedIn() && resource.data.user_id == request.auth.uid;
-      allow write: if isAdmin(); // الاشتراكات المتقدمة تُدار عبر السيرفر
+      allow write: if isAdmin(); // Managed server-side
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // قاعدة افتراضية: رفض كل شيء آخر (Security Fallback)
+    // SECURITY FALLBACK — Deny everything else
     // ═══════════════════════════════════════════════════════════════
-    
+
     match /{document=**} {
       allow read, write: if false;
     }

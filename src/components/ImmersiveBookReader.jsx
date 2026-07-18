@@ -17,7 +17,7 @@ import { db, auth, storage } from '../lib/firebase';
 import { doc, getDoc, updateDoc, setDoc, increment } from 'firebase/firestore';
 import { ref, getDownloadURL } from 'firebase/storage';
 import PaymentModal from './PaymentModal';
-import { BOOK_CONTENT } from '../data/bookContent';
+// bookContent.js is loaded dynamically to avoid blocking the initial bundle (645 kB)
 
 // ══════════════════════════════════════════════════════════════
 // CONSTANTS & CONFIGURATIONS
@@ -113,6 +113,12 @@ const ImmersiveBookReader = () => {
   // Book Access Custom Hook
   const { hasAccess, userId } = useBookAccess();
 
+  // ── Dynamic book content (loaded async to reduce initial bundle by ~645 kB) ──
+  const [BOOK_CONTENT, setBookContent] = useState(null);
+  useEffect(() => {
+    import('../data/bookContent').then((mod) => setBookContent(mod.BOOK_CONTENT));
+  }, []);
+
   // ── States ──
   const [loading, setLoading] = useState(true);
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
@@ -178,13 +184,14 @@ const ImmersiveBookReader = () => {
   const musicRef = useRef(null);
   const inactivityTimer = useRef(null);
 
-  const totalChapters = BOOK_CONTENT.chapters.length;
-  const currentChapter = BOOK_CONTENT.chapters[currentChapterIndex];
+  const totalChapters = BOOK_CONTENT ? BOOK_CONTENT.chapters.length : 0;
+  const currentChapter = BOOK_CONTENT ? BOOK_CONTENT.chapters[currentChapterIndex] : null;
 
   // ── Access check helper ──
   const isChapterLocked = useCallback((idx) => {
+    if (!BOOK_CONTENT) return false;
     return !hasAccess && !BOOK_CONTENT.chapters[idx].free;
-  }, [hasAccess]);
+  }, [hasAccess, BOOK_CONTENT]);
 
   const showPaywall = isChapterLocked(currentChapterIndex);
 

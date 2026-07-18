@@ -1004,6 +1004,240 @@ const DiagramSVG = ({ type, className = '' }) => {
         </g>
       </svg>
     ),
+
+    cryptoIntro: (
+      <svg viewBox="0 0 600 350" className={baseClass} xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="crIntroBg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#1e1b4b" />
+            <stop offset="100%" stopColor="#0f172a" />
+          </linearGradient>
+          <linearGradient id="goldHalving" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#f59e0b" />
+            <stop offset="100%" stopColor="#eab308" />
+          </linearGradient>
+        </defs>
+        <rect width="600" height="350" fill="url(#crIntroBg)" rx="12" stroke="rgba(245,158,11,0.2)" strokeWidth="1.5" />
+        <text x="300" y="30" textAnchor="middle" fill="#f59e0b" fontSize="16" fontWeight="bold">Bitcoin Halving & Supply Scarcity</text>
+        
+        {/* Halving Timeline */}
+        <g transform="translate(40, 70)">
+          {/* Horizontal Axis line */}
+          <line x1="20" y1="180" x2="500" y2="180" stroke="#475569" strokeWidth="2" />
+          
+          {/* Halving Steps */}
+          {[
+            { x: 50, year: '2012', reward: '25 BTC', price: '$12', label: '1st Halving' },
+            { x: 170, year: '2016', reward: '12.5 BTC', price: '$650', label: '2nd Halving' },
+            { x: 290, year: '2020', reward: '6.25 BTC', price: '$8,800', label: '3rd Halving' },
+            { x: 410, year: '2024', reward: '3.125 BTC', price: '$64,000', label: '4th Halving' }
+          ].map((item, idx) => (
+            <g key={idx} transform={`translate(${item.x}, 0)`}>
+              {/* Vertical line connecting tick to axis */}
+              <line x1="0" y1="180" x2="0" y2="60" stroke="#64748b" strokeWidth="1" strokeDasharray="3,3" />
+              
+              {/* Event point */}
+              <circle cx="0" cy="180" r="6" fill="#f59e0b" />
+              <circle cx="0" cy="180" r="12" fill="none" stroke="#f59e0b" strokeWidth="1.5" opacity="0.5" />
+              
+              {/* Info bubble */}
+              <rect x="-45" y="60" width="90" height="70" fill="rgba(15,23,42,0.85)" stroke="#f59e0b" strokeWidth="1.5" rx="6" />
+              <text x="0" y="78" textAnchor="middle" fill="#e2e8f0" fontSize="10" fontWeight="bold">{item.year}</text>
+              <text x="0" y="98" textAnchor="middle" fill="#ef4444" fontSize="9" fontWeight="bold">{item.reward}</text>
+              <text x="0" y="118" textAnchor="middle" fill="#22c55e" fontSize="9" fontWeight="bold">{item.price}</text>
+              
+              <text x="0" y="205" textAnchor="middle" fill="#94a3b8" fontSize="10">{item.label}</text>
+            </g>
+          ))}
+
+          {/* Supply Curve */}
+          <path d="M 10 30 Q 150 100 480 160" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeDasharray="5,3" />
+          <text x="140" y="125" fill="#ef4444" fontSize="10" transform="rotate(10, 140, 125)">Supply Issuance Rate Drops</text>
+
+          {/* Price Demand Curve */}
+          <path d="M 50 170 Q 200 130 430 40" fill="none" stroke="#22c55e" strokeWidth="3" />
+          <text x="320" y="75" fill="#22c55e" fontSize="11" fontWeight="bold" transform="rotate(-20, 320, 75)">Stock-to-Flow Price Trend</text>
+        </g>
+      </svg>
+    ),
+
+    onchainMetrics: (
+      <svg viewBox="0 0 600 350" className={baseClass} xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="ocBg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#0f172a" />
+            <stop offset="100%" stopColor="#020617" />
+          </linearGradient>
+        </defs>
+        <rect width="600" height="350" fill="url(#ocBg)" rx="12" stroke="rgba(59,130,246,0.2)" strokeWidth="1.5" />
+        <text x="300" y="30" textAnchor="middle" fill="#3b82f6" fontSize="16" fontWeight="bold">On-Chain Flow: Exchange Reserves</text>
+        
+        {/* Left Side: Long-term Accumulation */}
+        <g transform="translate(40, 60)">
+          <rect x="0" y="0" width="220" height="220" fill="rgba(34,197,94,0.02)" stroke="#22c55e" strokeWidth="1.5" rx="8" />
+          <text x="110" y="25" textAnchor="middle" fill="#22c55e" fontSize="12" fontWeight="bold">Bullish Accumulation Flow</text>
+          
+          <rect x="40" y="55" width="140" height="40" fill="rgba(15,23,42,0.6)" stroke="#475569" rx="6" />
+          <text x="110" y="79" textAnchor="middle" fill="#e2e8f0" fontSize="10">Exchange Reserves Drop</text>
+          
+          {/* Arrow out of exchange */}
+          <path d="M 110 115 L 110 160" fill="none" stroke="#22c55e" strokeWidth="2" markerEnd="url(#arrowGreenOnchain)" />
+          
+          <rect x="30" y="175" width="160" height="35" fill="#22c55e" rx="6" />
+          <text x="110" y="196" textAnchor="middle" fill="#ffffff" fontSize="10" fontWeight="bold">Cold Wallet Storage (Hold)</text>
+        </g>
+        
+        {/* Right Side: Distribution / Selling Pressure */}
+        <g transform="translate(340, 60)">
+          <rect x="0" y="0" width="220" height="220" fill="rgba(239,68,68,0.02)" stroke="#ef4444" strokeWidth="1.5" rx="8" />
+          <text x="110" y="25" textAnchor="middle" fill="#ef4444" fontSize="12" fontWeight="bold">Bearish Selling Flow</text>
+          
+          <rect x="30" y="55" width="160" height="35" fill="#ef4444" rx="6" />
+          <text x="110" y="76" textAnchor="middle" fill="#ffffff" fontSize="10" fontWeight="bold">Whales Transfer to Exchanges</text>
+          
+          {/* Arrow into exchange */}
+          <path d="M 110 105 L 110 150" fill="none" stroke="#ef4444" strokeWidth="2" markerEnd="url(#arrowRedOnchain)" />
+          
+          <rect x="40" y="165" width="140" height="40" fill="rgba(15,23,42,0.6)" stroke="#475569" rx="6" />
+          <text x="110" y="189" textAnchor="middle" fill="#e2e8f0" fontSize="10">Exchange Reserves Spike</text>
+        </g>
+
+        <defs>
+          <marker id="arrowGreenOnchain" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+            <polygon points="0 0, 6 3, 0 6" fill="#22c55e" />
+          </marker>
+          <marker id="arrowRedOnchain" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+            <polygon points="0 0, 6 3, 0 6" fill="#ef4444" />
+          </marker>
+        </defs>
+      </svg>
+    ),
+
+    cryptoLiquidity: (
+      <svg viewBox="0 0 600 350" className={baseClass} xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="crLqBg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#08070e" />
+            <stop offset="100%" stopColor="#020204" />
+          </linearGradient>
+        </defs>
+        <rect width="600" height="350" fill="url(#crLqBg)" rx="12" stroke="rgba(245,158,11,0.15)" strokeWidth="1.5" />
+        <text x="300" y="30" textAnchor="middle" fill="#d4a94b" fontSize="16" fontWeight="bold">Liquidity Sweep & Liquidation Cascades</text>
+
+        {/* Order Book Bid/Ask visual */}
+        <g transform="translate(40, 60)">
+          <rect x="0" y="0" width="220" height="230" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.1)" rx="8" />
+          <text x="110" y="20" textAnchor="middle" fill="#94a3b8" fontSize="11" fontWeight="bold">ORDER BOOK DEPTH</text>
+          
+          {/* Ask depth (Red) */}
+          <rect x="110" y="40" width="90" height="15" fill="rgba(239,68,68,0.3)" />
+          <rect x="110" y="60" width="70" height="15" fill="rgba(239,68,68,0.3)" />
+          <rect x="110" y="80" width="40" height="15" fill="rgba(239,68,68,0.3)" />
+          <text x="30" y="65" fill="#ef4444" fontSize="10">Sells / Offers</text>
+          
+          {/* Spread */}
+          <line x1="10" y1="110" x2="210" y2="110" stroke="#64748b" strokeWidth="1" strokeDasharray="3,3" />
+          <text x="110" y="114" textAnchor="middle" fill="#94a3b8" fontSize="10">Spread</text>
+          
+          {/* Bid depth (Green) */}
+          <rect x="110" y="130" width="50" height="15" fill="rgba(34,197,94,0.3)" />
+          <rect x="110" y="150" width="80" height="15" fill="rgba(34,197,94,0.3)" />
+          <rect x="110" y="170" width="95" height="15" fill="rgba(34,197,94,0.3)" />
+          <text x="30" y="165" fill="#22c55e" fontSize="10">Buys / Bids</text>
+
+          <rect x="10" y="195" width="200" height="25" fill="rgba(34,197,94,0.1)" stroke="#22c55e" strokeWidth="1" rx="4" />
+          <text x="110" y="211" textAnchor="middle" fill="#22c55e" fontSize="9" fontWeight="bold">High Liquidity Pool (Stop Losses)</text>
+        </g>
+
+        {/* Liquidation Sweep chart */}
+        <g transform="translate(300, 60)">
+          <rect x="0" y="0" width="260" height="230" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.1)" rx="8" />
+          <text x="130" y="20" textAnchor="middle" fill="#94a3b8" fontSize="11" fontWeight="bold">PRICE SWEEP ACTION</text>
+          
+          {/* Candlesticks */}
+          <line x1="50" y1="40" x2="50" y2="120" stroke="#ef4444" strokeWidth="1.5" />
+          <rect x="42" y="60" width="16" height="50" fill="#ef4444" />
+          
+          {/* Sweep candle (Long wick down) */}
+          <line x1="100" y1="70" x2="100" y2="210" stroke="#ef4444" strokeWidth="2" />
+          <rect x="92" y="80" width="16" height="60" fill="#ef4444" />
+          <circle cx="100" cy="205" r="8" fill="none" stroke="#f59e0b" strokeWidth="1.5" />
+          <text x="115" y="208" fill="#f59e0b" fontSize="9" fontWeight="bold">Liquidation Sweep</text>
+
+          {/* Reversal green candle */}
+          <line x1="150" y1="90" x2="150" y2="180" stroke="#22c55e" strokeWidth="1.5" />
+          <rect x="142" y="100" width="16" height="65" fill="#22c55e" />
+          
+          {/* Reversal green candle 2 */}
+          <line x1="200" y1="50" x2="200" y2="140" stroke="#22c55e" strokeWidth="1.5" />
+          <rect x="192" y="60" width="16" height="60" fill="#22c55e" />
+
+          {/* Liquidation level indicator */}
+          <line x1="10" y1="200" x2="250" y2="200" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="5,3" />
+          <text x="10" y="195" fill="#ef4444" fontSize="9">Liquidation Price Zone</text>
+        </g>
+      </svg>
+    ),
+
+    leverageRisk: (
+      <svg viewBox="0 0 600 350" className={baseClass} xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="lvBg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#0b0a14" />
+            <stop offset="100%" stopColor="#020105" />
+          </linearGradient>
+        </defs>
+        <rect width="600" height="350" fill="url(#lvBg)" rx="12" stroke="rgba(239,68,68,0.15)" strokeWidth="1.5" />
+        <text x="300" y="30" textAnchor="middle" fill="#d4a94b" fontSize="16" fontWeight="bold">Leverage Risk Alignment</text>
+        
+        {/* Left Card: 5x Leverage */}
+        <g transform="translate(40, 60)">
+          <rect x="0" y="0" width="230" height="230" fill="rgba(255,255,255,0.02)" stroke="#22c55e" strokeWidth="1" rx="8" />
+          <text x="115" y="25" textAnchor="middle" fill="#22c55e" fontSize="13" fontWeight="bold">Low Leverage (5x)</text>
+          
+          <g transform="translate(20, 50)">
+            {/* Entry */}
+            <rect x="0" y="0" width="150" height="20" fill="rgba(59,130,246,0.15)" rx="4" />
+            <text x="10" y="14" fill="#3b82f6" fontSize="10" fontWeight="bold">Entry Price: $40,000</text>
+            
+            {/* Stop Loss */}
+            <rect x="0" y="40" width="150" height="20" fill="rgba(239,68,68,0.15)" rx="4" />
+            <text x="10" y="54" fill="#ef4444" fontSize="10" fontWeight="bold">Stop Loss: $38,000 (-5%)</text>
+            <line x1="160" y1="10" x2="160" y2="50" stroke="#3b82f6" strokeWidth="1" strokeDasharray="2,2" />
+            <text x="170" y="35" fill="#94a3b8" fontSize="9">Risk: 1%</text>
+
+            {/* Liquidation */}
+            <rect x="0" y="120" width="150" height="20" fill="rgba(245,158,11,0.1)" rx="4" />
+            <text x="10" y="134" fill="#f59e0b" fontSize="10" fontWeight="bold">Liquidation: $32,000 (-20%)</text>
+            
+            <text x="75" y="105" textAnchor="middle" fill="#22c55e" fontSize="10" fontWeight="bold">✅ Safe Distance to Liquidation</text>
+          </g>
+        </g>
+        
+        {/* Right Card: 50x Leverage */}
+        <g transform="translate(330, 60)">
+          <rect x="0" y="0" width="230" height="230" fill="rgba(255,255,255,0.02)" stroke="#ef4444" strokeWidth="1" rx="8" />
+          <text x="115" y="25" textAnchor="middle" fill="#ef4444" fontSize="13" fontWeight="bold">High Leverage (50x)</text>
+          
+          <g transform="translate(20, 50)">
+            {/* Entry */}
+            <rect x="0" y="0" width="150" height="20" fill="rgba(59,130,246,0.15)" rx="4" />
+            <text x="10" y="14" fill="#3b82f6" fontSize="10" fontWeight="bold">Entry Price: $40,000</text>
+            
+            {/* Liquidation */}
+            <rect x="0" y="30" width="150" height="20" fill="rgba(239,68,68,0.2)" rx="4" stroke="#ef4444" strokeWidth="1" />
+            <text x="10" y="44" fill="#ef4444" fontSize="10" fontWeight="bold">Liquidation: $39,200 (-2%)</text>
+            
+            {/* Stop Loss (Behind Liquidation - DANGER!) */}
+            <rect x="0" y="120" width="150" height="20" fill="rgba(245,158,11,0.05)" rx="4" />
+            <text x="10" y="134" fill="#94a3b8" fontSize="10">Stop Loss: $38,000 (-5%)</text>
+            
+            <text x="75" y="90" textAnchor="middle" fill="#ef4444" fontSize="9" fontWeight="bold">⚠️ Liquidation Hit Before SL!</text>
+            <text x="75" y="105" textAnchor="middle" fill="#ef4444" fontSize="9" fontWeight="bold">Account Wiped Out</text>
+          </g>
+        </g>
+      </svg>
+    ),
   };
 
   const DiagramComponent = diagrams[type];
