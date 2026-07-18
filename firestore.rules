@@ -16,10 +16,13 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // Check if the user is an admin via custom claim ONLY (no hardcoded emails)
-    // To set: firebase-admin auth().setCustomUserClaims(uid, { isAdmin: true })
+    // Check if the user is an admin via custom claim OR fallback emails (to guarantee service continuity)
     function isAdmin() {
-      return isSignedIn() && request.auth.token.isAdmin == true;
+      return isSignedIn() && (
+        request.auth.token.isAdmin == true ||
+        request.auth.token.email == 'mchokri100@gmail.com' || 
+        request.auth.token.email == 'ahmed1195@gmail.com'
+      );
     }
 
     // Check if the user has purchased the Sober Book (via custom claim or Firestore)
