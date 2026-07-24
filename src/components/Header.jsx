@@ -284,6 +284,19 @@ const Header = () => {
               </AnimatePresence>
             </div>
 
+            {/* Messages Quick Button */}
+            {user && (
+              <button
+                onClick={() => navigate('/messages')}
+                onMouseEnter={() => prefetchRoute('/messages')}
+                aria-label="Messages"
+                className="w-9 h-9 md:w-10 md:h-10 rounded-md bg-secondary border border-border flex items-center justify-center text-foreground hover:bg-muted hover:border-amber-500/40 transition-all relative"
+                title={i18n.language === 'ar' ? 'الرسائل' : 'Messages'}
+              >
+                <MessageCircle className="w-4 h-4 text-amber-500" />
+              </button>
+            )}
+
             {/* User Profile / Login */}
             {user ? (
               <div className="flex items-center gap-2 md:gap-3 pl-2 md:pl-4 border-l border-border">

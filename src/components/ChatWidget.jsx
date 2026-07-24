@@ -13,7 +13,7 @@ import {
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { MessageCircle, Send, X, Minimize2, User } from 'lucide-react';
+import { MessageCircle, Send, X, Minimize2, User, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 
@@ -181,16 +181,23 @@ const ChatWidget = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={toggleMinimize}
-                    className="text-zinc-400 hover:text-white transition-colors"
+                    onClick={() => { setIsOpen(false); navigate('/messages'); }}
+                    className="text-zinc-400 hover:text-amber-500 transition-colors p-1"
+                    title={t('fullPageMessages') || 'Full Page Messages'}
                   >
-                    <Minimize2 className="w-5 h-5" />
+                    <ExternalLink className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={toggleMinimize}
+                    className="text-zinc-400 hover:text-white transition-colors p-1"
+                  >
+                    <Minimize2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={toggleChat}
-                    className="text-zinc-400 hover:text-white transition-colors"
+                    className="text-zinc-400 hover:text-white transition-colors p-1"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
               </div>
