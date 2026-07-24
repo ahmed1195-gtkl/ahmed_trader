@@ -401,6 +401,10 @@ function App() {
                   <Routes>
                     <Route path="/auth" element={<LazyAuth />} />
                     <Route path="/reset-password" element={<LazyResetPassword />} />
+                    {/* Public pages — accessible without login */}
+                    <Route path="/brokers" element={<LazyBrokersPage />} />
+                    <Route path="/courses" element={<LazyCourses />} />
+                    <Route path="/course/:courseId" element={<LazyCourseEnrollment />} />
                     <Route path="*" element={<Navigate to="/auth" replace />} />
                   </Routes>
                 ) : !isEmailVerified ? (
