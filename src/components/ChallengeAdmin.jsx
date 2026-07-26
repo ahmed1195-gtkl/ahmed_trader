@@ -301,7 +301,7 @@ function ChallengeAdmin() {
               className="bg-zinc-900 border border-white/10 rounded-3xl p-8 max-w-2xl w-full"
               onClick={(e) => e.stopPropagation()}
             >
-              <h2 className="text-3xl font-black text-white uppercase mb-6">
+              <h2 className="text-3xl font-black text-foreground uppercase mb-6">
                 {i18n.language === 'ar' ? 'إنشاء تحدي جديد' : 'Create New Challenge'}
               </h2>
 
@@ -347,7 +347,7 @@ function ChallengeAdmin() {
                     onChange={(e) => setMaxParticipants(parseInt(e.target.value))}
                     min="2"
                     max="100"
-                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none"
+                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-foreground focus:border-amber-500 outline-none"
                     required
                   />
                 </div>
@@ -356,7 +356,7 @@ function ChallengeAdmin() {
                   <button
                     type="button"
                     onClick={() => setShowCreateModal(false)}
-                    className="flex-1 py-4 bg-white/5 border border-white/10 text-white rounded-xl font-bold uppercase hover:bg-white/10 transition-all"
+                    className="flex-1 py-4 bg-white/5 border border-white/10 text-foreground rounded-xl font-bold uppercase hover:bg-white/10 transition-all"
                   >
                     {i18n.language === 'ar' ? 'إلغاء' : 'Cancel'}
                   </button>

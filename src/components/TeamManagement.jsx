@@ -107,7 +107,7 @@ function TeamManagement({ challengeId, participantId }) {
       <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-8">
         <div className="text-center">
           <Users className="w-16 h-16 text-gray-700 mx-auto mb-4" />
-          <h3 className="text-2xl font-black text-white uppercase mb-2">
+          <h3 className="text-2xl font-black text-foreground uppercase mb-2">
             {i18n.language === 'ar' ? 'انضم إلى فريق' : 'Join a Team'}
           </h3>
           <p className="text-gray-400 mb-6">
@@ -136,7 +136,7 @@ function TeamManagement({ challengeId, participantId }) {
               className="bg-zinc-900 border border-white/10 rounded-3xl p-8 max-w-md w-full"
               onClick={(e) => e.stopPropagation()}
             >
-              <h2 className="text-3xl font-black text-white uppercase mb-6">
+              <h2 className="text-3xl font-black text-foreground uppercase mb-6">
                 {i18n.language === 'ar' ? 'إنشاء فريق جديد' : 'Create New Team'}
               </h2>
 
@@ -150,7 +150,7 @@ function TeamManagement({ challengeId, participantId }) {
                     value={teamName}
                     onChange={(e) => setTeamName(e.target.value)}
                     placeholder={i18n.language === 'ar' ? 'أدخل اسم الفريق' : 'Enter team name'}
-                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none"
+                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-foreground focus:border-amber-500 outline-none"
                   />
                 </div>
 
@@ -158,7 +158,7 @@ function TeamManagement({ challengeId, participantId }) {
                   <button
                     type="button"
                     onClick={() => setShowCreateModal(false)}
-                    className="flex-1 py-4 bg-white/5 border border-white/10 text-white rounded-xl font-bold uppercase hover:bg-white/10 transition-all"
+                    className="flex-1 py-4 bg-white/5 border border-white/10 text-foreground rounded-xl font-bold uppercase hover:bg-white/10 transition-all"
                   >
                     {i18n.language === 'ar' ? 'إلغاء' : 'Cancel'}
                   </button>
@@ -192,7 +192,7 @@ function TeamManagement({ challengeId, participantId }) {
               <Users className="w-8 h-8 text-black" />
             </div>
             <div>
-              <h3 className="text-2xl font-black text-white">{team.name}</h3>
+              <h3 className="text-2xl font-black text-foreground">{team.name}</h3>
               <p className="text-sm text-gray-500">
                 {team.totalMembers} {i18n.language === 'ar' ? 'أعضاء' : 'members'}
               </p>

@@ -78,7 +78,7 @@ export default function SubscriptionPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white mb-4">
+          <h1 className="text-4xl font-bold text-foreground mb-4">
             {t('subscription.chooseYourPlan')}
           </h1>
           <p className="text-xl text-gray-400">
@@ -128,7 +128,7 @@ export default function SubscriptionPage() {
 
         {/* Features Comparison */}
         <div className="mt-16">
-          <h2 className="text-2xl font-bold text-white text-center mb-8">
+          <h2 className="text-2xl font-bold text-foreground text-center mb-8">
             {t('subscription.featureComparison')}
           </h2>
           <FeaturesTable language={i18n.language} />
@@ -162,7 +162,7 @@ function PricingCard({ tier, data, current, onUpgrade, featured, language }) {
       </div>
 
       {/* Name */}
-      <h3 className="text-2xl font-bold text-white mb-2">
+      <h3 className="text-2xl font-bold text-foreground mb-2">
         {data.name[language]}
       </h3>
 

@@ -32,7 +32,7 @@ export const Tooltip = ({ text, children, position = 'top' }) => {
             transition={{ duration: 0.15 }}
             className={`absolute z-50 ${positionClasses[position]} pointer-events-none`}
           >
-            <div className="bg-zinc-800 text-white text-xs px-3 py-2 rounded-lg border border-white/10 shadow-2xl backdrop-blur-xl max-w-xs">
+            <div className="bg-zinc-800 text-foreground text-xs px-3 py-2 rounded-lg border border-white/10 shadow-2xl backdrop-blur-xl max-w-xs">
               <p className="leading-relaxed">{text}</p>
               <div className="absolute w-2 h-2 bg-zinc-800 border-white/10 rotate-45 
                             ${position === 'top' ? 'bottom-[-4px] left-1/2 -translate-x-1/2 border-b border-r' : ''}

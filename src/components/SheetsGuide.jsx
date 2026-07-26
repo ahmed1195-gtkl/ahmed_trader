@@ -114,7 +114,7 @@ const SheetsGuide = () => {
         >
           <div className="flex items-center justify-center gap-3 mb-4">
             <FileSpreadsheet className="w-12 h-12 text-amber-500" />
-            <h1 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tight">
+            <h1 className="text-4xl md:text-5xl font-black text-foreground uppercase tracking-tight">
               {i18n.language === 'ar' ? 'دليل Google Sheets' : 'Google Sheets Guide'}
             </h1>
           </div>
@@ -136,7 +136,7 @@ const SheetsGuide = () => {
             <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-black font-black text-xl">
               1
             </div>
-            <h2 className="text-2xl font-black text-white uppercase">
+            <h2 className="text-2xl font-black text-foreground uppercase">
               {i18n.language === 'ar' ? 'إنشاء Google Sheet' : 'Create Google Sheet'}
             </h2>
           </div>
@@ -172,7 +172,7 @@ const SheetsGuide = () => {
             <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-black font-black text-xl">
               2
             </div>
-            <h2 className="text-2xl font-black text-white uppercase flex items-center gap-2">
+            <h2 className="text-2xl font-black text-foreground uppercase flex items-center gap-2">
               <Table className="w-6 h-6" />
               {i18n.language === 'ar' ? 'ترتيب الأعمدة (24 عمود)' : 'Column Layout (24 columns)'}
             </h2>
@@ -225,7 +225,7 @@ const SheetsGuide = () => {
             <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-black font-black text-xl">
               3
             </div>
-            <h2 className="text-2xl font-black text-white uppercase flex items-center gap-2">
+            <h2 className="text-2xl font-black text-foreground uppercase flex items-center gap-2">
               <Code className="w-6 h-6" />
               {i18n.language === 'ar' ? 'نسخ كود Apps Script' : 'Copy Apps Script Code'}
             </h2>
@@ -266,7 +266,7 @@ const SheetsGuide = () => {
             <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-black font-black text-xl">
               4
             </div>
-            <h2 className="text-2xl font-black text-white uppercase">
+            <h2 className="text-2xl font-black text-foreground uppercase">
               {i18n.language === 'ar' ? 'إضافة الكود في Apps Script' : 'Add Code to Apps Script'}
             </h2>
           </div>
@@ -300,7 +300,7 @@ const SheetsGuide = () => {
             <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-black font-black text-xl">
               5
             </div>
-            <h2 className="text-2xl font-black text-white uppercase">
+            <h2 className="text-2xl font-black text-foreground uppercase">
               {i18n.language === 'ar' ? 'نشر Web App' : 'Deploy Web App'}
             </h2>
           </div>

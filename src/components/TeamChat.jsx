@@ -232,7 +232,7 @@ function TeamChat({ teamId, teamName }) {
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder={i18n.language === 'ar' ? 'اكتب رسالة...' : 'Type a message...'}
-                className="flex-1 bg-zinc-800 border border-white/10 rounded-xl px-4 py-2 text-sm text-white placeholder-gray-500 focus:border-amber-500 outline-none"
+                className="flex-1 bg-zinc-800 border border-white/10 rounded-xl px-4 py-2 text-sm text-foreground placeholder-gray-500 focus:border-amber-500 outline-none"
               />
               <button
                 type="submit"

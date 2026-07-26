@@ -75,7 +75,7 @@ const AuthGuardPopup = ({ isOpen }) => {
                 however, we should allow them to go back to home if they don't want to register */}
             <button 
               onClick={() => navigate('/')}
-              className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] hover:text-white transition-colors mt-4"
+              className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] hover:text-amber-500 transition-colors mt-4"
             >
               {isAr ? 'العودة للرئيسية' : 'Back to Home'}
             </button>

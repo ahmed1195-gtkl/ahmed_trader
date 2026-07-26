@@ -235,12 +235,12 @@ const CoursesAdmin = () => {
           <div className="flex items-center gap-4">
             <Button
               onClick={() => navigate('/admin')}
-              className="bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl p-3"
+              className="bg-white/5 hover:bg-white/10 text-foreground border border-white/10 rounded-xl p-3"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className="text-4xl font-black text-white uppercase tracking-tight">
+              <h1 className="text-4xl font-black text-foreground uppercase tracking-tight">
                 {i18n.language === 'ar' ? 'إدارة الكورسات' : 'Manage Courses'}
               </h1>
               <p className="text-zinc-400 text-sm mt-1">
@@ -275,7 +275,7 @@ const CoursesAdmin = () => {
                 className="glass-card border border-border rounded-3xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-black text-white uppercase">
+                  <h2 className="text-2xl font-black text-foreground uppercase">
                     {editingCourse 
                       ? (i18n.language === 'ar' ? 'تعديل الكورس' : 'Edit Course')
                       : (i18n.language === 'ar' ? 'إضافة كورس جديد' : 'Add New Course')
@@ -284,7 +284,7 @@ const CoursesAdmin = () => {
                   <Button
                     onClick={resetForm}
                     disabled={saving}
-                    className="bg-white/5 hover:bg-white/10 text-white rounded-xl p-2"
+                    className="bg-white/5 hover:bg-white/10 text-foreground rounded-xl p-2"
                   >
                     <X className="w-5 h-5" />
                   </Button>
@@ -300,7 +300,7 @@ const CoursesAdmin = () => {
                       <Input
                         value={formData.nameAr}
                         onChange={(e) => setFormData({...formData, nameAr: e.target.value})}
-                        className="bg-white/5 border-white/10 text-white rounded-xl"
+                        className="bg-white/5 border-white/10 text-foreground rounded-xl"
                         placeholder="الدورة الكلاسيك"
                         required
                       />
@@ -312,7 +312,7 @@ const CoursesAdmin = () => {
                       <Input
                         value={formData.nameEn}
                         onChange={(e) => setFormData({...formData, nameEn: e.target.value})}
-                        className="bg-white/5 border-white/10 text-white rounded-xl"
+                        className="bg-white/5 border-white/10 text-foreground rounded-xl"
                         placeholder="Classic Course"
                         required
                       />
@@ -328,7 +328,7 @@ const CoursesAdmin = () => {
                       <textarea
                         value={formData.descriptionAr}
                         onChange={(e) => setFormData({...formData, descriptionAr: e.target.value})}
-                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl p-3 min-h-[100px] focus:border-amber-500/50 focus:outline-none"
+                        className="w-full bg-white/5 border border-white/10 text-foreground rounded-xl p-3 min-h-[100px] focus:border-amber-500/50 focus:outline-none"
                         placeholder="وصف الكورس بالعربي..."
                         required
                       />
@@ -340,7 +340,7 @@ const CoursesAdmin = () => {
                       <textarea
                         value={formData.descriptionEn}
                         onChange={(e) => setFormData({...formData, descriptionEn: e.target.value})}
-                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl p-3 min-h-[100px] focus:border-amber-500/50 focus:outline-none"
+                        className="w-full bg-white/5 border border-white/10 text-foreground rounded-xl p-3 min-h-[100px] focus:border-amber-500/50 focus:outline-none"
                         placeholder="Course description in English..."
                         required
                       />
@@ -393,7 +393,7 @@ const CoursesAdmin = () => {
                       <Input
                         value={formData.price}
                         onChange={(e) => setFormData({...formData, price: e.target.value})}
-                        className="bg-white/5 border-white/10 text-white rounded-xl"
+                        className="bg-white/5 border-white/10 text-foreground rounded-xl"
                         placeholder={i18n.language === 'ar' ? 'مثال: 299$' : 'e.g., $299'}
                         required
                       />
@@ -409,7 +409,7 @@ const CoursesAdmin = () => {
                       <textarea
                         value={formData.conditions}
                         onChange={(e) => setFormData({...formData, conditions: e.target.value})}
-                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl p-3 min-h-[100px] focus:outline-none focus:border-amber-500/50 transition-all"
+                        className="w-full bg-white/5 border border-white/10 text-foreground rounded-xl p-3 min-h-[100px] focus:outline-none focus:border-amber-500/50 transition-all"
                         placeholder={i18n.language === 'ar' ? 'اكتب الشروط هنا... يمكنك وضع روابط' : 'Write conditions here... You can include links'}
                         required
                       />
@@ -428,7 +428,7 @@ const CoursesAdmin = () => {
                       <Input
                         value={formData.duration}
                         onChange={(e) => setFormData({...formData, duration: e.target.value})}
-                        className="bg-white/5 border-white/10 text-white rounded-xl"
+                        className="bg-white/5 border-white/10 text-foreground rounded-xl"
                         placeholder={i18n.language === 'ar' ? '4 أسابيع' : '4 weeks'}
                       />
                     </div>
@@ -449,7 +449,7 @@ const CoursesAdmin = () => {
                       <Input
                         value={formData.sheetUrl}
                         onChange={(e) => setFormData({...formData, sheetUrl: e.target.value})}
-                        className="bg-white/5 border-white/10 text-white rounded-xl"
+                        className="bg-white/5 border-white/10 text-foreground rounded-xl"
                         placeholder="https://script.google.com/macros/s/.../exec"
                         required
                       />
@@ -468,25 +468,25 @@ const CoursesAdmin = () => {
                       <Input
                         value={formData.whatsappUrl}
                         onChange={(e) => setFormData({...formData, whatsappUrl: e.target.value})}
-                        className="bg-white/5 border-white/10 text-white rounded-xl"
+                        className="bg-white/5 border-white/10 text-foreground rounded-xl"
                         placeholder="WhatsApp URL"
                       />
                       <Input
                         value={formData.instagramUrl}
                         onChange={(e) => setFormData({...formData, instagramUrl: e.target.value})}
-                        className="bg-white/5 border-white/10 text-white rounded-xl"
+                        className="bg-white/5 border-white/10 text-foreground rounded-xl"
                         placeholder="Instagram URL"
                       />
                       <Input
                         value={formData.telegramUrl}
                         onChange={(e) => setFormData({...formData, telegramUrl: e.target.value})}
-                        className="bg-white/5 border-white/10 text-white rounded-xl"
+                        className="bg-white/5 border-white/10 text-foreground rounded-xl"
                         placeholder="Telegram URL"
                       />
                       <Input
                         value={formData.emailUrl}
                         onChange={(e) => setFormData({...formData, emailUrl: e.target.value})}
-                        className="bg-white/5 border-white/10 text-white rounded-xl"
+                        className="bg-white/5 border-white/10 text-foreground rounded-xl"
                         placeholder="Email"
                       />
                     </div>
@@ -498,7 +498,7 @@ const CoursesAdmin = () => {
                       type="button"
                       onClick={resetForm}
                       disabled={saving}
-                      className="flex-1 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl py-3"
+                      className="flex-1 bg-white/5 hover:bg-white/10 text-foreground border border-white/10 rounded-xl py-3"
                     >
                       {i18n.language === 'ar' ? 'إلغاء' : 'Cancel'}
                     </Button>
@@ -540,7 +540,7 @@ const CoursesAdmin = () => {
                 </div>
               </div>
               <CardHeader>
-                <CardTitle className="text-xl font-black text-white">
+                <CardTitle className="text-xl font-black text-foreground">
                   {i18n.language === 'ar' ? course.nameAr : course.nameEn}
                 </CardTitle>
                 <p className="text-zinc-400 text-sm line-clamp-2">
@@ -550,7 +550,7 @@ const CoursesAdmin = () => {
               <CardFooter className="flex gap-2">
                 <Button
                   onClick={() => handleEdit(course)}
-                  className="flex-1 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl py-2"
+                  className="flex-1 bg-white/5 hover:bg-white/10 text-foreground border border-white/10 rounded-xl py-2"
                 >
                   <Edit className="w-4 h-4 mr-2" />
                   {i18n.language === 'ar' ? 'تعديل' : 'Edit'}
@@ -570,7 +570,7 @@ const CoursesAdmin = () => {
         {courses.length === 0 && (
           <div className="text-center py-20">
             <BookOpen className="w-24 h-24 text-zinc-700 mx-auto mb-6" />
-            <h3 className="text-2xl font-black text-white uppercase mb-4">
+            <h3 className="text-2xl font-black text-foreground uppercase mb-4">
               {i18n.language === 'ar' ? 'لا توجد كورسات' : 'No Courses'}
             </h3>
             <p className="text-zinc-500 mb-6">

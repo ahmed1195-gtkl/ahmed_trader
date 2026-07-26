@@ -101,7 +101,7 @@ export default function SentimentAnalysisPanel({ news, currentPrice, historicalP
               <div className={`px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-[10px] ${
                 recommendation.strength === 'STRONG'
                   ? 'bg-amber-500 text-black'
-                  : 'bg-white/10 text-white'
+                  : 'bg-white/10 text-foreground'
               }`}>
                 {recommendation.strength}
               </div>

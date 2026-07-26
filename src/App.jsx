@@ -153,7 +153,7 @@ function BannedScreen({ banData }) {
         
         <button 
           onClick={() => signOut(auth)}
-          className="flex items-center justify-center gap-2 w-full py-4 rounded-md bg-destructive/10 border border-destructive/20 text-destructive font-black text-sm uppercase tracking-widest hover:bg-destructive hover:text-white transition-all mb-6 cursor-pointer"
+          className="flex items-center justify-center gap-2 w-full py-4 rounded-md bg-destructive/10 border border-destructive/20 text-destructive font-black text-sm uppercase tracking-widest hover:bg-destructive hover:text-amber-500 transition-all mb-6 cursor-pointer"
         >
           <LogOut className="w-5 h-5" /> Logout &amp; Switch Account
         </button>

@@ -119,7 +119,7 @@ const EconomicCalendarTable = () => {
                 className={`text-xs font-black uppercase tracking-widest px-3 py-2 rounded-lg transition-all border ${
                   selectedCurrencies.includes(currency)
                     ? 'bg-amber-500 text-black border-amber-500'
-                    : 'bg-white/5 text-white border-white/10 hover:border-white/20'
+                    : 'bg-white/5 text-foreground border-white/10 hover:border-white/20'
                 }`}
               >
                 {currency}
@@ -145,7 +145,7 @@ const EconomicCalendarTable = () => {
                 className={`text-xs font-black uppercase tracking-widest px-3 py-2 rounded-lg transition-all border ${
                   selectedImpacts.includes(impact)
                     ? getImpactColor(impact) + ' border-current'
-                    : 'bg-white/5 text-white border-white/10 hover:border-white/20'
+                    : 'bg-white/5 text-foreground border-white/10 hover:border-white/20'
                 }`}
               >
                 {impact}

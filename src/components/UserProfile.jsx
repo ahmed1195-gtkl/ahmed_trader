@@ -285,7 +285,7 @@ const UserProfile = () => {
                 {/* زر المراسلة */}
                 <button
                   onClick={handleSendMessage}
-                  className="bg-zinc-800 text-white font-bold py-3 px-6 rounded-full hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
+                  className="bg-zinc-800 text-foreground font-bold py-3 px-6 rounded-full hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
                 >
                   <MessageCircle className="w-5 h-5" />
                 </button>

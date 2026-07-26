@@ -124,7 +124,7 @@ const BookCard = ({ book, onPreview }) => {
             {book.category}
           </span>
         </div>
-        <h3 className="text-sm font-black text-white uppercase tracking-tight mb-1 line-clamp-1 group-hover:text-amber-500 transition-colors">
+        <h3 className="text-sm font-black text-foreground uppercase tracking-tight mb-1 line-clamp-1 group-hover:text-amber-500 transition-colors">
           {book.title}
         </h3>
         <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
@@ -158,7 +158,7 @@ const PreviewModal = ({ book, onClose }) => {
       >
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 z-50 p-3 rounded-2xl bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white transition-all"
+          className="absolute top-6 right-6 z-50 p-3 rounded-2xl bg-white/5 text-gray-400 hover:bg-white/10 hover:text-foreground transition-all"
         >
           <X className="w-6 h-6" />
         </button>
@@ -173,7 +173,7 @@ const PreviewModal = ({ book, onClose }) => {
             <span className="inline-block px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] bg-amber-500/10 text-amber-500 border border-amber-500/20 mb-6">
               {book.category}
             </span>
-            <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4 leading-none">
+            <h2 className="text-3xl md:text-5xl font-black text-foreground uppercase tracking-tighter mb-4 leading-none">
               {book.title}
             </h2>
             <p className="text-lg text-amber-500/80 font-bold uppercase tracking-widest mb-8">
@@ -214,7 +214,7 @@ const PreviewModal = ({ book, onClose }) => {
               <BookOpen className="w-5 h-5" /> Read Online
             </motion.button>
             <motion.button
-              className="flex-1 py-5 rounded-2xl bg-white/5 border border-white/10 text-white font-black text-sm uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-white/10 transition-all"
+              className="flex-1 py-5 rounded-2xl bg-white/5 border border-white/10 text-foreground font-black text-sm uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-white/10 transition-all"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >

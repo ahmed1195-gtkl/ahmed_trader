@@ -276,7 +276,7 @@ const PipCalculator = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <Card className="bg-zinc-900/40 backdrop-blur-2xl border-white/10 text-white rounded-[2.5rem] overflow-hidden shadow-2xl">
+            <Card className="bg-zinc-900/40 backdrop-blur-2xl border-white/10 text-foreground rounded-[2.5rem] overflow-hidden shadow-2xl">
               <CardHeader className="p-8 border-b border-white/5 flex flex-row items-center justify-between">
                 <CardTitle className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
                   <BarChart3 className="w-6 h-6 text-amber-500" /> Parameters
@@ -308,7 +308,7 @@ const PipCalculator = () => {
                               <button 
                                 key={c.code} 
                                 onClick={() => { setAccountCurrency(c.code); setShowCurrencyList(false); }}
-                                className={`w-full flex items-center justify-between px-6 py-4 text-left transition-all ${accountCurrency === c.code ? 'bg-amber-500 text-black' : 'hover:bg-white/5 text-gray-400 hover:text-white'}`}
+                                className={`w-full flex items-center justify-between px-6 py-4 text-left transition-all ${accountCurrency === c.code ? 'bg-amber-500 text-black' : 'hover:bg-white/5 text-foreground hover:text-amber-500'}`}
                               >
                                 <span className="text-[10px] font-black uppercase tracking-widest">{c.code}</span>
                                 <span className="font-bold">{c.symbol}</span>
@@ -343,7 +343,7 @@ const PipCalculator = () => {
                               <button 
                                 key={a.symbol} 
                                 onClick={() => { setAsset(a.symbol); setShowAssetList(false); }}
-                                className={`w-full px-6 py-4 text-left transition-all ${asset === a.symbol ? 'bg-amber-500 text-black' : 'hover:bg-white/5 text-gray-400 hover:text-white'}`}
+                                className={`w-full px-6 py-4 text-left transition-all ${asset === a.symbol ? 'bg-amber-500 text-black' : 'hover:bg-white/5 text-foreground hover:text-amber-500'}`}
                               >
                                 <span className="text-[10px] font-black uppercase tracking-widest">{a.name}</span>
                               </button>
@@ -405,7 +405,7 @@ const PipCalculator = () => {
                   <>
                   <div className="flex items-center justify-between mt-8 mb-4">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-black uppercase tracking-widest text-white">Risk Analysis</h3>
+                      <h3 className="text-sm font-black uppercase tracking-widest text-foreground">Risk Analysis</h3>
                       <TooltipIcon text="Comprehensive risk metrics for your position including potential profit, loss, and risk:reward ratio." />
                     </div>
                     {!RISK_CONFIG.isProUser && <ProBadge />}
@@ -472,7 +472,7 @@ const PipCalculator = () => {
 
           {/* Sidebar Info */}
           <div className="space-y-8">
-            <Card className="bg-zinc-900/40 backdrop-blur-2xl border-white/10 text-white rounded-[2.5rem]">
+            <Card className="bg-zinc-900/40 backdrop-blur-2xl border-white/10 text-foreground rounded-[2.5rem]">
               <CardHeader className="p-6 border-b border-white/5">
                 <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
                   <Target className="w-4 h-4 text-amber-500" /> Trading Info
@@ -503,7 +503,7 @@ const PipCalculator = () => {
 
             {/* Margin Info (TASK 3) */}
             {RISK_CONFIG.marginCalcEnabled && marginInfo && marginInfo.isValid && (
-              <Card className="bg-zinc-900/40 backdrop-blur-2xl border-white/10 text-white rounded-[2.5rem]">
+              <Card className="bg-zinc-900/40 backdrop-blur-2xl border-white/10 text-foreground rounded-[2.5rem]">
                 <CardHeader className="p-6 border-b border-white/5">
                   <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
                     <Shield className="w-4 h-4 text-cyan-500" /> Margin Required
@@ -528,7 +528,7 @@ const PipCalculator = () => {
 
             {/* Daily Risk Tracker (TASK 4) */}
             {RISK_CONFIG.dailyRiskTrackerEnabled && dailyRiskStatus && (
-              <Card className="bg-zinc-900/40 backdrop-blur-2xl border-white/10 text-white rounded-[2.5rem]">
+              <Card className="bg-zinc-900/40 backdrop-blur-2xl border-white/10 text-foreground rounded-[2.5rem]">
                 <CardHeader className="p-6 border-b border-white/5">
                   <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
                     <BarChart3 className="w-4 h-4 text-orange-500" /> Daily Risk

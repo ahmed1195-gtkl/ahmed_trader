@@ -82,14 +82,14 @@ const GlobalNews = () => {
                 <TrendingUp className="w-4 h-4" />
                 <span className="text-[10px] font-black uppercase tracking-[0.4em]">{t('news.liveIntelligence') || 'Global Intelligence'}</span>
               </div>
-              <h1 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none">
+              <h1 className="text-3xl md:text-5xl font-black text-foreground uppercase tracking-tighter leading-none">
                 {t('news.titlePart1') || 'Global'} <span className="text-amber-500">{t('news.titlePart2') || 'News'}</span>
               </h1>
             </div>
             <button 
               onClick={fetchNews} 
               disabled={loading}
-              className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-white hover:bg-amber-500 hover:text-black transition-all group disabled:opacity-50"
+              className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-foreground hover:bg-amber-500 hover:text-black transition-all group disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
               <span className="text-xs font-black uppercase tracking-widest">Refresh Feed</span>
@@ -101,7 +101,7 @@ const GlobalNews = () => {
               <div className="w-20 h-20 bg-red-500/10 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-red-500/20">
                 <AlertCircle className="w-10 h-10 text-red-500" />
               </div>
-              <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight">{t('news.error') || 'Error'}</h3>
+              <h3 className="text-xl font-black text-foreground mb-2 uppercase tracking-tight">{t('news.error') || 'Error'}</h3>
               <p className="text-gray-500 font-medium mb-8">Please check your connection or try again later.</p>
               <button onClick={fetchNews} className="px-8 py-4 bg-amber-500 text-black font-black uppercase tracking-widest rounded-xl hover:bg-amber-400 transition-all">
                 {t('news.tryAgain') || 'Try Again'}
@@ -158,7 +158,7 @@ const GlobalNews = () => {
                   </div>
 
                   <div className="p-8 flex-1 flex flex-col">
-                    <h3 className="text-xl font-black text-white mb-4 leading-tight group-hover:text-amber-500 transition-colors line-clamp-2">
+                    <h3 className="text-xl font-black text-foreground mb-4 leading-tight group-hover:text-amber-500 transition-colors line-clamp-2">
                       {item.title}
                     </h3>
 
@@ -173,7 +173,7 @@ const GlobalNews = () => {
                       <div className="flex items-center gap-4">
                         <button 
                           onClick={() => setSelectedPost(item)}
-                          className="flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest hover:text-amber-500 transition-colors"
+                          className="flex items-center gap-2 text-[10px] font-black text-foreground uppercase tracking-widest hover:text-amber-500 transition-colors"
                         >
                           <MessageCircle className="w-3 h-3" />
                           {t('news.comments', 'Comments')}
@@ -210,7 +210,7 @@ const GlobalNews = () => {
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="relative w-full max-w-3xl max-h-[90vh] bg-zinc-900 border border-white/10 rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl"
+                className="relative w-full max-w-3xl max-h-[90vh] bg-card border border-border rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl"
               >
                 <button 
                   onClick={() => setSelectedPost(null)}
@@ -227,7 +227,7 @@ const GlobalNews = () => {
                         {new Date(selectedPost.pubDate).toLocaleString()}
                       </span>
                     </div>
-                    <h2 className="text-3xl font-black text-white mb-6 leading-tight">
+                    <h2 className="text-3xl font-black text-foreground mb-6 leading-tight">
                       {selectedPost.title}
                     </h2>
                     
@@ -245,7 +245,7 @@ const GlobalNews = () => {
                       </div>
                     )}
 
-                    <p className="text-gray-400 leading-relaxed mb-8 whitespace-pre-wrap">
+                    <p className="text-muted-foreground leading-relaxed mb-8 whitespace-pre-wrap">
                       {selectedPost.isAdminPost ? selectedPost.content : selectedPost.description?.replace(/<[^>]*>?/gm, '')}
                     </p>
                     {!selectedPost.isAdminPost && (
@@ -253,7 +253,7 @@ const GlobalNews = () => {
                         href={selectedPost.link} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-3 px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-black uppercase tracking-widest hover:bg-amber-500 hover:text-black transition-all"
+                        className="inline-flex items-center gap-3 px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-foreground font-black uppercase tracking-widest hover:bg-amber-500 hover:text-black transition-all"
                       >
                         {t('news.readFullArticle', 'Read Full Article')}
                         <ExternalLink className="w-4 h-4" />

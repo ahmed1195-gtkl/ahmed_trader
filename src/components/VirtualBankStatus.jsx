@@ -54,7 +54,7 @@ function VirtualBankStatus({ challengeId }) {
           <Building2 className="w-8 h-8 text-black" />
         </div>
         <div>
-          <h2 className="text-3xl font-black text-white uppercase">
+          <h2 className="text-3xl font-black text-foreground uppercase">
             {i18n.language === 'ar' ? '🏦 حالة البنك الافتراضي' : '🏦 Virtual Bank Status'}
           </h2>
           <p className="text-gray-400 text-sm">

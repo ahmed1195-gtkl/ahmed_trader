@@ -177,13 +177,13 @@ const PaymentModal = ({ isOpen, onClose, bookTitle, price, originalPrice }) => {
                     {isAr ? 'دفع آمن ومشفر' : 'Secure & Encrypted Payment'}
                   </span>
                 </div>
-                <h2 className="text-white font-black text-lg uppercase tracking-tight">
+                <h2 className="text-foreground font-black text-lg uppercase tracking-tight">
                   {isAr ? 'اختر طريقة الدفع' : 'Choose Payment Method'}
                 </h2>
               </div>
               <button
                 onClick={onClose}
-                className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-all cursor-pointer"
+                className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-foreground transition-all cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>

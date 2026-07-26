@@ -409,7 +409,7 @@ export default function CopyTrading() {
               </h3>
               <button
                 onClick={() => setShowSetupModal(false)}
-                className="text-gray-400 hover:text-white transition"
+                className="text-gray-400 hover:text-amber-500 transition"
               >
                 <X className="w-6 h-6" />
               </button>

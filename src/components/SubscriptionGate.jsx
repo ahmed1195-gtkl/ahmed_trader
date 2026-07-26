@@ -125,7 +125,7 @@ function UpgradePrompt({ currentTier, feature, showButton }) {
         <Lock className="w-8 h-8 text-amber-500" />
       </div>
 
-      <h3 className="text-xl font-bold text-white mb-2">
+      <h3 className="text-xl font-bold text-foreground mb-2">
         {t('subscription.featureLocked')}
       </h3>
 

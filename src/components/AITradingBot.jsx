@@ -797,7 +797,7 @@ const AITradingBot = () => {
                           className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-left ${
                             selectedAsset === a.symbol
                               ? 'bg-gradient-to-r from-amber-500/20 to-amber-600/10 border border-amber-500/30 text-white'
-                              : 'hover:bg-white/5 text-gray-400 hover:text-white border border-transparent'
+                              : 'hover:bg-white/5 text-gray-400 hover:text-foreground border border-transparent'
                           }`}
                         >
                           <span className="text-[11px] font-black uppercase">{a.name}</span>
@@ -869,8 +869,8 @@ const AITradingBot = () => {
                   onClick={() => setSelectedTimeframe(tf.label)}
                   className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
                     selectedTimeframe === tf.label
-                      ? 'bg-white/10 text-white shadow-sm'
-                      : 'text-gray-500 hover:text-white'
+                      ? 'bg-white/10 text-foreground shadow-sm'
+                      : 'text-gray-500 hover:text-amber-500'
                   }`}
                 >
                   {tf.label}
@@ -922,7 +922,7 @@ const AITradingBot = () => {
                     setShowDisclaimer(false);
                     localStorage.setItem('hide_bot_disclaimer', 'true');
                   }}
-                  className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors cursor-pointer text-xs font-bold"
+                  className="absolute top-4 right-4 text-gray-500 hover:text-amber-500 transition-colors cursor-pointer text-xs font-bold"
                 >
                   ✕
                 </button>
@@ -1089,7 +1089,7 @@ const AITradingBot = () => {
                               </span>
                             </div>
                             {[
-                              { label: isAr ? 'دخول' : 'Entry', value: analysis.levels.entry, color: 'text-white', border: 'border-white/20', bg: 'bg-white/5' },
+                              { label: isAr ? 'دخول' : 'Entry', value: analysis.levels.entry, color: 'text-foreground', border: 'border-white/20', bg: 'bg-white/5' },
                               { label: isAr ? 'جني أرباح' : 'Take Profit', value: analysis.levels.tp, color: 'text-green-400', border: 'border-green-500/20', bg: 'bg-green-500/5' },
                               { label: isAr ? 'وقف خسارة' : 'Stop Loss', value: analysis.levels.sl, color: 'text-red-400', border: 'border-red-500/20', bg: 'bg-red-500/5' },
                             ].map(lvl => (
@@ -1248,7 +1248,7 @@ const AITradingBot = () => {
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
-                      activeTab === tab.id ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-gray-300'
+                      activeTab === tab.id ? 'bg-white/10 text-foreground' : 'text-gray-500 hover:text-gray-300'
                     }`}
                   >
                     <Icon className="w-3 h-3" />

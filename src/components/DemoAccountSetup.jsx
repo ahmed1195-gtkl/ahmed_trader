@@ -129,7 +129,7 @@ function DemoAccountSetup({ onComplete }) {
               name="brokerName"
               value={formData.brokerName}
               onChange={handleInputChange}
-              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-amber-500/50 transition-colors"
+              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-foreground focus:outline-none focus:border-amber-500/50 transition-colors"
               required
             >
               <option value="">اختر الوسيط...</option>
@@ -153,7 +153,7 @@ function DemoAccountSetup({ onComplete }) {
                 className={`py-3 px-4 rounded-2xl font-bold transition-all ${
                   formData.platform === 'MT4'
                     ? 'bg-amber-500 text-black'
-                    : 'bg-black/40 border border-white/10 text-white hover:border-amber-500/50'
+                    : 'bg-black/40 border border-white/10 text-foreground hover:border-amber-500/50'
                 }`}
               >
                 MetaTrader 4
@@ -164,7 +164,7 @@ function DemoAccountSetup({ onComplete }) {
                 className={`py-3 px-4 rounded-2xl font-bold transition-all ${
                   formData.platform === 'MT5'
                     ? 'bg-amber-500 text-black'
-                    : 'bg-black/40 border border-white/10 text-white hover:border-amber-500/50'
+                    : 'bg-black/40 border border-white/10 text-foreground hover:border-amber-500/50'
                 }`}
               >
                 MetaTrader 5
@@ -183,7 +183,7 @@ function DemoAccountSetup({ onComplete }) {
               value={formData.accountNumber}
               onChange={handleInputChange}
               placeholder="مثال: 12345678"
-              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-amber-500/50 transition-colors"
+              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-foreground placeholder-gray-500 focus:outline-none focus:border-amber-500/50 transition-colors"
               required
             />
           </div>
@@ -199,7 +199,7 @@ function DemoAccountSetup({ onComplete }) {
               value={formData.password}
               onChange={handleInputChange}
               placeholder="••••••••"
-              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-amber-500/50 transition-colors"
+              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-foreground placeholder-gray-500 focus:outline-none focus:border-amber-500/50 transition-colors"
               required
             />
           </div>
@@ -215,7 +215,7 @@ function DemoAccountSetup({ onComplete }) {
               value={formData.serverName}
               onChange={handleInputChange}
               placeholder="مثال: Equiti-Demo"
-              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-amber-500/50 transition-colors"
+              className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-foreground placeholder-gray-500 focus:outline-none focus:border-amber-500/50 transition-colors"
             />
           </div>
 

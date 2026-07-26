@@ -311,7 +311,7 @@ const Header = () => {
                 <button 
                   onClick={() => signOut(auth)} 
                   aria-label="Sign Out"
-                  className="hidden md:flex w-10 h-10 rounded-md bg-destructive/10 border border-destructive/20 items-center justify-center text-destructive hover:bg-destructive hover:text-white transition-all"
+                  className="hidden md:flex w-10 h-10 rounded-md bg-destructive/10 border border-destructive/20 items-center justify-center text-destructive hover:bg-destructive hover:text-amber-500 transition-all"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>

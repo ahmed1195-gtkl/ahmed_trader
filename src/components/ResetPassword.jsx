@@ -88,12 +88,12 @@ const ResetPassword = () => {
         animate={{ opacity: 1, scale: 1 }}
         className="w-full max-w-md relative z-10"
       >
-        <Card className="bg-zinc-900/80 backdrop-blur-2xl border-white/5 text-white shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2rem] overflow-hidden">
+        <Card className="bg-zinc-900/80 backdrop-blur-2xl border-white/5 text-foreground shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2rem] overflow-hidden">
           <CardHeader className="text-center pt-10 pb-6">
             <div className="w-16 h-16 bg-amber-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-amber-500/20">
               <Lock className="w-8 h-8 text-amber-500" />
             </div>
-            <CardTitle className="text-3xl font-black text-white uppercase tracking-tighter mb-2">
+            <CardTitle className="text-3xl font-black text-foreground uppercase tracking-tighter mb-2">
               {t('auth.resetPassword')}
             </CardTitle>
             <CardDescription className="text-gray-500 font-medium">
@@ -168,7 +168,7 @@ const ResetPassword = () => {
                   <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-xs font-bold mb-8">
                     {error || 'The password reset link is no longer valid.'}
                   </div>
-                  <Button asChild className="w-full h-14 bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest rounded-xl hover:bg-white/10">
+                  <Button asChild className="w-full h-14 bg-white/5 border border-white/10 text-foreground font-black uppercase tracking-widest rounded-xl hover:bg-white/10">
                     <Link to="/auth">
                       <ArrowLeft className="w-4 h-4 mr-2" />
                       Back to Login

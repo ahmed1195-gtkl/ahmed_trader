@@ -118,7 +118,7 @@ const Onboarding = () => {
           </div>
         </div>
 
-        <Card className="bg-zinc-900/80 backdrop-blur-2xl border-white/5 text-white rounded-[2.5rem] overflow-hidden shadow-2xl">
+        <Card className="bg-zinc-900/80 backdrop-blur-2xl border-white/5 text-foreground rounded-[2.5rem] overflow-hidden shadow-2xl">
           <CardContent className="p-10 md:p-16">
             <AnimatePresence mode="wait">
               <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-10">
@@ -141,7 +141,7 @@ const Onboarding = () => {
                         className={`group flex items-center justify-between p-6 rounded-2xl border transition-all text-left ${
                           formData[currentStepData.field] === opt.id 
                           ? 'bg-amber-500 border-amber-500 text-black shadow-lg shadow-amber-500/20' 
-                          : 'bg-white/5 border-white/10 text-white hover:border-amber-500/50'
+                          : 'bg-white/5 border-white/10 text-foreground hover:border-amber-500/50'
                         }`}
                       >
                         <div>
@@ -179,7 +179,7 @@ const Onboarding = () => {
                 )}
 
                 {step > 1 && !loading && (
-                  <button onClick={() => setStep(step - 1)} className="w-full text-center text-gray-500 text-[10px] font-black uppercase tracking-[0.3em] hover:text-white transition-colors">
+                  <button onClick={() => setStep(step - 1)} className="w-full text-center text-gray-500 text-[10px] font-black uppercase tracking-[0.3em] hover:text-amber-500 transition-colors">
                     Go Back
                   </button>
                 )}

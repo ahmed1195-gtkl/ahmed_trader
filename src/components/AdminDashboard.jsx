@@ -416,7 +416,7 @@ const AdminDashboard = () => {
                           <UserCheck className="w-3 h-3 mr-2" /> {i18n.language === 'ar' ? 'فك الحظر' : 'Unban'}
                         </Button>
                       ) : (
-                        <Button onClick={() => { setSelectedUser(user); setIsBanModalOpen(true); }} className="bg-destructive/10 hover:bg-destructive text-destructive hover:text-white border border-destructive/20 h-10 px-4 rounded-md text-[10px] font-black uppercase tracking-widest cursor-pointer">
+                        <Button onClick={() => { setSelectedUser(user); setIsBanModalOpen(true); }} className="bg-destructive/10 hover:bg-destructive text-destructive hover:text-amber-500 border border-destructive/20 h-10 px-4 rounded-md text-[10px] font-black uppercase tracking-widest cursor-pointer">
                           <Ban className="w-3 h-3 mr-2" /> {i18n.language === 'ar' ? 'حظر' : 'Ban'}
                         </Button>
                       )}

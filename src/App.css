@@ -170,8 +170,9 @@ html.light {
 }
 
 html.light .glass-card {
-  background-color: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  background-color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
 }
 
 html.light .glass-card-hover:hover {
@@ -179,5 +180,51 @@ html.light .glass-card-hover:hover {
   border-color: rgba(172, 137, 65, 0.2);
   box-shadow: 0 10px 30px -10px rgba(172, 137, 65, 0.08);
 }
+
+/* Automatic light mode contrast adaptors */
+html.light .bg-white\/5 {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light .bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.07) !important;
+}
+
+html.light .bg-white\/20 {
+  background-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+html.light .hover\:bg-white\/5:hover {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light .hover\:bg-white\/10:hover {
+  background-color: rgba(0, 0, 0, 0.09) !important;
+}
+
+html.light .border-white\/5 {
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light .border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+html.light .border-white\/20 {
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Ensure inputs, textareas, selects adapt color & placeholder in light mode */
+html.light input:not([type="submit"]):not([type="button"]):not([class*="bg-amber"]):not([class*="bg-blue"]):not([class*="bg-primary"]):not([class*="text-black"]),
+html.light textarea:not([class*="bg-amber"]):not([class*="bg-blue"]):not([class*="bg-primary"]):not([class*="text-black"]),
+html.light select {
+  color: var(--foreground) !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: oklch(0.50 0.015 240) !important;
+}
+
 
 

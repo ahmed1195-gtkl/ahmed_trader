@@ -106,7 +106,7 @@ function TradingChallenge() {
               </span>
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter mb-6">
+            <h1 className="text-5xl md:text-7xl font-black text-foreground uppercase tracking-tighter mb-6">
               {i18n.language === 'ar' ? 'اختبر مهاراتك' : i18n.language === 'fr' ? 'Testez Vos Compétences' : 'Test Your Skills'}
             </h1>
             
@@ -144,7 +144,7 @@ function TradingChallenge() {
                   </div>
                 </div>
 
-                <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2">
+                <h3 className="text-2xl font-black text-foreground uppercase tracking-tight mb-2">
                   {i18n.language === 'ar' ? level.nameAr : i18n.language === 'fr' ? level.nameFr : level.name}
                 </h3>
                 
@@ -212,7 +212,7 @@ function TradingChallenge() {
             >
               <div className="flex items-center gap-3 mb-8">
                 <Users className="w-6 h-6 text-amber-500" />
-                <h2 className="text-3xl font-black text-white uppercase tracking-tight">
+                <h2 className="text-3xl font-black text-foreground uppercase tracking-tight">
                   {i18n.language === 'ar' ? 'التحديات النشطة' : i18n.language === 'fr' ? 'Défis Actifs' : 'Active Challenges'}
                 </h2>
               </div>
@@ -280,7 +280,7 @@ function TradingChallenge() {
             >
               <div className="flex items-center gap-3 mb-8">
                 <Trophy className="w-6 h-6 text-amber-500" />
-                <h2 className="text-3xl font-black text-white uppercase tracking-tight">
+                <h2 className="text-3xl font-black text-foreground uppercase tracking-tight">
                   {i18n.language === 'ar' ? 'أفضل المتداولين' : i18n.language === 'fr' ? 'Meilleurs Traders' : 'Top Traders'}
                 </h2>
               </div>
@@ -333,7 +333,7 @@ function TradingChallenge() {
               <div className="w-16 h-16 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <TrendingUp className="w-8 h-8 text-amber-500" />
               </div>
-              <h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">
+              <h3 className="text-xl font-black text-foreground uppercase tracking-tight mb-2">
                 {i18n.language === 'ar' ? 'أسواق حقيقية' : i18n.language === 'fr' ? 'Marchés Réels' : 'Real Markets'}
               </h3>
               <p className="text-sm text-gray-400">
@@ -349,7 +349,7 @@ function TradingChallenge() {
               <div className="w-16 h-16 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <Shield className="w-8 h-8 text-amber-500" />
               </div>
-              <h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">
+              <h3 className="text-xl font-black text-foreground uppercase tracking-tight mb-2">
                 {i18n.language === 'ar' ? 'إدارة مخاطر صارمة' : i18n.language === 'fr' ? 'Gestion Stricte' : 'Strict Risk Management'}
               </h3>
               <p className="text-sm text-gray-400">
@@ -365,7 +365,7 @@ function TradingChallenge() {
               <div className="w-16 h-16 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <Target className="w-8 h-8 text-amber-500" />
               </div>
-              <h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">
+              <h3 className="text-xl font-black text-foreground uppercase tracking-tight mb-2">
                 {i18n.language === 'ar' ? 'حسابات ممولة' : i18n.language === 'fr' ? 'Comptes Financés' : 'Funded Accounts'}
               </h3>
               <p className="text-sm text-gray-400">

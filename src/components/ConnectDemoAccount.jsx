@@ -111,7 +111,7 @@ function ConnectDemoAccount({ participantId, onConnected }) {
               <Check className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-black text-white uppercase">
+              <h3 className="text-lg font-black text-foreground uppercase">
                 {i18n.language === 'ar' ? 'الحساب متصل' : 'Account Connected'}
               </h3>
               <p className="text-sm text-gray-500">
@@ -171,7 +171,7 @@ function ConnectDemoAccount({ participantId, onConnected }) {
     <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-6">
       <div className="text-center">
         <Link2 className="w-16 h-16 text-gray-700 mx-auto mb-4" />
-        <h3 className="text-2xl font-black text-white uppercase mb-2">
+        <h3 className="text-2xl font-black text-foreground uppercase mb-2">
           {i18n.language === 'ar' ? 'ربط حساب ديمو' : 'Connect Demo Account'}
         </h3>
         <p className="text-gray-400 mb-6">
@@ -200,7 +200,7 @@ function ConnectDemoAccount({ participantId, onConnected }) {
             className="bg-zinc-900 border border-white/10 rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-3xl font-black text-white uppercase mb-6">
+            <h2 className="text-3xl font-black text-foreground uppercase mb-6">
               {i18n.language === 'ar' ? 'ربط حساب ديمو' : 'Connect Demo Account'}
             </h2>
 
@@ -213,7 +213,7 @@ function ConnectDemoAccount({ participantId, onConnected }) {
                 <select
                   value={formData.brokerId}
                   onChange={(e) => handleBrokerChange(e.target.value)}
-                  className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none"
+                  className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-foreground focus:border-amber-500 outline-none"
                   required
                 >
                   <option value="">
@@ -268,7 +268,7 @@ function ConnectDemoAccount({ participantId, onConnected }) {
                   value={formData.accountNumber}
                   onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
                   placeholder="12345678"
-                  className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none"
+                  className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-foreground focus:border-amber-500 outline-none"
                   required
                 />
               </div>
@@ -283,7 +283,7 @@ function ConnectDemoAccount({ participantId, onConnected }) {
                   value={formData.investorPassword}
                   onChange={(e) => setFormData({ ...formData, investorPassword: e.target.value })}
                   placeholder="********"
-                  className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none"
+                  className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-foreground focus:border-amber-500 outline-none"
                   required
                 />
                 <p className="text-xs text-gray-500 mt-2">
@@ -303,7 +303,7 @@ function ConnectDemoAccount({ participantId, onConnected }) {
                   value={formData.serverName}
                   onChange={(e) => setFormData({ ...formData, serverName: e.target.value })}
                   placeholder="BrokerName-Demo01"
-                  className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none"
+                  className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-foreground focus:border-amber-500 outline-none"
                   required
                 />
               </div>
@@ -322,7 +322,7 @@ function ConnectDemoAccount({ participantId, onConnected }) {
                 <button
                   type="button"
                   onClick={() => setShowConnectModal(false)}
-                  className="flex-1 py-4 bg-white/5 border border-white/10 text-white rounded-xl font-bold uppercase hover:bg-white/10 transition-all"
+                  className="flex-1 py-4 bg-white/5 border border-white/10 text-foreground rounded-xl font-bold uppercase hover:bg-white/10 transition-all"
                 >
                   {i18n.language === 'ar' ? 'إلغاء' : 'Cancel'}
                 </button>

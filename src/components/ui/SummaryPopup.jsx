@@ -52,7 +52,7 @@ export const SummaryPopup = ({ dailyRiskStatus, positionQuality, riskSummary }) 
                       <Calendar className="w-6 h-6 text-amber-500" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-black uppercase tracking-tight text-white">Daily Summary</h2>
+                      <h2 className="text-2xl font-black uppercase tracking-tight text-foreground">Daily Summary</h2>
                       <p className="text-xs text-gray-500 uppercase tracking-widest">Risk & Performance Overview</p>
                     </div>
                   </div>

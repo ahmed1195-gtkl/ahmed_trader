@@ -119,7 +119,7 @@ function TradingChallengeTest() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white font-bold">
+          <p className="text-foreground font-bold">
             {i18n.language === 'ar' ? 'جاري التحميل...' : 'Loading...'}
           </p>
         </div>
@@ -133,9 +133,9 @@ function TradingChallengeTest() {
         <Header />
         <div className="pt-32 pb-20 px-6">
           <div className="max-w-7xl mx-auto text-center">
-            <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-8">
-              <h2 className="text-2xl font-black text-red-500 mb-4">خطأ / Error</h2>
-              <p className="text-white">{error}</p>
+            <div className="bg-destructive/10 border border-destructive/20 rounded-2xl p-8">
+              <h2 className="text-2xl font-black text-destructive mb-4">خطأ / Error</h2>
+              <p className="text-foreground">{error}</p>
             </div>
           </div>
         </div>
@@ -163,11 +163,11 @@ function TradingChallengeTest() {
               </span>
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter mb-6">
+            <h1 className="text-5xl md:text-7xl font-black text-foreground uppercase tracking-tighter mb-6">
               {i18n.language === 'ar' ? 'اختبر مهاراتك' : i18n.language === 'fr' ? 'Testez Vos Compétences' : 'Test Your Skills'}
             </h1>
             
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               {i18n.language === 'ar' 
                 ? 'تنافس مع متداولين آخرين في بيئة تداول حقيقية. حقق الأهداف واحصل على حساب تداول ممول.'
                 : i18n.language === 'fr'
@@ -184,7 +184,7 @@ function TradingChallengeTest() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-zinc-900/50 border border-white/5 rounded-3xl p-8 hover:border-amber-500/20 transition-all group"
+                className="bg-card/80 backdrop-blur-xl border border-border/80 rounded-3xl p-8 hover:border-amber-500/40 transition-all group shadow-lg"
               >
                 <div className="flex items-center justify-between mb-6">
                   <div 
@@ -194,44 +194,44 @@ function TradingChallengeTest() {
                     <Trophy className="w-6 h-6" style={{ color: level.color }} />
                   </div>
                   
-                  <div className="px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20">
-                    <span className="text-green-500 font-black text-xs uppercase tracking-wider">
+                  <div className="px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                    <span className="text-emerald-500 font-black text-xs uppercase tracking-wider">
                       FREE
                     </span>
                   </div>
                 </div>
 
-                <h3 className="text-3xl font-black text-white uppercase tracking-tight mb-2">
+                <h3 className="text-3xl font-black text-foreground uppercase tracking-tight mb-2">
                   {i18n.language === 'ar' ? level.nameAr : i18n.language === 'fr' ? level.nameFr : level.name}
                 </h3>
 
-                <p className="text-gray-400 text-sm mb-6">
+                <p className="text-muted-foreground text-sm mb-6">
                   {i18n.language === 'ar' ? level.descriptionAr : i18n.language === 'fr' ? level.descriptionFr : level.description}
                 </p>
 
                 <div className="space-y-4 mb-8">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500 flex items-center gap-2">
-                      <Target className="w-4 h-4" />
+                    <span className="text-muted-foreground flex items-center gap-2">
+                      <Target className="w-4 h-4 text-amber-500" />
                       {i18n.language === 'ar' ? 'هدف الربح' : i18n.language === 'fr' ? 'Objectif' : 'Profit Target'}
                     </span>
-                    <span className="text-white font-bold">+{level.profitTargetPercent}%</span>
+                    <span className="text-foreground font-bold">+{level.profitTargetPercent}%</span>
                   </div>
 
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500 flex items-center gap-2">
-                      <Shield className="w-4 h-4" />
+                    <span className="text-muted-foreground flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-amber-500" />
                       {i18n.language === 'ar' ? 'أقصى خسارة' : i18n.language === 'fr' ? 'Drawdown Max' : 'Max Drawdown'}
                     </span>
-                    <span className="text-white font-bold">{level.maxDrawdownPercent}%</span>
+                    <span className="text-foreground font-bold">{level.maxDrawdownPercent}%</span>
                   </div>
 
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500 flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
+                    <span className="text-muted-foreground flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-amber-500" />
                       {i18n.language === 'ar' ? 'المدة' : i18n.language === 'fr' ? 'Durée' : 'Duration'}
                     </span>
-                    <span className="text-white font-bold">
+                    <span className="text-foreground font-bold">
                       {level.duration} {i18n.language === 'ar' ? 'يوم' : i18n.language === 'fr' ? 'jours' : 'days'}
                     </span>
                   </div>
@@ -239,7 +239,7 @@ function TradingChallengeTest() {
 
                 <button
                   onClick={() => handleCreateChallenge(level.id)}
-                  className="w-full bg-white hover:bg-amber-500 text-black font-black uppercase tracking-wider py-4 rounded-xl transition-all group-hover:scale-105"
+                  className="w-full bg-primary text-primary-foreground hover:brightness-110 font-black uppercase tracking-wider py-4 rounded-xl transition-all shadow-md group-hover:scale-105"
                 >
                   {i18n.language === 'ar' ? 'انضم الآن' : i18n.language === 'fr' ? 'Rejoindre' : 'Join Challenge'}
                 </button>

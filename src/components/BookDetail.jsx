@@ -177,7 +177,7 @@ const BookDetail = () => {
                 transition={{ delay: 0.2, duration: 0.6 }}
                 className="flex-1 pb-2"
               >
-                <h1 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tight mb-3 leading-tight">
+                <h1 className="text-3xl md:text-5xl font-black text-foreground uppercase tracking-tight mb-3 leading-tight">
                   {isAr ? 'التداول الرصين' : 'Sober Trading'}
                 </h1>
                 <p className="text-amber-500 font-bold text-sm uppercase tracking-widest mb-4">Shukritrade</p>
@@ -273,7 +273,7 @@ const BookDetail = () => {
                   onClick={() => setShowChapters(!showChapters)}
                   className="flex items-center justify-between w-full mb-4 cursor-pointer"
                 >
-                  <h3 className="text-white font-black uppercase tracking-widest text-sm">
+                  <h3 className="text-foreground font-black uppercase tracking-widest text-sm">
                     {isAr ? 'الفصول' : 'Chapters'}
                   </h3>
                   <div className="lg:hidden">
@@ -386,7 +386,7 @@ const BookDetail = () => {
                     {pdfFullscreen && (
                       <button
                         onClick={() => setPdfFullscreen(false)}
-                        className="absolute top-3 right-3 z-10 w-9 h-9 flex items-center justify-center rounded-xl bg-black/70 border border-white/10 text-white hover:bg-black transition-all cursor-pointer"
+                        className="absolute top-3 right-3 z-10 w-9 h-9 flex items-center justify-center rounded-xl bg-black/70 border border-white/10 text-foreground hover:bg-black transition-all cursor-pointer"
                       >
                         <Maximize2 className="w-4 h-4" />
                       </button>

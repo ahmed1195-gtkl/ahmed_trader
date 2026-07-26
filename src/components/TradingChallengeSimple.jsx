@@ -28,7 +28,7 @@ function TradingChallengeSimple() {
               </span>
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter mb-6">
+            <h1 className="text-5xl md:text-7xl font-black text-foreground uppercase tracking-tighter mb-6">
               {i18n.language === 'ar' ? 'اختبر مهاراتك' : 'Test Your Skills'}
             </h1>
             

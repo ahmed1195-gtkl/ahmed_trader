@@ -122,10 +122,10 @@ const CreatePost = ({ onPostCreated }) => {
               className="relative w-full max-w-lg bg-zinc-900 border border-white/10 rounded-[2.5rem] p-8 shadow-2xl max-h-[90vh] overflow-y-auto"
             >
               <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl font-black uppercase tracking-tight text-white">
+                <h2 className="text-2xl font-black uppercase tracking-tight text-foreground">
                   Create <span className="text-amber-500">Post</span>
                 </h2>
-                <button onClick={() => setIsOpen(false)} className="text-gray-500 hover:text-white transition-colors">
+                <button onClick={() => setIsOpen(false)} className="text-gray-500 hover:text-amber-500 transition-colors">
                   <X className="w-6 h-6" />
                 </button>
               </div>
@@ -137,7 +137,7 @@ const CreatePost = ({ onPostCreated }) => {
                     value={title} 
                     onChange={(e) => setTitle(e.target.value)} 
                     placeholder="What's on your mind?"
-                    className="bg-white/5 border-white/10 focus:border-amber-500/50 h-12 text-white"
+                    className="bg-white/5 border-white/10 focus:border-amber-500/50 h-12 text-foreground"
                     required 
                   />
                 </div>
@@ -177,7 +177,7 @@ const CreatePost = ({ onPostCreated }) => {
                     value={content} 
                     onChange={(e) => setContent(e.target.value)} 
                     placeholder="Tell us more..."
-                    className="bg-white/5 border-white/10 focus:border-amber-500/50 min-h-[120px] text-white"
+                    className="bg-white/5 border-white/10 focus:border-amber-500/50 min-h-[120px] text-foreground"
                     required 
                   />
                 </div>

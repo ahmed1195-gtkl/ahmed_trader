@@ -90,11 +90,11 @@ const SubscriptionModal = ({ isOpen, onClose, currentPlan = 'free' }) => {
               <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 p-6">
                 <button
                   onClick={onClose}
-                  className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors"
+                  className="absolute top-4 right-4 text-white/80 hover:text-amber-500 transition-colors"
                 >
                   <X size={24} />
                 </button>
-                <h2 className="text-3xl font-bold text-white text-center mb-2">
+                <h2 className="text-3xl font-bold text-foreground text-center mb-2">
                   اختر خطتك المثالية
                 </h2>
                 <p className="text-white/90 text-center">
@@ -143,7 +143,7 @@ const SubscriptionModal = ({ isOpen, onClose, currentPlan = 'free' }) => {
                         </div>
 
                         {/* Plan Name */}
-                        <h3 className="text-2xl font-bold text-white text-center mb-2">
+                        <h3 className="text-2xl font-bold text-foreground text-center mb-2">
                           {plan.name}
                         </h3>
 

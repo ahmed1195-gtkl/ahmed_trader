@@ -46,7 +46,7 @@ const CookieConsent = () => {
                   <Cookie className="w-7 h-7 text-amber-500" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-black uppercase tracking-tight text-white mb-2">
+                  <h3 className="text-lg font-black uppercase tracking-tight text-foreground mb-2">
                     {t('cookies.title')}
                   </h3>
                   <p className="text-gray-400 text-xs leading-relaxed font-medium">
@@ -58,7 +58,7 @@ const CookieConsent = () => {
                 </div>
                 <button 
                   onClick={() => setIsVisible(false)}
-                  className="text-gray-500 hover:text-white transition-colors"
+                  className="text-gray-500 hover:text-amber-500 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -67,7 +67,7 @@ const CookieConsent = () => {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={handleDecline}
-                  className="px-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all active:scale-95"
+                  className="px-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 hover:text-foreground transition-all active:scale-95"
                 >
                   {t('cookies.decline')}
                 </button>

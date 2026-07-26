@@ -137,7 +137,7 @@ const Comments = ({ postId }) => {
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder={t('comments.placeholder', 'Write a comment...')}
-            className="bg-white/5 border-white/10 focus:border-amber-500/50 min-h-[100px] text-white rounded-2xl"
+            className="bg-white/5 border-white/10 focus:border-amber-500/50 min-h-[100px] text-foreground rounded-2xl"
           />
           <div className="flex justify-end">
             <Button 
