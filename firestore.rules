@@ -16,7 +16,7 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // Check if the user is an admin via custom claim OR fallback emails (to guarantee service continuity)
+    // Check if the user is an admin (Custom claim token or email fallback)
     function isAdmin() {
       return isSignedIn() && (
         request.auth.token.isAdmin == true ||
@@ -25,7 +25,7 @@ service cloud.firestore {
       );
     }
 
-    // Check if the user has purchased the Sober Book (via custom claim or Firestore)
+    // Check if the user has purchased the Sober Book
     function hasSoberBookAccess() {
       return isSignedIn() && (
         request.auth.token.soberBookAccess == true ||
@@ -34,48 +34,64 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // USERS
+    // USERS & ACADEMY PROGRESS
     // ═══════════════════════════════════════════════════════════════
 
     match /users/{userId} {
-      // Any signed-in user can read public profiles
       allow read: if isSignedIn();
-      // Only the user themselves can create their own document
       allow create: if isOwner(userId);
-      // User can update their own doc; admin can update any
       allow update: if isAdmin() || isOwner(userId);
-      // Only admin can delete users
+      allow delete: if isAdmin();
+    }
+
+    match /user_progress/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(userId);
+      allow update: if isAdmin() || isOwner(userId);
       allow delete: if isAdmin();
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // BOT TRADES & SETTINGS  ← FIXED: was allow all (public)
+    // ACADEMY CURRICULUM (LEVELS 0–9, MODULES, LESSONS)
     // ═══════════════════════════════════════════════════════════════
 
-    match /bot_trades/{tradeId} {
-      // Only authenticated users can read their own trades; admin sees all
-      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
-      // Only authenticated users can create trades for themselves
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      // Only admin can update or delete trades
-      allow update, delete: if isAdmin();
+    match /academy_levels/{levelId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
-    match /bot_settings/{settingId} {
-      // Only authenticated users can read settings
-      allow read: if isSignedIn();
-      // Only admin can write settings
+    match /academy_modules/{moduleId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /academy_lessons/{lessonId} {
+      allow read: if true;
       allow write: if isAdmin();
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // POSTS & COMMENTS  ← FIXED: posts update was open to all signed-in
+    // BOT TRADES & SETTINGS
+    // ═══════════════════════════════════════════════════════════════
+
+    match /bot_trades/{tradeId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    match /bot_settings/{settingId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // POSTS & COMMENTS
     // ═══════════════════════════════════════════════════════════════
 
     match /posts/{postId} {
       allow read: if true;
       allow create: if isAdmin();
-      // Only the author or admin can update a post
       allow update: if isAdmin() || (isSignedIn() && resource.data.authorId == request.auth.uid);
       allow delete: if isAdmin();
     }
@@ -121,7 +137,7 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // SITE SETTINGS & LOGS
+    // SITE SETTINGS, PLATFORM CONTROLS & LOGS
     // ═══════════════════════════════════════════════════════════════
 
     match /site_settings/{settingId} {
@@ -175,14 +191,12 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // CHALLENGES  ← FIXED: update was open to all signed-in users
+    // CHALLENGES
     // ═══════════════════════════════════════════════════════════════
 
     match /challenges/{challengeId} {
       allow read: if isSignedIn();
-      // Any signed-in user can create a challenge
       allow create: if isSignedIn();
-      // Only creator or admin can update their challenge
       allow update: if isAdmin() || (isSignedIn() && resource.data.createdBy == request.auth.uid);
       allow delete: if isAdmin();
     }
@@ -203,7 +217,6 @@ service cloud.firestore {
 
     match /challenge_leaderboards/{leaderboardId} {
       allow read: if isSignedIn();
-      // Participants can update their own leaderboard entry; admin updates all
       allow write: if isAdmin() || (isSignedIn() && leaderboardId == request.auth.uid);
     }
 
@@ -361,12 +374,10 @@ service cloud.firestore {
 
     match /books/{bookId} {
       allow read: if true;
-      // Allow signed-in users to update reader count (increment only)
       allow update: if isSignedIn();
       allow write: if isAdmin();
 
       match /chapters/{chapterId} {
-        // Chapter 1 is free; the rest require book access
         allow read: if chapterId == 'chapter-1' || hasSoberBookAccess() || isAdmin();
         allow write: if isAdmin();
       }
@@ -382,7 +393,7 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // AI MARKET INTELLIGENCE
+    // AI MARKET INTELLIGENCE & SUBSCRIPTIONS
     // ═══════════════════════════════════════════════════════════════
 
     match /assets/{assetId} {
@@ -392,7 +403,7 @@ service cloud.firestore {
 
     match /news_articles/{articleId} {
       allow read: if true;
-      allow write: if isAdmin(); // Server-side only
+      allow write: if isAdmin();
     }
 
     match /sentiment_scores/{scoreId} {
@@ -423,8 +434,8 @@ service cloud.firestore {
     }
 
     match /subscriptions/{subscriptionId} {
-      allow read: if isSignedIn() && resource.data.user_id == request.auth.uid;
-      allow write: if isAdmin(); // Managed server-side
+      allow read: if isSignedIn() && (resource.data.user_id == request.auth.uid || resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if isAdmin();
     }
 
     // ═══════════════════════════════════════════════════════════════
