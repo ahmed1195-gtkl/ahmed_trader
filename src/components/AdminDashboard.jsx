@@ -45,11 +45,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Header from './Header';
 import CreatePost from './CreatePost';
 import AdminSubscriptionPanel from './AdminSubscriptionPanel';
+import AdminAnalyticsPortal from './admin/AdminAnalyticsPortal';
 import { toast } from 'sonner';
 
 const AdminDashboard = () => {
   const { t, i18n } = useTranslation();
-  const [activeTab, setActiveTab] = useState('users');
+  const [activeTab, setActiveTab] = useState('analytics');
   const [users, setUsers] = useState([]);
   const [posts, setPosts] = useState([]);
   const [logs, setLogs] = useState([]);
@@ -324,6 +325,7 @@ const AdminDashboard = () => {
           
             <div className="flex flex-wrap bg-secondary p-1 rounded-xl border border-border">
             {[
+              { id: 'analytics', icon: Activity, label: i18n.language === 'ar' ? 'تحليلات المشرف' : 'Analytics Portal' },
               { id: 'users', icon: Users, label: i18n.language === 'ar' ? 'المستخدمين' : 'Users' },
               { id: 'subscriptions', icon: Crown, label: i18n.language === 'ar' ? 'الاشتراكات' : 'Subscriptions' },
               { id: 'posts', icon: Newspaper, label: i18n.language === 'ar' ? 'المنشورات' : 'Posts' },
@@ -344,6 +346,11 @@ const AdminDashboard = () => {
         </div>
 
         <AnimatePresence mode="wait">
+          {activeTab === 'analytics' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
+              <AdminAnalyticsPortal />
+            </motion.div>
+          )}
           {activeTab === 'courses' && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
               <div className="bg-card border border-border p-12 rounded-xl text-center">
