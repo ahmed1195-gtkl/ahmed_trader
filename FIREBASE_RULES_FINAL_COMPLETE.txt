@@ -34,7 +34,7 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // USERS & ACADEMY PROGRESS
+    // 1. USERS & ACADEMY PROGRESS
     // ═══════════════════════════════════════════════════════════════
 
     match /users/{userId} {
@@ -52,7 +52,7 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // ACADEMY CURRICULUM (LEVELS 0–9, MODULES, LESSONS)
+    // 2. ACADEMY CURRICULUM (LEVELS 0–9, MODULES, LESSONS)
     // ═══════════════════════════════════════════════════════════════
 
     match /academy_levels/{levelId} {
@@ -71,7 +71,7 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // BOT TRADES & SETTINGS
+    // 3. AI TRADING BOT & SETTINGS
     // ═══════════════════════════════════════════════════════════════
 
     match /bot_trades/{tradeId} {
@@ -86,14 +86,14 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // POSTS & COMMENTS
+    // 4. POSTS, COMMUNITY FEED & COMMENTS
     // ═══════════════════════════════════════════════════════════════
 
     match /posts/{postId} {
       allow read: if true;
-      allow create: if isAdmin();
+      allow create: if isAdmin() || isSignedIn();
       allow update: if isAdmin() || (isSignedIn() && resource.data.authorId == request.auth.uid);
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.authorId == request.auth.uid);
     }
 
     match /admin_posts/{postId} {
@@ -108,7 +108,7 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // MESSAGES & CONVERSATIONS
+    // 5. MESSAGES & CONVERSATIONS
     // ═══════════════════════════════════════════════════════════════
 
     match /messages/{messageId} {
@@ -137,27 +137,27 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // SITE SETTINGS, PLATFORM CONTROLS & LOGS
+    // 6. SITE SETTINGS, PLATFORM CONTROLS & ACTIVITY LOGS
     // ═══════════════════════════════════════════════════════════════
 
     match /site_settings/{settingId} {
-      allow read: if isSignedIn();
+      allow read: if true;
       allow write: if isAdmin();
     }
 
     match /platformSettings/{settingsId} {
-      allow read: if isSignedIn();
+      allow read: if true;
       allow write: if isAdmin();
     }
 
     match /activity_logs/{logId} {
       allow read: if isAdmin();
-      allow create: if isAdmin();
-      allow update, delete: if false;
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // BROKERS & COURSES
+    // 7. BROKERS & COURSES
     // ═══════════════════════════════════════════════════════════════
 
     match /brokers/{brokerId} {
@@ -171,7 +171,7 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // FRIEND REQUESTS
+    // 8. FRIEND REQUESTS & SOCIAL
     // ═══════════════════════════════════════════════════════════════
 
     match /friend_requests/{requestId} {
@@ -191,7 +191,7 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // CHALLENGES
+    // 9. TRADING CHALLENGES & LEADERBOARDS
     // ═══════════════════════════════════════════════════════════════
 
     match /challenges/{challengeId} {
@@ -221,7 +221,7 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // TEAMS
+    // 10. TEAMS & TEAM CHAT
     // ═══════════════════════════════════════════════════════════════
 
     match /teams/{teamId} {
@@ -252,7 +252,7 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // DEMO ACCOUNTS
+    // 11. DEMO ACCOUNTS & BALANCE LOGS
     // ═══════════════════════════════════════════════════════════════
 
     match /demo_accounts/{accountId} {
@@ -266,8 +266,16 @@ service cloud.firestore {
       );
     }
 
+    match /balance_audit_log/{logId} {
+      allow read: if isAdmin() || (
+        isSignedIn() && resource.data.userId == request.auth.uid
+      );
+      allow create: if isSignedIn();
+      allow update, delete: if false;
+    }
+
     // ═══════════════════════════════════════════════════════════════
-    // LEADERBOARDS, NOTIFICATIONS & AUDIT LOGS
+    // 12. LEADERBOARDS, NOTIFICATIONS & ACHIEVEMENTS
     // ═══════════════════════════════════════════════════════════════
 
     match /global_leaderboard/{leaderboardId} {
@@ -277,24 +285,12 @@ service cloud.firestore {
       );
     }
 
-    match /balance_audit_log/{logId} {
-      allow read: if isAdmin() || (
-        isSignedIn() && resource.data.userId == request.auth.uid
-      );
-      allow create: if isSignedIn();
-      allow update, delete: if false;
-    }
-
     match /notifications/{notificationId} {
       allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
       allow create: if isAdmin() || isSignedIn();
       allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
       allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
     }
-
-    // ═══════════════════════════════════════════════════════════════
-    // ACHIEVEMENTS
-    // ═══════════════════════════════════════════════════════════════
 
     match /achievements/{achievementId} {
       allow read: if true;
@@ -303,19 +299,19 @@ service cloud.firestore {
 
     match /user_achievements/{userAchievementId} {
       allow read: if isSignedIn();
-      allow create: if false; // Server-side only
-      allow update: if false;
+      allow create: if isSignedIn();
+      allow update: if isAdmin();
       allow delete: if isAdmin();
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // SOCIAL & COPY TRADING
+    // 13. TRADING FEED & COPY TRADING
     // ═══════════════════════════════════════════════════════════════
 
     match /trading_feed/{postId} {
       allow read: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow update: if isSignedIn(); // Allows likes and comments
+      allow update: if isSignedIn();
       allow delete: if isAdmin() || (
         isSignedIn() && resource.data.userId == request.auth.uid
       );
@@ -324,7 +320,7 @@ service cloud.firestore {
     match /copy_trading/{copyId} {
       allow read: if isSignedIn() && (
         resource.data.followerId == request.auth.uid ||
-        resource.data.leaderId == request.auth.uid
+        resource.data.leaderId == request.auth.uid || isAdmin()
       );
       allow create: if isSignedIn() && request.resource.data.followerId == request.auth.uid;
       allow update: if isSignedIn() && resource.data.followerId == request.auth.uid;
@@ -332,19 +328,19 @@ service cloud.firestore {
     }
 
     match /copy_trading_settings/{settingId} {
-      allow read: if isSignedIn() && resource.data.followerId == request.auth.uid;
+      allow read: if isSignedIn() && (resource.data.followerId == request.auth.uid || isAdmin());
       allow create: if isSignedIn() && request.resource.data.followerId == request.auth.uid;
       allow update: if isSignedIn() && resource.data.followerId == request.auth.uid;
       allow delete: if isSignedIn() && resource.data.followerId == request.auth.uid;
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // CROWD WISDOM & SMART ALERTS
+    // 14. CROWD WISDOM & SMART ALERTS
     // ═══════════════════════════════════════════════════════════════
 
     match /crowd_wisdom/{symbolId} {
       allow read: if isSignedIn();
-      allow write: if false; // Server-side only
+      allow write: if isAdmin();
     }
 
     match /user_predictions/{predictionId} {
@@ -362,14 +358,15 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // E-BOOKS & PURCHASES
+    // 15. E-BOOKS, PURCHASES & REVIEWS
     // ═══════════════════════════════════════════════════════════════
 
     match /book_purchases/{purchaseId} {
       allow read: if isAdmin() || (
         isSignedIn() && resource.data.userId == request.auth.uid
       );
-      allow create, update, delete: if false; // Server-side only (webhook)
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
     }
 
     match /books/{bookId} {
@@ -393,7 +390,7 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // AI MARKET INTELLIGENCE & SUBSCRIPTIONS
+    // 16. AI MARKET INTELLIGENCE & SUBSCRIPTIONS
     // ═══════════════════════════════════════════════════════════════
 
     match /assets/{assetId} {
