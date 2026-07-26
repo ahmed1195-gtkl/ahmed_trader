@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, useInView } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../lib/firebase';
+import { auth, db } from '../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { useSEO } from '../hooks/useSEO';
 import {
   ArrowRight, Bot, GraduationCap, TrendingUp, Shield,
@@ -12,14 +13,14 @@ import {
 import logoImg from '../assets/logo.png';
 
 /* ─────────────────── Animated Counter ─────────────────── */
-function AnimatedCounter({ to, suffix = '', prefix = '', duration = 2000 }) {
+function AnimatedCounter({ to, suffix = '', prefix = '', duration = 1800 }) {
   const [count, setCount] = useState(0);
   const ref = useRef(null);
   const inView = useInView(ref, { once: true });
 
   useEffect(() => {
-    if (!inView) return;
-    const steps = 60;
+    if (!inView || to === undefined) return;
+    const steps = 40;
     const stepTime = duration / steps;
     let current = 0;
     const timer = setInterval(() => {
@@ -105,6 +106,7 @@ const Hero = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [realUserCount, setRealUserCount] = useState(0);
   const isAr = i18n.language === 'ar';
 
   useSEO({
@@ -117,8 +119,19 @@ const Hero = () => {
   });
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, setUser);
-    return () => unsub();
+    const unsubAuth = onAuthStateChanged(auth, setUser);
+
+    // Listen to real registered users count from Firebase Firestore
+    const unsubUsers = onSnapshot(collection(db, 'users'), (snapshot) => {
+      setRealUserCount(snapshot.size || 0);
+    }, (err) => {
+      console.warn('Hero users listener error:', err);
+    });
+
+    return () => {
+      unsubAuth();
+      unsubUsers();
+    };
   }, []);
 
   const features = [
@@ -127,14 +140,15 @@ const Hero = () => {
     { icon: TrendingUp, label: isAr ? 'إشارات تداول' : 'Live Signals' },
     { icon: Shield, label: isAr ? 'إدارة المخاطر' : 'Risk Management' },
     { icon: BarChart3, label: isAr ? 'تحليلات متقدمة' : 'Market Analytics' },
-    { icon: BookOpen, label: isAr ? 'مكتبة ضخمة' : 'Rich Library' },
+    { icon: BookOpen, label: isAr ? 'مكتبة تداول' : 'Trading Library' },
   ];
 
+  // Dynamic real Firebase stats (Zero fake numbers)
   const stats = [
-    { value: 12000, suffix: '+', label: isAr ? 'متداول نشط' : 'Active Traders', icon: Users, delay: 0.8 },
-    { value: 57, suffix: '+', label: isAr ? 'درس احترافي' : 'Pro Lessons', icon: BookOpen, delay: 0.9 },
-    { value: 95, suffix: '%', label: isAr ? 'رضا المتداولين' : 'Satisfaction Rate', icon: Star, delay: 1.0 },
-    { value: 24, suffix: '/7', label: isAr ? 'دعم فوري' : 'Live Support', icon: Zap, delay: 1.1 },
+    { value: realUserCount, suffix: realUserCount > 0 ? '+' : '', label: isAr ? 'متداول مسجل' : 'Registered Traders', icon: Users, delay: 0.8 },
+    { value: 9, suffix: '', label: isAr ? 'مستويات أكاديمية' : 'Academy Levels', icon: BookOpen, delay: 0.9 },
+    { value: 100, suffix: '%', label: isAr ? 'وصول مجاني' : 'Free Access', icon: Star, delay: 1.0 },
+    { value: 24, suffix: '/7', label: isAr ? 'مزامنة لحظية' : 'Realtime Sync', icon: Zap, delay: 1.1 },
   ];
 
   return (
@@ -174,7 +188,7 @@ const Hero = () => {
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/25 text-primary text-xs font-black uppercase tracking-[0.2em]">
             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-            {isAr ? '🏆 منصة التداول العربية الأولى' : '🏆 #1 Arab Trading Platform'}
+            {isAr ? '🏆 منصة التداول والتعليم الذكي' : '🏆 Smart Trading & Education Platform'}
           </div>
         </motion.div>
 
@@ -291,7 +305,7 @@ const Hero = () => {
           {[
             isAr ? '🔒 بيانات مشفرة' : '🔒 Encrypted Data',
             isAr ? '✅ Firebase Auth' : '✅ Firebase Auth',
-            isAr ? '⚡ 99.9% تشغيل' : '⚡ 99.9% Uptime',
+            isAr ? '⚡ مزامنة لحظية' : '⚡ Realtime Sync',
           ].map((badge, i) => (
             <span key={i} className="text-[10px] font-bold text-muted-foreground/35 uppercase tracking-wider">
               {badge}

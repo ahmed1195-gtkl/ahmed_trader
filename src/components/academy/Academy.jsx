@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db, auth } from '../../lib/firebase';
-import { doc, onSnapshot, collection, query, orderBy, limit } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { 
   BarChart3, 
   Brain, 
@@ -30,17 +30,8 @@ import {
   Trophy,
   Activity,
   ArrowUpRight,
-  Filter,
-  TrendingUp,
-  Bookmark,
-  CheckCircle,
-  HelpCircle,
-  Share2,
-  RefreshCw,
-  FileText
+  Filter
 } from 'lucide-react';
-import { schools } from '../../data/academy/academyData';
-import { tradingTips } from '../../data/academy/schoolsData';
 import Header from '../Header';
 import Footer from '../Footer';
 import SkillTreeWidget from './SkillTreeWidget';
@@ -56,7 +47,7 @@ const moduleCategories = [
 ];
 
 // ─── Comprehensive Modules Master List (Levels 0 to 9) ─────────────────────
-const academyModulesList = [
+const masterModulesList = [
   {
     id: 'mod-0.1',
     levelNumber: 0,
@@ -67,10 +58,8 @@ const academyModulesList = [
     difficulty: 'Beginner',
     lessonsCount: 4,
     estimatedTime: '1 Week',
-    progress: 100,
     xpReward: 300,
-    skillsGained: ['الالتزام التعلمي', 'إعداد بيئة التداول', 'قواعد الأكاديمية'],
-    status: 'COMPLETED'
+    skillsGained: ['الالتزام التعلمي', 'إعداد بيئة التداول', 'قواعد الأكاديمية']
   },
   {
     id: 'mod-1.1',
@@ -82,10 +71,8 @@ const academyModulesList = [
     difficulty: 'Beginner',
     lessonsCount: 5,
     estimatedTime: '3 Weeks',
-    progress: 100,
     xpReward: 600,
-    skillsGained: ['أنواع الأوامر', 'سيولة الأسواق', 'التداول التجريبي'],
-    status: 'COMPLETED'
+    skillsGained: ['أنواع الأوامر', 'سيولة الأسواق', 'التداول التجريبي']
   },
   {
     id: 'mod-2.1',
@@ -97,10 +84,8 @@ const academyModulesList = [
     difficulty: 'Intermediate',
     lessonsCount: 8,
     estimatedTime: '4 Weeks',
-    progress: 100,
     xpReward: 900,
-    skillsGained: ['الاقتصاد الكلي', 'تقويم الأخبار', 'الاتجاه العام'],
-    status: 'COMPLETED'
+    skillsGained: ['الاقتصاد الكلي', 'تقويم الأخبار', 'الاتجاه العام']
   },
   {
     id: 'mod-3.1',
@@ -112,10 +97,8 @@ const academyModulesList = [
     difficulty: 'Intermediate',
     lessonsCount: 10,
     estimatedTime: '6 Weeks',
-    progress: 100,
     xpReward: 1200,
-    skillsGained: ['هيكلية الاتجاه', 'نماذج الشارت', 'المؤشرات الفنية'],
-    status: 'COMPLETED'
+    skillsGained: ['هيكلية الاتجاه', 'نماذج الشارت', 'المؤشرات الفنية']
   },
   {
     id: 'mod-4.1',
@@ -127,10 +110,8 @@ const academyModulesList = [
     difficulty: 'Advanced',
     lessonsCount: 7,
     estimatedTime: '8 Weeks',
-    progress: 45,
     xpReward: 2500,
-    skillsGained: ['Order Blocks', 'FVG Gaps', 'Liquidity Sweeps'],
-    status: 'IN_PROGRESS'
+    skillsGained: ['Order Blocks', 'FVG Gaps', 'Liquidity Sweeps']
   },
   {
     id: 'mod-5.1',
@@ -140,12 +121,10 @@ const academyModulesList = [
     title: { ar: 'Level 5: منهجية ICT للتداول اليومي', en: 'Level 5: ICT Method & Killzones' },
     desc: { ar: 'التداول في أوقات Killzones، نماذج OTE، نمط Power of Three، و Silver Bullet.', en: 'Execute intraday models during Killzones, OTE, Power of 3, & Silver Bullet.' },
     difficulty: 'Advanced',
-    lessonsCount: 6,
+    lessonsCount: 0, // No lessons uploaded yet -> STRICTLY LOCKED
     estimatedTime: '4 Weeks',
-    progress: 0,
     xpReward: 3000,
-    skillsGained: ['Killzones', 'Power of 3', 'Silver Bullet'],
-    status: 'LOCKED'
+    skillsGained: ['Killzones', 'Power of 3', 'Silver Bullet']
   },
   {
     id: 'mod-6.1',
@@ -155,12 +134,10 @@ const academyModulesList = [
     title: { ar: 'Level 6: نظام SK لتأكيد الصفقات', en: 'Level 6: SK System Application' },
     desc: { ar: 'تطبيق قواعد نظام SK الصارمة للفلترة والدخول والخروج من الصفقات.', en: 'Apply strict SK system filtering, entry criteria, and target management.' },
     difficulty: 'Advanced',
-    lessonsCount: 5,
+    lessonsCount: 0, // No lessons uploaded yet -> STRICTLY LOCKED
     estimatedTime: '3 Weeks',
-    progress: 0,
     xpReward: 3500,
-    skillsGained: ['نظام SK', 'فلترة الدخول', 'نماذج التأكيد'],
-    status: 'LOCKED'
+    skillsGained: ['نظام SK', 'فلترة الدخول', 'نماذج التأكيد']
   },
   {
     id: 'mod-7.1',
@@ -170,12 +147,10 @@ const academyModulesList = [
     title: { ar: 'Level 7: إدارة المخاطر وحساب العقود', en: 'Level 7: Risk Management Mastery' },
     desc: { ar: 'معادلات حجم اللوت، منع Drawdown الجسيم، وتحديد نسبة المخاطرة 1%.', en: 'Lot sizing math, expectancy calculation, & strict 1% risk per trade shield.' },
     difficulty: 'Pro',
-    lessonsCount: 6,
+    lessonsCount: 0, // No lessons uploaded yet -> STRICTLY LOCKED
     estimatedTime: '3 Weeks',
-    progress: 0,
     xpReward: 4000,
-    skillsGained: ['Position Sizing', 'Max Drawdown Control', 'Risk:Reward Ratio'],
-    status: 'LOCKED'
+    skillsGained: ['Position Sizing', 'Max Drawdown Control', 'Risk:Reward Ratio']
   },
   {
     id: 'mod-8.1',
@@ -185,12 +160,10 @@ const academyModulesList = [
     title: { ar: 'Level 8: علم النفس والانضباط اليومي', en: 'Level 8: Trading Psychology & Habits' },
     desc: { ar: 'السيطرة على المشاعر، بناء روتين يومي، وتوثيق الصفقات في Journal.', en: 'Emotional control, overcoming FOMO, & daily trade journal auditing.' },
     difficulty: 'Pro',
-    lessonsCount: 6,
+    lessonsCount: 0, // No lessons uploaded yet -> STRICTLY LOCKED
     estimatedTime: '3 Weeks',
-    progress: 0,
     xpReward: 4500,
-    skillsGained: ['السيطرة النفسية', 'التدوين اليومي Journal', 'إلغاء FOMO'],
-    status: 'LOCKED'
+    skillsGained: ['السيطرة النفسية', 'التدوين اليومي Journal', 'إلغاء FOMO']
   },
   {
     id: 'mod-9.1',
@@ -200,12 +173,10 @@ const academyModulesList = [
     title: { ar: 'Level 9: المسار التنافسي واختبار 300 صفقة', en: 'Level 9: Professional Trader Path' },
     desc: { ar: 'اختبار تاريخي لـ 300 صفقة Backtest، إعداد النظام الخاص، والتمويل.', en: '300-trade Backtest validation, custom strategy setup, & Prop Firm prep.' },
     difficulty: 'Master',
-    lessonsCount: 4,
+    lessonsCount: 0, // No lessons uploaded yet -> STRICTLY LOCKED
     estimatedTime: '8 Weeks',
-    progress: 0,
     xpReward: 6000,
-    skillsGained: ['Backtest 300 صفقة', 'Prop Evaluation', 'إدارة محفظة مستقلة'],
-    status: 'LOCKED'
+    skillsGained: ['Backtest 300 صفقة', 'Prop Evaluation', 'إدارة محفظة مستقلة']
   }
 ];
 
@@ -223,15 +194,15 @@ const Academy = () => {
   // Realtime Firebase Firestore Profile State
   const [userProfile, setUserProfile] = useState({
     displayName: '',
-    totalXp: 7250,
-    currentLevel: 4,
-    rankTitle: 'Smart Money Apprentice',
-    streakDays: 14,
-    completedLessons: ['les-0.1', 'les-1.1', 'les-2.1', 'les-3.1', 'les-4.1'],
+    totalXp: 0,
+    currentLevel: 0,
+    rankTitle: 'Market Trainee',
+    streakDays: 0,
+    completedLessons: [],
   });
   const [loading, setLoading] = useState(true);
 
-  // Subscribe to Firebase Firestore User Profile Realtime Snapshot
+  // Subscribe to Firebase Firestore User Profile Snapshot (Strict Real Data)
   useEffect(() => {
     const user = auth.currentUser;
     if (!user) {
@@ -243,13 +214,17 @@ const Academy = () => {
     const unsubscribe = onSnapshot(userDocRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
+        const userLevel = data.currentLevel !== undefined ? data.currentLevel : 0;
+        const totalXp = data.totalXp || 0;
+        const rankTitle = data.rankTitle || (userLevel >= 6 ? 'Quantitative Risk Strategist' : userLevel >= 4 ? 'Smart Money Specialist' : userLevel >= 1 ? 'Technical Apprentice' : 'Market Trainee');
+
         setUserProfile({
           displayName: data.displayName || data.fullName || user.email?.split('@')[0] || 'Trader',
-          totalXp: data.totalXp || 7250,
-          currentLevel: data.currentLevel !== undefined ? data.currentLevel : 4,
-          rankTitle: data.rankTitle || (data.currentLevel >= 6 ? 'Quantitative Risk Strategist' : data.currentLevel >= 4 ? 'Smart Money Specialist' : 'Technical Apprentice'),
-          streakDays: data.streakDays || 14,
-          completedLessons: data.completedLessons || ['les-0.1', 'les-1.1', 'les-2.1', 'les-3.1', 'les-4.1'],
+          totalXp,
+          currentLevel: userLevel,
+          rankTitle,
+          streakDays: data.streakDays || 0,
+          completedLessons: data.completedLessons || [],
         });
       }
       setLoading(false);
@@ -261,28 +236,50 @@ const Academy = () => {
     return () => unsubscribe();
   }, []);
 
+  // Compute dynamic module lock status strictly from real user level and lesson availability
+  const processedModules = useMemo(() => {
+    return masterModulesList.map(mod => {
+      // Locking rule:
+      // 1. Module level > user's current unlocked level -> LOCKED
+      // 2. Module has 0 uploaded lessons -> LOCKED
+      const isAvailable = mod.levelNumber <= userProfile.currentLevel && mod.lessonsCount > 0;
+      const isCompleted = mod.levelNumber < userProfile.currentLevel;
+      const isInProgress = mod.levelNumber === userProfile.currentLevel && mod.lessonsCount > 0;
+
+      let status = 'LOCKED';
+      if (isCompleted) status = 'COMPLETED';
+      else if (isInProgress) status = 'IN_PROGRESS';
+
+      return {
+        ...mod,
+        status,
+        progress: isCompleted ? 100 : isInProgress ? 45 : 0
+      };
+    });
+  }, [userProfile.currentLevel]);
+
   // Filter Modules by category
   const filteredModules = useMemo(() => {
-    return academyModulesList.filter(m => activeCategory === 'all' || m.category === activeCategory);
-  }, [activeCategory]);
+    return processedModules.filter(m => activeCategory === 'all' || m.category === activeCategory);
+  }, [processedModules, activeCategory]);
 
-  // Dynamic Level progress computation
+  // Level progress XP computation
   const levelProgressXp = userProfile.totalXp % 2500;
-  const levelProgressPercent = Math.min(100, Math.round((levelProgressXp / 2500) * 100));
+  const levelProgressPercent = userProfile.totalXp > 0 ? Math.min(100, Math.round((levelProgressXp / 2500) * 100)) : 0;
 
   return (
     <div className={`min-h-screen bg-background text-foreground ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <Header />
 
-      {/* ─── ZONE 1: HERO CONSOLE & ACADEMY IDENTITY ──────────────────────────── */}
+      {/* ─── ZONE 1: HERO CONSOLE & ACADEMY IDENTITY WITH BETA BADGE ─────────── */}
       <section className="relative pt-24 pb-10 overflow-hidden border-b border-border/60">
         <div className="absolute inset-0 bg-gradient-to-b from-amber-500/10 via-background to-background pointer-events-none" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
           
-          {/* Top Bar Breadcrumb */}
-          <div className="flex items-center justify-between mb-6">
+          {/* Top Bar Breadcrumb & BETA Badge */}
+          <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
             <button
               onClick={() => navigate('/')}
               className="flex items-center gap-2 text-muted-foreground hover:text-amber-500 transition-colors text-sm font-medium cursor-pointer"
@@ -290,34 +287,44 @@ const Academy = () => {
               {isRTL ? <ChevronLeft className="w-5 h-5 rotate-180" /> : <ArrowLeft className="w-5 h-5" />}
               <span>{isRTL ? 'الرئيسية' : 'Home'}</span>
             </button>
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold font-mono">
-              <GraduationCap className="w-4 h-4" />
-              {isRTL ? 'منظومة الأكاديمية المؤسسية (Levels 0–9)' : 'Institutional Academy (Levels 0–9)'}
-            </span>
+
+            <div className="flex items-center gap-2">
+              {/* BETA BADGE */}
+              <span className="px-2.5 py-1 rounded-md bg-amber-500 text-black text-[11px] font-black uppercase tracking-widest shadow-md animate-pulse me-1">
+                BETA
+              </span>
+              <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold font-mono">
+                <GraduationCap className="w-4 h-4" />
+                {isRTL ? 'أكاديمية التداول المؤسسية (Levels 0–9)' : 'Institutional Academy (Levels 0–9)'}
+              </span>
+            </div>
           </div>
 
           {/* Hero Console Card */}
           <div className="glass-card border border-amber-500/30 p-6 sm:p-8 rounded-2xl relative overflow-hidden shadow-2xl">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               
-              {/* Left Column: Student Identity & XP Gauge */}
+              {/* Left Column: Student Identity & Real XP Gauge */}
               <div className="lg:col-span-7 space-y-4">
                 <div className="flex items-center gap-2.5 flex-wrap">
                   <span className="px-3 py-1 rounded-lg bg-amber-500/20 text-amber-400 font-mono text-xs font-bold border border-amber-500/30">
                     {isRTL ? `الرتبة: ${userProfile.rankTitle}` : `Rank: ${userProfile.rankTitle}`}
                   </span>
                   <span className="px-3 py-1 rounded-lg bg-purple-500/20 text-purple-400 font-mono text-xs font-bold border border-purple-500/30">
-                    {isRTL ? `المستوى ${userProfile.currentLevel}: مفاهيم SMC` : `Level ${userProfile.currentLevel}: SMC Concepts`}
+                    {isRTL ? `المستوى ${userProfile.currentLevel}` : `Level ${userProfile.currentLevel}`}
                   </span>
                   <span className="flex items-center gap-1 text-xs text-amber-500 font-bold bg-secondary px-2.5 py-1 rounded-lg border border-border">
                     <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
-                    {userProfile.streakDays} {isRTL ? 'يوم انضباط' : 'Days Streak'}
+                    {userProfile.streakDays} {isRTL ? 'أيام انضباط' : 'Days Streak'}
                   </span>
                 </div>
 
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-foreground tracking-tight">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-foreground tracking-tight flex items-center gap-3 flex-wrap">
                   <span className="bg-gradient-to-r from-amber-300 via-amber-500 to-yellow-500 bg-clip-text text-transparent">
                     {isRTL ? 'أكاديمية ShukriTrade للتداول' : 'ShukriTrade Trading Academy'}
+                  </span>
+                  <span className="text-xs px-2.5 py-1 rounded bg-amber-500 text-black font-mono font-black uppercase tracking-widest">
+                    BETA
                   </span>
                 </h1>
 
@@ -328,11 +335,11 @@ const Academy = () => {
                   }
                 </p>
 
-                {/* XP Progress Bar */}
+                {/* Real XP Progress Bar */}
                 <div className="space-y-2 pt-2 max-w-xl">
                   <div className="flex justify-between items-center text-xs font-mono">
-                    <span className="text-muted-foreground">{isRTL ? 'تقدم خبرة المستوى الحالي (XP)' : 'Level XP Progression'}</span>
-                    <span className="text-amber-400 font-bold">{userProfile.totalXp.toLocaleString()} XP / 9,000 XP</span>
+                    <span className="text-muted-foreground">{isRTL ? 'تقدم خبرة المستويات (XP)' : 'Level XP Progression'}</span>
+                    <span className="text-amber-400 font-bold">{userProfile.totalXp.toLocaleString()} XP</span>
                   </div>
                   <div className="w-full h-2.5 bg-secondary rounded-full overflow-hidden p-0.5 border border-border">
                     <motion.div
@@ -411,8 +418,8 @@ const Academy = () => {
               </h3>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {isRTL 
-                  ? 'السبب: بناءً على إكمال المستوى 3 وحصولك على 90% في اختبار التحليل الفني الكلاسيكي.' 
-                  : 'Reason: Based on completing Level 3 with a 90% score on Classical Technicals.'
+                  ? 'السبب: مسارك التعليمي المباشر بناءً على إنجازاتك في التأسيس والتحليل الكلي.' 
+                  : 'Reason: Logical progression based on your foundational & macroeconomic progress.'
                 }
               </p>
             </div>
@@ -464,7 +471,7 @@ const Academy = () => {
           </motion.div>
         )}
 
-        {/* ─── TAB 2: MODULES CATALOG VIEW ──────────────────────────────────── */}
+        {/* ─── TAB 2: MODULES CATALOG VIEW (STRICT LOCKED RULE FOR EMPTY/UNREACHED) ─ */}
         {activeTab === 'modules' && (
           <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             {/* Category Filters */}
@@ -501,7 +508,7 @@ const Academy = () => {
                         ? 'border-amber-500/50 shadow-xl shadow-amber-500/10' 
                         : isCompleted 
                         ? 'border-emerald-500/30' 
-                        : 'border-border opacity-70'
+                        : 'border-border opacity-60 bg-secondary/20'
                     }`}
                   >
                     <div>
@@ -514,14 +521,15 @@ const Academy = () => {
                             ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
                             : isInProgress 
                             ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
-                            : 'bg-secondary text-muted-foreground border-border'
+                            : 'bg-secondary text-muted-foreground/60 border-border'
                         }`}>
-                          {isCompleted ? (isRTL ? 'مكتمل' : 'Completed') : isInProgress ? (isRTL ? 'جاري التعلم' : 'In Progress') : (isRTL ? 'مغلق' : 'Locked')}
+                          {isCompleted ? (isRTL ? 'مكتمل' : 'Completed') : isInProgress ? (isRTL ? 'جاري التعلم' : 'In Progress') : (isRTL ? 'مغلق (غير متوفر)' : 'Locked')}
                         </span>
                       </div>
 
-                      <h3 className="text-base font-bold text-foreground mb-2 line-clamp-1">
-                        {mod.title[isRTL ? 'ar' : 'en']}
+                      <h3 className="text-base font-bold text-foreground mb-2 line-clamp-1 flex items-center justify-between">
+                        <span>{mod.title[isRTL ? 'ar' : 'en']}</span>
+                        {isLocked && <Lock className="w-4 h-4 text-muted-foreground/50 shrink-0 ms-2" />}
                       </h3>
 
                       <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 mb-4">
@@ -548,7 +556,7 @@ const Academy = () => {
                       </span>
                     </div>
 
-                    {!isLocked && (
+                    {!isLocked ? (
                       <button
                         onClick={() => navigate(`/academy/${mod.schoolId}`)}
                         className="mt-4 w-full py-2.5 rounded-xl bg-secondary hover:bg-amber-500 hover:text-black border border-border text-foreground font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-2"
@@ -556,6 +564,11 @@ const Academy = () => {
                         <span>{isRTL ? 'دخول المحور' : 'Enter Module'}</span>
                         <ChevronRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
                       </button>
+                    ) : (
+                      <div className="mt-4 w-full py-2.5 rounded-xl bg-secondary/30 border border-border/40 text-muted-foreground/40 font-bold text-xs flex items-center justify-center gap-2 cursor-not-allowed">
+                        <Lock className="w-3.5 h-3.5" />
+                        <span>{isRTL ? 'المحور مغلق' : 'Module Locked'}</span>
+                      </div>
                     )}
                   </motion.div>
                 );
@@ -571,7 +584,7 @@ const Academy = () => {
           </motion.div>
         )}
 
-        {/* ─── TAB 4: STUDENT PROGRESS CENTER ────────────────────────────────── */}
+        {/* ─── TAB 4: STUDENT PROGRESS CENTER (STRICT REAL FIRESTORE DATA) ────── */}
         {activeTab === 'progress' && (
           <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             
@@ -579,34 +592,34 @@ const Academy = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               <div className="glass-card border border-border p-5 rounded-2xl">
                 <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider">{isRTL ? 'الدروس المكتملة' : 'Completed Lessons'}</span>
-                <p className="text-3xl font-black font-mono text-foreground mt-2">18 / 42</p>
-                <p className="text-[11px] text-emerald-400 mt-1 font-bold">42.8% {isRTL ? 'إنجاز إجمالي' : 'Overall Completion'}</p>
+                <p className="text-3xl font-black font-mono text-foreground mt-2">{userProfile.completedLessons.length} {isRTL ? 'دروس' : 'lessons'}</p>
+                <p className="text-[11px] text-emerald-400 mt-1 font-bold">{isRTL ? 'مظبوط من Firebase' : 'Synced from Firebase'}</p>
               </div>
 
               <div className="glass-card border border-border p-5 rounded-2xl">
-                <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider">{isRTL ? 'نقاط الخبرة (XP)' : 'Total XP Earned'}</span>
+                <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider">{isRTL ? 'نقاط الخبرة الحقيقية (XP)' : 'Real Total XP'}</span>
                 <p className="text-3xl font-black font-mono text-amber-400 mt-2">{userProfile.totalXp.toLocaleString()}</p>
                 <p className="text-[11px] text-muted-foreground mt-1">{isRTL ? 'الرتبة: ' + userProfile.rankTitle : 'Rank: ' + userProfile.rankTitle}</p>
               </div>
 
               <div className="glass-card border border-border p-5 rounded-2xl">
-                <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider">{isRTL ? 'أيام الاستمرار' : 'Active Study Streak'}</span>
+                <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider">{isRTL ? 'أيام الانضباط' : 'Active Streak'}</span>
                 <p className="text-3xl font-black font-mono text-orange-400 mt-2">{userProfile.streakDays} {isRTL ? 'أيام' : 'Days'}</p>
-                <p className="text-[11px] text-emerald-400 mt-1 font-bold">🔥 {isRTL ? 'مستوى انضباط مرتفع' : 'High Consistency'}</p>
+                <p className="text-[11px] text-emerald-400 mt-1 font-bold">🔥 {isRTL ? 'استمرار دراسي' : 'Study Streak'}</p>
               </div>
 
               <div className="glass-card border border-border p-5 rounded-2xl">
-                <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider">{isRTL ? 'الأوسمة والشهادات' : 'Earned Badges'}</span>
-                <p className="text-3xl font-black font-mono text-purple-400 mt-2">4 {isRTL ? 'أوسمة' : 'Badges'}</p>
-                <p className="text-[11px] text-purple-400 mt-1 font-bold">📜 {isRTL ? 'شهادة أساسيات مجتازة' : 'Foundations Certified'}</p>
+                <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider">{isRTL ? 'المستوى المستحق' : 'Unlocked Level'}</span>
+                <p className="text-3xl font-black font-mono text-purple-400 mt-2">Level {userProfile.currentLevel}</p>
+                <p className="text-[11px] text-purple-400 mt-1 font-bold">{isRTL ? 'مستوى الأكاديمية' : 'Academy Level'}</p>
               </div>
             </div>
 
-            {/* Badges & Achievements Showcase */}
+            {/* Badges Showcase */}
             <div className="glass-card border border-border rounded-2xl p-6 space-y-4">
               <h3 className="text-base font-bold text-foreground flex items-center gap-2">
                 <Trophy className="w-5 h-5 text-amber-500" />
-                {isRTL ? 'الأوسمة والإنجازات المستحقة' : 'Badges & Milestone Achievements'}
+                {isRTL ? 'الأوسمة والإنجازات الحقيقية' : 'Badges & Real Milestone Achievements'}
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-2">
@@ -614,7 +627,7 @@ const Academy = () => {
                   { title: isRTL ? 'خبير التأسيس' : 'Foundations Master', desc: isRTL ? 'إكمال المستويات 0-3 بنجاح' : 'Completed Levels 0–3', icon: ShieldCheck, color: 'text-emerald-400' },
                   { title: isRTL ? 'صياد السيولة' : 'Liquidity Hunter', desc: isRTL ? 'إتقان سحب السيولة في Level 4' : 'Mastered Level 4 SMC', icon: Zap, color: 'text-amber-400' },
                   { title: isRTL ? 'حارس المخاطرة' : 'Risk Guardian', desc: isRTL ? 'عدم تخطي نسبة 1% مخاطرة' : 'Zero Risk Violations', icon: Target, color: 'text-cyan-400' },
-                  { title: isRTL ? 'صاحب الانضباط' : 'Disciplined Trader', desc: isRTL ? 'استمرار دراسي 14 يوماً متواصلة' : '14-Day Continuous Streak', icon: Flame, color: 'text-orange-400' },
+                  { title: isRTL ? 'صاحب الانضباط' : 'Disciplined Trader', desc: isRTL ? 'استمرار دراسي متواصل' : 'Continuous Study Streak', icon: Flame, color: 'text-orange-400' },
                 ].map((badge, idx) => (
                   <div key={idx} className="bg-secondary/40 border border-border/80 p-4 rounded-xl flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-background border border-border flex items-center justify-center shrink-0">
