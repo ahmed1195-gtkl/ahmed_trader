@@ -1,4 +1,4 @@
-// ShukriTrade Academy - Complete Course Data
+﻿// ShukriTrade Academy - Complete Course Data
 // 4 Schools × 12-15 Lessons each = 50+ lessons
 
 export const tradingTips = {
@@ -35,40 +35,6 @@ export const tradingTips = {
     "الأطر الزمنية الأعلى تعطي إشارات أكثر موثوقية.",
     "السيولة هي حيث يصطاد المال الذكي.",
     "ضع خطة دائماً قبل أن تضغط شراء أو بيع."
-  ],
-  fr: [
-    "Ne risquez jamais plus de 1-2% de votre compte sur un seul trade.",
-    "Placez toujours votre stop loss avant d'entrer en position.",
-    "La tendance est votre amie — tradez avec elle, pas contre.",
-    "La patience est la compétence de trading la plus rentable.",
-    "Un bon trader gère le risque d'abord et les profits ensuite.",
-    "Ne poursuivez pas le marché. Laissez le setup venir à vous.",
-    "Tenez un journal de trading — c'est votre meilleur professeur.",
-    "Maîtrisez une stratégie avant d'en apprendre une autre.",
-    "Le meilleur trade est parfois de ne pas trader du tout.",
-    "Les émotions sont l'ennemi du trading consistant.",
-    "Backtestez votre stratégie avant de risquer de l'argent réel.",
-    "Concentrez-vous sur le processus, pas sur le profit.",
-    "Les timeframes supérieurs donnent des signaux plus fiables.",
-    "La liquidité est là où l'argent intelligent chasse.",
-    "Ayez toujours un plan avant de cliquer acheter ou vendre."
-  ],
-  es: [
-    "Nunca arriesgues más del 1-2% de tu cuenta en una sola operación.",
-    "Siempre coloca tu stop loss antes de entrar en una operación.",
-    "La tendencia es tu amiga — opera con ella, no en su contra.",
-    "La paciencia es la habilidad de trading más rentable.",
-    "Un buen trader gestiona el riesgo primero y las ganancias después.",
-    "No persigas el mercado. Deja que la configuración venga a ti.",
-    "Mantén un diario de trading — es tu mejor maestro.",
-    "Domina una estrategia antes de aprender otra.",
-    "La mejor operación a veces es no operar en absoluto.",
-    "Las emociones son el enemigo del trading consistente.",
-    "Haz backtesting de tu estrategia antes de arriesgar dinero real.",
-    "Enfócate en el proceso, no en la ganancia.",
-    "Los marcos temporales superiores dan señales más confiables.",
-    "La liquidez es donde el dinero inteligente caza.",
-    "Siempre ten un plan antes de hacer clic en comprar o vender."
   ]
 };
 
@@ -145,7 +111,7 @@ export const lessonsData = {
       id: 1,
       diagram: 'trading-intro',
       en: {
-        title: "What is Trading?",
+        title: "Lesson 1: What is Trading?",
         content: `Trading, at its core, involves **buying and selling financial assets** across various markets. These assets can be **stocks** (representing company ownership), **foreign exchange (Forex)** traded in currency pairs, **commodities** like Gold and Oil, or **cryptocurrencies**.\n\nIt is vital to understand that **the trader cannot control the market**. Instead, a trader **reacts to market movements**, predicting future directions using analysis. The primary driver of price is **Supply and Demand**.\n\n**The key takeaway is that the market does not care about your opinions or wishes; it only follows buy and sell orders. Success requires an objective, data-driven mindset.**`,
         steps: [
           "Open any demo trading platform and watch the price movements for 10 minutes.",
@@ -170,7 +136,7 @@ export const lessonsData = {
         feedbackLoop: "If you couldn't answer correctly, review the concept block again and focus on supply/demand and objective mindset."
       },
       ar: {
-        title: "ما هو التداول؟",
+        title: "الدرس 1: ما هو التداول؟",
         content: `التداول، في جوهره، هو النشاط الذي ينطوي على **شراء وبيع الأصول المالية** المختلفة في الأسواق المخصصة لذلك. هذه الأصول يمكن أن تكون أي شيء ذي قيمة متغيرة، مثل **الأسهم** التي تمثل حصص ملكية في الشركات، **العملات الأجنبية (الفوركس)** التي يتم تداولها في أزواج، **السلع** مثل الذهب والنفط، أو حتى **العملات الرقمية** الحديثة. الهدف الأساسي من هذه العملية هو **تحقيق الربح** من خلال الاستفادة من **تغيرات الأسعار** لهذه الأصول بمرور الوقت.\n\nمن المهم جداً فهم أن **المتداول لا يملك القدرة على التحكم في السوق**. السوق كيان ضخم ومعقد يتأثر بملايين القرارات وتدفقات رأس المال يومياً. بدلاً من التحكم، يقوم المتداول بـ**التفاعل مع حركة السوق**، محاولاً التنبؤ بالاتجاهات المستقبلية بناءً على تحليل دقيق. المحرك الرئيسي لهذه الحركة هو مبدأ **العرض والطلب**.\n\n**الفكرة الأساسية والجوهرية هنا هي أن السوق لا يهتم بآرائك الشخصية، توقعاتك، أو حتى آمالك وأحلامك. السوق يتبع فقط قوى العرض والطلب الفعلية التي تتجسد في أوامر الشراء والبيع. هذا يعني أن التداول يتطلب عقلية موضوعية، تعتمد على البيانات والتحليل بدلاً من العواطف أو التمنيات.**`,
         steps: [
           "افتح أي منصة تداول (حساب تجريبي) وراقب حركة سعر أي أصل مالي لمدة 10 دقائق.",
@@ -193,13 +159,34 @@ export const lessonsData = {
           { q: "هل يمتلك المتداول القدرة على التحكم في اتجاه السوق؟ ولماذا؟", a: "لا، لأن السوق كيان ضخم يتأثر بملايين القرارات وتدفقات السيولة الضخمة وقوى العرض والطلب الفعلية، والمتداول فقط يتفاعل مع هذه الحركة." }
         ],
         feedbackLoop: "إذا لم تتمكن من الإجابة بشكل صحيح، قم بمراجعة كتلة المفهوم مرة أخرى وركز على العرض والطلب وعقلية التداول الموضوعية."
+      },
+      fr: {
+        title: "Leçon 1: Qu'est-ce que le Trading ?",
+        content: `Le trading consiste à **acheter et vendre des actifs financiers** sur différents marchés. Ces actifs peuvent être des **actions**, le **forex**, des **matières premières** ou des **cryptomonnaies**.\n\nLe trader **ne contrôle pas le marché**, il réagit à ses mouvements selon l'offre et la demande.`,
+        steps: ["Ouvrez un compte démo et observez le marché 10 minutes.", "Remarquez les variations constantes du prix.", "Ne tradez pas encore, observez seulement."],
+        example: "Acheter de l'or à 60$/g et le revendre le lendemain à 65$/g.",
+        keyTakeaways: ["Le trading vise le profit sur les écarts de prix.", "Le trader réagit au marché.", "L'offre et la demande guident le prix."],
+        activeRecall: ["Que signifie le terme 'Trading' pour vous ?", "Pensez-vous que le trader contrôle le marché ?"],
+        quiz: [{ q: "Quel est le but principal du trading ?", a: "Générer du profit en profitant des variations de prix des actifs." }],
+        feedbackLoop: "Révisez le concept d'offre et de demande si nécessaire."
+      },
+      es: {
+        title: "Lección 1: ¿Qué es el Trading?",
+        content: `El trading consiste en **comprar y vender activos financieros** en diversos mercados (acciones, forex, materias primas, criptomonedas).\n\nEl trader **no controla el mercado**, sino que reacciona a la oferta y la demanda.`,
+        steps: ["Abre una cuenta demo y observa el precio 10 minutos.", "Nota cómo cambia el precio constantemente.", "No operes aún, solo observa."],
+        example: "Comprar oro a 60$/g hoy y venderlo mañana a 65$/g.",
+        keyTakeaways: ["El trading busca rentabilidad por cambios de precio.", "El trader reacciona al mercado.", "La oferta y demanda mueven el precio."],
+        activeRecall: ["¿Qué significa 'Trading' para ti?", "¿Crees que el trader controla el mercado?"],
+        quiz: [{ q: "¿Cuál es el objetivo principal del trading?", a: "Generar ganancias aprovechando las fluctuaciones de precios." }],
+        feedbackLoop: "Revisa los conceptos básicos de oferta y demanda si lo necesitas."
       }
     },
     {
       id: 2,
       diagram: 'supply-demand',
+      image: '/foundation/supply_demand.png',
       en: {
-        title: "How Do Markets Work?",
+        title: "Lesson 2: How Do Markets Work?",
         content: `To understand how financial markets work, we must go back to the fundamental economic principle: **Supply and Demand**. This simple yet powerful force governs all price fluctuations.\n\n* **Demand:** The desire of buyers to acquire an asset. When demand increases, buyers are willing to pay more, driving the **price higher**.\n* **Supply:** The amount of an asset available for sale. When supply increases, sellers compete to sell, driving the **price lower**.\n\n**The price you see on your screen at any moment is the instantaneous equilibrium point between these opposing forces.** It represents the consensus value agreed upon by buyers and sellers at that exact second. Price is the outcome of a continuous battle between buyers (demand) and sellers (supply).`,
         steps: [
           "Look at a price chart and find a period where the price is flat (balance).",
@@ -224,7 +211,7 @@ export const lessonsData = {
         feedbackLoop: "If you had difficulty, focus on how price is the instantaneous consensus value agreed by both forces."
       },
       ar: {
-        title: "كيف تعمل الأسواق؟",
+        title: "الدرس 2: كيف تعمل الأسواق؟",
         content: `لفهم كيفية عمل الأسواق المالية، يجب أن نعود إلى المبدأ الاقتصادي الأساسي الذي يحكم جميع الأسواق: **التوازن بين العرض والطلب**. هذا المبدأ بسيط ولكنه قوي، وهو المحرك الأساسي لحركة الأسعار.\n\n* **الطلب (Demand):** يمثل رغبة المشترين في الحصول على أصل مالي معين. عندما يزداد الطلب، يكون المشترون مستعدين لدفع سعر أعلى، مما يؤدي إلى **ارتفاع السعر**.\n* **العرض (Supply):** يمثل كمية الأصل المالي المتاحة للبيع في السوق. عندما يزداد العرض، يتنافس البائعون لبيعه، مما يدفعهم لخفض السعر، وبالتالي يؤدي إلى **انخفاض السعر**.\n\n**السعر الذي نراه على الشاشة في أي لحظة هو نقطة التوازن اللحظية بين هذه القوى المتعارضة.** إنه يعكس اللحظة التي يتفق فيها المشترون والبائعون على قيمة معينة للأصل. وبالتالي، السعر هو نتيجة صراع مستمر وديناميكي بين قوتين فقط: المشترين (الطلب) والبائعين (العرض).`,
         steps: [
           "ابحث عن منطقة في الشارت يتحرك فيها السعر بشكل أفقي (توازن).",
@@ -247,13 +234,31 @@ export const lessonsData = {
           { q: "ما هما القوتان الرئيسيتان اللتان تحركان السعر في الأسواق المالية؟", a: "قوة الطلب (المشترين) وقوة العرض (البائعين)." }
         ],
         feedbackLoop: "إذا واجهت صعوبة في ربط الأخبار بالعرض والطلب، أعد قراءة المفهوم وركز على نقطة التوازن اللحظية."
+      },
+      fr: {
+        title: "Leçon 2: Comment fonctionnent les marchés ?",
+        content: `Le marché repose sur l'équilibre entre **Offre** et **Demande**.\n- Demande élevée = hausse des prix\n- Offre élevée = baisse des prix`,
+        steps: ["Observez une zone d'équilibre (prix stable).", "Identifiez une impulsion (déséquilibre)."],
+        example: "Une forte demande sur une action fait grimper son prix.",
+        keyTakeaways: ["Le prix est l'équilibre instantané entre acheteurs et vendeurs."],
+        activeRecall: ["Qu'est-ce qui détermine le prix d'un bien au quotidien ?", "Le marché financier fonctionne-t-il pareil ?"],
+        quiz: [{ q: "Que se passe-t-il si la demande augmente ?", a: "Le prix augmente." }]
+      },
+      es: {
+        title: "Lección 2: ¿Cómo funcionan los mercados?",
+        content: `El mercado se rige por la **Oferta y la Demanda**.\n- Alta demanda = subida de precio\n- Alta oferta = bajada de precio`,
+        steps: ["Busca una zona de consolidación.", "Identifica un impulso fuerte."],
+        example: "Alta demanda de una acción provoca la subida de su cotización.",
+        keyTakeaways: ["El precio representa el equilibrio instantáneo entre compradores y vendedores."],
+        activeRecall: ["¿Qué determina el precio de un bien diario?", "¿El mercado funciona igual?"],
+        quiz: [{ q: "¿Qué ocurre cuando aumenta la demanda?", a: "El precio sube." }]
       }
     },
     {
       id: 3,
       diagram: 'market-participants',
       en: {
-        title: "Who Moves the Price?",
+        title: "Lesson 3: Who Moves the Price?",
         content: `While retail traders participate in the market, **large financial institutions** (such as investment banks, hedge funds, asset management firms) and **Market Makers** have the most significant impact on price movements.\n\nThis is due to the **massive volume of capital** they control. Their large orders create huge imbalances in supply and demand, leading to noticeable price trends. Therefore, **major market movements are not random**; they are driven by the decisions and flow of smart money.`,
         steps: [
           "Understand the difference between retail traders (small orders) and institutions (huge orders).",
@@ -278,7 +283,7 @@ export const lessonsData = {
         feedbackLoop: "If you missed this, remember to follow the footprints (large candles, structure breaks) left by institutional smart money."
       },
       ar: {
-        title: "من يحرك السعر؟",
+        title: "الدرس 3: من يحرك السعر؟",
         content: `بينما يشارك المتداولون الأفراد في السوق، فإن **المؤسسات المالية الكبرى** (مثل البنوك الاستثمارية، صناديق التحوط، شركات إدارة الأصول) و**صناع السوق (Market Makers)** هم من يمتلكون التأثير الأكبر على حركة الأسعار.\n\nيرجع ذلك إلى **حجم السيولة الهائل** الذي يديرونه. أوامرهم الكبيرة يمكن أن تخلق اختلالات كبيرة في العرض والطلب، مما يؤدي إلى تحركات سعرية واضحة. لذلك، **الحركة الكبيرة في السوق ليست عشوائية**، بل غالباً ما تكون مدفوعة بقرارات وتدفقات مالية ضخمة من هذه الجهات.`,
         steps: [
           "افهم الفرق بين حجم تداول الأفراد وحجم تداول المؤسسات الضخمة.",
@@ -301,13 +306,31 @@ export const lessonsData = {
           { q: "هل حركة السوق الكبيرة عشوائية أم مدفوعة بعوامل معينة؟", a: "ليست عشوائية، بل هي مدفوعة بتدفقات سيولة ضخمة وقرارات مدروسة من المؤسسات المالية وصناع السوق (المال الذكي)." }
         ],
         feedbackLoop: "إذا لم تتمكن من الإجابة بشكل صحيح، أعد قراءة المفهوم وركز على دور المؤسسات الكبرى وتتبع آثارها."
+      },
+      fr: {
+        title: "Leçon 3: Qui fait bouger les prix ?",
+        content: `Les **institutions financières** (banques, fonds de couverture) et les **Market Makers** déplacent les prix grâce à leurs volumes de capitaux colossaux.`,
+        steps: ["Différenciez les traders détaillants des banques.", "Recherchez l'empreinte institutionnelle."],
+        example: "Une banque injectant 500M$ crée une bougie géante sur le graphique.",
+        keyTakeaways: ["Le Smart Money guide le marché."],
+        activeRecall: ["Les particuliers déterminent-ils la direction du marché ?", "Qui a le plus de pouvoir sur les prix ?"],
+        quiz: [{ q: "Qui a le plus d'impact sur le prix ?", a: "Les grandes institutions et les Market Makers." }]
+      },
+      es: {
+        title: "Lección 3: ¿Quién mueve el precio?",
+        content: `Las **instituciones financieras** y los **Market Makers** mueven el mercado debido a los enormes volúmenes de capital que gestionan.`,
+        steps: ["Diferencia entre minoristas e instituciones.", "Identifica la huella institucional."],
+        example: "Un banco entrando con 500M$ crea un impulso visible inmediato.",
+        keyTakeaways: ["El Smart Money dirige el mercado."],
+        activeRecall: ["¿Los minoristas mueven el mercado?", "¿Quién tiene más poder sobre el precio?"],
+        quiz: [{ q: "¿Quién tiene mayor impacto en el precio?", a: "Las grandes instituciones y Market Makers." }]
       }
     },
     {
       id: 4,
       diagram: 'price-imbalance',
       en: {
-        title: "Why Does Price Rise and Fall?",
+        title: "Lesson 4: Why Does Price Rise and Fall?",
         content: `Price movement in financial markets is not random; it is the direct result of an **imbalance between supply and demand**.\n\n* **Demand > Supply:** When there are more buyers than sellers, price rises to find new sellers.\n* **Supply > Demand:** When there are more sellers than buyers, price falls to find new buyers.\n\nThis imbalance pushes the price to search for liquidity. When the imbalance is large and sustained, a new trend begins. The trend persists until a new level of balance (accumulation or distribution) is reached.`,
         steps: [
           "Identify rapid price expansions (impulsive moves) on the chart.",
@@ -332,7 +355,7 @@ export const lessonsData = {
         feedbackLoop: "Remember that the market cycles continuously between range (balance) and trend (imbalance)."
       },
       ar: {
-        title: "لماذا يرتفع السعر وينخفض؟",
+        title: "الدرس 4: لماذا يرتفع السعر وينخفض؟",
         content: `حركة السعر في الأسواق المالية ليست عشوائية، بل هي نتيجة مباشرة لـ **اختلال التوازن بين العرض والطلب**.\n\n* **الطلب > العرض:** عندما يكون هناك مشترون أكثر من البائعين، يرتفع السعر للبحث عن بائعين جدد.\n* **العرض > الطلب:** عندما يكون هناك بائعون أكثر من المشترين، ينخفض السعر للبحث عن مشترين جدد.\n\nهذا الاختلال هو ما يدفع السعر للتحرك في اتجاه معين للبحث عن السيولة. عندما يصبح هذا الاختلال كبيراً ومستداماً، فإنه يؤدي إلى **بدء اتجاه جديد** (صاعد أو هابط). الفكرة الأساسية هي أن **الاتجاه يبدأ عندما ينكسر التوازن** بين المشترين والبائعين.`,
         steps: [
           "حدد فترات الاندفاع السعري السريع (Expansion) على الرسم البياني.",
@@ -355,13 +378,31 @@ export const lessonsData = {
           { q: "متى يمكن القول بأن اتجاهاً جديداً قد بدأ في السوق؟", a: "عندما ينكسر التوازن الأفقي المؤقت (التذبذب) ويحدث اختلال كبير ومستدام لصالح أحد الطرفين." }
         ],
         feedbackLoop: "إذا لم تتمكن من ربط حركة السعر باختلال التوازن، أعد قراءة المفهوم وركز على انتقال السوق من التوازن إلى الاختلال."
+      },
+      fr: {
+        title: "Leçon 4: Pourquoi le prix monte et descend ?",
+        content: `Le mouvement du prix provient du **déséquilibre entre l'offre et la demande**.\n- Acheteurs > Vendeurs -> Prix monte\n- Vendeurs > Acheteurs -> Prix descend`,
+        steps: ["Repérez les expansions rapides.", "Repérez les consolidations."],
+        example: "Pénurie de pétrole = l'offre chute, le prix s'envole.",
+        keyTakeaways: ["Une tendance commence quand l'équilibre casse."],
+        activeRecall: ["Le prix bouge-t-il au hasard ?", "Que se passe-t-il avec trop d'acheteurs ?"],
+        quiz: [{ q: "Cause principale du mouvement de prix ?", a: "Le déséquilibre offre/demande." }]
+      },
+      es: {
+        title: "Lección 4: ¿Por qué sube y baja el precio?",
+        content: `El movimiento se debe al **desequilibrio entre oferta y demanda**.\n- Compradores > Vendedores -> Precio sube\n- Vendedores > Compradores -> Precio baja`,
+        steps: ["Identifica expansiones rápidas.", "Identifica consolidaciones."],
+        example: "Escasez de petróleo = precio sube drásticamente.",
+        keyTakeaways: ["Una tendencia empieza cuando se rompe el equilibrio."],
+        activeRecall: ["¿El precio se mueve al azar?", "¿Qué pasa con muchos compradores?"],
+        quiz: [{ q: "¿Causa principal del movimiento de precio?", a: "Desequilibrio entre oferta y demanda." }]
       }
     },
     {
       id: 5,
       diagram: 'market-types',
       en: {
-        title: "Types of Markets",
+        title: "Lesson 5: Types of Markets",
         content: `There are various financial markets where trading takes place. While they trade different assets, they all operate under the same principles of supply and demand:\n\n* **Forex (Foreign Exchange):** The global currency market, trading pairs like EUR/USD. It is the largest and most liquid market.\n* **Cryptocurrencies:** Digital assets operating on blockchain, such as Bitcoin (BTC) and Ethereum (ETH).\n* **Stocks:** Buying shares representing fractional ownership in public companies like Apple or Tesla.\n* **Commodities:** Physical goods like Gold, Silver, Crude Oil, and agricultural products.`,
         steps: [
           "Explore the list of symbols on your trading platform.",
@@ -386,7 +427,7 @@ export const lessonsData = {
         feedbackLoop: "Recall that technical analysis works across all these markets because human psychology and supply/demand govern them all."
       },
       ar: {
-        title: "أنواع الأسواق",
+        title: "الدرس 5: أنواع الأسواق",
         content: `توجد أنواع مختلفة من الأسواق المالية، وكل منها يتعامل مع أصول مختلفة، ولكنها جميعاً تشترك في المبدأ الأساسي الذي يحكمها وهو **العرض والطلب**:\n\n* **الفوركس (Forex):** سوق تداول العملات الأجنبية (مثل EUR/USD)، وهو الأكبر والأكثر سيولة في العالم.\n* **العملات الرقمية (Cryptocurrencies):** سوق الأصول الرقمية اللامركزية مثل البيتكوين والإيثيريوم.\n* **الأسهم (Stocks):** سوق تداول حصص ملكية في الشركات المساهمة العامة (مثل Apple أو Tesla).\n* **السلع (Commodities):** سوق تداول المواد الخام والمعادن كالذهب والنفط والغاز الطبيعي.\n\n**المبادئ التي تحرك الأسعار (العرض والطلب، اختلال التوازن) واحدة في كل هذه الأسواق، وإن اختلفت تفاصيل الأصول المتداولة.**`,
         steps: [
           "تصفح قائمة الأصول المتاحة في منصتك وتعرف على تصنيفاتها.",
@@ -409,13 +450,32 @@ export const lessonsData = {
           { q: "هل تختلف المبادئ الأساسية التي تحرك الأسعار بين هذه الأسواق؟ ولماذا؟", a: "لا، تظل المبادئ واحدة وهي قوى العرض والطلب واختلال التوازن، وإن اختلفت تفاصيل الأصول المتداولة وأوقات العمل." }
         ],
         feedbackLoop: "إذا لم تتمكن من تحديد الأسواق أو فهم وحدة مبادئها، أعد قراءة كتلة المفهوم وركز على العرض والطلب كعامل مشترك."
+      },
+      fr: {
+        title: "Leçon 5: Types de marchés",
+        content: `Les grands marchés financiers comprennent :\n- **Forex** (Devises)\n- **Cryptomonnaies** (BTC, ETH)\n- **Actions** (Apple, Tesla)\n- **Matières premières** (Or, Pétrole)`,
+        steps: ["Consultez la liste des symboles sur votre plateforme.", "Comparez les horaires de trading."],
+        example: "EUR/USD = Forex. Bitcoin = Crypto. Or = Matières premières.",
+        keyTakeaways: ["Tous les marchés obéissent aux mêmes lois de l'offre et de la demande."],
+        activeRecall: ["Tous les marchés fonctionnent-ils pareil ?", "Citez des marchés financiers."],
+        quiz: [{ q: "Citez trois types de marchés.", a: "Forex, Actions, Cryptomonnaies et Matières premières." }]
+      },
+      es: {
+        title: "Lección 5: Tipos de mercados",
+        content: `Los principales mercados financieros son:\n- **Forex** (Divisas)\n- **Criptomonedas** (BTC, ETH)\n- **Acciones** (Apple, Tesla)\n- **Materias Primas** (Oro, Petróleo)`,
+        steps: ["Explora los símbolos en tu plataforma.", "Compara los horarios de negociación."],
+        example: "EUR/USD = Forex. Bitcoin = Cripto. Oro = Materias Primas.",
+        keyTakeaways: ["Todos los mercados siguen las mismas leyes de oferta y demanda."],
+        activeRecall: ["¿Todos los mercados funcionan igual?", "Nombra tipos de mercados."],
+        quiz: [{ q: "Nombra tres tipos de mercados.", a: "Forex, Acciones, Criptomonedas y Materias Primas." }]
       }
     },
     {
       id: 6,
       diagram: 'order-types',
+      image: '/foundation/order_types.png',
       en: {
-        title: "Types of Orders",
+        title: "Lesson 6: Types of Orders",
         content: `Orders are the instructions you send to your broker to execute trades. Understanding them is crucial for entry and exit precision:\n\n* **Market Order:** An order to buy or sell immediately at the best available current market price. Guarantees execution but not the exact price.\n* **Limit Order:** An order to buy or sell at a specific price or better. Guarantees the price but not the execution.\n* **Stop Order (Stop Loss / Stop Entry):** Triggers a market order once a specific price level is hit. A **Stop Loss (SL)** is a protective stop order that automatically closes a losing trade to protect your capital.`,
         steps: [
           "Open the trading panel in your demo account and study options.",
@@ -440,7 +500,7 @@ export const lessonsData = {
         feedbackLoop: "Make sure you understand the difference between immediate market orders and pending limit/stop orders, and the absolute necessity of a Stop Loss."
       },
       ar: {
-        title: "أنواع الأوامر",
+        title: "الدرس 6: أنواع الأوامر",
         content: `الأوامر هي الوسيلة التي يتفاعل بها المتداولون مع السوق لتنفيذ عمليات الشراء والبيع. فهم أنواع الأوامر ضروري للتحكم في كيفية دخولك وخروجك من الصفقات. الأنواع الرئيسية للأوامر هي:\n\n* **أمر السوق (Market Order):** يتم تنفيذه فوراً بأفضل سعر متاح في السوق. السرعة هي الأهم هنا، ولكن قد لا يكون السعر هو الأفضل.\n* **الأمر المحدد (Limit Order):** يتم وضعه لشراء أو بيع أصل بسعر محدد أو أفضل. لا يتم تنفيذه إلا إذا وصل السعر إلى المستوى المطلوب، مما يضمن سعراً أفضل ولكن لا يضمن التنفيذ.\n* **أمر إيقاف الخسارة / الدخول (Stop Order):** يتم تفعيله ليصبح أمر سوق عندما يصل السعر إلى مستوى معين. مثلاً، أمر إيقاف الخسارة (Stop Loss) هو أمر حماية يغلق الصفقة تلقائياً للحد من الخسائر لحماية رأس مالك.`,
         steps: [
           "افتح نافذة الصفقات في حسابك التجريبي وتعرف على الخيارات المتاحة.",
@@ -463,13 +523,31 @@ export const lessonsData = {
           { q: "إذا أردت شراء أصل بسعر معين أو أقل، فما هو نوع الأمر الذي ستستخدمه؟", a: "الأمر المحدد (Limit Order - وتحديداً Buy Limit)." }
         ],
         feedbackLoop: "إذا لم تتمكن من التمييز بين أنواع الأوامر، أعد قراءة المفهوم وركز على دور الأوامر المعلقة وإيقاف الخسارة."
+      },
+      fr: {
+        title: "Leçon 6: Types d'ordres",
+        content: `Les types d'ordres principaux sont :\n- **Ordre au marché** : Exécution immédiate au meilleur prix.\n- **Ordre limite** : Achat/Vente à un prix défini ou meilleur.\n- **Stop Loss (SL)** : Ordre de protection automatique pour limiter les pertes.`,
+        steps: ["Ouvrez le panneau d'ordre démo.", "Placez un Stop Loss."],
+        example: "Un Buy Limit s'exécute quand le prix baisse au niveau fixé.",
+        keyTakeaways: ["Le Stop Loss est indispensable pour protéger votre capital."],
+        activeRecall: ["Comment passer un ordre ?", "Toutes les opérations sont-elles immédiates ?"],
+        quiz: [{ q: "Quel ordre garantit l'exécution immédiate ?", a: "L'Ordre au Marché." }]
+      },
+      es: {
+        title: "Lección 6: Tipos de órdenes",
+        content: `Las principales órdenes son:\n- **Orden a mercado**: Ejecución inmediata al mejor precio disponible.\n- **Orden límite**: Compra/Venta a un precio específico o mejor.\n- **Stop Loss (SL)**: Orden de protección automática para limitar pérdidas.`,
+        steps: ["Abre el panel de órdenes en demo.", "Coloca un Stop Loss."],
+        example: "Un Buy Limit se ejecuta cuando el precio cae al nivel fijado.",
+        keyTakeaways: ["El Stop Loss es obligatorio para proteger tu capital."],
+        activeRecall: ["¿Cómo se indica una orden?", "¿Todas se ejecutan de inmediato?"],
+        quiz: [{ q: "¿Qué orden garantiza ejecución inmediata?", a: "La Orden a Mercado." }]
       }
     },
     {
       id: 7,
       diagram: 'platform-mockup',
       en: {
-        title: "Trading Platforms",
+        title: "Lesson 7: Trading Platforms",
         content: `A trading platform is the software gateway connecting you to financial markets. It displays charts, tracks asset prices, and executes your orders:\n\n* **TradingView:** The ultimate platform for chart analysis, backtesting, and technical tools. Highly recommended for analysis.\n* **MetaTrader 4 / 5 (MT4/MT5):** The industry standard software for executing orders, connecting directly to brokers, and managing positions.\n\n**Remember: The platform is just a tool. Mastering the tool is important, but your trading edge comes from your analysis, strategy, and risk discipline.**`,
         steps: [
           "Create a free account on TradingView.com.",
@@ -494,7 +572,7 @@ export const lessonsData = {
         feedbackLoop: "Differentiate clearly between analysis platforms (TradingView) and execution platforms (MetaTrader) and how they fit into your trading process."
       },
       ar: {
-        title: "منصات التداول",
+        title: "الدرس 7: منصات التداول",
         content: `منصة التداول هي البرنامج أو التطبيق الذي تستخدمه للاتصال بالسوق، عرض الرسوم البيانية (الشارت)، تنفيذ الأوامر، وإدارة صفقاتك. إنها بوابتك إلى الأسواق المالية:\n\n* **TradingView:** منصة قوية جداً ومتقدمة للتحليل الفني، رسم الشارت، وتتبع جميع الأسواق العالمية.\n* **MetaTrader 4 / 5 (MT4/MT5):** المنصة الأكثر استخداماً لتنفيذ الصفقات الفورية وإدارة المحفظة وربط الحساب بشركة الوساطة.\n\n**الفكرة الأساسية هي أن المنصة هي مجرد أداة. إتقان استخدام الأداة مهم، ولكن الأهم هو الاستراتيجية والتحليل الذي تقوم به باستخدامها.**`,
         steps: [
           "قم بإنشاء حساب مجاني على موقع TradingView وافتح الرسم البياني لأي أصل.",
@@ -517,13 +595,32 @@ export const lessonsData = {
           { q: "هل المنصة بحد ذاتها تضمن لك النجاح في التداول؟ ولماذا؟", a: "لا، المنصة مجرد أداة. النجاح يأتي من الاستراتيجية وإدارة المخاطر والالتزام الذاتي للمتداول." }
         ],
         feedbackLoop: "إذا واجهت صعوبة في فهم دور المنصة، ركز على التفريق بين أداة التحليل وأداة التنفيذ وكيف يتكاملان."
+      },
+      fr: {
+        title: "Leçon 7: Plateformes de trading",
+        content: `Les plateformes principales sont :\n- **TradingView** : Analyse graphique et outils avancés.\n- **MetaTrader 4/5** : Exécution des ordres chez les courtiers.`,
+        steps: ["Créez un compte TradingView.", "Découvrez les unités de temps."],
+        example: "Analyse sur TradingView, exécution de l'ordre sur MetaTrader.",
+        keyTakeaways: ["La plateforme est l'outil, pas la stratégie."],
+        activeRecall: ["Où exécute-t-on les trades ?", "Connaissez-vous des plateformes ?"],
+        quiz: [{ q: "Rôle principal d'une plateforme ?", a: "Connecter au marché, afficher les graphiques et exécuter les ordres." }]
+      },
+      es: {
+        title: "Lección 7: Plataformas de trading",
+        content: `Las principales plataformas son:\n- **TradingView**: Análisis gráfico y herramientas técnicas.\n- **MetaTrader 4/5**: Ejecución de órdenes con el bróker.`,
+        steps: ["Crea una cuenta en TradingView.", "Prueba cambiar temporalidades."],
+        example: "Análisis en TradingView, ejecución en MetaTrader.",
+        keyTakeaways: ["La plataforma es una herramienta, no la estrategia."],
+        activeRecall: ["¿Dónde operan los traders?", "¿Conoces plataformas de trading?"],
+        quiz: [{ q: "¿Función principal de la plataforma?", a: "Conectar al mercado, mostrar gráficos y ejecutar órdenes." }]
       }
     },
     {
       id: 8,
       diagram: 'candlestick-intro',
+      image: '/foundation/japanese_candlesticks.png',
       en: {
-        title: "Introduction to Japanese Candlesticks",
+        title: "Lesson 8: Introduction to Japanese Candlesticks",
         content: `Japanese Candlesticks are the visual language of price charts. Each candle tells a story about the battle between buyers and sellers over a specific timeframe (e.g., 1 hour, 1 day):\n\n* **The Body:** The solid colored part representing the distance between the Open and Close price.\n  * **Bullish Candle (Green/White):** Close is higher than Open (Buyers won).\n  * **Bearish Candle (Red/Black):** Close is lower than Open (Sellers won).\n* **The Wicks (Shadows):** The thin lines projecting from the top and bottom. They represent the High (maximum price reached) and Low (minimum price reached) during that period.`,
         steps: [
           "Open any chart and zoom in to look at individual candles.",
@@ -548,7 +645,7 @@ export const lessonsData = {
         feedbackLoop: "Study the anatomy (open, close, high, low, wicks) carefully, as it is the basic alphabet of all price charts."
       },
       ar: {
-        title: "الشموع اليابانية (مقدمة)",
+        title: "الدرس 8: الشموع اليابانية (مقدمة)",
         content: `الشموع اليابانية هي اللغة المرئية لشارت الأسعار. كل شمعة تحكي قصة الصراع بين المشترين والبائعين خلال فترة زمنية معينة (مثل ساعة أو يوم):\n\n* **الجسم (Body):** الجزء العريض الملون، ويمثل المسافة بين سعري الافتتاح والإغلاق.\n  * **شمعة صاعدة (غالباً خضراء):** سعر الإغلاق أعلى من سعر الافتتاح (المشترون سيطروا).\n  * **شمعة هابطة (غالباً حمراء):** سعر الإغلاق أقل من سعر الافتتاح (البائعون سيطروا).\n* **الذيول/الظلال (Wicks/Shadows):** الخطوط الرفيعة أعلى وأسفل الجسم، وتمثل أعلى سعر وأدنى سعر وصل إليه الأصل خلال تلك الفترة الزمنية.\n\n**شكل الشمعة يعطيك دليلاً مباشراً على من كان مسيطراً على السوق.**`,
         steps: [
           "افتح شارت عملات وقم بتكبير الشموع لتأمل تفاصيلها الفردية.",
@@ -571,6 +668,24 @@ export const lessonsData = {
           { q: "إذا كان سعر الإغلاق أعلى من سعر الافتتاح، فما نوع الشمعة التي ستتشكل؟", a: "شمعة صاعدة (Bullish Candle) وتكون عادة خضراء أو بيضاء." }
         ],
         feedbackLoop: "إذا لم تتمكن من تحديد أجزاء الشمعة أو فهم دلالتها، ركز على الشمعة كصراع بين المشترين والبائعين والافتتاح/الإغلاق."
+      },
+      fr: {
+        title: "Leçon 8: Introduction aux bougies japonaises",
+        content: `Les bougies japonaises représentent le mouvement du prix avec 4 informations (OHLC) :\n- **Corps** : Ecart Ouverture/Fermeture.\n- **Mèches** : Plus Haut et Plus Bas de la période.`,
+        steps: ["Zoomez sur des bougies individuelles.", "Identifiez l'ouverture et la fermeture."],
+        example: "Une bougie verte qui ferme plus haut que son ouverture.",
+        keyTakeaways: ["Vert = Hausse (Acheteurs). Rouge = Baisse (Vendeurs)."],
+        activeRecall: ["Comment lit-on le prix ?", "Que signifient les bougies vertes/rouges ?"],
+        quiz: [{ q: "Que représente le corps d'une bougie ?", a: "La distance entre le prix d'ouverture et de fermeture." }]
+      },
+      es: {
+        title: "Lección 8: Introducción a las velas japonesas",
+        content: `Las velas japonesas representan el precio con 4 niveles (OHLC):\n- **Cuerpo**: Distancia entre Apertura y Cierre.\n- **Mechas**: Máximo y Mínimo del periodo.`,
+        steps: ["Haz zoom en velas individuales.", "Identifica apertura y cierre."],
+        example: "Una vela verde que cierra por encima de su apertura.",
+        keyTakeaways: ["Verde = Alcista (Compradores). Roja = Bajista (Vendedores)."],
+        activeRecall: ["¿Cómo se lee el precio?", "¿Qué significan las velas verdes/rojas?"],
+        quiz: [{ q: "¿Qué representa el cuerpo de la vela?", a: "La distancia entre la apertura y el cierre." }]
       }
     }
   ],
@@ -730,3 +845,5 @@ El principio fundamental es que toda la información conocida ya está reflejada
 };
 
 export default { schools, lessonsData, tradingTips, diagramTypes };
+
+

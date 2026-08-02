@@ -2,7 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ChevronLeft, ChevronRight, BookOpen, CheckCircle, Lightbulb, Target, ListOrdered, BarChart3, Brain, Zap, HelpCircle, GraduationCap } from 'lucide-react';
+import { 
+  ArrowLeft, ChevronLeft, ChevronRight, BookOpen, CheckCircle, 
+  Lightbulb, Target, ListOrdered, BarChart3, Brain, Zap, 
+  GraduationCap, Image as ImageIcon, ZoomIn, X 
+} from 'lucide-react';
 import { schools, lessonsData, diagramTypes } from '../../data/academy/academyData';
 import { smcLessons, ictLessons, skLessons } from '../../data/academy/schoolsData';
 import DiagramSVG from './TradingDiagrams';
@@ -28,7 +32,7 @@ const LessonPage = () => {
 
   const school = schools.find(s => s.id === schoolId);
 
-  // Get lessons
+  // Get lessons list
   let lessons = [];
   if (schoolId === 'foundation') lessons = lessonsData.foundation || [];
   else if (schoolId === 'classical') lessons = lessonsData.classical || [];
@@ -41,16 +45,18 @@ const LessonPage = () => {
   const prevLesson = currentIndex > 0 ? lessons[currentIndex - 1] : null;
   const nextLesson = currentIndex < lessons.length - 1 ? lessons[currentIndex + 1] : null;
 
-  // UI States for Premium Active Learning features
+  // UI States for Active Learning & HD Image Modal
   const [activeRecallStarted, setActiveRecallStarted] = useState(false);
   const [userAnswers, setUserAnswers] = useState({});
   const [quizRevealed, setQuizRevealed] = useState(false);
+  const [zoomImage, setZoomImage] = useState(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
     setActiveRecallStarted(false);
     setUserAnswers({});
     setQuizRevealed(false);
+    setZoomImage(null);
   }, [lessonId]);
 
   if (!school || !lesson) {
@@ -61,8 +67,9 @@ const LessonPage = () => {
   const Icon = iconMap[school.icon] || BookOpen;
   const lessonData = lesson[lang] || lesson.en;
   const schoolName = schoolTranslations[schoolId]?.[lang] || schoolTranslations[schoolId]?.en;
+  const imageSrc = lesson?.image || lessonData?.image;
 
-  // Get diagram type
+  // Get diagram type key
   const diagramKey = diagramTypes[lesson.diagram] || lesson.diagram;
 
   const uiTexts = {
@@ -146,7 +153,6 @@ const LessonPage = () => {
     if (!text) return null;
     return text.split('\n').map((paragraph, i) => {
       if (!paragraph.trim()) return <br key={i} />;
-      // Handle **bold** text
       const parts = paragraph.split(/(\*\*[^*]+\*\*)/g);
       return (
         <p key={i} className="mb-3 leading-relaxed">
@@ -161,6 +167,7 @@ const LessonPage = () => {
     });
   };
 
+  // Active Recall Phase Screen
   if (lessonData?.activeRecall && !activeRecallStarted) {
     return (
       <div className={`min-h-screen bg-background text-foreground flex flex-col justify-between ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
@@ -170,9 +177,8 @@ const LessonPage = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-2xl glass-card border border-border p-6 sm:p-10 relative overflow-hidden rounded-2xl"
+            className="w-full max-w-2xl glass-card border border-border p-6 sm:p-10 relative overflow-hidden rounded-2xl shadow-2xl"
           >
-            {/* Background elements */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-80 bg-amber-500/5 rounded-full blur-3xl -z-10" />
 
             <div className="flex flex-col items-center text-center mb-8">
@@ -258,10 +264,12 @@ const LessonPage = () => {
             </div>
             <span className="text-xs text-muted-foreground uppercase tracking-wider">{ui.lessonOf} {lesson.id} / {lessons.length}</span>
           </div>
+
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">
             {lessonData?.title}
           </h1>
-          {/* Progress bar */}
+
+          {/* Progress Bar */}
           <div className="w-full h-1.5 bg-secondary rounded-full mt-4">
             <div
               className={`h-full bg-gradient-to-r ${school.color} rounded-full transition-all duration-500`}
@@ -270,7 +278,44 @@ const LessonPage = () => {
           </div>
         </motion.div>
 
-        {/* Diagram */}
+        {/* Real Chapter Image Display (High Quality Foundation Visuals) */}
+        {imageSrc && (
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="mb-8 rounded-2xl overflow-hidden glass-card border border-amber-500/30 p-3 sm:p-5 bg-secondary/30 relative group shadow-xl"
+          >
+            <div className="flex items-center justify-between mb-3 px-1">
+              <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-widest flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-amber-500" />
+                {isRTL ? 'الشكل التوضيحي من المحور الأساسي' : 'Foundation Chapter High Resolution Visual'}
+              </span>
+              <span className="text-[11px] text-muted-foreground bg-background/80 px-2.5 py-1 rounded-md border border-border font-medium">
+                {isRTL ? 'انقر لتكبير الصورة HD' : 'Click HD Zoom'}
+              </span>
+            </div>
+
+            <div
+              onClick={() => setZoomImage(imageSrc)}
+              className="relative cursor-pointer overflow-hidden rounded-xl bg-black/40 flex items-center justify-center min-h-[240px] max-h-[500px]"
+            >
+              <img
+                src={imageSrc}
+                alt={lessonData?.title || 'Chapter visual'}
+                loading="lazy"
+                decoding="async"
+                className="w-full h-auto object-contain max-h-[500px] group-hover:scale-[1.02] transition-transform duration-300"
+              />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold text-sm backdrop-blur-[2px]">
+                <ZoomIn className="w-6 h-6 text-amber-400" />
+                <span>{isRTL ? 'عرض بحجم كامل (HD Zoom)' : 'View Full HD Image'}</span>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Interactive SVG Diagram */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -280,7 +325,7 @@ const LessonPage = () => {
           <DiagramSVG type={diagramKey} />
         </motion.div>
 
-        {/* Content */}
+        {/* Lesson Content */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -292,13 +337,13 @@ const LessonPage = () => {
           </div>
         </motion.div>
 
-        {/* Steps */}
+        {/* Step-by-Step Guide */}
         {lessonData?.steps && lessonData.steps.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="mb-10 bg-card rounded-2xl border border-border p-5 sm:p-7"
+            className="mb-10 bg-card rounded-2xl border border-border p-5 sm:p-7 shadow-sm"
           >
             <h3 className="text-lg font-bold text-foreground mb-5 flex items-center gap-2">
               <ListOrdered className="w-5 h-5 text-amber-500" />
@@ -317,7 +362,7 @@ const LessonPage = () => {
           </motion.div>
         )}
 
-        {/* Example */}
+        {/* Practical Example */}
         {lessonData?.example && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -364,7 +409,7 @@ const LessonPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="mb-12 bg-card rounded-2xl border border-border p-5 sm:p-8"
+            className="mb-12 bg-card rounded-2xl border border-border p-5 sm:p-8 shadow-sm"
           >
             <h3 className="text-xl font-black bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent mb-2 flex items-center gap-2">
               <GraduationCap className="w-6 h-6 text-amber-500" />
@@ -437,12 +482,12 @@ const LessonPage = () => {
           </motion.div>
         )}
 
-        {/* Navigation */}
+        {/* Navigation Buttons */}
         <div className="flex items-center justify-between gap-4">
           {prevLesson ? (
             <button
               onClick={() => navigate(`/academy/${schoolId}/lesson/${prevLesson.id}`)}
-              className={`flex items-center gap-2 px-4 sm:px-6 py-3 bg-secondary hover:bg-secondary/80 rounded-xl border border-border hover:border-amber-500/30 transition-all text-sm sm:text-base ${isRTL ? 'flex-row-reverse' : ''}`}
+              className={`flex items-center gap-2 px-4 sm:px-6 py-3 bg-secondary hover:bg-secondary/80 rounded-xl border border-border hover:border-amber-500/30 transition-all text-sm sm:text-base cursor-pointer ${isRTL ? 'flex-row-reverse' : ''}`}
             >
               <ChevronLeft className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
               <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
@@ -457,7 +502,7 @@ const LessonPage = () => {
           {nextLesson ? (
             <button
               onClick={() => navigate(`/academy/${schoolId}/lesson/${nextLesson.id}`)}
-              className={`flex items-center gap-2 px-4 sm:px-6 py-3 bg-gradient-to-r ${school.color} hover:opacity-90 rounded-xl transition-all text-sm sm:text-base ${isRTL ? 'flex-row-reverse' : ''}`}
+              className={`flex items-center gap-2 px-4 sm:px-6 py-3 bg-gradient-to-r ${school.color} hover:opacity-90 rounded-xl transition-all text-sm sm:text-base cursor-pointer ${isRTL ? 'flex-row-reverse' : ''}`}
             >
               <div className={`${isRTL ? 'text-left' : 'text-right'}`}>
                 <div className="text-xs text-white/70">{ui.next}</div>
@@ -470,7 +515,7 @@ const LessonPage = () => {
           ) : (
             <button
               onClick={() => navigate(`/academy/${schoolId}`)}
-              className="flex items-center gap-2 px-4 sm:px-6 py-3 bg-amber-500 hover:bg-amber-600 text-black rounded-xl transition-all text-sm sm:text-base font-medium"
+              className="flex items-center gap-2 px-4 sm:px-6 py-3 bg-amber-500 hover:bg-amber-600 text-black rounded-xl transition-all text-sm sm:text-base font-medium cursor-pointer"
             >
               <CheckCircle className="w-4 h-4" />
               {ui.backToSchool}
@@ -478,6 +523,34 @@ const LessonPage = () => {
           )}
         </div>
       </div>
+
+      {/* Fullscreen HD Lightbox Modal */}
+      <AnimatePresence>
+        {zoomImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setZoomImage(null)}
+            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 cursor-zoom-out"
+          >
+            <button
+              onClick={() => setZoomImage(null)}
+              className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 text-white hover:bg-white/20 flex items-center justify-center transition-colors cursor-pointer"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <motion.img
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              src={zoomImage}
+              alt="Full resolution chapter visual"
+              className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl border border-white/10"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Footer />
     </div>
