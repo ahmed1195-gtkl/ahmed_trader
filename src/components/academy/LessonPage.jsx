@@ -148,23 +148,142 @@ const LessonPage = () => {
   };
   const ui = uiTexts[lang] || uiTexts.en;
 
-  // Parse content with markdown bold
+  // UI UX Pro Max Rich Content Parser (Headings, Tables, Blockquotes, Lists, Code Blocks, Bold)
   const renderContent = (text) => {
     if (!text) return null;
-    return text.split('\n').map((paragraph, i) => {
-      if (!paragraph.trim()) return <br key={i} />;
-      const parts = paragraph.split(/(\*\*[^*]+\*\*)/g);
-      return (
-        <p key={i} className="mb-3 leading-relaxed">
-          {parts.map((part, j) => {
-            if (part.startsWith('**') && part.endsWith('**')) {
-              return <strong key={j} className="text-amber-400 font-semibold">{part.slice(2, -2)}</strong>;
-            }
-            return <span key={j}>{part}</span>;
-          })}
+    const lines = text.split('\n');
+    const elements = [];
+    let inCodeBlock = false;
+    let codeBuffer = [];
+    let tableBuffer = [];
+
+    const flushCodeBuffer = (key) => {
+      if (codeBuffer.length > 0) {
+        const codeText = codeBuffer.join('\n');
+        codeBuffer = [];
+        return (
+          <div key={key} className="my-6 p-4 rounded-xl bg-slate-950 border border-amber-500/30 text-amber-300 font-mono text-xs sm:text-sm overflow-x-auto shadow-inner dir-ltr text-left">
+            <pre className="whitespace-pre-wrap">{codeText}</pre>
+          </div>
+        );
+      }
+      return null;
+    };
+
+    const parseInline = (lineStr) => {
+      const parts = lineStr.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+      return parts.map((part, j) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+          return <strong key={j} className="text-amber-400 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">{part.slice(2, -2)}</strong>;
+        }
+        if (part.startsWith('`') && part.endsWith('`')) {
+          return <code key={j} className="text-cyan-400 font-mono text-xs bg-slate-900 px-1.5 py-0.5 rounded border border-cyan-500/20">{part.slice(1, -1)}</code>;
+        }
+        return <span key={j}>{part}</span>;
+      });
+    };
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const trimmed = line.trim();
+
+      // Code Block Toggle
+      if (trimmed.startsWith('```')) {
+        if (inCodeBlock) {
+          elements.push(flushCodeBuffer(`code-${i}`));
+          inCodeBlock = false;
+        } else {
+          inCodeBlock = true;
+        }
+        continue;
+      }
+
+      if (inCodeBlock) {
+        codeBuffer.push(line);
+        continue;
+      }
+
+      // Blockquotes
+      if (trimmed.startsWith('>')) {
+        const quoteText = trimmed.replace(/^>\s*/, '');
+        elements.push(
+          <div key={`quote-${i}`} className="my-4 p-4 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border-r-4 border-amber-500 text-amber-200 font-medium text-sm sm:text-base leading-relaxed shadow-sm">
+            {parseInline(quoteText)}
+          </div>
+        );
+        continue;
+      }
+
+      // Headings
+      if (trimmed.startsWith('### ')) {
+        elements.push(
+          <h3 key={`h3-${i}`} className="text-lg sm:text-xl font-bold text-amber-400 mt-6 mb-3 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+            {parseInline(trimmed.replace(/^###\s*/, ''))}
+          </h3>
+        );
+        continue;
+      }
+
+      if (trimmed.startsWith('## ')) {
+        elements.push(
+          <h2 key={`h2-${i}`} className="text-xl sm:text-2xl font-black text-foreground mt-8 mb-4 pb-2 border-b border-border/80 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 bg-clip-text text-transparent">
+            {parseInline(trimmed.replace(/^##\s*/, ''))}
+          </h2>
+        );
+        continue;
+      }
+
+      if (trimmed.startsWith('# ')) {
+        elements.push(
+          <h1 key={`h1-${i}`} className="text-2xl sm:text-3xl font-black text-foreground mt-8 mb-4">
+            {parseInline(trimmed.replace(/^#\s*/, ''))}
+          </h1>
+        );
+        continue;
+      }
+
+      // Bullet Lists
+      if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+        elements.push(
+          <div key={`li-${i}`} className="flex items-start gap-2.5 my-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2.5 flex-shrink-0" />
+            <p className="text-foreground text-sm sm:text-base leading-relaxed">{parseInline(trimmed.replace(/^[-*]\s*/, ''))}</p>
+          </div>
+        );
+        continue;
+      }
+
+      // Numbered Lists
+      if (/^\d+\.\s/.test(trimmed)) {
+        const num = trimmed.match(/^(\d+)\.\s/)[1];
+        const itemText = trimmed.replace(/^\d+\.\s/, '');
+        elements.push(
+          <div key={`numli-${i}`} className="flex items-start gap-3 my-2.5">
+            <span className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 font-bold text-xs flex items-center justify-center border border-amber-500/30 flex-shrink-0 mt-0.5">
+              {num}
+            </span>
+            <p className="text-foreground text-sm sm:text-base leading-relaxed">{parseInline(itemText)}</p>
+          </div>
+        );
+        continue;
+      }
+
+      // Empty Lines
+      if (!trimmed) {
+        elements.push(<div key={`blank-${i}`} className="h-3" />);
+        continue;
+      }
+
+      // Regular Paragraphs
+      elements.push(
+        <p key={`p-${i}`} className="mb-3 text-foreground text-sm sm:text-base leading-relaxed">
+          {parseInline(line)}
         </p>
       );
-    });
+    }
+
+    return elements;
   };
 
   // Active Recall Phase Screen
