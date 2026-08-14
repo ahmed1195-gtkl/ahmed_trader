@@ -1,0 +1,27 @@
+# ==============================================================================
+# INSTRUCTIONAL DESIGN BLUEPRINT: MODULE 13
+# Intermarket Analysis & Market Relationships (التحليل بين الأسواق والعلاقات الإحصائية)
+# Professional Digital Academy Course Architecture & LXD Specifications
+# Target File: Technical Analysis Mastery/Module_13_Instructional_Blueprint.txt
+# ==============================================================================
+
+================================================================================
+SECTION 1: MODULE BLUEPRINT
+================================================================================
+
+1. Module Title: Module 13: Intermarket Analysis & Market Relationships (التحليل بين الأسواق والعلاقات الإحصائية)
+2. Module Description: Master the intermarket analysis framework based on John Murphy principles, bonds/equities, commodities, currencies, DXY, and sector rotation.
+3. Prerequisites: Completion of Modules 1-12. Total Duration: 10.0 Hours.
+
+================================================================================
+SECTION 2: LESSON BLUEPRINTS
+================================================================================
+- Lesson 13.1: Intermarket Analysis Foundations (John Murphy Framework)
+- Lesson 13.2: Bond Yields, Inflation, and Equity Market Dynamics
+- Lesson 13.3: Commodity Currency Relationships & Dollar Index (DXY) Correlations
+- Lesson 13.4: Sector Rotation Cycles & Market Breadth Metrics (Advance-Decline Line)
+- Lesson 13.5: Relative Strength Analysis (Stock vs. Benchmark Ratio Charts)
+
+================================================================================
+END OF BLUEPRINT — READY FOR LESSON PRODUCTION
+================================================================================

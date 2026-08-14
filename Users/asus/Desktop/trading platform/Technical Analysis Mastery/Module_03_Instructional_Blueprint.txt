@@ -1,0 +1,137 @@
+# ==============================================================================
+# INSTRUCTIONAL DESIGN BLUEPRINT: MODULE 3
+# Price Structure (هيكل السعر)
+# Professional Digital Academy Course Architecture & LXD Specifications
+# Target File: Technical Analysis Mastery/Module_03_Instructional_Blueprint.txt
+# ==============================================================================
+
+================================================================================
+SECTION 1: MODULE BLUEPRINT
+================================================================================
+
+1. Module Title:
+   Module 3: Price Structure (هيكل السعر)
+
+2. Module Description:
+   This module establishes structural mastery in reading price action, defining swing points (fractal highs/lows), mapping bullish peak-and-valley progressions (Higher Highs & Higher Lows), tracking bearish degradation (Lower Highs & Lower Lows), validating structural breaks (classical Break of Structure), and identifying range-bound or structureless price environments.
+
+3. Module Goal:
+   To equip students with a systematic, objective methodology for mapping market structure across any chart, eliminating subjectivity in identifying swing points, trend continuations, and structural trend transitions.
+
+4. Learning Outcomes:
+   Upon completing this module, students will be able to:
+   - Systematically define and map 3-bar and 5-bar fractal swing highs and swing lows.
+   - Construct Bullish Market Structure progressions (HH + HL) with 100% visual precision.
+   - Construct Bearish Market Structure progressions (LH + LL) with 100% visual precision.
+   - Validate classical structural breaks upon price closing beyond key swing pivots.
+   - Identify ranging and structureless price environments and avoid low-probability breakout traps.
+
+5. Skills Students Will Acquire:
+   - Objective Swing Point Identification (3-Bar & 5-Bar Rule)
+   - Bullish & Bearish Market Structure Mapping
+   - Structural Break Confirmation (Classical Shift in Market Structure)
+   - Consolidation/Range Boundary Definition
+   - Path-Tool Chart Mapping on TradingView
+
+6. Prerequisites:
+   - Completion of Module 1 (Introduction to Financial Markets) and Module 2 (Dow Theory).
+
+7. Estimated Completion Time:
+   - Total Duration: 10.0 Hours
+   - Video Content: 2.5 Hours (150 minutes)
+   - Reading & Multimedia: 2.5 Hours
+   - Interactive Practice & TradingView Drills: 3.5 Hours
+   - Quizzes & Assessments: 1.5 Hours
+
+8. Difficulty Level:
+   - Intermediate (Level 200 / University Core Course Level)
+
+9. Recommended Learning Order:
+   - Step 1: Lesson 3.1 — Anatomy of Swing Points (Fractal Highs & Lows)
+   - Step 2: Lesson 3.2 — Bullish Market Structure: Peaks & Valleys Progression
+   - Step 3: Lesson 3.3 — Bearish Market Structure: Degradation & Lower Pivots
+   - Step 4: Lesson 3.4 — Market Structure Transitions & Structural Breaks
+   - Step 5: Lesson 3.5 — Ranging & Structureless Price Environments
+   - Step 6: Module 3 Practical Project & Comprehensive Examination
+
+================================================================================
+SECTION 2: LESSON BLUEPRINTS
+================================================================================
+
+--------------------------------------------------------------------------------
+LESSON 3.1: ANATOMY OF SWING POINTS (FRACTAL HIGHS & LOWS)
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 3.1
+- Lesson Title: Anatomy of Swing Points (Fractal Highs & Lows)
+- Lesson Goal: Systematically identify objective swing highs and swing lows using strict N-bar fractal rules.
+- Learning Objectives:
+  1. Define a 3-bar and 5-bar Swing High (High candle flanked by lower highs).
+  2. Define a 3-bar and 5-bar Swing Low (Low candle flanked by higher lows).
+  3. Filter out minor intra-bar noise from true structural swing points.
+- Prerequisite Knowledge: Modules 1 & 2.
+- Estimated Study Time: 110 Minutes (Video: 30m, Reading: 40m, Practice: 40m)
+
+--------------------------------------------------------------------------------
+LESSON 3.2: BULLISH MARKET STRUCTURE: PEAKS & VALLEYS PROGRESSION
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 3.2
+- Lesson Title: Bullish Market Structure: Peaks & Valleys Progression
+- Lesson Goal: Map bullish price expansion characterized by Higher Highs (HH) and Higher Lows (HL).
+- Learning Objectives:
+  1. Construct a valid Bullish Market Structure sequence.
+  2. Differentiate a confirmed Higher Low from an unconfirmed pullback.
+  3. Validate structural continuation upon breaking the prior swing high.
+- Prerequisite Knowledge: Lesson 3.1.
+- Estimated Study Time: 120 Minutes (Video: 30m, Reading: 45m, Practice: 45m)
+
+--------------------------------------------------------------------------------
+LESSON 3.3: BEARISH MARKET STRUCTURE: DEGRADATION & LOWER PIVOTS
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 3.3
+- Lesson Title: Bearish Market Structure: Degradation & Lower Pivots
+- Lesson Goal: Map bearish price contraction characterized by Lower Highs (LH) and Lower Lows (LL).
+- Learning Objectives:
+  1. Construct a valid Bearish Market Structure sequence.
+  2. Identify confirmed Lower Highs vs. minor retracements.
+  3. Validate bearish structural continuation upon breaking prior swing lows.
+- Prerequisite Knowledge: Lesson 3.2.
+- Estimated Study Time: 120 Minutes (Video: 30m, Reading: 45m, Practice: 45m)
+
+--------------------------------------------------------------------------------
+LESSON 3.4: MARKET STRUCTURE TRANSITIONS & STRUCTURAL BREAKS
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 3.4
+- Lesson Title: Market Structure Transitions & Structural Breaks
+- Lesson Goal: Validate classical structural trend breaks (Shift in Market Structure) when price closes beyond key swing pivots.
+- Learning Objectives:
+  1. Define a valid classical Break of Structure (BOS) vs. a wick liquidity sweep.
+  2. Map structural trend transitions from Bullish to Bearish and vice-versa.
+  3. Identify structural invalidation points.
+- Prerequisite Knowledge: Lessons 3.1 - 3.3.
+- Estimated Study Time: 130 Minutes (Video: 30m, Reading: 50m, Practice: 50m)
+
+--------------------------------------------------------------------------------
+LESSON 3.5: RANGING & STRUCTURELESS PRICE ENVIRONMENTS
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 3.5
+- Lesson Title: Ranging & Structureless Price Environments
+- Lesson Goal: Detect sideways consolidations, equal highs/lows, and structureless price noise.
+- Learning Objectives:
+  1. Identify Horizontal Ranges and Consolidation Zones.
+  2. Recognize structureless price degradation (choppy markets).
+  3. Avoid trading in low-probability non-trending environments.
+- Prerequisite Knowledge: Lessons 3.1 - 3.4.
+- Estimated Study Time: 120 Minutes (Video: 30m, Reading: 45m, Practice: 45m)
+
+================================================================================
+SECTION 3: MODULE ASSESSMENT & CERTIFICATION
+================================================================================
+
+1. Module 3 Quiz: 20 Questions (25% Weight).
+2. Module 3 Practical Project: "Market Structure Mapping Portfolio" (35% Weight).
+3. Module 3 Final Exam: 30 Questions (40% Weight).
+4. Completion Badge: "Certified Market Structure Specialist (Level 200)".
+
+================================================================================
+END OF BLUEPRINT — READY FOR LESSON CONTENT PRODUCTION
+================================================================================

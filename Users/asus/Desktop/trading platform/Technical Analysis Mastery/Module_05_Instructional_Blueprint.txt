@@ -1,0 +1,137 @@
+# ==============================================================================
+# INSTRUCTIONAL DESIGN BLUEPRINT: MODULE 5
+# Trend Lines & Channels (خطوط الاتجاه والقنوات السعرية)
+# Professional Digital Academy Course Architecture & LXD Specifications
+# Target File: Technical Analysis Mastery/Module_05_Instructional_Blueprint.txt
+# ==============================================================================
+
+================================================================================
+SECTION 1: MODULE BLUEPRINT
+================================================================================
+
+1. Module Title:
+   Module 5: Trend Lines & Channels (خطوط الاتجاه والقنوات السعرية)
+
+2. Module Description:
+   This module provides a rigorous, CMT-aligned breakdown of linear trendlines, parallel trend channels, trend angles/slopes, Schabacker & Edwards/Magee sustainability rules, the Fan Principle (3-line trend decay), and trendline breakout validation using time and price filters.
+
+3. Module Goal:
+   To equip students with mathematically sound, objective drawing rules for constructing valid trendlines, equidistant parallel channels, and applying classical breakout filter rules without slicing price candles or drawing subjective lines.
+
+4. Learning Outcomes:
+   Upon completing this module, students will be able to:
+   - Construct valid Uptrend and Downtrend lines using CMT 3-touch validation rules.
+   - Evaluate trendline slopes and sustainability (45-degree angle benchmarks vs. parabolic curves).
+   - Construct Parallel Channels and utilize median line (mid-line) reaction dynamics.
+   - Apply Schabacker's Fan Principle (3-Line Rule) to spot progressive trend decay.
+   - Validate trendline breaks using price filters (3% rule) and time filters (2-day rule).
+
+5. Skills Students Will Acquire:
+   - Geometric Trendline Drawing (2-Touch Tentative, 3-Touch Confirmed)
+   - Parallel Trend Channel Construction
+   - Trend Sustainability & Slope Analysis
+   - Fan Principle (3-Line) Trend Exhaustion Spotting
+   - Time & Price Breakout Filter Application
+
+6. Prerequisites:
+   - Completion of Modules 1 through 4.
+
+7. Estimated Completion Time:
+   - Total Duration: 10.0 Hours
+   - Video Content: 2.5 Hours (150 minutes)
+   - Reading & Multimedia: 2.5 Hours
+   - Interactive Practice & TradingView Drills: 3.5 Hours
+   - Quizzes & Assessments: 1.5 Hours
+
+8. Difficulty Level:
+   - Intermediate (Level 200 / University Core Course Level)
+
+9. Recommended Learning Order:
+   - Step 1: Lesson 5.1 — Geometry & Rules of Valid Trend Line Construction
+   - Step 2: Lesson 5.2 — Trend Angles, Slopes, and Sustainability
+   - Step 3: Lesson 5.3 — Parallel Channels: Equidistant Construction & Mid-Line Dynamics
+   - Step 4: Lesson 5.4 — The Fan Principle (3-Line Trend Decay)
+   - Step 5: Lesson 5.5 — Trendline Breaks, Filter Rules, and Re-tests
+   - Step 6: Module 5 Practical Project & Comprehensive Examination
+
+================================================================================
+SECTION 2: LESSON BLUEPRINTS
+================================================================================
+
+--------------------------------------------------------------------------------
+LESSON 5.1: GEOMETRY & RULES OF VALID TREND LINE CONSTRUCTION
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 5.1
+- Lesson Title: Geometry & Rules of Valid Trend Line Construction
+- Lesson Goal: Master the mathematical and geometric rules for drawing valid trendlines without slicing candle bodies.
+- Learning Objectives:
+  1. Define a Tentative Trendline (2 touches) vs. Confirmed Trendline (3 touches).
+  2. Draw Uptrend lines connecting Higher Lows and Downtrend lines connecting Lower Highs.
+  3. Filter out invalid trendlines that slice through price candles.
+- Prerequisite Knowledge: Modules 1-4.
+- Estimated Study Time: 110 Minutes (Video: 30m, Reading: 40m, Practice: 40m)
+
+--------------------------------------------------------------------------------
+LESSON 5.2: TREND ANGLES, SLOPES, AND SUSTAINABILITY
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 5.2
+- Lesson Title: Trend Angles, Slopes, and Sustainability
+- Lesson Goal: Analyze trendline slopes and assess trend sustainability using Schabacker & Edwards/Magee angle rules.
+- Learning Objectives:
+  1. Identify optimal 45-degree sustainable trend slopes.
+  2. Spot unsustainable parabolic curves (> 60 degrees) leading to blow-offs.
+  3. Spot weak trends (< 20 degrees) prone to consolidation degradation.
+- Prerequisite Knowledge: Lesson 5.1.
+- Estimated Study Time: 110 Minutes (Video: 30m, Reading: 40m, Practice: 40m)
+
+--------------------------------------------------------------------------------
+LESSON 5.3: PARALLEL CHANNELS: EQUIDISTANT CONSTRUCTION & MID-LINE DYNAMICS
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 5.3
+- Lesson Title: Parallel Channels: Equidistant Construction & Mid-Line Dynamics
+- Lesson Goal: Construct parallel trend channels and utilize the median line (mid-line) for action-reaction analysis.
+- Learning Objectives:
+  1. Construct Equidistant Bullish, Bearish, and Sideways Parallel Channels.
+  2. Analyze mid-line (50% median) support/resistance reactions.
+  3. Project measured move targets upon channel breakouts.
+- Prerequisite Knowledge: Lesson 5.2.
+- Estimated Study Time: 120 Minutes (Video: 30m, Reading: 45m, Practice: 45m)
+
+--------------------------------------------------------------------------------
+LESSON 5.4: THE FAN PRINCIPLE (3-LINE TREND DECAY)
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 5.4
+- Lesson Title: The Fan Principle (3-Line Trend Decay)
+- Lesson Goal: Apply Schabacker's Fan Principle (3 progressive trendlines) to identify complete structural trend reversals.
+- Learning Objectives:
+  1. Construct 1st, 2nd, and 3rd Fan Lines as trend slope flattens.
+  2. Identify the break of the 3rd Fan Line as a definitive trend reversal signal.
+  3. Integrate Volume confirmation across Fan Line breakdowns.
+- Prerequisite Knowledge: Lessons 5.1 - 5.3.
+- Estimated Study Time: 120 Minutes (Video: 30m, Reading: 45m, Practice: 45m)
+
+--------------------------------------------------------------------------------
+LESSON 5.5: TRENDLINE BREAKS, FILTER RULES, AND RE-TESTS
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 5.5
+- Lesson Title: Trendline Breaks, Filter Rules (Time/Price Filters), and Re-tests
+- Lesson Goal: Validate trendline breakouts using the 3% price filter and 2-bar time filter.
+- Learning Objectives:
+  1. Apply the 3% Price Breakout Filter (price closes 3% beyond trendline).
+  2. Apply the 2-Bar Time Breakout Filter (price remains beyond trendline for 2 full bars).
+  3. Trade trendline retests with high probability.
+- Prerequisite Knowledge: Lessons 5.1 - 5.4.
+- Estimated Study Time: 130 Minutes (Video: 30m, Reading: 50m, Practice: 50m)
+
+================================================================================
+SECTION 3: MODULE ASSESSMENT & CERTIFICATION
+================================================================================
+
+1. Module 5 Quiz: 20 Questions (25% Weight).
+2. Module 5 Practical Project: "Trendline & Parallel Channel Geometry Portfolio" (35% Weight).
+3. Module 5 Final Exam: 30 Questions (40% Weight).
+4. Completion Badge: "Certified Trendline & Channel Analyst (Level 200)".
+
+================================================================================
+END OF BLUEPRINT — READY FOR LESSON CONTENT PRODUCTION
+================================================================================

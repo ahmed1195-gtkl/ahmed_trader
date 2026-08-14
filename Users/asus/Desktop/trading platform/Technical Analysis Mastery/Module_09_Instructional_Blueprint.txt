@@ -1,0 +1,34 @@
+# ==============================================================================
+# INSTRUCTIONAL DESIGN BLUEPRINT: MODULE 9
+# Volume Analysis & Volume Price Analysis (VPA) (تحليل حجم التداول وفكرة VPA)
+# Professional Digital Academy Course Architecture & LXD Specifications
+# Target File: Technical Analysis Mastery/Module_09_Instructional_Blueprint.txt
+# ==============================================================================
+
+================================================================================
+SECTION 1: MODULE BLUEPRINT
+================================================================================
+
+1. Module Title:
+   Module 9: Volume Analysis & Volume Price Analysis (VPA) (تحليل حجم التداول وفكرة VPA)
+
+2. Module Description:
+   This module provides a rigorous, CMT-aligned exploration of Volume and Volume Price Analysis (VPA) based on Wyckoff, Schabacker, and Anna Coulling principles. Students will master Volume Validation vs. Divergence, On-Balance Volume (OBV), Volume Profile Foundations (POC, VAH, VAL), and Institutional Stopping Volume.
+
+3. Module Goal:
+   To equip students with volume confirmation skills, enabling them to validate structural moves and detect institutional accumulation/distribution.
+
+4. Prerequisites: Completion of Modules 1-8. Total Duration: 12.0 Hours.
+
+================================================================================
+SECTION 2: LESSON BLUEPRINTS
+================================================================================
+- Lesson 9.1: The Mechanics of Volume in Classical Analysis (Wyckoff & Schabacker Principles)
+- Lesson 9.2: Volume Price Analysis (VPA): Volume Validation vs. Volume Divergence
+- Lesson 9.3: On-Balance Volume (OBV) & Volume Accumulation Metrics
+- Lesson 9.4: Volume Profile Foundations: POC, Value Area High/Low (VAH/VAL)
+- Lesson 9.5: Institutional Absorption & Stopping Volume Spotting
+
+================================================================================
+END OF BLUEPRINT — READY FOR LESSON PRODUCTION
+================================================================================

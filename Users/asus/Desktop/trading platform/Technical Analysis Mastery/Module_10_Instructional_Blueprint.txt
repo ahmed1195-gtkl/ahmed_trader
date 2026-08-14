@@ -1,0 +1,34 @@
+# ==============================================================================
+# INSTRUCTIONAL DESIGN BLUEPRINT: MODULE 10
+# Advanced Geometries & Extended Patterns (امتدادات النماذج الكلاسيكية والهندسة المتقدمة)
+# Professional Digital Academy Course Architecture & LXD Specifications
+# Target File: Technical Analysis Mastery/Module_10_Instructional_Blueprint.txt
+# ==============================================================================
+
+================================================================================
+SECTION 1: MODULE BLUEPRINT
+================================================================================
+
+1. Module Title:
+   Module 10: Advanced Geometries & Extended Patterns (امتدادات النماذج الكلاسيكية والهندسة المتقدمة)
+
+2. Module Description:
+   This module provides a university-grade breakdown of complex classical chart patterns and advanced trend geometry based on Edwards & Magee, Schabacker, and Alan Andrews principles. Students will master Broadening Formations (Megaphones), Gaps & Island Reversals, Diamond Tops/Bottoms, Cup & Handle, and Andrews' Pitchfork geometry.
+
+3. Module Goal:
+   To equip students with advanced pattern recognition for complex market structures, volatility expansion traps, and median line geometry.
+
+4. Prerequisites: Completion of Modules 1-9. Total Duration: 12.0 Hours.
+
+================================================================================
+SECTION 2: LESSON BLUEPRINTS
+================================================================================
+- Lesson 10.1: Broadening Formations & Megaphones (Volatile Exhaustion)
+- Lesson 10.2: Island Reversals & Gap Anatomy (Common, Breakaway, Runaway, Exhaustion Gaps)
+- Lesson 10.3: Diamond Tops & Bottoms (Complex Structural Shifts)
+- Lesson 10.4: Cup & Handle (Standard & Inverted) Mechanics & Measured Move Targets
+- Lesson 10.5: Pitchfork Analysis & Andrews Median Line Geometry
+
+================================================================================
+END OF BLUEPRINT — READY FOR LESSON PRODUCTION
+================================================================================

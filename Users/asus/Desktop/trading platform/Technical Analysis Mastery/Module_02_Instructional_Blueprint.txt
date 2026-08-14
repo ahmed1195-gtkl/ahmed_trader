@@ -1,0 +1,165 @@
+# ==============================================================================
+# INSTRUCTIONAL DESIGN BLUEPRINT: MODULE 2
+# Dow Theory (نظرية داو)
+# Professional Digital Academy Course Architecture & LXD Specifications
+# Target File: Technical Analysis Mastery/Module_02_Instructional_Blueprint.txt
+# ==============================================================================
+
+================================================================================
+SECTION 1: MODULE BLUEPRINT
+================================================================================
+
+1. Module Title:
+   Module 2: Dow Theory (نظرية داو)
+
+2. Module Description:
+   This module provides an academically rigorous, comprehensive breakdown of Dow Theory—the historical and conceptual bedrock of classical technical analysis formulated by Charles H. Dow and expanded by William Peter Hamilton, Robert Rhea, and E. George Schaefer. Students will master the 6 foundational tenets of Dow Theory, the classification of market trends (Primary, Secondary, Minor), the 3 market cycle phases (Accumulation, Public Participation, Distribution), cross-index confirmation principles, volume confirmation, and failure vs. non-failure swing trend reversal mechanics.
+
+3. Module Goal:
+   To equip students with an objective, institutional-grade understanding of Dow Theory, enabling them to identify macro trend phases, confirm market direction across correlated benchmarks, and spot structural trend reversals using Charles Dow's timeless principles.
+
+4. Learning Outcomes:
+   Upon completing this module, students will be able to:
+   - Articulate the history, evolution, and 6 core tenets of Dow Theory with university-level accuracy.
+   - Differentiate Primary, Secondary, and Minor market trends across macro price charts.
+   - Identify the 3 phases of a primary market cycle (Accumulation, Public Participation, Distribution/Capitulation).
+   - Evaluate cross-index confirmation (e.g., Dow Industrials vs. Transportation, S&P 500 vs. Nasdaq 100).
+   - Distinguish between normal secondary corrections and valid Dow trend reversals (Failure Swings vs. Non-Failure Swings).
+
+5. Skills Students Will Acquire:
+   - Primary Trend Direction Identification
+   - Macro Market Cycle Phase Mapping
+   - Inter-Market Index Confirmation Analysis
+   - Failure Swing Reversal Spotting
+   - Volume Confirmation Verification
+
+6. Prerequisites:
+   - Completion of Module 1 (Introduction to Financial Markets).
+
+7. Estimated Completion Time:
+   - Total Duration: 8.0 Hours
+   - Video Content: 2.0 Hours (120 minutes)
+   - Reading & Multimedia: 2.0 Hours
+   - Interactive Practice & TradingView Drills: 2.5 Hours
+   - Quizzes & Assessments: 1.5 Hours
+
+8. Difficulty Level:
+   - Intermediate (Level 200 / University Core Course Level)
+
+9. Recommended Learning Order:
+   - Step 1: Lesson 2.1 — The Historical & Conceptual Basis of Dow Theory
+   - Step 2: Lesson 2.2 — The 6 Core Tenets of Dow Theory
+   - Step 3: Lesson 2.3 — The Three Phases of Primary Movements (Accumulation, Participation, Distribution)
+   - Step 4: Lesson 2.4 — Index Confirmation & Non-Confirmation Dynamics
+   - Step 5: Lesson 2.5 — Trend Reversal Identification according to Dow Principles
+   - Step 6: Module 2 Practical Project & Comprehensive Examination
+
+================================================================================
+SECTION 2: LESSON BLUEPRINTS
+================================================================================
+
+--------------------------------------------------------------------------------
+LESSON 2.1: THE HISTORICAL & CONCEPTUAL BASIS OF DOW THEORY
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 2.1
+- Lesson Title: The Historical & Conceptual Basis of Dow Theory
+- Lesson Goal: Understand the origin of technical analysis through Charles Dow's editorials, the Dow Jones Averages, and the philosophy that "the averages discount everything."
+- Learning Objectives:
+  1. Detail the historical contribution of Charles H. Dow, William P. Hamilton, and Robert Rhea.
+  2. Explain the foundational axiom: "The Averages Discount Everything."
+  3. Differentiate technical price analysis from fundamental economic forecasting.
+- Prerequisite Knowledge: Module 1.
+- Estimated Study Time: 80 Minutes (Video: 20m, Reading: 30m, Practice: 30m)
+- Lesson Difficulty: Intermediate
+- Key Concepts: Charles Dow, Wall Street Journal Editorials, The Averages Discount Everything, Discounting Mechanism, Market Memory.
+
+--------------------------------------------------------------------------------
+LESSON 2.2: THE 6 CORE TENETS OF DOW THEORY
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 2.2
+- Lesson Title: The 6 Core Tenets of Dow Theory
+- Lesson Goal: Rigorously analyze and apply the 6 fundamental rules formulated by Charles Dow for market behavior.
+- Learning Objectives:
+  1. List and explain each of the 6 core tenets of Dow Theory.
+  2. Differentiate between Primary (1-3+ years), Secondary (3 weeks-3 months), and Minor (< 3 weeks) trends.
+  3. Apply the rule: "A trend remains in effect until a definitive reversal signal occurs."
+- Prerequisite Knowledge: Lesson 2.1.
+- Estimated Study Time: 90 Minutes (Video: 25m, Reading: 35m, Practice: 30m)
+- Lesson Difficulty: Intermediate
+- Key Concepts: The 3 Market Trends (Primary, Secondary, Minor), Tides/Waves/Ripples Metaphor, Trend Persistence Principle.
+
+--------------------------------------------------------------------------------
+LESSON 2.3: THE THREE PHASES OF PRIMARY MOVEMENTS
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 2.3
+- Lesson Title: The Three Phases of Primary Movements (Accumulation, Participation, Distribution)
+- Lesson Goal: Identify macro accumulation, public participation, and distribution phases in bull and bear markets.
+- Learning Objectives:
+  1. Map the 3 Bull Market Phases: Accumulation, Public Participation, Speculative Blow-Off.
+  2. Map the 3 Bear Market Phases: Distribution, Panic/Capitulation, Despair Dissolution.
+  3. Connect market psychology and institutional behavior to price chart phases.
+- Prerequisite Knowledge: Lesson 2.2.
+- Estimated Study Time: 100 Minutes (Video: 25m, Reading: 45m, Practice: 30m)
+- Lesson Difficulty: Intermediate
+- Key Concepts: Accumulation Phase, Public Participation Phase, Distribution Phase, Panic Capitulation, Smart Money vs. Public Psychology.
+
+--------------------------------------------------------------------------------
+LESSON 2.4: INDEX CONFIRMATION & NON-CONFIRMATION DYNAMICS
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 2.4
+- Lesson Title: Index Confirmation & Non-Confirmation Dynamics
+- Lesson Goal: Master the principle of cross-index confirmation using historical and modern market proxies.
+- Learning Objectives:
+  1. Apply the Classical Rule: Industrial and Transportation averages must confirm each other.
+  2. Evaluate modern index confirmation: S&P 500 vs. Nasdaq 100, Dow Jones vs. Russell 2000.
+  3. Spot Non-Confirmation Divergences as early warning signals of trend exhaustion.
+- Prerequisite Knowledge: Lesson 2.3.
+- Estimated Study Time: 90 Minutes (Video: 25m, Reading: 35m, Practice: 30m)
+- Lesson Difficulty: Intermediate-Advanced
+- Key Concepts: Index Confirmation, Non-Confirmation Divergence, Cross-Market Analysis, Dow Industrials vs. Transport, S&P 500 vs. Nasdaq 100.
+
+--------------------------------------------------------------------------------
+LESSON 2.5: TREND REVERSAL IDENTIFICATION ACCORDING TO DOW PRINCIPLES
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 2.5
+- Lesson Title: Trend Reversal Identification according to Dow Principles
+- Lesson Goal: Identify valid Dow Theory trend reversals using Failure Swings and Non-Failure Swings.
+- Learning Objectives:
+  1. Construct and identify Failure Swings (Reversal occurs without making a new high/low).
+  2. Construct and identify Non-Failure Swings (Reversal occurs after making a new high/low).
+  3. Integrate volume validation into Dow trend reversal signals.
+- Prerequisite Knowledge: Lessons 2.1 - 2.4.
+- Estimated Study Time: 120 Minutes (Video: 25m, Reading: 45m, Practice: 50m)
+- Lesson Difficulty: Advanced
+- Key Concepts: Failure Swing Top/Bottom, Non-Failure Swing Top/Bottom, Reversal Confirmation Level, Volume Confirmation.
+
+================================================================================
+SECTION 3: VISUAL DESIGN SPECIFICATIONS
+================================================================================
+
+1. Illustrations & Diagrams:
+   - The Tides, Waves, and Ripples Metaphor Model (Primary, Secondary, Minor Trends).
+   - The 3-Phase Bull Market Lifecycle Diagram (Accumulation -> Public Participation -> Speculative Excess).
+   - The 3-Phase Bear Market Lifecycle Diagram (Distribution -> Panic -> Despair).
+   - Inter-Market Index Confirmation vs. Non-Confirmation Matrix.
+   - Failure Swing Reversal Schematic (Top & Bottom Reversals).
+   - Non-Failure Swing Reversal Schematic (Top & Bottom Reversals).
+
+2. TradingView Charts Specified:
+   - Dow Jones Industrial vs. Transportation Averages Overlay (Macro Historical Chart).
+   - S&P 500 (SPY) 2020-2022 Cycle: Accumulation, Participation, and Distribution annotation.
+   - S&P 500 vs. Nasdaq 100 Inter-market Divergence Chart (2000 & 2007 Tops).
+   - Gold (XAUUSD) Weekly Chart: Failure Swing Bottom Identification.
+
+================================================================================
+SECTION 4: MODULE ASSESSMENT & CERTIFICATION
+================================================================================
+
+1. Module 2 Quiz: 20 Questions (25% Weight).
+2. Module 2 Practical Project: "Macro Trend & Dow Cycle Audit Dossier" (35% Weight).
+3. Module 2 Final Exam: 30 Questions (40% Weight).
+4. Completion Badge: "Certified Dow Theory Technical Analyst (Level 200)".
+
+================================================================================
+END OF BLUEPRINT — READY FOR LESSON CONTENT PRODUCTION
+================================================================================
