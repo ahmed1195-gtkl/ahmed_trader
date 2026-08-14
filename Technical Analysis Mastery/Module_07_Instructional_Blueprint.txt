@@ -1,0 +1,167 @@
+# ==============================================================================
+# INSTRUCTIONAL DESIGN BLUEPRINT: MODULE 7
+# Classical Chart Patterns (النماذج السعرية الكلاسيكية)
+# Professional Digital Academy Course Architecture & LXD Specifications
+# Target File: Technical Analysis Mastery/Module_07_Instructional_Blueprint.txt
+# ==============================================================================
+
+================================================================================
+SECTION 1: MODULE BLUEPRINT
+================================================================================
+
+1. Module Title:
+   Module 7: Classical Chart Patterns (النماذج السعرية الكلاسيكية)
+
+2. Module Description:
+   This module provides an academically rigorous, CMT-aligned breakdown of Classical Price Patterns based on the definitive standards of Edwards & Magee, Schabacker, and Thomas Bulkowski. Students will master major Reversal Formations (Head & Shoulders, Double/Triple Tops & Bottoms, Rounding Bottoms, Wedges) and major Continuation/Bilateral Formations (Triangles, Flags, Pennants, Rectangles), complete with precise neckline dynamics, measured move target calculations, breakout confirmation filters, and volume validation.
+
+3. Module Goal:
+   To equip students with high-precision pattern recognition, target measurement, and breakout validation skills across all major classical chart patterns.
+
+4. Learning Outcomes:
+   Upon completing this module, students will be able to:
+   - Classify chart patterns into Reversal, Continuation, and Bilateral categories with statistical expectancy awareness.
+   - Construct Head & Shoulders (Standard & Inverse) with precise neckline angles and measured move projections.
+   - Construct Double & Triple Tops/Bottoms, calculating peak separation distance and neckline breakouts.
+   - Analyze Symmetrical, Ascending, and Descending Triangles using apex timing rules (2/3 to 3/4 distance rule).
+   - Calculate flagpole targets for Flags, Pennants, and Rectangles.
+   - Analyze Rising/Falling Wedges and Rounding Bottom bases.
+   - Validate pattern breakouts using volume surges, 3% price filters, and pullback (throwback) mechanics.
+
+5. Skills Students Will Acquire:
+   - High-Speed Classical Pattern Identification
+   - Measured Move Target Calculation (Vertical Distance Projection)
+   - Neckline Slope Construction
+   - Apex Breakout Timing Projection
+   - Volume-Confirmed Pattern Breakout Validation
+
+6. Prerequisites:
+   - Completion of Modules 1 through 6.
+
+7. Estimated Completion Time:
+   - Total Duration: 18.0 Hours
+   - Video Content: 4.5 Hours (270 minutes)
+   - Reading & Multimedia: 4.5 Hours
+   - Interactive Practice & TradingView Drills: 6.5 Hours
+   - Quizzes & Assessments: 2.5 Hours
+
+8. Difficulty Level:
+   - Advanced (Level 300 / University Upper-Level Course)
+
+9. Recommended Learning Order:
+   - Step 1: Lesson 7.1 — Taxonomy of Classical Patterns & Theoretical Foundation
+   - Step 2: Lesson 7.2 — Head & Shoulders (Standard & Inverse): Anatomy, Necklines, & Targets
+   - Step 3: Lesson 7.3 — Double & Triple Tops/Bottoms: Peak Separation & Breakouts
+   - Step 4: Lesson 7.4 — Triangles (Symmetrical, Ascending, Descending) & Apex Dynamics
+   - Step 5: Lesson 7.5 — Flags, Pennants, & Rectangles: Fast Continuation Formations
+   - Step 6: Lesson 7.6 — Wedges (Rising & Falling) & Rounding Patterns
+   - Step 7: Lesson 7.7 — Breakout Validation, Pullback Mechanics, and Volume Integration
+   - Step 8: Module 7 Practical Project & Comprehensive Examination
+
+================================================================================
+SECTION 2: LESSON BLUEPRINTS
+================================================================================
+
+--------------------------------------------------------------------------------
+LESSON 7.1: TAXONOMY OF CLASSICAL PATTERNS & THEORETICAL FOUNDATION
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 7.1
+- Lesson Title: Taxonomy of Classical Patterns & Theoretical Foundation (Edwards & Magee / Bulkowski)
+- Lesson Goal: Classify patterns into Reversal, Continuation, and Bilateral categories with statistical expectancy.
+- Learning Objectives:
+  1. Define the 3 core pattern categories (Reversal, Continuation, Bilateral).
+  2. Explain the geometry of consolidation (supply/demand consolidation).
+  3. Introduce Thomas Bulkowski's statistical performance metrics for chart patterns.
+- Prerequisite Knowledge: Modules 1-6.
+- Estimated Study Time: 120 Minutes (Video: 30m, Reading: 45m, Practice: 45m)
+
+--------------------------------------------------------------------------------
+LESSON 7.2: HEAD & SHOULDERS (STANDARD & INVERSE)
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 7.2
+- Lesson Title: Head & Shoulders (Standard & Inverse): Anatomy, Neckline Slopes, & Measured Moves
+- Lesson Goal: Master Head & Shoulders anatomy, neckline slopes, and vertical target projections.
+- Learning Objectives:
+  1. Construct Head & Shoulders Top and Inverse Head & Shoulders Bottom.
+  2. Analyze neckline slope dynamics (Horizontal, Ascending, Descending Necklines).
+  3. Calculate measured move targets (Head-to-Neckline vertical height).
+- Prerequisite Knowledge: Lesson 7.1.
+- Estimated Study Time: 160 Minutes (Video: 40m, Reading: 60m, Practice: 60m)
+
+--------------------------------------------------------------------------------
+LESSON 7.3: DOUBLE & TRIPLE TOPS/BOTTOMS
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 7.3
+- Lesson Title: Double & Triple Tops/Bottoms: Peak Separations, Neckline Breakouts, & False Break Avoidance
+- Lesson Goal: Master Double & Triple Tops/Bottoms, peak time separation, and neckline confirmation.
+- Learning Objectives:
+  1. Construct Double Top (M-formation) and Double Bottom (W-formation).
+  2. Construct Triple Top and Triple Bottom patterns.
+  3. Calculate measured targets and enforce peak separation rules (minimum 3 weeks for major tops).
+- Prerequisite Knowledge: Lesson 7.2.
+- Estimated Study Time: 150 Minutes (Video: 40m, Reading: 55m, Practice: 55m)
+
+--------------------------------------------------------------------------------
+LESSON 7.4: TRIANGLES (SYMMETRICAL, ASCENDING, DESCENDING)
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 7.4
+- Lesson Title: Triangles (Symmetrical, Ascending, Descending): Apex Dynamics & Time-to-Breakout Rules
+- Lesson Goal: Master Triangles, apex distance rules (2/3 to 3/4), and target projections.
+- Learning Objectives:
+  1. Construct Symmetrical, Ascending, and Descending Triangles.
+  2. Apply the 2/3 to 3/4 Apex Distance Rule for timing breakouts.
+  3. Calculate triangle base vertical projections.
+- Prerequisite Knowledge: Lesson 7.3.
+- Estimated Study Time: 160 Minutes (Video: 40m, Reading: 60m, Practice: 60m)
+
+--------------------------------------------------------------------------------
+LESSON 7.5: FLAGS, PENNANTS, & RECTANGLES
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 7.5
+- Lesson Title: Flags, Pennants, & Rectangles: Fast Continuation Formations & Flagpole Projections
+- Lesson Goal: Master Flags, Pennants, and Rectangles as rapid trend continuation patterns.
+- Learning Objectives:
+  1. Construct Bullish & Bearish Flags and Pennants.
+  2. Construct Horizontal Trading Rectangles.
+  3. Calculate Flagpole Projection Targets (Measuring from impulse start to flag peak).
+- Prerequisite Knowledge: Lessons 7.1 - 7.4.
+- Estimated Study Time: 140 Minutes (Video: 35m, Reading: 50m, Practice: 55m)
+
+--------------------------------------------------------------------------------
+LESSON 7.6: WEDGES (RISING & FALLING) & ROUNDING PATTERNS
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 7.6
+- Lesson Title: Wedges (Rising & Falling) & Rounding Patterns: Structural Exhaustion & Long-Term Baselines
+- Lesson Goal: Master Rising/Falling Wedges and Rounding Bottom (Saucer) macro bases.
+- Learning Objectives:
+  1. Construct Rising Wedges (Bearish Reversal/Continuation) and Falling Wedges (Bullish Reversal/Continuation).
+  2. Identify Rounding Bottoms (Saucer Bases) and Bowl targets.
+  3. Differentiate Wedges from Triangles (Converging trendlines sloping in SAME direction).
+- Prerequisite Knowledge: Lessons 7.1 - 7.5.
+- Estimated Study Time: 150 Minutes (Video: 40m, Reading: 55m, Practice: 55m)
+
+--------------------------------------------------------------------------------
+LESSON 7.7: BREAKOUT VALIDATION, PULLBACK MECHANICS, AND VOLUME INTEGRATION
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 7.7
+- Lesson Title: Breakout Validation, Pullback Mechanics, and Volume Integration
+- Lesson Goal: Validate chart pattern breakouts using volume surge, price/time filters, and pullback retests.
+- Learning Objectives:
+  1. Validate pattern breakouts using Volume Expansion (surge on breakout candle).
+  2. Analyze Pullback (Throwback) mechanics to broken necklines.
+  3. Filter out false pattern breakouts using 3% price filter and 2-bar time filter.
+- Prerequisite Knowledge: Lessons 7.1 - 7.6.
+- Estimated Study Time: 160 Minutes (Video: 40m, Reading: 60m, Practice: 60m)
+
+================================================================================
+SECTION 3: MODULE ASSESSMENT & CERTIFICATION
+================================================================================
+
+1. Module 7 Quiz: 30 Questions (25% Weight).
+2. Module 7 Practical Project: "Classical Chart Pattern & Target Projection Dossier" (35% Weight).
+3. Module 7 Final Exam: 35 Questions (40% Weight).
+4. Completion Badge: "Certified Classical Pattern Analyst (Level 300)".
+
+================================================================================
+END OF BLUEPRINT — READY FOR LESSON CONTENT PRODUCTION
+================================================================================

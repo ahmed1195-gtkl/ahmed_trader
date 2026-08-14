@@ -1,0 +1,152 @@
+# ==============================================================================
+# INSTRUCTIONAL DESIGN BLUEPRINT: MODULE 6
+# Japanese Candlesticks (الشموع اليابانية)
+# Professional Digital Academy Course Architecture & LXD Specifications
+# Target File: Technical Analysis Mastery/Module_06_Instructional_Blueprint.txt
+# ==============================================================================
+
+================================================================================
+SECTION 1: MODULE BLUEPRINT
+================================================================================
+
+1. Module Title:
+   Module 6: Japanese Candlesticks (الشموع اليابانية)
+
+2. Module Description:
+   This module provides a comprehensive, Steve Nison-aligned breakdown of Japanese Candlesticks. Students will master single-bar, dual-bar, and triple-bar candlestick patterns, continuation formations, and the vital principle of Contextual Integration—requiring candlestick patterns to be validated by key structural confluence points (S/R, Trendlines, Fibs) before execution.
+
+3. Module Goal:
+   To equip students with high-precision candlestick recognition skills, enabling them to decode real-time buyer/seller price rejection and momentum shifts at major structural levels.
+
+4. Learning Outcomes:
+   Upon completing this module, students will be able to:
+   - Decode candle anatomy (Real Body, Upper Shadow, Lower Shadow) to assess real-time buyer/seller psychology.
+   - Identify Single-Bar Reversals (Hammer, Hanging Man, Shooting Star, Inverted Hammer, Doji).
+   - Identify Dual-Bar Reversals (Bullish/Bearish Engulfing, Piercing Line, Dark Cloud Cover, Harami).
+   - Identify Triple-Bar Reversals (Morning Star, Evening Star, Three White Soldiers, Three Black Crows).
+   - Identify Continuation Formations (Marubozu, Rising/Falling Three Methods).
+   - Apply the Core Rule: Candlestick patterns MUST be validated by structural location (S/R, Trendlines).
+
+5. Skills Students Will Acquire:
+   - High-Speed Candlestick Pattern Identification
+   - Candle Shadow Rejection Analysis
+   - Multi-Bar Candle Sentiment Evaluation
+   - Structural Confluence Validation (Candle + S/R Zone)
+   - False Pattern Filtering
+
+6. Prerequisites:
+   - Completion of Modules 1 through 5.
+
+7. Estimated Completion Time:
+   - Total Duration: 14.0 Hours
+   - Video Content: 3.5 Hours (210 minutes)
+   - Reading & Multimedia: 3.5 Hours
+   - Interactive Practice & TradingView Drills: 5.0 Hours
+   - Quizzes & Assessments: 2.0 Hours
+
+8. Difficulty Level:
+   - Intermediate-Advanced (Level 200/300)
+
+9. Recommended Learning Order:
+   - Step 1: Lesson 6.1 — Anatomical Breakdown: Body vs. Shadows & Market Psychology
+   - Step 2: Lesson 6.2 — Single-Bar Reversal Patterns
+   - Step 3: Lesson 6.3 — Dual-Bar Patterns
+   - Step 4: Lesson 6.4 — Triple-Bar Patterns
+   - Step 5: Lesson 6.5 — Continuation Patterns
+   - Step 6: Lesson 6.6 — Contextual Integration: Candlesticks at Key Structural Confluence Points
+   - Step 7: Module 6 Practical Project & Comprehensive Examination
+
+================================================================================
+SECTION 2: LESSON BLUEPRINTS
+================================================================================
+
+--------------------------------------------------------------------------------
+LESSON 6.1: ANATOMICAL BREAKDOWN: BODY VS. SHADOWS & MARKET PSYCHOLOGY
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 6.1
+- Lesson Title: Anatomical Breakdown: Body vs. Shadows & Market Psychology (Steve Nison Methodology)
+- Lesson Goal: Decode buyer/seller psychology from body size and shadow rejection ratios.
+- Learning Objectives:
+  1. Calculate Body-to-Shadow Ratios to determine market control.
+  2. Explain upper shadow rejection (seller intervention) vs. lower shadow rejection (buyer intervention).
+  3. Differentiate high-momentum candles from indecision candles.
+- Prerequisite Knowledge: Modules 1-5.
+- Estimated Study Time: 120 Minutes (Video: 30m, Reading: 45m, Practice: 45m)
+
+--------------------------------------------------------------------------------
+LESSON 6.2: SINGLE-BAR REVERSAL PATTERNS
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 6.2
+- Lesson Title: Single-Bar Reversal Patterns: Hammer, Hanging Man, Shooting Star, Inverted Hammer, Doji Types
+- Lesson Goal: Master single-candle reversal formations and their precise anatomical ratios.
+- Learning Objectives:
+  1. Identify Hammer and Inverted Hammer patterns at Support.
+  2. Identify Shooting Star and Hanging Man patterns at Resistance.
+  3. Classify Doji types (Standard, Long-Legged, Dragonfly, Gravestone).
+- Prerequisite Knowledge: Lesson 6.1.
+- Estimated Study Time: 140 Minutes (Video: 35m, Reading: 50m, Practice: 55m)
+
+--------------------------------------------------------------------------------
+LESSON 6.3: DUAL-BAR PATTERNS
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 6.3
+- Lesson Title: Dual-Bar Patterns: Bullish/Bearish Engulfing, Piercing Line, Dark Cloud Cover, Harami
+- Lesson Goal: Master 2-candle momentum reversal patterns and their volume characteristics.
+- Learning Objectives:
+  1. Identify Bullish and Bearish Engulfing patterns.
+  2. Identify Piercing Line and Dark Cloud Cover patterns (> 50% body penetration).
+  3. Identify Bullish and Bearish Harami (Inside Bar) patterns.
+- Prerequisite Knowledge: Lesson 6.2.
+- Estimated Study Time: 150 Minutes (Video: 40m, Reading: 55m, Practice: 55m)
+
+--------------------------------------------------------------------------------
+LESSON 6.4: TRIPLE-BAR PATTERNS
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 6.4
+- Lesson Title: Triple-Bar Patterns: Morning Star, Evening Star, Three White Soldiers, Three Black Crows
+- Lesson Goal: Master 3-candle transition sequences at major turning points.
+- Learning Objectives:
+  1. Identify Morning Star and Evening Star 3-candle transitions.
+  2. Identify Three White Soldiers and Three Black Crows momentum expansion.
+  3. Validate volume expansion on 3rd confirmation candles.
+- Prerequisite Knowledge: Lesson 6.3.
+- Estimated Study Time: 140 Minutes (Video: 35m, Reading: 50m, Practice: 55m)
+
+--------------------------------------------------------------------------------
+LESSON 6.5: CONTINUATION PATTERNS
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 6.5
+- Lesson Title: Continuation Patterns: Marubozu Lines & Rising/Falling Three Methods
+- Lesson Goal: Identify high-momentum trend continuation candles and 5-bar resting patterns.
+- Learning Objectives:
+  1. Identify Bullish and Bearish Marubozu lines (shadowless momentum bars).
+  2. Identify Rising Three Methods and Falling Three Methods continuation sequences.
+  3. Differentiate continuation patterns from indecision consolidations.
+- Prerequisite Knowledge: Lessons 6.1 - 6.4.
+- Estimated Study Time: 120 Minutes (Video: 30m, Reading: 45m, Practice: 45m)
+
+--------------------------------------------------------------------------------
+LESSON 6.6: CONTEXTUAL INTEGRATION: CANDLESTICKS AT KEY STRUCTURAL CONFLUENCE POINTS
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 6.6
+- Lesson Title: Contextual Integration: Candlesticks at Key Structural Confluence Points
+- Lesson Goal: Integrate candlestick patterns strictly at structural confluence points (S/R, Trendlines) and eliminate floating patterns.
+- Learning Objectives:
+  1. Apply the Structural Location Rule: Candlestick patterns MUST occur at key S/R or Trendlines.
+  2. Filter out isolated "floating" candlestick patterns in mid-range noise.
+  3. Construct a 3-Point Candlestick Confluence Matrix.
+- Prerequisite Knowledge: Lessons 6.1 - 6.5.
+- Estimated Study Time: 150 Minutes (Video: 40m, Reading: 55m, Practice: 55m)
+
+================================================================================
+SECTION 3: MODULE ASSESSMENT & CERTIFICATION
+================================================================================
+
+1. Module 6 Quiz: 25 Questions (25% Weight).
+2. Module 6 Practical Project: "Candlestick Recognition & Structural Confluence Portfolio" (35% Weight).
+3. Module 6 Final Exam: 30 Questions (40% Weight).
+4. Completion Badge: "Certified Candlestick Technical Analyst (Level 300)".
+
+================================================================================
+END OF BLUEPRINT — READY FOR LESSON CONTENT PRODUCTION
+================================================================================

@@ -1,0 +1,45 @@
+# ==============================================================================
+# INSTRUCTIONAL DESIGN BLUEPRINT: MODULE 8
+# Fibonacci Analysis & Ratio Geometry (تحليل فيبوناتشي وهندسة النسب)
+# Professional Digital Academy Course Architecture & LXD Specifications
+# Target File: Technical Analysis Mastery/Module_08_Instructional_Blueprint.txt
+# ==============================================================================
+
+================================================================================
+SECTION 1: MODULE BLUEPRINT
+================================================================================
+
+1. Module Title:
+   Module 8: Fibonacci Analysis & Ratio Geometry (تحليل فيبوناتشي وهندسة النسب)
+
+2. Module Description:
+   This module provides a rigorous, CMT-aligned exploration of Fibonacci mathematics and ratio geometry in financial market analysis. Students will master Fibonacci Retracements (23.6%, 38.2%, 50%, 61.8%, 78.6%), Price Extensions (127.2%, 161.8%, 261.8%), Expansion Projections, Time Clusters, and Confluence Mapping—blending ratio math seamlessly with horizontal S/R and classical structure.
+
+3. Module Goal:
+   To equip students with mathematical precision in identifying hidden harmonic support/resistance zones, measured extension targets, and multi-ratio confluence areas.
+
+4. Learning Outcomes:
+   Upon completing this module, students will be able to:
+   - Explain the Golden Ratio (phi = 1.618) and the mathematical derivation of Fibonacci levels.
+   - Construct valid Fibonacci Price Retracements on major swing moves.
+   - Project Fibonacci Price Extensions for profit target placement.
+   - Construct Fibonacci Time Clusters for market turning point timing.
+   - Map 3-Factor Ratio Confluence Zones (Fibonacci Retracement + Extension + Horizontal S/R).
+
+5. Prerequisites:
+   - Completion of Modules 1 through 7.
+
+6. Estimated Completion Time: Total 12.0 Hours.
+
+================================================================================
+SECTION 2: LESSON BLUEPRINTS
+================================================================================
+- Lesson 8.1: Historical & Mathematical Foundation of Fibonacci Ratios
+- Lesson 8.2: Fibonacci Price Retracements (23.6%, 38.2%, 50%, 61.8%, 78.6%)
+- Lesson 8.3: Fibonacci Price Extensions & Expansion Projections (127.2%, 161.8%, 261.8%)
+- Lesson 8.4: Time Clusters & Time-Based Fibonacci Analysis
+- Lesson 8.5: Confluence Mapping: Blending Fibonacci Levels with Horizontal S/R & Trendlines
+
+================================================================================
+END OF BLUEPRINT — READY FOR LESSON PRODUCTION
+================================================================================

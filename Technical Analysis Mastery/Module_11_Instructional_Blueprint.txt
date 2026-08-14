@@ -1,0 +1,35 @@
+# ==============================================================================
+# INSTRUCTIONAL DESIGN BLUEPRINT: MODULE 11
+# Technical Indicators & Oscillators (المؤشرات والمذبذبات الفنية)
+# Professional Digital Academy Course Architecture & LXD Specifications
+# Target File: Technical Analysis Mastery/Module_11_Instructional_Blueprint.txt
+# ==============================================================================
+
+================================================================================
+SECTION 1: MODULE BLUEPRINT
+================================================================================
+
+1. Module Title:
+   Module 11: Technical Indicators & Oscillators (المؤشرات والمذبذبات الفنية)
+
+2. Module Description:
+   This module provides an academically sound, CMT-aligned exploration of classical technical indicators and oscillators. Students will master Trend-Following Indicators (Moving Averages, MACD), Momentum Oscillators (RSI, Stochastic), Volatility Indicators (Bollinger Bands, ATR), Classical Divergence Theory (Regular vs. Hidden), Multi-Indicator Confluence, and Failure Swing Filtering.
+
+3. Module Goal:
+   To equip students with precise quantitative indicator evaluation skills, eliminating indicator over-fitting and treating indicators strictly as secondary validation tools for price structure.
+
+4. Prerequisites: Completion of Modules 1-10. Total Duration: 14.0 Hours.
+
+================================================================================
+SECTION 2: LESSON BLUEPRINTS
+================================================================================
+- Lesson 11.1: Trend-Following Indicators: Moving Averages (SMA, EMA) & MACD Construction
+- Lesson 11.2: Momentum Oscillators: Relative Strength Index (RSI) & Stochastic Oscillator
+- Lesson 11.3: Volatility Indicators: Bollinger Bands & Average True Range (ATR)
+- Lesson 11.4: The Classical Theory of Divergence (Regular vs. Hidden Divergence)
+- Lesson 11.5: Indicator Over-fitting & The Multi-Indicator Confluence Matrix
+- Lesson 11.6: Filtering False Divergences & Oscillator Failure Swings
+
+================================================================================
+END OF BLUEPRINT — READY FOR LESSON PRODUCTION
+================================================================================

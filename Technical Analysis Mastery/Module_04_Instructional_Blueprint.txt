@@ -1,0 +1,137 @@
+# ==============================================================================
+# INSTRUCTIONAL DESIGN BLUEPRINT: MODULE 4
+# Support & Resistance (الدعم والمقاومة)
+# Professional Digital Academy Course Architecture & LXD Specifications
+# Target File: Technical Analysis Mastery/Module_04_Instructional_Blueprint.txt
+# ==============================================================================
+
+================================================================================
+SECTION 1: MODULE BLUEPRINT
+================================================================================
+
+1. Module Title:
+   Module 4: Support & Resistance (الدعم والمقاومة)
+
+2. Module Description:
+   This module provides a comprehensive, university-grade breakdown of Support and Resistance—the cornerstone of classical technical analysis. Students will master horizontal zone mapping, order concentration mechanics, the Principle of Role Reversal (Flip Zones), psychological price levels, dynamic boundaries, and quantitative zone scoring rubrics based on recency, touch frequency, and rejection intensity.
+
+3. Module Goal:
+   To equip students with an objective, high-precision framework for identifying, drawing, scoring, and trading horizontal support and resistance zones without relying on imprecise single-line charting.
+
+4. Learning Outcomes:
+   Upon completing this module, students will be able to:
+   - Explain the market memory and liquidity concentration mechanics behind Support and Resistance.
+   - Construct high-probability horizontal S/R *zones* (rectangles) rather than unrealistic precise lines.
+   - Apply the Principle of Role Reversal (Support turning into Resistance and vice-versa).
+   - Identify psychological round-number boundaries and dynamic moving support/resistance.
+   - Score and rate S/R zone strength on a quantitative 1-5 rubric based on recency, touches, and rejection volume/wicks.
+
+5. Skills Students Will Acquire:
+   - High-Probability Horizontal Zone Construction
+   - Role Reversal (Flip Zone) Spotting
+   - Psychological Level Identification
+   - Zone Strength Scoring & Ranking
+   - Objective S/R Validation Protocol
+
+6. Prerequisites:
+   - Completion of Modules 1, 2, & 3.
+
+7. Estimated Completion Time:
+   - Total Duration: 12.0 Hours
+   - Video Content: 3.0 Hours (180 minutes)
+   - Reading & Multimedia: 3.0 Hours
+   - Interactive Practice & TradingView Drills: 4.5 Hours
+   - Quizzes & Assessments: 1.5 Hours
+
+8. Difficulty Level:
+   - Intermediate (Level 200 / University Core Course Level)
+
+9. Recommended Learning Order:
+   - Step 1: Lesson 4.1 — The Mechanics of Support & Resistance (Order Concentration)
+   - Step 2: Lesson 4.2 — Mapping Static Horizontal Zones vs. Single Price Lines
+   - Step 3: Lesson 4.3 — The Principle of Role Reversal (The Flip Zone)
+   - Step 4: Lesson 4.4 — Dynamic & Psychological S/R Levels
+   - Step 5: Lesson 4.5 — Quantitative Zone Validation: Recency, Touches, & Rejection Intensity
+   - Step 6: Module 4 Practical Project & Comprehensive Examination
+
+================================================================================
+SECTION 2: LESSON BLUEPRINTS
+================================================================================
+
+--------------------------------------------------------------------------------
+LESSON 4.1: THE MECHANICS OF SUPPORT & RESISTANCE (ORDER CONCENTRATION)
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 4.1
+- Lesson Title: The Mechanics of Support & Resistance (Order Concentration)
+- Lesson Goal: Understand the economic and psychological market memory mechanism that creates Support and Resistance.
+- Learning Objectives:
+  1. Define Support (price floor) and Resistance (price ceiling) from an order balance perspective.
+  2. Explain market memory and why traders re-engage at historic inflection points.
+  3. Differentiate between demand absorption at Support and supply absorption at Resistance.
+- Prerequisite Knowledge: Modules 1-3.
+- Estimated Study Time: 120 Minutes (Video: 30m, Reading: 45m, Practice: 45m)
+
+--------------------------------------------------------------------------------
+LESSON 4.2: MAPPING STATIC HORIZONTAL ZONES VS. SINGLE PRICE LINES
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 4.2
+- Lesson Title: Mapping Static Horizontal Zones vs. Single Price Lines
+- Lesson Goal: Construct professional S/R horizontal zones using wicks and bodies instead of single lines.
+- Learning Objectives:
+  1. Construct S/R Rectangle Zones covering candle wicks and real bodies.
+  2. Explain why single-line S/R creates false breakout traps.
+  3. Map major HTF horizontal zones vs. minor LTF zones.
+- Prerequisite Knowledge: Lesson 4.1.
+- Estimated Study Time: 140 Minutes (Video: 35m, Reading: 50m, Practice: 55m)
+
+--------------------------------------------------------------------------------
+LESSON 4.3: THE PRINCIPLE OF ROLE REVERSAL (THE FLIP ZONE)
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 4.3
+- Lesson Title: The Principle of Role Reversal (The Flip Zone)
+- Lesson Goal: Master the classical principle where broken Support turns into Resistance, and broken Resistance turns into Support.
+- Learning Objectives:
+  1. Construct and identify valid Role Reversal (Flip) Zones.
+  2. Explain the market mechanics of why broken support attracts supply on a retest.
+  3. Trade retests of broken S/R levels with high probability.
+- Prerequisite Knowledge: Lesson 4.2.
+- Estimated Study Time: 150 Minutes (Video: 40m, Reading: 55m, Practice: 55m)
+
+--------------------------------------------------------------------------------
+LESSON 4.4: DYNAMIC & PSYCHOLOGICAL S/R LEVELS
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 4.4
+- Lesson Title: Dynamic & Psychological S/R Levels
+- Lesson Goal: Identify psychological round-number levels and dynamic moving average boundaries as secondary S/R.
+- Learning Objectives:
+  1. Map psychological round numbers (e.g., $100, $2000, 1.1000).
+  2. Apply Moving Averages (20, 50, 200 EMA/SMA) as dynamic S/R.
+  3. Integrate psychological and dynamic S/R with horizontal static zones.
+- Prerequisite Knowledge: Lessons 4.1 - 4.3.
+- Estimated Study Time: 130 Minutes (Video: 35m, Reading: 45m, Practice: 50m)
+
+--------------------------------------------------------------------------------
+LESSON 4.5: QUANTITATIVE ZONE VALIDATION: RECENCY, TOUCHES, & REJECTION INTENSITY
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 4.5
+- Lesson Title: Quantitative Zone Validation: Recency, Touches, & Rejection Intensity
+- Lesson Goal: Score S/R zones objectively on a 1-5 strength rubric based on recency, touch count, and rejection wick size.
+- Learning Objectives:
+  1. Apply the 3-Factor S/R Strength Rubric (Recency, Touch Frequency, Rejection Force).
+  2. Identify zone degradation (when repeated touches weaken S/R).
+  3. Filter out low-probability S/R zones.
+- Prerequisite Knowledge: Lessons 4.1 - 4.4.
+- Estimated Study Time: 140 Minutes (Video: 40m, Reading: 50m, Practice: 50m)
+
+================================================================================
+SECTION 3: MODULE ASSESSMENT & CERTIFICATION
+================================================================================
+
+1. Module 4 Quiz: 20 Questions (25% Weight).
+2. Module 4 Practical Project: "Comprehensive Horizontal S/R & Flip Zone Dossier" (35% Weight).
+3. Module 4 Final Exam: 30 Questions (40% Weight).
+4. Completion Badge: "Certified Support & Resistance Specialist (Level 200)".
+
+================================================================================
+END OF BLUEPRINT — READY FOR LESSON CONTENT PRODUCTION
+================================================================================

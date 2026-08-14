@@ -1,0 +1,421 @@
+# ==============================================================================
+# INSTRUCTIONAL DESIGN BLUEPRINT: MODULE 1
+# Introduction to Financial Markets
+# Professional Digital Academy Course Architecture & LXD Specifications
+# Target File: Technical Analysis Mastery/Module_01_Instructional_Blueprint.txt
+# ==============================================================================
+
+================================================================================
+SECTION 1: MODULE BLUEPRINT
+================================================================================
+
+1. Module Title:
+   Module 1: Introduction to Financial Markets
+
+2. Module Description:
+   This module provides a rigorous, foundational introduction to global financial markets, asset class taxonomy, price discovery mechanisms, data aggregation, and visual chart representation formats. Designed specifically for classical technical analysis students, it establishes the fundamental structural understanding of how exchange transactions create price data (tick by tick) and how that data is visually rendered across timeframes without introducing complex non-classical order flow or risk management subjects.
+
+3. Module Goal:
+   To equip students with a comprehensive, objective understanding of global financial market architecture, the mechanics of price formation, and the precise reading of Line, Bar (OHLC), and Candlestick charts across all standard timeframes.
+
+4. Learning Outcomes:
+   Upon completing this module, students will be able to:
+   - Classify global asset classes (Forex, Equities, Commodities, Crypto, Fixed Income) by market structure, trading sessions, and volatility profiles.
+   - Describe price formation, bid-ask spreads, and classical liquidity concepts.
+   - Interpret Open, High, Low, and Close (OHLC) values on Bar and Candlestick charts with 100% precision.
+   - Navigate TradingView to aggregate market data across timeframes from Tick/1-Minute to Monthly charts.
+
+5. Skills Students Will Acquire:
+   - Asset Class Taxonomy Classification
+   - OHLC Data Extraction & Interpretation
+   - TradingView Interface & Navigation Proficiency
+   - Timeframe Aggregation Mapping
+   - Market Session Schedule Auditing
+
+6. Prerequisites:
+   - None (Foundational Level). Basic digital literacy and internet connectivity required.
+
+7. Estimated Completion Time:
+   - Total Duration: 6.0 Hours
+   - Video Content: 1.5 Hours (90 minutes)
+   - Reading & Multimedia: 1.5 Hours
+   - Interactive Practice & TradingView Drills: 2.0 Hours
+   - Quizzes & Assessments: 1.0 Hour
+
+8. Difficulty Level:
+   - Beginner (Level 100 / University Introductory Level)
+
+9. Recommended Learning Order:
+   - Step 1: Lesson 1.1 — Market Taxonomy & Asset Classes
+   - Step 2: Lesson 1.2 — Price Formation & The Mechanics of Exchange
+   - Step 3: Lesson 1.3 — Visualizing Market Data: Line, Bar (OHLC), and Candlestick Charts
+   - Step 4: Lesson 1.4 — Timeframes & Data Aggregation (Tick to Monthly)
+   - Step 5: Module 1 Practical Project & Comprehensive Examination
+
+================================================================================
+SECTION 2: LESSON BLUEPRINTS
+================================================================================
+
+--------------------------------------------------------------------------------
+LESSON 1.1: MARKET TAXONOMY & ASSET CLASSES
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 1.1
+- Lesson Title: Market Taxonomy & Asset Classes
+- Lesson Goal: Classify all major global financial asset classes, their operational structures, session hours, and underlying market drivers.
+- Learning Objectives:
+  1. Define and contrast Forex, Equities, Commodities, Crypto, and Fixed Income markets.
+  2. Map global trading session hours (Sydney, Tokyo, London, New York) and identify peak volatility overlap windows.
+  3. Differentiate between centralized exchanges (e.g., NYSE, CME) and decentralized/over-the-counter (OTC) markets (e.g., Spot Forex).
+- Prerequisite Knowledge: None.
+- Estimated Study Time: 80 Minutes
+- Estimated Video Duration: 20 Minutes
+- Lesson Difficulty: Beginner
+- Key Concepts: Asset Classes, OTC vs. Centralized Exchanges, Market Sessions (Asian, London, NY Overlap), Volatility Profiles, Instrument Codes.
+- Learning Flow:
+  1. Video Hook (2m): Why different markets behave differently.
+  2. Conceptual Lecture (10m): Systematic breakdown of the 5 asset classes.
+  3. Market Mechanics (8m): Exchange structures and session schedules.
+  4. Platform Demonstration (5m): Symbol lookup and session highlighting in TradingView.
+  5. Interactive Activity (15m): Asset Class Categorization Matrix exercise.
+  6. Knowledge Check (10m): 5-question mini quiz.
+  7. Reflection & Homework Assignment (30m).
+- Required Charts:
+  - EUR/USD (Forex) Daily Chart
+  - S&P 500 / SPY (Equities) Daily Chart
+  - Gold / XAUUSD (Commodities) Daily Chart
+  - Bitcoin / BTCUSD (Crypto) Daily Chart
+- Required Illustrations:
+  - Asset Class Taxonomy Tree Diagram
+  - Centralized Exchange vs. OTC Decentralized Network Infographic
+- Required Diagrams:
+  - 24-Hour Global Market Session Clock (Sydney -> Tokyo -> London -> NY)
+- Required Infographics:
+  - Asset Class Characteristics Comparison Sheet (Liquidity, Volatility, Hours, Leverage)
+- TradingView Exercises:
+  - Exercise 1.1.1: Use the Symbol Search box to locate 2 instruments from each of the 5 asset classes (10 symbols total).
+  - Exercise 1.1.2: Enable session break lines on EUR/USD and identify the London/New York session overlap window.
+- Student Activities:
+  - Complete an interactive matching matrix connecting ticker symbols (e.g., AAPL, EURUSD, XAUUSD, BTCUSD, US10Y) to their respective asset class and market type.
+- Hands-on Practice:
+  - Open TradingView, set up a multi-asset watchlist folder named "Asset Class Taxonomy", and populate it with specified benchmark symbols.
+- Reflection Questions:
+  - "Why does Spot Forex trade 24/5 while US Equities trade 6.5 hours per day, and how does this affect price continuity?"
+- Mini Quiz:
+  - 5-Question Multiple Choice Quiz covering exchange types, asset classes, and session overlaps.
+- Homework:
+  - Document the opening and closing UTC times for London and New York sessions and identify which asset class experiences the highest volume surge during their overlap.
+- Assignment:
+  - Submit a clean TradingView watchlist screenshot containing 2 verified ticker symbols for each of the 5 major asset classes.
+- Lesson Completion Criteria: 100% video view completion + 80%+ score on Mini Quiz + verified submission of Watchlist Assignment.
+
+--------------------------------------------------------------------------------
+LESSON 1.2: PRICE FORMATION & THE MECHANICS OF EXCHANGE
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 1.2
+- Lesson Title: Price Formation & The Mechanics of Exchange
+- Lesson Goal: Understand how buyers and sellers interact to establish transaction prices, bid-ask spreads, and tick movements from a classical market perspective.
+- Learning Objectives:
+  1. Explain the roles of buyers (bids) and sellers (asks) in price discovery.
+  2. Calculate Bid-Ask Spreads and transaction costs across different market conditions.
+  3. Describe how price ticks upward or downward when one side of the market absorbs liquidity.
+  *(Note: Advanced Order Flow, Depth of Market [DOM], and Footprint charts belong to a future course).*
+- Prerequisite Knowledge: Lesson 1.1.
+- Estimated Study Time: 80 Minutes
+- Estimated Video Duration: 20 Minutes
+- Lesson Difficulty: Beginner-Intermediate
+- Key Concepts: Price Discovery, Bid Price, Ask Price, Bid-Ask Spread, Tick Size, Buyer/Seller Equilibrium.
+- Learning Flow:
+  1. Video Hook (2m): The continuous double auction in plain English.
+  2. Theory Presentation (10m): Bids, Asks, and Spread mechanics.
+  3. Classical Price Mechanics (8m): How price moves up when buyers pay the ask, and down when sellers accept the bid.
+  4. Platform Demonstration (5m): Inspecting Bid/Ask displays and spreads on TradingView.
+  5. Practical Calculation Exercise (15m): Calculating spread costs in pips/points.
+  6. Knowledge Check (10m): 5-question mini quiz.
+  7. Reflection & Homework Assignment (30m).
+- Required Charts:
+  - EUR/USD 1-Minute Chart with Bid/Ask Line overlay.
+  - S&P 500 E-mini 1-Minute Chart showing tick fluctuations.
+- Required Illustrations:
+  - The Double Auction Balance Scale (Buyers vs. Sellers Equilibrium).
+  - Bid-Ask Spread Anatomy Diagram (Bid, Ask, Spread Gap).
+- Required Diagrams:
+  - Classical Price Tick Movement Flowchart (Bid Hit -> Price Drops | Ask Lifted -> Price Rises).
+- Required Infographics:
+  - Impact of Spread Cost on High-Frequency vs. Swing Timeframes.
+- TradingView Exercises:
+  - Exercise 1.2.1: Enable Bid/Ask price lines in TradingView chart settings and observe the real-time spread gap on EUR/USD.
+  - Exercise 1.2.2: Calculate the live spread in pips for EUR/USD, GBP/JPY, and XAU/USD.
+- Student Activities:
+  - Complete a spread calculation worksheet determining total transaction cost for 5 hypothetical trade orders across different spreads.
+- Hands-on Practice:
+  - Monitor a 1-minute chart during a high-volatility news release (e.g., US CPI or NFP historical replay) and observe spread expansion.
+- Reflection Questions:
+  - "What causes the Bid-Ask spread to widen during low-liquidity periods such as weekend market opens or major news announcements?"
+- Mini Quiz:
+  - 5-Question Quiz on Bid/Ask definitions, spread calculation, and price movement direction rules.
+- Homework:
+  - Record the Bid price, Ask price, and Spread for 3 major Forex pairs at 08:00 UTC (London Open) and 22:00 UTC (Tokyo Pre-Open) and compare the spread differences.
+- Assignment:
+  - Submit spread calculation worksheet with 100% mathematical accuracy across 5 market scenarios.
+- Lesson Completion Criteria: 100% video completion + 100% accuracy on spread calculations worksheet + 80%+ score on Mini Quiz.
+
+--------------------------------------------------------------------------------
+LESSON 1.3: VISUALIZING MARKET DATA: LINE, BAR (OHLC), AND CANDLESTICK CHARTS
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 1.3
+- Lesson Title: Visualizing Market Data: Line, Bar (OHLC), and Candlestick Charts
+- Lesson Goal: Master the visual interpretation of price action data through Line charts, OHLC Bar charts, and Japanese Candlestick charts.
+- Learning Objectives:
+  1. Construct and interpret Line charts based on closing prices.
+  2. Deconstruct an OHLC Bar into its 4 constituent price points (Open, High, Low, Close).
+  3. Deconstruct a Japanese Candlestick into Real Body, Upper Shadow (Wick), Lower Shadow (Tail), and Color-coded sentiment (Bullish vs. Bearish).
+  4. Compare the analytical advantages and limitations of each chart visualization format.
+- Prerequisite Knowledge: Lesson 1.1 & 1.2.
+- Estimated Study Time: 90 Minutes
+- Estimated Video Duration: 25 Minutes
+- Lesson Difficulty: Beginner
+- Key Concepts: Line Chart, OHLC Bar, Japanese Candlestick, Real Body, Wicks/Shadows, Open, High, Low, Close, Bullish vs. Bearish Bar Sentiment.
+- Learning Flow:
+  1. Video Hook (3m): The evolution from raw numbers to visual charting.
+  2. Line Chart Exploration (5m): Closing price connections and noise reduction.
+  3. OHLC Bar Deep-Dive (7m): Left-tick Open, Right-tick Close, Vertical High/Low.
+  4. Candlestick Anatomy (10m): Body vs. Wicks, Bullish (Green) vs. Bearish (Red) dynamics.
+  5. Comparative Demonstration (5m): Toggling between Line, Bar, and Candle views in TradingView.
+  6. Practical Drill (20m): Manual OHLC data extraction exercise.
+  7. Knowledge Check (10m): 5-question visual identification quiz.
+  8. Homework & Assignment (30m).
+- Required Charts:
+  - S&P 500 Daily Line Chart.
+  - EUR/USD Daily OHLC Bar Chart.
+  - Apple (AAPL) Daily Japanese Candlestick Chart.
+  - Side-by-Side Comparison Chart of the same 30-day price segment in Line, Bar, and Candle formats.
+- Required Illustrations:
+  - Definitive Anatomy Diagram of a Bullish OHLC Bar & Bearish OHLC Bar.
+  - Definitive Anatomy Diagram of a Bullish Candlestick & Bearish Candlestick (Annotated: Real Body, Upper Wick, Lower Wick, Open, High, Low, Close).
+- Required Diagrams:
+  - Conversion Schematic: Raw Time & Price Data Table -> Bar Chart -> Candlestick Chart.
+- Required Infographics:
+  - Comparative Chart Type Matrix (Line vs. Bar vs. Candlestick: Best Use Cases, Clarity, Data Richness).
+- TradingView Exercises:
+  - Exercise 1.3.1: Switch chart view modes between Line, Bar, and Candlestick on a daily chart of BTC/USD.
+  - Exercise 1.3.2: Use the Data Window tool in TradingView to inspect exact OHLC values for 5 consecutive daily bars.
+- Student Activities:
+  - Given 5 raw numerical data sets (O, H, L, C values), manually sketch both the OHLC Bar and Japanese Candlestick representation for each set.
+- Hands-on Practice:
+  - Hover over 10 random historical candles on TradingView, read the top status bar (O, H, L, C, Change%), and determine whether buyers or sellers dominated each bar.
+- Reflection Questions:
+  - "Why does a Japanese Candlestick chart provide superior visual intuition regarding market sentiment compared to a simple Line chart?"
+- Mini Quiz:
+  - 5-Question Visual Identification Quiz asking students to identify Open, High, Low, or Close points on unlabeled bar and candle diagrams.
+- Homework:
+  - Extract OHLC values for 10 consecutive daily candles on Gold (XAUUSD) and identify which candle had the largest range (High minus Low) and largest real body.
+- Assignment:
+  - Submit scanned/uploaded worksheet featuring 5 hand-drawn OHLC bars and 5 hand-drawn Candlesticks accurately constructed from raw numerical data.
+- Lesson Completion Criteria: 100% video view completion + 100% accuracy on hand-drawing assignment + 80%+ score on Mini Quiz.
+
+--------------------------------------------------------------------------------
+LESSON 1.4: TIMEFRAMES & DATA AGGREGATION (TICK TO MONTHLY)
+--------------------------------------------------------------------------------
+- Lesson Number: Lesson 1.4
+- Lesson Title: Timeframes & Data Aggregation (Tick to Monthly)
+- Lesson Goal: Understand how market data compresses into different timeframes, and learn to navigate multi-timeframe environments effectively.
+- Learning Objectives:
+  1. Explain how time-based aggregation works (e.g., 60 one-minute candles forming 1 one-hour candle).
+  2. Categorize timeframes into Macro (Monthly, Weekly), Intermediate (Daily, 4-Hour), and Micro/Intraday (1-Hour, 15-Minute, 5-Minute, 1-Minute).
+  3. Recognize how candle shapes change depending on the chosen aggregation timeframe.
+- Prerequisite Knowledge: Lesson 1.3.
+- Estimated Study Time: 90 Minutes
+- Estimated Video Duration: 25 Minutes
+- Lesson Difficulty: Beginner-Intermediate
+- Key Concepts: Timeframe Aggregation, Data Compression, Fractal Nature of Charts, Higher Timeframe (HTF) vs. Lower Timeframe (LTF), Intraday vs. Swing Horizons.
+- Learning Flow:
+  1. Video Hook (3m): The fractal mystery—why 1-minute and monthly charts look identical.
+  2. Theory of Data Aggregation (10m): How 5-minute bars combine into 15-minute, 1-hour, and daily bars.
+  3. Timeframe Hierarchy (7m): Macro, Swing, and Intraday classifications.
+  4. TradingView Multi-Timeframe Navigation (7m): Switching timeframes seamlessly and using custom timeframe settings.
+  5. Interactive Compression Exercise (20m): Combining four 15-minute candles into one 1-hour candle manually.
+  6. Knowledge Check (10m): 5-question mini quiz.
+  7. Homework & Assignment (33m).
+- Required Charts:
+  - EUR/USD Monthly Chart (showing 10 years of data).
+  - EUR/USD Daily Chart (showing 6 months of data).
+  - EUR/USD 1-Hour Chart (showing 2 weeks of data).
+  - EUR/USD 5-Minute Chart (showing 2 days of data).
+- Required Illustrations:
+  - Data Aggregation Pyramid (1m -> 5m -> 15m -> 1H -> 4H -> 1D -> 1W -> 1M).
+  - Candle Combination Diagram (Showing four 15-min candles merging into a single 1-hour candle step-by-step).
+- Required Diagrams:
+  - Timeframe Hierarchy Funnel (Macro Direction -> Intermediate Structure -> Micro Execution).
+- Required Infographics:
+  - Timeframe Selection Guide (Swing Trader vs. Day Trader vs. Position Investor chart setups).
+- TradingView Exercises:
+  - Exercise 1.4.1: Add 1M, 1W, 1D, 4H, 1H, 15m, 5m, and 1m to TradingView favorite timeframe bar.
+  - Exercise 1.4.2: Open a 4-Hour chart of S&P 500, highlight a single 4-Hour candle, drop down to the 1-Hour chart, and identify the 4 individual 1-Hour candles that comprise it.
+- Student Activities:
+  - Complete a Data Compression Worksheet: Given the Open, High, Low, Close data for four consecutive 15-minute bars, calculate and construct the resulting 1-hour bar.
+- Hands-on Practice:
+  - Perform timeframe navigation drills on 3 different asset classes (Forex, Equities, Crypto) moving from Monthly down to 1-Minute seamlessly.
+- Reflection Questions:
+  - "If a 1-hour candle closes as a bullish engulfing, what might the four underlying 15-minute candles look like?"
+- Mini Quiz:
+  - 5-Question Quiz on timeframe mathematical relationships and data compression rules.
+- Homework:
+  - Select 1 daily candle on Bitcoin (BTCUSD) that has long upper and lower wicks. Drop to the 1-Hour chart and write a brief summary of how price moved throughout that 24-hour period to create those wicks.
+- Assignment:
+  - Upload the completed Data Compression Worksheet demonstrating 100% accuracy in merging multi-bar sets into higher timeframe bars.
+- Lesson Completion Criteria: 100% video view completion + 100% score on Data Compression Assignment + 80%+ score on Mini Quiz.
+
+================================================================================
+SECTION 3: VISUAL DESIGN SPECIFICATIONS
+================================================================================
+
+1. Illustrations:
+   - Asset Class Taxonomy Tree: Clean vector diagram displaying 5 main branches (Forex, Equities, Commodities, Crypto, Fixed Income) with sub-categories and benchmark tickers.
+   - Centralized Exchange vs. OTC Network Architecture: Comparative visual showing central matching engine (NYSE/CME) vs. distributed interbank node network (Forex).
+   - Double Auction Balance Scale: Stylized scale illustration depicting Bids on the left, Asks on the right, and Market Equilibrium at center.
+   - OHLC Bar Anatomy Diagrams: Dual high-resolution graphics (Bullish Blue/Green, Bearish Red) clearly annotating Left Open Tick, Right Close Tick, High Tip, Low Base.
+   - Japanese Candlestick Anatomy Diagrams: Dual high-resolution graphics (Bullish & Bearish) clearly annotating Real Body, Upper Shadow/Wick, Lower Shadow/Tail, Open, High, Low, Close.
+   - Data Aggregation Pyramid: 3D pyramid illustration demonstrating tick data flowing upward into 1m, 5m, 15m, 1H, 4H, 1D, 1W, and 1M bars.
+   - Candle Merging Sequence: Step-by-step 4-frame visual showing four 15-minute candles merging structurally into one composite 1-hour candle.
+
+2. TradingView Charts (Export Specifications: 1920x1080 PNG, Dark Theme):
+   - Chart 1.1a: EUR/USD 1D — Highlighted Forex Market Characteristics.
+   - Chart 1.1b: SPY 1D — Equities Exchange Hours & Overnight Gaps.
+   - Chart 1.1c: XAUUSD 1D — Spot Commodity Session Volatility.
+   - Chart 1.1d: BTCUSD 1D — 24/7/365 Crypto Market Continuity.
+   - Chart 1.2a: EUR/USD 1m — Live Bid/Ask Price Lines Display.
+   - Chart 1.3a: S&P 500 1D — Line Chart View (Closing Prices Only).
+   - Chart 1.3b: EUR/USD 1D — OHLC Bar Chart View.
+   - Chart 1.3c: AAPL 1D — Standard Japanese Candlestick View.
+   - Chart 1.3d: Triple-Panel Split Screen — Same asset/period rendered in Line, Bar, and Candlestick modes simultaneously.
+   - Chart 1.4a: Multi-Timeframe Series (BTCUSD) — 4 synchronized charts: Monthly, Daily, 4-Hour, 15-Minute.
+
+3. Flowcharts:
+   - Price Tick Direction Flowchart: Logical decision tree showing `Market Buy Order -> Absorbs Ask Liquidity -> Price Ticks Up` vs. `Market Sell Order -> Absorbs Bid Liquidity -> Price Ticks Down`.
+
+4. Comparison Tables:
+   - Asset Class Characteristics Matrix (Columns: Asset Class, Primary Exchanges, Session Hours, Typical Leverage, Benchmark Symbols, Volatility Rating).
+   - Chart Types Comparison Matrix (Columns: Feature, Line Chart, OHLC Bar Chart, Japanese Candlestick Chart; Rows: Price Transparency, Pattern Recognition, Noise Level, Intraday Detail).
+
+5. Infographics:
+   - The Global Market Session 24-Hour Clock (Visual dial highlighting Sydney, Tokyo, London, and New York operational hours in UTC).
+   - Anatomy of Market Data: From Order Matching to Chart Display.
+
+6. Timeline Graphics:
+   - A Day in the Life of Global Markets: Timeline tracking session opens, closes, and volume overlaps from 00:00 UTC to 24:00 UTC.
+
+7. Market Screenshots:
+   - TradingView Interface Blueprint: Annotated platform interface highlighting Symbol Search, Timeframe Bar, Chart Type Selector, Data Window, and Watchlist Panel.
+
+8. Candlestick Diagrams:
+   - High-contrast isolated candlestick diagrams demonstrating Bullish Full Body (Marubozu), Bearish Full Body, Long Upper Shadow Rejection, Long Lower Shadow Rejection, and Doji (Equal Open/Close).
+
+================================================================================
+SECTION 4: EXERCISES & STUDENT ACTIVITIES
+================================================================================
+
+1. Lesson 1.1 Exercises:
+   - Symbol Mapping Challenge: Drag and drop 15 ticker symbols into their correct asset class bins.
+   - TradingView Watchlist Setup: Create custom watchlist folders for Forex, Equities, Commodities, and Crypto.
+
+2. Lesson 1.2 Exercises:
+   - Spread Calculation Drill: Calculate Bid-Ask spread in pips/points for 10 live market quotes.
+   - Transaction Cost Calculator Activity: Compute total spread cost in USD for 3 different position sizes.
+
+3. Lesson 1.3 Exercises:
+   - Manual Bar Drawing Drill: Given O=1.1000, H=1.1050, L=1.0980, C=1.1040, draw both the exact OHLC Bar and Japanese Candlestick.
+   - Data Window Audit: Extract O, H, L, C values for 5 historical daily bars on TradingView and input them into an analytical log.
+
+4. Lesson 1.4 Exercises:
+   - Multi-Bar Candle Compression Drill: Manually combine 4 consecutive 15-minute candles into 1 composite 1-hour candle.
+   - Timeframe Navigation Blitz: Execute a 60-second timed challenge switching between specified timeframes on TradingView without error.
+
+================================================================================
+SECTION 5: ASSIGNMENTS
+================================================================================
+
+1. Assignment 1.1: Global Asset Class & Watchlist Portfolio
+   - Student creates a verified TradingView Watchlist containing 2 benchmark assets from each of the 5 asset classes (10 total).
+   - Student submits a PDF export of their formatted watchlist along with a 1-page summary table listing the session hours and primary exchange for each asset.
+
+2. Assignment 1.2: Spread & Transaction Cost Assessment Worksheet
+   - Student completes a 10-scenario mathematical worksheet calculating spread gaps, pip values, and transaction costs across varying market volatility conditions.
+
+3. Assignment 1.3: OHLC & Candlestick Construction Portfolio
+   - Student is provided with 5 raw data sets (Open, High, Low, Close values).
+   - Student manually constructs 5 precise OHLC Bars and 5 precise Japanese Candlesticks on grid paper or digital drafting tool, labeling all 4 price points and sentiment direction for each bar.
+
+4. Assignment 1.4: Multi-Timeframe Data Compression Dossier
+   - Student selects a major daily candle on EUR/USD or S&P 500 that features significant upper and lower wicks.
+   - Student submits a 2-page multi-timeframe analysis: Page 1 shows the Daily candle; Page 2 shows the 24 underlying 1-Hour candles labeled to explain how intraday price movement created the Daily candle's Open, High, Low, and Close points.
+
+================================================================================
+SECTION 6: MODULE ASSESSMENT ARCHITECTURE
+================================================================================
+
+1. Module 1 Quiz (Theoretical Evaluation):
+   - Format: 20 Multiple-Choice & Matching Questions (Automated Grading).
+   - Weight: 25% of Module Grade.
+   - Question Pool Topics: Asset Class Taxonomy (5 questions), Price Formation & Spreads (5 questions), OHLC Bar/Candle Anatomy (5 questions), Timeframe Aggregation (5 questions).
+
+2. Module 1 Practical Project (Hands-On Technical Project):
+   - Project Title: "Market Structure & Chart Reading Foundations Dossier".
+   - Objective: Demonstrate practical proficiency in chart setup, asset classification, OHLC data extraction, and multi-timeframe data compression.
+   - Task: Configure a master TradingView template; extract and analyze OHLC data for 3 assets across 3 timeframes (Daily, 4-Hour, 1-Hour); perform 1 complete candle compression exercise; export high-resolution chart graphics with professional annotations.
+   - Weight: 35% of Module Grade.
+
+3. Module 1 Final Exam (Comprehensive Assessment):
+   - Format: 30 Questions (15 Conceptual Multiple Choice + 10 Visual Identification Items + 5 Calculation Problems).
+   - Weight: 40% of Module Grade.
+   - Time Limit: 60 Minutes.
+
+4. Passing Score & Grading Standards:
+   - Minimum Overall Passing Score: 80%
+   - Individual Component Requirements: Minimum 75% on Final Exam and 100% submission on Practical Project.
+
+5. Evaluation Rubric for Practical Project (100 Points Total):
+   - Asset Classification & Watchlist Formatting (20 Points): Accuracy of ticker placement, session mapping, and exchange identification.
+   - OHLC Extraction Accuracy (20 Points): Precision in extracting Open, High, Low, Close data without error.
+   - Chart Drawing Precision (20 Points): Accuracy of hand-drawn/drafted Bars and Candlesticks relative to numerical inputs.
+   - Timeframe Compression Integrity (20 Points): Correct mathematical and structural merging of lower timeframe bars into higher timeframe bars.
+   - Visual Clarity & Annotation Standards (20 Points): High-definition image resolution, clean dark theme background, professional labels, zero visual clutter.
+
+6. Completion Badge & Certification Requirements:
+   - Badge Issued: "Certified Market Foundations Specialist (Level 100)"
+   - Badge Criteria:
+     1. 100% completion of all video lessons and readings.
+     2. 80%+ score on Module Quiz and Module Final Exam.
+     3. Successful evaluation of Module 1 Practical Project with a score of 85%+.
+     4. Zero violations of methodological scope (no non-classical elements included).
+
+================================================================================
+SECTION 7: STUDENT EXPERIENCE & PROGRESSION PATHWAY
+================================================================================
+
+1. Estimated Learning Path:
+   - Day 1: Lesson 1.1 (Market Taxonomy & Asset Classes) — Video (20m) + Reading (30m) + Watchlist Setup (30m).
+   - Day 2: Lesson 1.2 (Price Formation & Exchange Mechanics) — Video (20m) + Reading (30m) + Spread Exercises (30m).
+   - Day 3: Lesson 1.3 (Visualizing Data: Line, Bar, Candle) — Video (25m) + Reading (35m) + Drawing Drill (30m).
+   - Day 4: Lesson 1.4 (Timeframes & Data Aggregation) — Video (25m) + Reading (35m) + Compression Drill (30m).
+   - Day 5: Review & Assessment Phase — Module Quiz (30m) + Practical Project Completion (90m) + Final Exam (60m).
+
+2. Estimated Completion Tracking Milestones:
+   - Milestone 1 (25% Complete): Lesson 1.1 Passed & Watchlist Created.
+   - Milestone 2 (50% Complete): Lesson 1.2 Passed & Spread Calculations Verified.
+   - Milestone 3 (75% Complete): Lesson 1.3 & 1.4 Passed & Data Compression Completed.
+   - Milestone 4 (100% Complete): Practical Project Approved & Badge Awarded.
+
+3. Lesson Checkpoints:
+   - Checkpoint 1.1: Verify Watchlist folder contains 10 valid symbols across 5 asset classes.
+   - Checkpoint 1.2: Verify spread calculation worksheet yields 100% mathematical accuracy.
+   - Checkpoint 1.3: Verify student can correctly label Open, High, Low, Close on a randomized candlestick diagram within 15 seconds.
+   - Checkpoint 1.4: Verify student can accurately merge four 15-minute candles into one 1-hour candle.
+
+4. Suggested Revision Lessons (Triggered on Low Quiz Scores):
+   - If Quiz Score < 80% on Lesson 1.2 -> Automatically assign Revision Module: "Understanding the Double Auction & Order Execution Basics".
+   - If Quiz Score < 80% on Lesson 1.3 -> Automatically assign Revision Module: "Interactive Candlestick & Bar Reading Flashcards".
+   - If Quiz Score < 80% on Lesson 1.4 -> Automatically assign Revision Module: "Visualizing Timeframe Data Aggregation Step-by-Step".
+
+================================================================================
+END OF BLUEPRINT — AWAITING USER APPROVAL TO BEGIN CONTENT PRODUCTION
+================================================================================
