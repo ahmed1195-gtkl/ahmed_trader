@@ -1,32 +1,366 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  BookOpen, CheckCircle, Lightbulb, Target, ListOrdered, BarChart3, Brain, Zap, 
-  GraduationCap, Image as ImageIcon, ZoomIn, X 
+import {
+  BookOpen, CheckCircle, Lightbulb, Target, ListOrdered, Brain,
+  GraduationCap, ZoomIn, X, ChevronRight, ChevronLeft, Clock,
+  Award, ArrowRight, ArrowLeft, Play
 } from 'lucide-react';
-import { schools, lessonsData, diagramTypes } from '../../data/academy/academyData';
+import { schools, lessonsData } from '../../data/academy/academyData';
 import { smcLessons, ictLessons, skLessons } from '../../data/academy/schoolsData';
-import DiagramSVG from './TradingDiagrams';
 import Header from '../Header';
 import Footer from '../Footer';
-import LessonHeader from './ui/LessonHeader';
-import LessonFooter from './ui/LessonFooter';
 import AssessmentModal from './ui/AssessmentModal';
 
-const iconMap = { BarChart3, Brain, Target, Zap, BookOpen };
+// ─── Lesson Progress Bar ───────────────────────────────────────────────────────
+const LessonProgressBar = ({ current, total, color, isRTL }) => {
+  const pct = Math.round(((current + 1) / total) * 100);
+  return (
+    <div className="space-y-1.5">
+      <div className="flex justify-between items-center text-[11px] font-mono text-muted-foreground">
+        <span>{isRTL ? `الدرس ${current + 1} من ${total}` : `Lesson ${current + 1} of ${total}`}</span>
+        <span className="text-amber-500 font-bold">{pct}%</span>
+      </div>
+      <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 0.7, ease: 'easeOut' }}
+          className={`h-full bg-gradient-to-r ${color || 'from-amber-500 to-yellow-500'} rounded-full`}
+        />
+      </div>
+    </div>
+  );
+};
 
+// ─── School name lookup ────────────────────────────────────────────────────────
+const schoolNames = {
+  foundation: { ar: 'أساسيات الأسواق المالية', en: 'Market Foundations' },
+  classical:  { ar: 'التحليل الفني الكلاسيكي', en: 'Classical Technical Analysis' },
+  smc:        { ar: 'مفاهيم المال الذكي', en: 'Smart Money Concepts' },
+  ict:        { ar: 'منهجية ICT', en: 'ICT Method' },
+  sk:         { ar: 'نظام SK', en: 'SK System' },
+};
+
+// ─── Inline Markdown Parser (Bold + Code) ─────────────────────────────────────
+const parseInline = (text) => {
+  if (!text) return null;
+  const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+  return parts.map((part, j) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={j} className="font-bold text-foreground">{part.slice(2, -2)}</strong>;
+    }
+    if (part.startsWith('`') && part.endsWith('`')) {
+      return (
+        <code key={j} className="text-amber-600 dark:text-amber-400 font-mono text-[0.85em] bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+          {part.slice(1, -1)}
+        </code>
+      );
+    }
+    return <span key={j}>{part}</span>;
+  });
+};
+
+// ─── Rich Content Renderer — NO ASCII / NO code-block diagrams ─────────────────
+const renderContent = (text, onZoom, isRTL) => {
+  if (!text) return null;
+
+  const lines = text.split('\n');
+  const elements = [];
+  let tableBuffer = [];
+  let inCodeBlock = false;
+
+  const flushTable = (key) => {
+    if (tableBuffer.length < 2) { tableBuffer = []; return null; }
+
+    const headerLine = tableBuffer[0];
+    const dataLines = tableBuffer.slice(1).filter(l => !/^[|:\s\-]+$/.test(l.trim()));
+
+    const parseRow = (str) => {
+      const cells = str.split('|').map(s => s.trim());
+      if (cells[0] === '') cells.shift();
+      if (cells[cells.length - 1] === '') cells.pop();
+      return cells;
+    };
+
+    const headers = parseRow(headerLine);
+    const rows = dataLines.map(parseRow);
+    tableBuffer = [];
+
+    return (
+      <div key={key} className="my-8 overflow-x-auto rounded-2xl border border-border bg-card shadow-sm">
+        <table className="w-full text-sm border-collapse">
+          <thead className="bg-secondary/60 border-b border-border">
+            <tr>
+              {headers.map((h, ci) => (
+                <th key={ci} className="px-4 py-3 text-start text-xs font-bold text-amber-500 uppercase tracking-wide">
+                  {parseInline(h)}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border/40">
+            {rows.map((row, ri) => (
+              <tr key={ri} className="hover:bg-secondary/30 transition-colors">
+                {row.map((cell, ci) => (
+                  <td key={ci} className="px-4 py-3 text-foreground/90 text-xs sm:text-sm leading-relaxed">
+                    {parseInline(cell)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    // Skip code blocks entirely — replace with nothing (they were ASCII diagrams)
+    if (trimmed.startsWith('```')) {
+      inCodeBlock = !inCodeBlock;
+      if (tableBuffer.length > 0) { elements.push(flushTable(`table-${i}`)); }
+      continue;
+    }
+    if (inCodeBlock) continue; // skip code block content
+
+    // Tables
+    if (trimmed.startsWith('|') && trimmed.includes('|')) {
+      tableBuffer.push(line);
+      continue;
+    } else if (tableBuffer.length > 0) {
+      elements.push(flushTable(`table-${i}`));
+    }
+
+    // Images  ![alt](url)
+    if (trimmed.startsWith('![') && trimmed.includes('](')) {
+      const match = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+      if (match) {
+        const alt = match[1];
+        const src = match[2];
+        elements.push(
+          <motion.div
+            key={`img-${i}`}
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            className="my-10 group"
+          >
+            <div className="rounded-2xl overflow-hidden border border-border bg-card shadow-lg">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-secondary/40">
+                <span className="text-xs font-bold text-amber-500 uppercase tracking-widest font-mono flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-amber-500" />
+                  {alt || (isRTL ? 'إنفوجرافيك تعليمي' : 'Educational Infographic')}
+                </span>
+                <button
+                  onClick={() => onZoom && onZoom(src)}
+                  className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-amber-500 transition-colors font-medium"
+                >
+                  <ZoomIn className="w-3.5 h-3.5" />
+                  <span>{isRTL ? 'تكبير' : 'Zoom'}</span>
+                </button>
+              </div>
+              <div
+                className="relative cursor-zoom-in bg-slate-950/60 flex items-center justify-center overflow-hidden"
+                onClick={() => onZoom && onZoom(src)}
+              >
+                <img
+                  src={src}
+                  alt={alt}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-auto object-contain max-h-[520px] group-hover:scale-[1.015] transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white text-sm font-semibold">
+                  <ZoomIn className="w-5 h-5 text-amber-400" />
+                  <span>{isRTL ? 'عرض بجودة HD' : 'View HD'}</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        );
+        continue;
+      }
+    }
+
+    // Blockquotes
+    if (trimmed.startsWith('>')) {
+      const qText = trimmed.replace(/^>\s*/, '');
+      // Skip comment-only blockquotes that start with # (these are headers in code format)
+      if (qText.startsWith('#')) continue;
+      elements.push(
+        <div key={`bq-${i}`} className="my-5 p-4 rounded-xl bg-amber-500/8 border-s-[3px] border-amber-500 text-foreground/90 text-sm sm:text-base leading-relaxed font-medium">
+          {parseInline(qText)}
+        </div>
+      );
+      continue;
+    }
+
+    // Skip pure comment header lines (# === lines)
+    if (trimmed.startsWith('# ===') || trimmed.startsWith('# ---')) continue;
+
+    // H3
+    if (trimmed.startsWith('### ')) {
+      elements.push(
+        <h3 key={`h3-${i}`} className="text-base sm:text-lg font-bold text-foreground mt-8 mb-3 flex items-center gap-2.5">
+          <span className="w-1 h-4 rounded-full bg-amber-500 inline-block flex-shrink-0" />
+          {parseInline(trimmed.replace(/^###\s*/, ''))}
+        </h3>
+      );
+      continue;
+    }
+
+    // H2
+    if (trimmed.startsWith('## ')) {
+      elements.push(
+        <h2 key={`h2-${i}`} className="text-xl sm:text-2xl font-black text-foreground mt-10 mb-4 pb-2.5 border-b border-border/60">
+          {parseInline(trimmed.replace(/^##\s*/, ''))}
+        </h2>
+      );
+      continue;
+    }
+
+    // H1 — skip the big title lines from content (they duplicate the header)
+    if (trimmed.startsWith('# ')) {
+      const headingText = trimmed.replace(/^#\s*/, '');
+      // Only render if it's a meaningful section heading
+      if (!headingText.includes('===') && !headingText.includes('---') && headingText.length > 3) {
+        elements.push(
+          <h2 key={`h1-${i}`} className="text-xl sm:text-2xl font-black text-foreground mt-10 mb-4 pb-2.5 border-b border-border/60">
+            {parseInline(headingText)}
+          </h2>
+        );
+      }
+      continue;
+    }
+
+    // Bullet lists
+    if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+      const content = trimmed.replace(/^[-*]\s*/, '');
+      // Skip empty or separator lines
+      if (!content || content.match(/^[-=]+$/)) continue;
+      elements.push(
+        <div key={`li-${i}`} className="flex items-start gap-3 my-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2.5 flex-shrink-0" />
+          <p className="text-foreground/90 text-sm sm:text-base leading-relaxed">{parseInline(content)}</p>
+        </div>
+      );
+      continue;
+    }
+
+    // Numbered lists
+    if (/^\d+\.\s/.test(trimmed)) {
+      const num = trimmed.match(/^(\d+)\.\s/)[1];
+      const content = trimmed.replace(/^\d+\.\s/, '');
+      elements.push(
+        <div key={`nl-${i}`} className="flex items-start gap-3 my-2.5">
+          <span className="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-500 font-bold text-xs flex items-center justify-center border border-amber-500/25 flex-shrink-0 mt-0.5">
+            {num}
+          </span>
+          <p className="text-foreground/90 text-sm sm:text-base leading-relaxed">{parseInline(content)}</p>
+        </div>
+      );
+      continue;
+    }
+
+    // Horizontal rules
+    if (trimmed === '---' || trimmed === '***' || trimmed === '___') {
+      elements.push(<div key={`hr-${i}`} className="my-8 border-t border-border/50" />);
+      continue;
+    }
+
+    // Empty lines
+    if (!trimmed) {
+      elements.push(<div key={`sp-${i}`} className="h-2" />);
+      continue;
+    }
+
+    // Regular paragraph
+    elements.push(
+      <p key={`p-${i}`} className="text-foreground/85 text-sm sm:text-base leading-relaxed mb-3">
+        {parseInline(line)}
+      </p>
+    );
+  }
+
+  if (tableBuffer.length > 0) elements.push(flushTable('table-end'));
+
+  return elements;
+};
+
+// ─── Active Recall Screen ──────────────────────────────────────────────────────
+const ActiveRecallScreen = ({ school, lessonData, ui, lang, onStart }) => {
+  const isRTL = lang === 'ar';
+  return (
+    <div className="flex-1 flex items-center justify-center py-20 px-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="w-full max-w-2xl"
+      >
+        {/* Card */}
+        <div className="bg-card border border-border rounded-2xl shadow-xl overflow-hidden">
+          {/* Header */}
+          <div className="bg-secondary/50 border-b border-border p-6 sm:p-8 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-4">
+              <Brain className="w-7 h-7 text-amber-500" />
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black text-foreground">{ui.activeRecallTitle}</h1>
+            <p className="text-muted-foreground text-sm mt-2 leading-relaxed max-w-lg mx-auto">{ui.activeRecallDesc}</p>
+          </div>
+
+          {/* Questions */}
+          <div className="p-6 sm:p-8 space-y-3">
+            {lessonData.activeRecall.map((q, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 * i }}
+                className="flex items-start gap-4 p-4 rounded-xl bg-secondary/40 border border-border/60"
+              >
+                <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${school?.color || 'from-amber-500 to-amber-600'} text-white font-bold text-xs flex items-center justify-center flex-shrink-0`}>
+                  {i + 1}
+                </div>
+                <p className="text-foreground text-sm sm:text-base font-medium leading-relaxed">{q}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <div className="px-6 sm:px-8 pb-6 sm:pb-8">
+            <button
+              onClick={onStart}
+              className={`w-full py-4 rounded-xl bg-gradient-to-r ${school?.color || 'from-amber-500 to-yellow-500'} text-white font-bold text-base shadow-lg hover:opacity-90 transition-all flex items-center justify-center gap-2 cursor-pointer`}
+            >
+              <Play className="w-5 h-5 fill-white" />
+              {ui.startLesson}
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// ─── Main LessonPage Component ─────────────────────────────────────────────────
 const LessonPage = () => {
   const { schoolId, lessonId } = useParams();
   const { i18n } = useTranslation();
   const navigate = useNavigate();
-  const lang = i18n.language?.startsWith('ar') ? 'ar' : i18n.language?.startsWith('fr') ? 'fr' : i18n.language?.startsWith('es') ? 'es' : 'en';
+
+  const lang = i18n.language?.startsWith('ar') ? 'ar'
+    : i18n.language?.startsWith('fr') ? 'fr'
+    : i18n.language?.startsWith('es') ? 'es'
+    : 'en';
   const isRTL = lang === 'ar';
 
   const school = schools.find(s => s.id === schoolId);
 
-  // Get lessons list
   let lessons = [];
   if (schoolId === 'foundation') lessons = lessonsData.foundation || [];
   else if (schoolId === 'classical') lessons = lessonsData.classical || [];
@@ -39,18 +373,13 @@ const LessonPage = () => {
   const prevLesson = currentIndex > 0 ? lessons[currentIndex - 1] : null;
   const nextLesson = currentIndex < lessons.length - 1 ? lessons[currentIndex + 1] : null;
 
-  // UI States
   const [activeRecallStarted, setActiveRecallStarted] = useState(false);
-  const [userAnswers, setUserAnswers] = useState({});
-  const [quizRevealed, setQuizRevealed] = useState(false);
   const [zoomImage, setZoomImage] = useState(null);
   const [isAssessmentOpen, setIsAssessmentOpen] = useState(false);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'instant' });
     setActiveRecallStarted(false);
-    setUserAnswers({});
-    setQuizRevealed(false);
     setZoomImage(null);
     setIsAssessmentOpen(false);
   }, [lessonId]);
@@ -61,341 +390,63 @@ const LessonPage = () => {
   }
 
   const lessonData = lesson[lang] || lesson.en;
-  const imageSrc = lesson?.image || lessonData?.image;
-  const diagramKey = diagramTypes[lesson.diagram] || lesson.diagram;
+  const schoolLabel = schoolNames[schoolId]?.[lang] || schoolNames[schoolId]?.en || schoolId;
 
-  const uiTexts = {
-    en: {
-      steps: 'Step-by-Step Guide',
-      example: 'Practical Example',
-      takeaways: 'Key Takeaways',
-      activeRecallTitle: 'Active Recall',
-      activeRecallDesc: 'Before we begin, try to answer these questions in your head to activate your memory and improve learning retention:',
-      startLesson: 'Start Lesson Now',
-      quizTitle: 'Competency Test',
-      quizDesc: 'Test your understanding of the concepts covered in this lesson. Write down your answers and check them against the model answers below:',
-      placeholderAnswer: 'Type your answer here...',
-      checkQuiz: 'Reveal Model Answers',
-      modelAnswer: 'Model Answer',
-      feedbackLoopTitle: 'Feedback & Review Guide'
-    },
+  const ui = {
     ar: {
-      steps: 'دليل خطوة بخطوة',
-      example: 'مثال عملي',
-      takeaways: 'النقاط الرئيسية',
-      activeRecallTitle: 'التذكير النشط (Active Recall)',
-      activeRecallDesc: 'قبل البدء، حاول التفكير في هذه الأسئلة وإجابتها في ذهنك لتنشيط ذاكرتك وتحقيق أقصى استفادة من الدرس:',
+      activeRecallTitle: 'التحضير الذهني',
+      activeRecallDesc: 'قبل البدء، فكّر في هذه الأسئلة لتنشيط ذاكرتك وتحقيق أقصى استفادة من الدرس:',
       startLesson: 'ابدأ الدرس الآن',
-      quizTitle: 'اختبار الكفاءة (Competency Test)',
-      quizDesc: 'اختبر فهمك للمفاهيم التي تم تغطيتها في هذا الدرس. اكتب إجاباتك ثم قارنها بالإجابات النموذجية:',
-      placeholderAnswer: 'اكتب إجابتك هنا...',
-      checkQuiz: 'إظهار الإجابات النموذجية',
-      modelAnswer: 'الإجابة النموذجية',
-      feedbackLoopTitle: 'دليل التغذية الراجعة والمراجعة'
+      prevLesson: 'الدرس السابق',
+      nextLesson: 'الدرس التالي',
+      completeModule: 'إكمال المحور',
+      assessment: 'اختبار الكفاءة',
+      assessmentDesc: 'اختبر فهمك وسجّل تقدمك في الأكاديمية',
+      startAssessment: 'ابدأ الاختبار',
+      readTime: 'دقيقة قراءة',
+      academy: 'الأكاديمية',
+    },
+    en: {
+      activeRecallTitle: 'Mental Warm-Up',
+      activeRecallDesc: 'Before we begin, reflect on these questions to activate your memory and maximize learning:',
+      startLesson: 'Start Lesson Now',
+      prevLesson: 'Previous Lesson',
+      nextLesson: 'Next Lesson',
+      completeModule: 'Complete Module',
+      assessment: 'Competency Test',
+      assessmentDesc: 'Test your understanding and record your progress in the academy',
+      startAssessment: 'Start Assessment',
+      readTime: 'min read',
+      academy: 'Academy',
     }
-  };
-  const ui = uiTexts[lang] || uiTexts.en;
-
-  // UI UX Pro Max Rich Content Parser (Headings, Tables, Images, Blockquotes, Lists, Code Blocks, Bold)
-  const renderContent = (text) => {
-    if (!text) return null;
-    const lines = text.split('\n');
-    const elements = [];
-    let inCodeBlock = false;
-    let codeBuffer = [];
-    let tableBuffer = [];
-
-    const flushCodeBuffer = (key) => {
-      if (codeBuffer.length > 0) {
-        const codeText = codeBuffer.join('\n');
-        codeBuffer = [];
-        return (
-          <div key={key} className="my-6 p-4 rounded-xl bg-slate-950 border border-amber-500/30 text-amber-300 font-mono text-xs sm:text-sm overflow-x-auto shadow-inner dir-ltr text-left">
-            <pre className="whitespace-pre-wrap">{codeText}</pre>
-          </div>
-        );
-      }
-      return null;
-    };
-
-    const flushTableBuffer = (key) => {
-      if (tableBuffer.length < 2) {
-        tableBuffer = [];
-        return null;
-      }
-      const headerLine = tableBuffer[0];
-      const dataLines = tableBuffer.slice(1).filter(l => !/^[|:\s\-]+$/.test(l.trim()));
-      
-      const parseRow = (str) => {
-        const cells = str.split('|').map(s => s.trim());
-        if (cells[0] === '') cells.shift();
-        if (cells[cells.length - 1] === '') cells.pop();
-        return cells;
-      };
-
-      const headers = parseRow(headerLine);
-      const rows = dataLines.map(parseRow);
-      tableBuffer = [];
-
-      return (
-        <div key={key} className="my-8 overflow-x-auto rounded-2xl border border-border/80 bg-card/70 shadow-lg backdrop-blur-sm">
-          <table className="w-full text-start text-sm border-collapse">
-            <thead className="bg-secondary/80 border-b border-border text-amber-500 font-bold uppercase tracking-wider text-xs">
-              <tr>
-                {headers.map((h, colIdx) => (
-                  <th key={colIdx} className="px-4 py-3.5 text-start font-bold">
-                    {parseInline(h)}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/50">
-              {rows.map((row, rowIdx) => (
-                <tr key={rowIdx} className="hover:bg-amber-500/5 transition-colors">
-                  {row.map((cell, cellIdx) => (
-                    <td key={cellIdx} className="px-4 py-3.5 text-foreground/90 text-start text-xs sm:text-sm font-medium">
-                      {parseInline(cell)}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      );
-    };
-
-    const parseInline = (lineStr) => {
-      const parts = lineStr.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
-      return parts.map((part, j) => {
-        if (part.startsWith('**') && part.endsWith('**')) {
-          return <strong key={j} className="text-amber-500 dark:text-amber-400 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">{part.slice(2, -2)}</strong>;
-        }
-        if (part.startsWith('`') && part.endsWith('`')) {
-          return <code key={j} className="text-cyan-600 dark:text-cyan-400 font-mono text-xs bg-secondary/80 px-1.5 py-0.5 rounded border border-cyan-500/20">{part.slice(1, -1)}</code>;
-        }
-        return <span key={j}>{part}</span>;
-      });
-    };
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      const trimmed = line.trim();
-
-      // Code Block Toggle
-      if (trimmed.startsWith('```')) {
-        if (tableBuffer.length > 0) elements.push(flushTableBuffer(`table-${i}`));
-        if (inCodeBlock) {
-          elements.push(flushCodeBuffer(`code-${i}`));
-          inCodeBlock = false;
-        } else {
-          inCodeBlock = true;
-        }
-        continue;
-      }
-
-      if (inCodeBlock) {
-        codeBuffer.push(line);
-        continue;
-      }
-
-      // Markdown Tables (| header | header |)
-      if (trimmed.startsWith('|') && trimmed.includes('|')) {
-        tableBuffer.push(line);
-        continue;
-      } else if (tableBuffer.length > 0) {
-        elements.push(flushTableBuffer(`table-${i}`));
-      }
-
-      // Markdown Images (![alt](url))
-      if (trimmed.startsWith('![') && trimmed.includes('](')) {
-        const match = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
-        if (match) {
-          const altText = match[1];
-          const imgUrl = match[2];
-          elements.push(
-            <motion.div
-              key={`img-${i}`}
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="my-8 rounded-2xl overflow-hidden glass-card border border-amber-500/30 p-3 sm:p-5 bg-card/80 relative group shadow-xl"
-            >
-              <div className="flex items-center justify-between mb-3 px-1">
-                <span className="text-xs font-mono font-bold text-amber-500 uppercase tracking-widest flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4 text-amber-500" />
-                  {altText || (isRTL ? 'إنفوجرافيك توضيحي' : 'Educational Infographic')}
-                </span>
-                <span className="text-[11px] text-muted-foreground bg-secondary px-2.5 py-1 rounded-md border border-border font-medium flex items-center gap-1">
-                  <ZoomIn className="w-3.5 h-3.5 text-amber-500" />
-                  {isRTL ? 'عرض بحجم HD' : 'HD Zoom'}
-                </span>
-              </div>
-
-              <div
-                onClick={() => setZoomImage(imgUrl)}
-                className="relative cursor-pointer overflow-hidden rounded-xl bg-slate-950/80 flex items-center justify-center min-h-[220px] max-h-[520px]"
-              >
-                <img
-                  src={imgUrl}
-                  alt={altText}
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full h-auto object-contain max-h-[520px] group-hover:scale-[1.02] transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold text-sm backdrop-blur-[2px]">
-                  <ZoomIn className="w-6 h-6 text-amber-400" />
-                  <span>{isRTL ? 'انقر لعرض الصورة بدقة عالية (HD Zoom)' : 'Click to view full HD image'}</span>
-                </div>
-              </div>
-            </motion.div>
-          );
-          continue;
-        }
-      }
-
-      // Blockquotes / Callouts
-      if (trimmed.startsWith('>')) {
-        const quoteText = trimmed.replace(/^>\s*/, '');
-        elements.push(
-          <div key={`quote-${i}`} className="my-4 p-4 rounded-xl bg-amber-500/10 border-s-4 border-amber-500 text-foreground font-medium text-sm sm:text-base leading-relaxed shadow-sm">
-            {parseInline(quoteText)}
-          </div>
-        );
-        continue;
-      }
-
-      // Headings
-      if (trimmed.startsWith('### ')) {
-        elements.push(
-          <h3 key={`h3-${i}`} className="text-lg sm:text-xl font-bold text-amber-500 dark:text-amber-400 mt-6 mb-3 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
-            {parseInline(trimmed.replace(/^###\s*/, ''))}
-          </h3>
-        );
-        continue;
-      }
-
-      if (trimmed.startsWith('## ')) {
-        elements.push(
-          <h2 key={`h2-${i}`} className="text-xl sm:text-2xl font-black text-foreground mt-8 mb-4 pb-2 border-b border-border/80 bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-600 dark:from-amber-400 dark:via-amber-500 dark:to-yellow-500 bg-clip-text text-transparent">
-            {parseInline(trimmed.replace(/^##\s*/, ''))}
-          </h2>
-        );
-        continue;
-      }
-
-      if (trimmed.startsWith('# ')) {
-        elements.push(
-          <h1 key={`h1-${i}`} className="text-2xl sm:text-3xl font-black text-foreground mt-8 mb-4">
-            {parseInline(trimmed.replace(/^#\s*/, ''))}
-          </h1>
-        );
-        continue;
-      }
-
-      // Bullet Lists
-      if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
-        elements.push(
-          <div key={`li-${i}`} className="flex items-start gap-2.5 my-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2.5 flex-shrink-0" />
-            <p className="text-foreground text-sm sm:text-base leading-relaxed">{parseInline(trimmed.replace(/^[-*]\s*/, ''))}</p>
-          </div>
-        );
-        continue;
-      }
-
-      // Numbered Lists
-      if (/^\d+\.\s/.test(trimmed)) {
-        const num = trimmed.match(/^(\d+)\.\s/)[1];
-        const itemText = trimmed.replace(/^\d+\.\s/, '');
-        elements.push(
-          <div key={`numli-${i}`} className="flex items-start gap-3 my-2.5">
-            <span className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-500 dark:text-amber-400 font-bold text-xs flex items-center justify-center border border-amber-500/30 flex-shrink-0 mt-0.5">
-              {num}
-            </span>
-            <p className="text-foreground text-sm sm:text-base leading-relaxed">{parseInline(itemText)}</p>
-          </div>
-        );
-        continue;
-      }
-
-      // Empty Lines
-      if (!trimmed) {
-        elements.push(<div key={`blank-${i}`} className="h-3" />);
-        continue;
-      }
-
-      // Regular Paragraphs
-      elements.push(
-        <p key={`p-${i}`} className="mb-3 text-foreground text-sm sm:text-base leading-relaxed">
-          {parseInline(line)}
-        </p>
-      );
-    }
-
-    if (tableBuffer.length > 0) elements.push(flushTableBuffer('table-end'));
-    return elements;
+  }[lang] || {
+    activeRecallTitle: 'Mental Warm-Up',
+    activeRecallDesc: 'Before we begin, reflect on these questions:',
+    startLesson: 'Start Lesson',
+    prevLesson: 'Previous',
+    nextLesson: 'Next',
+    completeModule: 'Complete',
+    assessment: 'Assessment',
+    assessmentDesc: 'Test your understanding',
+    startAssessment: 'Start',
+    readTime: 'min read',
+    academy: 'Academy',
   };
 
-  // Active Recall Phase Screen
-  if (lessonData?.activeRecall && !activeRecallStarted) {
+  // Active Recall gate
+  if (lessonData?.activeRecall?.length > 0 && !activeRecallStarted) {
     return (
-      <div className={`min-h-screen bg-background text-foreground flex flex-col justify-between ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className={`min-h-screen bg-background text-foreground flex flex-col ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
         <Header />
-        
-        <div className="flex-1 flex items-center justify-center pt-28 pb-16 px-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-2xl glass-card border border-border p-6 sm:p-10 relative overflow-hidden rounded-2xl shadow-2xl"
-          >
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-80 bg-amber-500/5 rounded-full blur-3xl -z-10" />
-
-            <div className="flex flex-col items-center text-center mb-8">
-              <div className="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center mb-4 border border-amber-500/20">
-                <Brain className="w-8 h-8 text-amber-500 animate-pulse" />
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent mb-3">
-                {ui.activeRecallTitle}
-              </h1>
-              <p className="text-muted-foreground text-sm sm:text-base max-w-lg leading-relaxed">
-                {ui.activeRecallDesc}
-              </p>
-            </div>
-
-            <div className="space-y-4 mb-10">
-              {lessonData.activeRecall.map((question, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: isRTL ? 30 : -30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 + i * 0.1 }}
-                  className="flex gap-4 p-4 rounded-xl bg-secondary/50 border border-border"
-                >
-                  <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${school.color} flex items-center justify-center text-white font-bold text-sm flex-shrink-0`}>
-                    {i + 1}
-                  </div>
-                  <p className="text-foreground font-semibold text-sm sm:text-base leading-relaxed text-start self-center">
-                    {question}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
-
-            <div className="flex justify-center">
-              <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => setActiveRecallStarted(true)}
-                className={`px-8 py-4 bg-gradient-to-r ${school.color} hover:opacity-95 text-white font-bold rounded-xl transition-all shadow-lg text-sm sm:text-base cursor-pointer`}
-              >
-                {ui.startLesson}
-              </motion.button>
-            </div>
-          </motion.div>
+        <div className="pt-20 flex-1 flex flex-col">
+          <ActiveRecallScreen
+            school={school}
+            lessonData={lessonData}
+            ui={ui}
+            lang={lang}
+            onStart={() => setActiveRecallStarted(true)}
+          />
         </div>
-
         <Footer />
       </div>
     );
@@ -405,154 +456,168 @@ const LessonPage = () => {
     <div className={`min-h-screen bg-background text-foreground ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <Header />
 
-      <main className="pt-24 pb-20 max-w-4xl mx-auto px-4 sm:px-6">
-        {/* Lesson Modular Header */}
-        <LessonHeader
-          schoolId={schoolId}
-          school={school}
-          lesson={lesson}
-          currentIndex={currentIndex}
-          totalLessons={lessons.length}
-          lang={lang}
-        />
+      <main className="pt-20 pb-24 max-w-4xl mx-auto px-4 sm:px-6">
 
-        {/* Real Chapter Image Display (High Quality Visual) */}
-        {imageSrc && (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="mb-8 rounded-2xl overflow-hidden glass-card border border-amber-500/30 p-3 sm:p-5 bg-secondary/30 relative group shadow-xl"
-          >
-            <div className="flex items-center justify-between mb-3 px-1">
-              <span className="text-xs font-mono font-bold text-amber-500 uppercase tracking-widest flex items-center gap-2">
-                <ImageIcon className="w-4 h-4 text-amber-500" />
-                {isRTL ? 'الشكل التوضيحي البصري الرئيسي' : 'Main Chapter Visual'}
-              </span>
-              <span className="text-[11px] text-muted-foreground bg-background/80 px-2.5 py-1 rounded-md border border-border font-medium">
-                {isRTL ? 'انقر لتكبير الصورة HD' : 'Click HD Zoom'}
-              </span>
-            </div>
+        {/* ── Breadcrumb ── */}
+        <motion.nav
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-1.5 text-xs text-muted-foreground mt-6 mb-8 flex-wrap font-medium"
+          aria-label="breadcrumb"
+        >
+          <button onClick={() => navigate('/academy')} className="hover:text-amber-500 transition-colors">
+            {ui.academy}
+          </button>
+          <ChevronRight className={`w-3.5 h-3.5 opacity-40 ${isRTL ? 'rotate-180' : ''}`} />
+          <button onClick={() => navigate(`/academy/${schoolId}`)} className="hover:text-amber-500 transition-colors">
+            {schoolLabel}
+          </button>
+          <ChevronRight className={`w-3.5 h-3.5 opacity-40 ${isRTL ? 'rotate-180' : ''}`} />
+          <span className="text-amber-500 font-bold">{isRTL ? `الدرس ${lesson.id}` : `Lesson ${lesson.id}`}</span>
+        </motion.nav>
 
-            <div
-              onClick={() => setZoomImage(imageSrc)}
-              className="relative cursor-pointer overflow-hidden rounded-xl bg-black/40 flex items-center justify-center min-h-[240px] max-h-[500px]"
-            >
-              <img
-                src={imageSrc}
-                alt={lessonData?.title || 'Chapter visual'}
-                loading="lazy"
-                decoding="async"
-                className="w-full h-auto object-contain max-h-[500px] group-hover:scale-[1.02] transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold text-sm backdrop-blur-[2px]">
-                <ZoomIn className="w-6 h-6 text-amber-400" />
-                <span>{isRTL ? 'عرض بحجم كامل (HD Zoom)' : 'View Full HD Image'}</span>
+        {/* ── Lesson Title Card ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-10"
+        >
+          <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm">
+            {/* Badge row */}
+            <div className="flex items-center gap-2.5 mb-4 flex-wrap">
+              <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${school.color} flex items-center justify-center text-white font-black text-sm shadow-md flex-shrink-0`}>
+                {lesson.id}
+              </div>
+              <span className="text-xs font-mono font-semibold text-muted-foreground uppercase tracking-wider">
+                {isRTL ? `الدرس ${currentIndex + 1} من ${lessons.length}` : `Lesson ${currentIndex + 1} of ${lessons.length}`}
+              </span>
+              <div className="flex items-center gap-1.5 ms-auto">
+                <Clock className="w-3.5 h-3.5 text-amber-500" />
+                <span className="text-xs text-muted-foreground font-medium">80 {ui.readTime}</span>
               </div>
             </div>
-          </motion.div>
-        )}
 
-        {/* Interactive SVG Diagram */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="mb-10 rounded-2xl overflow-hidden border border-border"
-        >
-          <DiagramSVG type={diagramKey} />
-        </motion.div>
+            {/* Title */}
+            <h1 className="text-2xl sm:text-3xl font-black text-foreground leading-tight mb-5">
+              {lessonData?.title}
+            </h1>
 
-        {/* Lesson Content */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="prose dark:prose-invert max-w-none mb-10"
-        >
-          <div className="text-foreground text-base sm:text-lg leading-relaxed">
-            {renderContent(lessonData?.content)}
+            {/* Progress */}
+            <LessonProgressBar
+              current={currentIndex}
+              total={lessons.length}
+              color={school.color}
+              isRTL={isRTL}
+            />
           </div>
         </motion.div>
 
-        {/* Step-by-Step Guide */}
-        {lessonData?.steps && lessonData.steps.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="mb-10 bg-card rounded-2xl border border-border p-5 sm:p-7 shadow-sm"
-          >
-            <h3 className="text-lg font-bold text-foreground mb-5 flex items-center gap-2">
-              <ListOrdered className="w-5 h-5 text-amber-500" />
-              {ui.steps}
-            </h3>
-            <div className="space-y-3">
-              {lessonData.steps.map((step, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <div className={`flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br ${school.color} flex items-center justify-center text-white text-xs font-bold mt-0.5`}>
-                    {i + 1}
-                  </div>
-                  <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">{step}</p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
+        {/* ── Main Lesson Content ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-12 text-foreground leading-relaxed space-y-1"
+        >
+          {renderContent(lessonData?.content, setZoomImage, isRTL)}
+        </motion.div>
 
-        {/* Practical Example */}
-        {lessonData?.example && (
+        {/* ── Key Takeaways ── */}
+        {lessonData?.keyTakeaways?.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="mb-10 bg-gradient-to-br from-blue-500/5 to-blue-900/10 rounded-2xl border border-blue-500/20 p-5 sm:p-7"
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-10 bg-amber-500/5 border border-amber-500/20 rounded-2xl p-6 sm:p-7"
           >
-            <h3 className="text-lg font-bold text-blue-400 mb-3 flex items-center gap-2">
-              <Target className="w-5 h-5" />
-              {ui.example}
-            </h3>
-            <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
-              {lessonData.example}
-            </p>
-          </motion.div>
-        )}
-
-        {/* Key Takeaways */}
-        {lessonData?.keyTakeaways && lessonData.keyTakeaways.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="mb-10 bg-gradient-to-br from-amber-500/5 to-amber-900/10 rounded-2xl border border-amber-500/20 p-5 sm:p-7"
-          >
-            <h3 className="text-lg font-bold text-amber-500 mb-4 flex items-center gap-2">
+            <h3 className="text-base font-bold text-amber-500 mb-4 flex items-center gap-2">
               <Lightbulb className="w-5 h-5" />
-              {ui.takeaways}
+              {isRTL ? 'النقاط الرئيسية' : 'Key Takeaways'}
             </h3>
             <div className="space-y-2.5">
-              {lessonData.keyTakeaways.map((takeaway, i) => (
-                <div key={i} className="flex items-start gap-2.5">
-                  <CheckCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-1" />
-                  <p className="text-muted-foreground text-sm sm:text-base">{takeaway}</p>
+              {lessonData.keyTakeaways.map((item, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <CheckCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <p className="text-foreground/85 text-sm sm:text-base leading-relaxed">{item}</p>
                 </div>
               ))}
             </div>
           </motion.div>
         )}
 
-        {/* Lesson Footer Navigation & Assessment Launcher */}
-        <LessonFooter
-          schoolId={schoolId}
-          school={school}
-          prevLesson={prevLesson}
-          nextLesson={nextLesson}
-          onOpenAssessment={() => setIsAssessmentOpen(true)}
-          lang={lang}
-        />
+        {/* ── Assessment Banner ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-8"
+        >
+          <div className="bg-card border border-border rounded-2xl p-6 sm:p-7 shadow-sm">
+            <div className="flex items-start justify-between gap-5 flex-wrap">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center flex-shrink-0">
+                  <GraduationCap className="w-6 h-6 text-amber-500" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-foreground">{ui.assessment}</h3>
+                  <p className="text-sm text-muted-foreground mt-0.5">{ui.assessmentDesc}</p>
+                </div>
+              </div>
+              <button
+                id="start-assessment-btn"
+                onClick={() => setIsAssessmentOpen(true)}
+                className={`px-6 py-3 rounded-xl bg-gradient-to-r ${school.color} text-white font-bold text-sm shadow-md hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer flex-shrink-0`}
+              >
+                <Award className="w-4 h-4" />
+                {ui.startAssessment}
+              </button>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* ── Lesson Navigation ── */}
+        <div className="flex items-center justify-between gap-4 pt-6 border-t border-border">
+          {prevLesson ? (
+            <button
+              onClick={() => navigate(`/academy/${schoolId}/lesson/${prevLesson.id}`)}
+              className={`flex items-center gap-2.5 px-4 sm:px-5 py-3 rounded-xl bg-secondary hover:bg-secondary/70 border border-border hover:border-amber-500/30 transition-all text-sm font-semibold cursor-pointer ${isRTL ? 'flex-row-reverse' : ''}`}
+            >
+              {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+              <div className={isRTL ? 'text-right' : 'text-left'}>
+                <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{ui.prevLesson}</div>
+                <div className="text-foreground font-bold truncate max-w-[130px] sm:max-w-[200px] text-xs">
+                  {(prevLesson[lang] || prevLesson.en)?.title}
+                </div>
+              </div>
+            </button>
+          ) : <div />}
+
+          {nextLesson ? (
+            <button
+              onClick={() => navigate(`/academy/${schoolId}/lesson/${nextLesson.id}`)}
+              className={`flex items-center gap-2.5 px-4 sm:px-5 py-3 rounded-xl bg-gradient-to-r ${school.color} text-white hover:opacity-90 transition-all text-sm font-bold shadow-md cursor-pointer ${isRTL ? 'flex-row-reverse' : ''}`}
+            >
+              <div className={isRTL ? 'text-left' : 'text-right'}>
+                <div className="text-[10px] text-white/70 uppercase tracking-wider mb-0.5">{ui.nextLesson}</div>
+                <div className="text-white font-bold truncate max-w-[130px] sm:max-w-[200px] text-xs">
+                  {(nextLesson[lang] || nextLesson.en)?.title}
+                </div>
+              </div>
+              {isRTL ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate(`/academy/${schoolId}`)}
+              className="flex items-center gap-2 px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-bold text-sm transition-all shadow-md cursor-pointer"
+            >
+              <CheckCircle className="w-4 h-4" />
+              {ui.completeModule}
+            </button>
+          )}
+        </div>
       </main>
 
-      {/* Interactive Assessment Modal Dialog */}
+      {/* ── Assessment Modal ── */}
       <AssessmentModal
         isOpen={isAssessmentOpen}
         onClose={() => setIsAssessmentOpen(false)}
@@ -560,9 +625,10 @@ const LessonPage = () => {
         lesson={lesson}
         school={school}
         lang={lang}
+        onCompleted={() => {}}
       />
 
-      {/* Fullscreen HD Lightbox Modal */}
+      {/* ── HD Image Lightbox ── */}
       <AnimatePresence>
         {zoomImage && (
           <motion.div
@@ -570,22 +636,23 @@ const LessonPage = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setZoomImage(null)}
-            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 cursor-zoom-out"
+            className="fixed inset-0 z-50 bg-black/92 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 cursor-zoom-out"
           >
             <button
               onClick={() => setZoomImage(null)}
-              aria-label="Close image zoom"
-              className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 text-white hover:bg-white/20 flex items-center justify-center transition-colors cursor-pointer"
+              aria-label="Close"
+              className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors z-10"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5" />
             </button>
             <motion.img
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
+              initial={{ scale: 0.92, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.92, opacity: 0 }}
               src={zoomImage}
-              alt="Full resolution chapter visual"
-              className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl border border-white/10"
+              alt="Zoomed infographic"
+              onClick={e => e.stopPropagation()}
+              className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl border border-white/10 cursor-default"
             />
           </motion.div>
         )}

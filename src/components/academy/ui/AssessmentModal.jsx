@@ -1,292 +1,317 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GraduationCap, CheckCircle2, XCircle, Award, ArrowRight, RotateCcw, X, HelpCircle, Check, Loader2 } from 'lucide-react';
+import {
+  GraduationCap, X, CheckCircle2, XCircle, Award, RotateCcw,
+  ChevronLeft, ChevronRight, Check, Loader2, Trophy, BookOpen
+} from 'lucide-react';
 import { saveAssessmentResult } from '../../../services/assessmentService';
 
+// ─── Assessment Modal ─────────────────────────────────────────────────────────
 export const AssessmentModal = ({ isOpen, onClose, schoolId, lesson, school, lang = 'ar', onCompleted }) => {
   const isRTL = lang === 'ar';
-  const quiz = lesson[lang]?.quiz || lesson.en?.quiz || [];
-  
-  const [currentStep, setCurrentStep] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [resultData, setResultData] = useState(null);
+  const quiz = lesson?.[lang]?.quiz || lesson?.en?.quiz || lesson?.ar?.quiz || [];
 
-  if (!isOpen || quiz.length === 0) return null;
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [result, setResult] = useState(null);
 
-  const currentQuestion = quiz[currentStep];
-
-  const handleSelectOption = (questionIndex, optionIndex) => {
-    if (isSubmitted) return;
-    setSelectedAnswers(prev => ({
-      ...prev,
-      [questionIndex]: optionIndex
-    }));
-  };
-
-  const handleNext = () => {
-    if (currentStep < quiz.length - 1) {
-      setCurrentStep(prev => prev + 1);
+  // Reset on open
+  useEffect(() => {
+    if (isOpen) {
+      setStep(0);
+      setAnswers({});
+      setSubmitted(false);
+      setSaving(false);
+      setResult(null);
     }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+  if (quiz.length === 0) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
+        <div className="bg-card border border-border rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl" onClick={e => e.stopPropagation()}>
+          <BookOpen className="w-10 h-10 text-amber-500 mx-auto mb-4" />
+          <h2 className="text-lg font-bold text-foreground mb-2">
+            {isRTL ? 'لا توجد أسئلة بعد' : 'No questions yet'}
+          </h2>
+          <p className="text-sm text-muted-foreground mb-6">
+            {isRTL ? 'سيتم إضافة أسئلة تقييمية لهذا الدرس قريباً.' : 'Assessment questions for this lesson will be added soon.'}
+          </p>
+          <button onClick={onClose} className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-bold text-sm cursor-pointer transition-colors">
+            {isRTL ? 'إغلاق' : 'Close'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const current = quiz[step];
+  const totalQ = quiz.length;
+  const progress = Math.round(((step + 1) / totalQ) * 100);
+
+  const handleAnswer = (qIdx, val) => {
+    if (submitted) return;
+    setAnswers(prev => ({ ...prev, [qIdx]: val }));
   };
 
-  const handlePrev = () => {
-    if (currentStep > 0) {
-      setCurrentStep(prev => prev - 1);
-    }
-  };
+  const handleNext = () => { if (step < totalQ - 1) setStep(s => s + 1); };
+  const handlePrev = () => { if (step > 0) setStep(s => s - 1); };
 
   const handleSubmit = async () => {
-    setIsSubmitting(true);
-    let calculatedScore = 0;
-
+    setSaving(true);
+    let score = 0;
     quiz.forEach((q, idx) => {
-      const selected = selectedAnswers[idx];
-      // If question has options & correctIndex
+      const sel = answers[idx];
       if (q.correctIndex !== undefined) {
-        if (selected === q.correctIndex) calculatedScore += 1;
+        if (sel === q.correctIndex) score++;
       } else {
-        // If simple q & a model answer, count answered as completed
-        if (selected !== undefined && selected !== null) calculatedScore += 1;
+        if (sel !== undefined && sel !== null && sel !== '') score++;
       }
     });
 
     const res = await saveAssessmentResult({
       schoolId,
       lessonId: lesson.id,
-      score: calculatedScore,
-      totalQuestions: quiz.length,
-      answers: selectedAnswers,
-      timeSpentSeconds: 120
+      score,
+      totalQuestions: totalQ,
+      answers,
+      timeSpentSeconds: 0
     });
 
-    setResultData({
-      score: calculatedScore,
-      total: quiz.length,
-      percentage: res.percentage || Math.round((calculatedScore / quiz.length) * 100),
-      passed: res.passed ?? ((calculatedScore / quiz.length) >= 0.7)
+    const pct = Math.round((score / totalQ) * 100);
+    setResult({
+      score,
+      total: totalQ,
+      pct: res.percentage ?? pct,
+      passed: res.passed ?? pct >= 70
     });
-
-    setIsSubmitted(true);
-    setIsSubmitting(false);
+    setSubmitted(true);
+    setSaving(false);
     if (onCompleted) onCompleted(res);
   };
 
-  const handleReset = () => {
-    setCurrentStep(0);
-    setSelectedAnswers({});
-    setIsSubmitted(false);
-    setResultData(null);
+  const handleRetake = () => {
+    setStep(0);
+    setAnswers({});
+    setSubmitted(false);
+    setResult(null);
   };
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm overflow-y-auto">
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm overflow-y-auto"
+        onClick={onClose}
+      >
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 10 }}
+          initial={{ opacity: 0, scale: 0.96, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 10 }}
+          exit={{ opacity: 0, scale: 0.96, y: 12 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+          onClick={e => e.stopPropagation()}
           role="dialog"
           aria-modal="true"
-          aria-labelledby="assessment-modal-title"
-          className={`w-full max-w-2xl bg-card border border-border rounded-2xl shadow-2xl overflow-hidden relative ${isRTL ? 'rtl' : 'ltr'}`}
+          aria-labelledby="assessment-title"
           dir={isRTL ? 'rtl' : 'ltr'}
+          className={`w-full max-w-xl bg-card border border-border rounded-2xl shadow-2xl overflow-hidden relative ${isRTL ? 'rtl' : 'ltr'}`}
         >
-          {/* Header */}
-          <div className="p-5 sm:p-6 border-b border-border flex items-center justify-between bg-secondary/40">
+          {/* ── Header ── */}
+          <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-border bg-secondary/40">
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${school?.color || 'from-amber-500 to-amber-600'} flex items-center justify-center text-white shadow-md`}>
+              <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${school?.color || 'from-amber-500 to-amber-600'} flex items-center justify-center text-white shadow-sm flex-shrink-0`}>
                 <GraduationCap className="w-5 h-5" />
               </div>
               <div>
-                <h2 id="assessment-modal-title" className="text-lg sm:text-xl font-bold text-foreground">
+                <h2 id="assessment-title" className="text-base font-bold text-foreground">
                   {isRTL ? 'اختبار كفاءة الدرس' : 'Lesson Assessment'}
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  {isRTL ? `الدرس ${lesson.id}: ${lesson[lang]?.title || ''}` : `Lesson ${lesson.id}: ${lesson.en?.title || ''}`}
+                  {isRTL
+                    ? `الدرس ${lesson.id}: ${lesson[lang]?.title || lesson.en?.title || ''}`
+                    : `Lesson ${lesson.id}: ${lesson.en?.title || lesson.ar?.title || ''}`}
                 </p>
               </div>
             </div>
-
             <button
               onClick={onClose}
-              aria-label="Close modal"
-              className="w-9 h-9 rounded-lg bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors"
+              aria-label="Close"
+              className="w-8 h-8 rounded-lg bg-secondary hover:bg-secondary/70 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer flex-shrink-0"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Modal Body */}
-          <div className="p-5 sm:p-8">
-            {!isSubmitted ? (
-              <div>
-                {/* Progress Header */}
-                <div className="flex items-center justify-between text-xs text-muted-foreground mb-4 font-mono font-medium">
-                  <span>{isRTL ? `السؤال ${currentStep + 1} من ${quiz.length}` : `Question ${currentStep + 1} of ${quiz.length}`}</span>
-                  <span>{Math.round(((currentStep + 1) / quiz.length) * 100)}%</span>
-                </div>
-
-                <div className="w-full bg-secondary rounded-full h-1.5 mb-6 overflow-hidden">
-                  <div
-                    className="h-full bg-amber-500 transition-all duration-300 rounded-full"
-                    style={{ width: `${((currentStep + 1) / quiz.length) * 100}%` }}
-                  />
+          {/* ── Body ── */}
+          <div className="p-5 sm:p-7">
+            {!submitted ? (
+              <>
+                {/* Progress */}
+                <div className="mb-6">
+                  <div className="flex justify-between text-xs text-muted-foreground font-mono mb-2">
+                    <span>{isRTL ? `السؤال ${step + 1} من ${totalQ}` : `Question ${step + 1} of ${totalQ}`}</span>
+                    <span className="text-amber-500 font-bold">{progress}%</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full bg-amber-500 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progress}%` }}
+                      transition={{ duration: 0.3 }}
+                    />
+                  </div>
                 </div>
 
                 {/* Question */}
-                <div className="space-y-4 mb-8">
-                  <h3 className="text-base sm:text-lg font-bold text-foreground leading-relaxed">
-                    {currentQuestion.q}
+                <div className="mb-6 space-y-4">
+                  <h3 className="text-sm sm:text-base font-bold text-foreground leading-relaxed">
+                    {current.q}
                   </h3>
 
-                  {/* Multiple Choice Options or Model Answer Format */}
-                  {currentQuestion.options ? (
+                  {/* Multiple choice */}
+                  {current.options ? (
                     <div className="space-y-2.5">
-                      {currentQuestion.options.map((option, optIdx) => {
-                        const isSelected = selectedAnswers[currentStep] === optIdx;
+                      {current.options.map((opt, oi) => {
+                        const sel = answers[step] === oi;
                         return (
                           <button
-                            key={optIdx}
-                            onClick={() => handleSelectOption(currentStep, optIdx)}
-                            className={`w-full p-4 rounded-xl text-start border transition-all flex items-center justify-between gap-3 text-sm font-medium ${
-                              isSelected
-                                ? 'border-amber-500 bg-amber-500/10 text-amber-500 font-bold shadow-sm'
-                                : 'border-border bg-secondary/30 text-foreground hover:bg-secondary/70'
+                            key={oi}
+                            onClick={() => handleAnswer(step, oi)}
+                            className={`w-full px-4 py-3.5 rounded-xl text-start border text-sm font-medium transition-all flex items-center justify-between gap-3 cursor-pointer ${
+                              sel
+                                ? 'border-amber-500 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold'
+                                : 'border-border bg-secondary/30 text-foreground hover:bg-secondary/60 hover:border-amber-500/30'
                             }`}
                           >
-                            <span className="leading-relaxed">{option}</span>
-                            <div className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 ${
-                              isSelected ? 'border-amber-500 bg-amber-500 text-black' : 'border-border'
+                            <span className="leading-relaxed">{opt}</span>
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                              sel ? 'border-amber-500 bg-amber-500' : 'border-border'
                             }`}>
-                              {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                              {sel && <Check className="w-3 h-3 text-white stroke-[3]" />}
                             </div>
                           </button>
                         );
                       })}
                     </div>
                   ) : (
-                    /* Self-evaluated Open Question with Model Answer Reveal */
+                    /* Open-ended with model answer */
                     <div className="space-y-3">
                       <p className="text-xs text-muted-foreground">
-                        {isRTL ? 'فكر في الإجابة واكتب مذكرتك القصيرة أدناه، ثم اختر نعم إذا تطابقت مع مفهومك:' : 'Reflect on the answer and type a brief note, then check option below:'}
+                        {isRTL ? 'فكّر في الإجابة وسجّل ملاحظتك:' : 'Reflect and note your answer:'}
                       </p>
                       <textarea
-                        value={selectedAnswers[currentStep] || ''}
-                        onChange={(e) => handleSelectOption(currentStep, e.target.value)}
-                        placeholder={isRTL ? 'اكتب ملاحظتك هنا...' : 'Type your note here...'}
-                        className="w-full h-28 p-3.5 rounded-xl bg-secondary/30 border border-border text-foreground text-sm focus:border-amber-500 focus:outline-none resize-none"
+                        value={answers[step] || ''}
+                        onChange={e => handleAnswer(step, e.target.value)}
+                        placeholder={isRTL ? 'اكتب إجابتك هنا...' : 'Write your answer here...'}
+                        className="w-full h-28 p-3.5 rounded-xl bg-secondary/30 border border-border text-foreground text-sm focus:border-amber-500 focus:outline-none resize-none transition-colors"
                       />
-                      {currentQuestion.a && (
-                        <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs sm:text-sm text-foreground/90">
-                          <strong className="text-amber-500 block mb-1 font-bold">
+                      {current.a && (
+                        <div className="p-4 rounded-xl bg-secondary/60 border border-border">
+                          <p className="text-xs font-bold text-amber-500 mb-1.5">
                             {isRTL ? 'الإجابة النموذجية:' : 'Model Answer:'}
-                          </strong>
-                          {currentQuestion.a}
+                          </p>
+                          <p className="text-sm text-foreground/90 leading-relaxed">{current.a}</p>
                         </div>
                       )}
                     </div>
                   )}
                 </div>
 
-                {/* Footer Navigation */}
-                <div className="flex items-center justify-between pt-4 border-t border-border">
+                {/* Navigation */}
+                <div className="flex items-center justify-between gap-3 pt-4 border-t border-border">
                   <button
                     onClick={handlePrev}
-                    disabled={currentStep === 0}
-                    className="px-4 py-2.5 rounded-xl border border-border bg-secondary hover:bg-secondary/80 text-foreground disabled:opacity-40 disabled:cursor-not-allowed text-xs sm:text-sm font-semibold transition-colors"
+                    disabled={step === 0}
+                    className="px-4 py-2.5 rounded-xl border border-border bg-secondary hover:bg-secondary/70 text-foreground disabled:opacity-30 disabled:cursor-not-allowed text-sm font-semibold transition-colors cursor-pointer flex items-center gap-1.5"
                   >
-                    {isRTL ? 'السابق' : 'Previous'}
+                    {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+                    {isRTL ? 'السابق' : 'Back'}
                   </button>
 
-                  {currentStep < quiz.length - 1 ? (
+                  {step < totalQ - 1 ? (
                     <button
                       onClick={handleNext}
-                      className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black text-xs sm:text-sm font-bold transition-all shadow-md flex items-center gap-1.5"
+                      className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black text-sm font-bold transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
                     >
-                      <span>{isRTL ? 'التالي' : 'Next'}</span>
-                      <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+                      {isRTL ? 'التالي' : 'Next'}
+                      {isRTL ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                     </button>
                   ) : (
                     <button
                       onClick={handleSubmit}
-                      disabled={isSubmitting}
-                      className="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs sm:text-sm font-bold transition-all shadow-md flex items-center gap-2"
+                      disabled={saving}
+                      className="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold transition-colors shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-60"
                     >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>{isRTL ? 'جاري الحفظ...' : 'Saving...'}</span>
-                        </>
+                      {saving ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /><span>{isRTL ? 'جاري الحفظ...' : 'Saving...'}</span></>
                       ) : (
-                        <>
-                          <CheckCircle2 className="w-4 h-4" />
-                          <span>{isRTL ? 'إنهاء وحفظ النتيجة' : 'Submit Assessment'}</span>
-                        </>
+                        <><CheckCircle2 className="w-4 h-4" /><span>{isRTL ? 'إنهاء الاختبار' : 'Submit'}</span></>
                       )}
                     </button>
                   )}
                 </div>
-              </div>
+              </>
             ) : (
-              /* Results Screen */
+              /* ── Results Screen ── */
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-4 space-y-6"
+                className="text-center py-2 space-y-5"
               >
-                <div className="w-16 h-16 rounded-full mx-auto flex items-center justify-center bg-amber-500/10 border border-amber-500/30 text-amber-500">
-                  <Award className="w-8 h-8 animate-bounce" />
+                {/* Score icon */}
+                <div className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center ${
+                  result.passed ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-amber-500/10 border border-amber-500/20'
+                }`}>
+                  {result.passed
+                    ? <Trophy className="w-8 h-8 text-emerald-400" />
+                    : <Award className="w-8 h-8 text-amber-500" />}
                 </div>
 
+                {/* Title */}
                 <div>
-                  <h3 className="text-2xl font-black text-foreground">
-                    {resultData.passed
-                      ? (isRTL ? 'أحسنت! تم اجتياز الاختبار بنجاح 🎉' : 'Assessment Passed! 🎉')
+                  <h3 className="text-xl font-black text-foreground">
+                    {result.passed
+                      ? (isRTL ? 'ممتاز! اجتزت الاختبار 🎉' : 'Excellent! Assessment Passed 🎉')
                       : (isRTL ? 'مراجعة مطلوبة' : 'Review Recommended')}
                   </h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {isRTL ? `حصلت على درجة ${resultData.percentage}% (${resultData.score} من أصل ${resultData.total})` : `You scored ${resultData.percentage}% (${resultData.score} of ${resultData.total})`}
+                    {isRTL
+                      ? `النتيجة: ${result.pct}% — ${result.score} من ${result.total} إجابة صحيحة`
+                      : `Score: ${result.pct}% — ${result.score} of ${result.total} correct`}
                   </p>
                 </div>
 
-                {/* Score badge */}
+                {/* Status badge */}
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary border border-border text-sm font-bold">
-                  <span className={resultData.passed ? 'text-emerald-500' : 'text-amber-500'}>
-                    {resultData.passed ? (isRTL ? 'حالة الاعتماد: مكتمل' : 'Status: Passed') : (isRTL ? 'حالة الاعتماد: ينصح بالمراجعة' : 'Status: Review Required')}
-                  </span>
+                  {result.passed
+                    ? <><CheckCircle2 className="w-4 h-4 text-emerald-400" /><span className="text-emerald-400">{isRTL ? 'اكتمل — تم الحفظ في Firebase' : 'Passed — Saved to Firebase'}</span></>
+                    : <><XCircle className="w-4 h-4 text-amber-500" /><span className="text-amber-500">{isRTL ? 'مراجعة موصى بها' : 'Review Recommended'}</span></>}
                 </div>
 
-                {/* Question Feedback List */}
-                <div className="text-start space-y-3 max-h-60 overflow-y-auto pr-1 my-4">
+                {/* Q&A Review */}
+                <div className="text-start space-y-2.5 max-h-56 overflow-y-auto border border-border rounded-xl p-3">
                   {quiz.map((q, idx) => (
-                    <div key={idx} className="p-3.5 rounded-xl bg-secondary/40 border border-border text-xs space-y-1">
-                      <div className="font-bold text-foreground flex items-center justify-between">
-                        <span>Q{idx + 1}: {q.q}</span>
-                      </div>
-                      {q.a && (
-                        <p className="text-muted-foreground leading-relaxed">
-                          <strong className="text-amber-500">{isRTL ? 'الإجابة:' : 'Answer:'} </strong>
-                          {q.a}
-                        </p>
-                      )}
+                    <div key={idx} className="p-3 rounded-lg bg-secondary/40 text-xs space-y-1">
+                      <p className="font-bold text-foreground">Q{idx + 1}: {q.q}</p>
+                      {q.a && <p className="text-muted-foreground"><span className="text-amber-500 font-bold">{isRTL ? 'الإجابة: ' : 'Answer: '}</span>{q.a}</p>}
                     </div>
                   ))}
                 </div>
 
-                <div className="flex items-center justify-center gap-3 pt-4 border-t border-border">
+                {/* Actions */}
+                <div className="flex items-center justify-center gap-3 pt-2">
                   <button
-                    onClick={handleReset}
-                    className="px-4 py-2.5 rounded-xl border border-border bg-secondary hover:bg-secondary/80 text-foreground text-xs sm:text-sm font-semibold transition-colors flex items-center gap-2"
+                    onClick={handleRetake}
+                    className="px-4 py-2.5 rounded-xl border border-border bg-secondary hover:bg-secondary/70 text-foreground text-sm font-semibold flex items-center gap-2 cursor-pointer transition-colors"
                   >
                     <RotateCcw className="w-4 h-4" />
-                    <span>{isRTL ? 'إعادة الاختبار' : 'Retake Assessment'}</span>
+                    {isRTL ? 'إعادة الاختبار' : 'Retake'}
                   </button>
-
                   <button
                     onClick={onClose}
-                    className="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black text-xs sm:text-sm font-bold transition-all shadow-md"
+                    className="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black text-sm font-bold cursor-pointer transition-colors"
                   >
                     {isRTL ? 'متابعة التعلم' : 'Continue Learning'}
                   </button>
