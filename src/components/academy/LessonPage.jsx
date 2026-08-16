@@ -148,7 +148,7 @@ const LessonPage = () => {
   };
   const ui = uiTexts[lang] || uiTexts.en;
 
-  // UI UX Pro Max Rich Content Parser (Headings, Tables, Blockquotes, Lists, Code Blocks, Bold)
+  // UI UX Pro Max Rich Content Parser (Headings, Tables, Images, Blockquotes, Lists, Code Blocks, Bold)
   const renderContent = (text) => {
     if (!text) return null;
     const lines = text.split('\n');
@@ -170,14 +170,61 @@ const LessonPage = () => {
       return null;
     };
 
+    const flushTableBuffer = (key) => {
+      if (tableBuffer.length < 2) {
+        tableBuffer = [];
+        return null;
+      }
+      const headerLine = tableBuffer[0];
+      const dataLines = tableBuffer.slice(1).filter(l => !/^[|:\s\-]+$/.test(l.trim()));
+      
+      const parseRow = (str) => {
+        const cells = str.split('|').map(s => s.trim());
+        if (cells[0] === '') cells.shift();
+        if (cells[cells.length - 1] === '') cells.pop();
+        return cells;
+      };
+
+      const headers = parseRow(headerLine);
+      const rows = dataLines.map(parseRow);
+      tableBuffer = [];
+
+      return (
+        <div key={key} className="my-8 overflow-x-auto rounded-2xl border border-border/80 bg-card/70 shadow-lg backdrop-blur-sm">
+          <table className="w-full text-start text-sm border-collapse">
+            <thead className="bg-secondary/80 border-b border-border text-amber-500 font-bold uppercase tracking-wider text-xs">
+              <tr>
+                {headers.map((h, colIdx) => (
+                  <th key={colIdx} className="px-4 py-3.5 text-start font-bold">
+                    {parseInline(h)}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/50">
+              {rows.map((row, rowIdx) => (
+                <tr key={rowIdx} className="hover:bg-amber-500/5 transition-colors">
+                  {row.map((cell, cellIdx) => (
+                    <td key={cellIdx} className="px-4 py-3.5 text-foreground/90 text-start text-xs sm:text-sm font-medium">
+                      {parseInline(cell)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    };
+
     const parseInline = (lineStr) => {
       const parts = lineStr.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
       return parts.map((part, j) => {
         if (part.startsWith('**') && part.endsWith('**')) {
-          return <strong key={j} className="text-amber-400 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">{part.slice(2, -2)}</strong>;
+          return <strong key={j} className="text-amber-500 dark:text-amber-400 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">{part.slice(2, -2)}</strong>;
         }
         if (part.startsWith('`') && part.endsWith('`')) {
-          return <code key={j} className="text-cyan-400 font-mono text-xs bg-slate-900 px-1.5 py-0.5 rounded border border-cyan-500/20">{part.slice(1, -1)}</code>;
+          return <code key={j} className="text-cyan-600 dark:text-cyan-400 font-mono text-xs bg-secondary/80 px-1.5 py-0.5 rounded border border-cyan-500/20">{part.slice(1, -1)}</code>;
         }
         return <span key={j}>{part}</span>;
       });
@@ -189,6 +236,7 @@ const LessonPage = () => {
 
       // Code Block Toggle
       if (trimmed.startsWith('```')) {
+        if (tableBuffer.length > 0) elements.push(flushTableBuffer(`table-${i}`));
         if (inCodeBlock) {
           elements.push(flushCodeBuffer(`code-${i}`));
           inCodeBlock = false;
@@ -203,11 +251,66 @@ const LessonPage = () => {
         continue;
       }
 
-      // Blockquotes
+      // Markdown Tables (| header | header |)
+      if (trimmed.startsWith('|') && trimmed.includes('|')) {
+        tableBuffer.push(line);
+        continue;
+      } else if (tableBuffer.length > 0) {
+        elements.push(flushTableBuffer(`table-${i}`));
+      }
+
+      // Markdown Images (![alt](url))
+      if (trimmed.startsWith('![') && trimmed.includes('](')) {
+        const match = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+        if (match) {
+          const altText = match[1];
+          const imgUrl = match[2];
+          elements.push(
+            <motion.div
+              key={`img-${i}`}
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="my-8 rounded-2xl overflow-hidden glass-card border border-amber-500/30 p-3 sm:p-5 bg-card/80 relative group shadow-xl"
+            >
+              <div className="flex items-center justify-between mb-3 px-1">
+                <span className="text-xs font-mono font-bold text-amber-500 uppercase tracking-widest flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-amber-500" />
+                  {altText || (isRTL ? 'إنفوجرافيك توضيحي' : 'Educational Infographic')}
+                </span>
+                <span className="text-[11px] text-muted-foreground bg-secondary px-2.5 py-1 rounded-md border border-border font-medium flex items-center gap-1">
+                  <ZoomIn className="w-3.5 h-3.5 text-amber-500" />
+                  {isRTL ? 'عرض بحجم HD' : 'HD Zoom'}
+                </span>
+              </div>
+
+              <div
+                onClick={() => setZoomImage(imgUrl)}
+                className="relative cursor-pointer overflow-hidden rounded-xl bg-slate-950/80 flex items-center justify-center min-h-[220px] max-h-[520px]"
+              >
+                <img
+                  src={imgUrl}
+                  alt={altText}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-auto object-contain max-h-[520px] group-hover:scale-[1.02] transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold text-sm backdrop-blur-[2px]">
+                  <ZoomIn className="w-6 h-6 text-amber-400" />
+                  <span>{isRTL ? 'انقر لعرض الصورة بدقة عالية (HD Zoom)' : 'Click to view full HD image'}</span>
+                </div>
+              </div>
+            </motion.div>
+          );
+          continue;
+        }
+      }
+
+      // Blockquotes / Callouts
       if (trimmed.startsWith('>')) {
         const quoteText = trimmed.replace(/^>\s*/, '');
         elements.push(
-          <div key={`quote-${i}`} className="my-4 p-4 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border-r-4 border-amber-500 text-amber-200 font-medium text-sm sm:text-base leading-relaxed shadow-sm">
+          <div key={`quote-${i}`} className="my-4 p-4 rounded-xl bg-amber-500/10 border-s-4 border-amber-500 text-foreground font-medium text-sm sm:text-base leading-relaxed shadow-sm">
             {parseInline(quoteText)}
           </div>
         );
@@ -217,7 +320,7 @@ const LessonPage = () => {
       // Headings
       if (trimmed.startsWith('### ')) {
         elements.push(
-          <h3 key={`h3-${i}`} className="text-lg sm:text-xl font-bold text-amber-400 mt-6 mb-3 flex items-center gap-2">
+          <h3 key={`h3-${i}`} className="text-lg sm:text-xl font-bold text-amber-500 dark:text-amber-400 mt-6 mb-3 flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
             {parseInline(trimmed.replace(/^###\s*/, ''))}
           </h3>
@@ -227,7 +330,7 @@ const LessonPage = () => {
 
       if (trimmed.startsWith('## ')) {
         elements.push(
-          <h2 key={`h2-${i}`} className="text-xl sm:text-2xl font-black text-foreground mt-8 mb-4 pb-2 border-b border-border/80 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 bg-clip-text text-transparent">
+          <h2 key={`h2-${i}`} className="text-xl sm:text-2xl font-black text-foreground mt-8 mb-4 pb-2 border-b border-border/80 bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-600 dark:from-amber-400 dark:via-amber-500 dark:to-yellow-500 bg-clip-text text-transparent">
             {parseInline(trimmed.replace(/^##\s*/, ''))}
           </h2>
         );
@@ -260,7 +363,7 @@ const LessonPage = () => {
         const itemText = trimmed.replace(/^\d+\.\s/, '');
         elements.push(
           <div key={`numli-${i}`} className="flex items-start gap-3 my-2.5">
-            <span className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 font-bold text-xs flex items-center justify-center border border-amber-500/30 flex-shrink-0 mt-0.5">
+            <span className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-500 dark:text-amber-400 font-bold text-xs flex items-center justify-center border border-amber-500/30 flex-shrink-0 mt-0.5">
               {num}
             </span>
             <p className="text-foreground text-sm sm:text-base leading-relaxed">{parseInline(itemText)}</p>
@@ -283,6 +386,7 @@ const LessonPage = () => {
       );
     }
 
+    if (tableBuffer.length > 0) elements.push(flushTableBuffer('table-end'));
     return elements;
   };
 
