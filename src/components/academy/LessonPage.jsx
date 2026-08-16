@@ -3,8 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ArrowLeft, ChevronLeft, ChevronRight, BookOpen, CheckCircle, 
-  Lightbulb, Target, ListOrdered, BarChart3, Brain, Zap, 
+  BookOpen, CheckCircle, Lightbulb, Target, ListOrdered, BarChart3, Brain, Zap, 
   GraduationCap, Image as ImageIcon, ZoomIn, X 
 } from 'lucide-react';
 import { schools, lessonsData, diagramTypes } from '../../data/academy/academyData';
@@ -12,16 +11,11 @@ import { smcLessons, ictLessons, skLessons } from '../../data/academy/schoolsDat
 import DiagramSVG from './TradingDiagrams';
 import Header from '../Header';
 import Footer from '../Footer';
+import LessonHeader from './ui/LessonHeader';
+import LessonFooter from './ui/LessonFooter';
+import AssessmentModal from './ui/AssessmentModal';
 
 const iconMap = { BarChart3, Brain, Target, Zap, BookOpen };
-
-const schoolTranslations = {
-  foundation: { en: 'Foundation of Trading', ar: 'المحور الأول: التأسيس', fr: 'Fondation du Trading', es: 'Fundación de Trading' },
-  classical: { en: 'Classical Technical Analysis', ar: 'التحليل الفني الكلاسيكي', fr: 'Analyse Technique Classique', es: 'Análisis Técnico Clásico' },
-  smc: { en: 'Smart Money Concepts', ar: 'مفاهيم المال الذكي', fr: 'Smart Money Concepts', es: 'Smart Money Concepts' },
-  ict: { en: 'ICT Trading Method', ar: 'منهجية ICT للتداول', fr: 'Méthode ICT', es: 'Método ICT' },
-  sk: { en: 'SK System', ar: 'نظام SK', fr: 'Système SK', es: 'Sistema SK' }
-};
 
 const LessonPage = () => {
   const { schoolId, lessonId } = useParams();
@@ -45,11 +39,12 @@ const LessonPage = () => {
   const prevLesson = currentIndex > 0 ? lessons[currentIndex - 1] : null;
   const nextLesson = currentIndex < lessons.length - 1 ? lessons[currentIndex + 1] : null;
 
-  // UI States for Active Learning & HD Image Modal
+  // UI States
   const [activeRecallStarted, setActiveRecallStarted] = useState(false);
   const [userAnswers, setUserAnswers] = useState({});
   const [quizRevealed, setQuizRevealed] = useState(false);
   const [zoomImage, setZoomImage] = useState(null);
+  const [isAssessmentOpen, setIsAssessmentOpen] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -57,6 +52,7 @@ const LessonPage = () => {
     setUserAnswers({});
     setQuizRevealed(false);
     setZoomImage(null);
+    setIsAssessmentOpen(false);
   }, [lessonId]);
 
   if (!school || !lesson) {
@@ -64,12 +60,8 @@ const LessonPage = () => {
     return null;
   }
 
-  const Icon = iconMap[school.icon] || BookOpen;
   const lessonData = lesson[lang] || lesson.en;
-  const schoolName = schoolTranslations[schoolId]?.[lang] || schoolTranslations[schoolId]?.en;
   const imageSrc = lesson?.image || lessonData?.image;
-
-  // Get diagram type key
   const diagramKey = diagramTypes[lesson.diagram] || lesson.diagram;
 
   const uiTexts = {
@@ -77,10 +69,6 @@ const LessonPage = () => {
       steps: 'Step-by-Step Guide',
       example: 'Practical Example',
       takeaways: 'Key Takeaways',
-      prev: 'Previous Lesson',
-      next: 'Next Lesson',
-      backToSchool: 'Back to School',
-      lessonOf: 'Lesson',
       activeRecallTitle: 'Active Recall',
       activeRecallDesc: 'Before we begin, try to answer these questions in your head to activate your memory and improve learning retention:',
       startLesson: 'Start Lesson Now',
@@ -95,10 +83,6 @@ const LessonPage = () => {
       steps: 'دليل خطوة بخطوة',
       example: 'مثال عملي',
       takeaways: 'النقاط الرئيسية',
-      prev: 'الدرس السابق',
-      next: 'الدرس التالي',
-      backToSchool: 'العودة للمدرسة',
-      lessonOf: 'الدرس',
       activeRecallTitle: 'التذكير النشط (Active Recall)',
       activeRecallDesc: 'قبل البدء، حاول التفكير في هذه الأسئلة وإجابتها في ذهنك لتنشيط ذاكرتك وتحقيق أقصى استفادة من الدرس:',
       startLesson: 'ابدأ الدرس الآن',
@@ -108,42 +92,6 @@ const LessonPage = () => {
       checkQuiz: 'إظهار الإجابات النموذجية',
       modelAnswer: 'الإجابة النموذجية',
       feedbackLoopTitle: 'دليل التغذية الراجعة والمراجعة'
-    },
-    fr: {
-      steps: 'Guide Étape par Étape',
-      example: 'Exemple Pratique',
-      takeaways: 'Points Clés',
-      prev: 'Leçon Précédente',
-      next: 'Leçon Suivante',
-      backToSchool: 'Retour à l\'École',
-      lessonOf: 'Leçon',
-      activeRecallTitle: 'Rappel Actif',
-      activeRecallDesc: 'Avant de commencer, essayez de répondre à ces questions dans votre tête pour stimuler votre mémoire :',
-      startLesson: 'Commencer la Leçon',
-      quizTitle: 'Test de Compétence',
-      quizDesc: 'Testez votre compréhension. Écrivez vos réponses et comparez-les aux réponses modèles :',
-      placeholderAnswer: 'Écrivez votre réponse ici...',
-      checkQuiz: 'Révéler les Réponses Modèles',
-      modelAnswer: 'Réponse Modèle',
-      feedbackLoopTitle: 'Guide de Révision et Feedback'
-    },
-    es: {
-      steps: 'Guía Paso a Paso',
-      example: 'Ejemplo Práctico',
-      takeaways: 'Puntos Clave',
-      prev: 'Lección Anterior',
-      next: 'Siguiente Lección',
-      backToSchool: 'Volver a la Escuela',
-      lessonOf: 'Lección',
-      activeRecallTitle: 'Recuerdo Activo',
-      activeRecallDesc: 'Antes de comenzar, intenta responder estas preguntas en tu mente para activar tu memoria:',
-      startLesson: 'Iniciar Lección',
-      quizTitle: 'Prueba de Competencia',
-      quizDesc: 'Prueba tu comprensión. Escribe tus respuestas y compáralas con las respuestas modelo:',
-      placeholderAnswer: 'Escribe tu respuesta aquí...',
-      checkQuiz: 'Revelar Respuestas Modelo',
-      modelAnswer: 'Respuesta Modelo',
-      feedbackLoopTitle: 'Guía de Revisión y Retroalimentación'
     }
   };
   const ui = uiTexts[lang] || uiTexts.en;
@@ -457,51 +405,18 @@ const LessonPage = () => {
     <div className={`min-h-screen bg-background text-foreground ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <Header />
 
-      <div className="pt-24 pb-20 max-w-4xl mx-auto px-4 sm:px-6">
-        {/* Breadcrumb */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-2 text-sm text-muted-foreground mb-6 flex-wrap"
-        >
-          <button onClick={() => navigate('/academy')} className="hover:text-amber-500 transition-colors">
-            {lang === 'ar' ? 'الأكاديمية' : 'Academy'}
-          </button>
-          <ChevronRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
-          <button onClick={() => navigate(`/academy/${schoolId}`)} className="hover:text-amber-500 transition-colors">
-            {schoolName}
-          </button>
-          <ChevronRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
-          <span className="text-amber-500">{ui.lessonOf} {lesson.id}</span>
-        </motion.div>
+      <main className="pt-24 pb-20 max-w-4xl mx-auto px-4 sm:px-6">
+        {/* Lesson Modular Header */}
+        <LessonHeader
+          schoolId={schoolId}
+          school={school}
+          lesson={lesson}
+          currentIndex={currentIndex}
+          totalLessons={lessons.length}
+          lang={lang}
+        />
 
-        {/* Lesson Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <div className="flex items-center gap-3 mb-3">
-            <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${school.color} flex items-center justify-center text-white font-bold text-sm`}>
-              {lesson.id}
-            </div>
-            <span className="text-xs text-muted-foreground uppercase tracking-wider">{ui.lessonOf} {lesson.id} / {lessons.length}</span>
-          </div>
-
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">
-            {lessonData?.title}
-          </h1>
-
-          {/* Progress Bar */}
-          <div className="w-full h-1.5 bg-secondary rounded-full mt-4">
-            <div
-              className={`h-full bg-gradient-to-r ${school.color} rounded-full transition-all duration-500`}
-              style={{ width: `${((currentIndex + 1) / lessons.length) * 100}%` }}
-            />
-          </div>
-        </motion.div>
-
-        {/* Real Chapter Image Display (High Quality Foundation Visuals) */}
+        {/* Real Chapter Image Display (High Quality Visual) */}
         {imageSrc && (
           <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -510,9 +425,9 @@ const LessonPage = () => {
             className="mb-8 rounded-2xl overflow-hidden glass-card border border-amber-500/30 p-3 sm:p-5 bg-secondary/30 relative group shadow-xl"
           >
             <div className="flex items-center justify-between mb-3 px-1">
-              <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-widest flex items-center gap-2">
+              <span className="text-xs font-mono font-bold text-amber-500 uppercase tracking-widest flex items-center gap-2">
                 <ImageIcon className="w-4 h-4 text-amber-500" />
-                {isRTL ? 'الشكل التوضيحي من المحور الأساسي' : 'Foundation Chapter High Resolution Visual'}
+                {isRTL ? 'الشكل التوضيحي البصري الرئيسي' : 'Main Chapter Visual'}
               </span>
               <span className="text-[11px] text-muted-foreground bg-background/80 px-2.5 py-1 rounded-md border border-border font-medium">
                 {isRTL ? 'انقر لتكبير الصورة HD' : 'Click HD Zoom'}
@@ -626,126 +541,26 @@ const LessonPage = () => {
           </motion.div>
         )}
 
-        {/* Competency Test / Quiz */}
-        {lessonData?.quiz && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="mb-12 bg-card rounded-2xl border border-border p-5 sm:p-8 shadow-sm"
-          >
-            <h3 className="text-xl font-black bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent mb-2 flex items-center gap-2">
-              <GraduationCap className="w-6 h-6 text-amber-500" />
-              {ui.quizTitle}
-            </h3>
-            <p className="text-muted-foreground text-sm leading-relaxed mb-6">
-              {ui.quizDesc}
-            </p>
+        {/* Lesson Footer Navigation & Assessment Launcher */}
+        <LessonFooter
+          schoolId={schoolId}
+          school={school}
+          prevLesson={prevLesson}
+          nextLesson={nextLesson}
+          onOpenAssessment={() => setIsAssessmentOpen(true)}
+          lang={lang}
+        />
+      </main>
 
-            <div className="space-y-6">
-              {lessonData.quiz.map((item, i) => (
-                <div key={i} className="space-y-2">
-                  <div className="flex gap-2">
-                    <span className="text-amber-500 font-bold">Q{i + 1}:</span>
-                    <h4 className="text-foreground font-semibold text-sm sm:text-base">{item.q}</h4>
-                  </div>
-                  <textarea
-                    disabled={quizRevealed}
-                    placeholder={ui.placeholderAnswer}
-                    value={userAnswers[i] || ''}
-                    onChange={(e) => setUserAnswers({ ...userAnswers, [i]: e.target.value })}
-                    className="w-full h-24 p-3 rounded-xl bg-background border border-border text-foreground text-sm focus:border-amber-500/50 focus:outline-none resize-none transition-colors"
-                  />
-                  
-                  {quizRevealed && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="p-4 rounded-xl bg-green-500/5 border border-green-500/20 mt-2"
-                    >
-                      <h5 className="text-green-400 text-xs font-black uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                        <CheckCircle className="w-3.5 h-3.5" />
-                        {ui.modelAnswer}
-                      </h5>
-                      <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
-                        {item.a}
-                      </p>
-                    </motion.div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {!quizRevealed ? (
-              <div className="mt-8 flex justify-end">
-                <button
-                  onClick={() => setQuizRevealed(true)}
-                  className="px-6 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500 hover:text-black transition-all text-sm font-bold cursor-pointer"
-                >
-                  {ui.checkQuiz}
-                </button>
-              </div>
-            ) : (
-              lessonData?.feedbackLoop && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="mt-8 p-4 rounded-xl bg-amber-500/5 border border-amber-500/20"
-                >
-                  <h4 className="text-amber-500 text-sm font-bold mb-1.5 flex items-center gap-2">
-                    <Lightbulb className="w-4 h-4" />
-                    {ui.feedbackLoopTitle}
-                  </h4>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    {lessonData.feedbackLoop}
-                  </p>
-                </motion.div>
-              )
-            )}
-          </motion.div>
-        )}
-
-        {/* Navigation Buttons */}
-        <div className="flex items-center justify-between gap-4">
-          {prevLesson ? (
-            <button
-              onClick={() => navigate(`/academy/${schoolId}/lesson/${prevLesson.id}`)}
-              className={`flex items-center gap-2 px-4 sm:px-6 py-3 bg-secondary hover:bg-secondary/80 rounded-xl border border-border hover:border-amber-500/30 transition-all text-sm sm:text-base cursor-pointer ${isRTL ? 'flex-row-reverse' : ''}`}
-            >
-              <ChevronLeft className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
-              <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
-                <div className="text-xs text-muted-foreground">{ui.prev}</div>
-                <div className="text-foreground font-medium truncate max-w-[120px] sm:max-w-[200px]">
-                  {(prevLesson[lang] || prevLesson.en)?.title}
-                </div>
-              </div>
-            </button>
-          ) : <div />}
-
-          {nextLesson ? (
-            <button
-              onClick={() => navigate(`/academy/${schoolId}/lesson/${nextLesson.id}`)}
-              className={`flex items-center gap-2 px-4 sm:px-6 py-3 bg-gradient-to-r ${school.color} hover:opacity-90 rounded-xl transition-all text-sm sm:text-base cursor-pointer ${isRTL ? 'flex-row-reverse' : ''}`}
-            >
-              <div className={`${isRTL ? 'text-left' : 'text-right'}`}>
-                <div className="text-xs text-white/70">{ui.next}</div>
-                <div className="text-white font-medium truncate max-w-[120px] sm:max-w-[200px]">
-                  {(nextLesson[lang] || nextLesson.en)?.title}
-                </div>
-              </div>
-              <ChevronRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
-            </button>
-          ) : (
-            <button
-              onClick={() => navigate(`/academy/${schoolId}`)}
-              className="flex items-center gap-2 px-4 sm:px-6 py-3 bg-amber-500 hover:bg-amber-600 text-black rounded-xl transition-all text-sm sm:text-base font-medium cursor-pointer"
-            >
-              <CheckCircle className="w-4 h-4" />
-              {ui.backToSchool}
-            </button>
-          )}
-        </div>
-      </div>
+      {/* Interactive Assessment Modal Dialog */}
+      <AssessmentModal
+        isOpen={isAssessmentOpen}
+        onClose={() => setIsAssessmentOpen(false)}
+        schoolId={schoolId}
+        lesson={lesson}
+        school={school}
+        lang={lang}
+      />
 
       {/* Fullscreen HD Lightbox Modal */}
       <AnimatePresence>
@@ -759,6 +574,7 @@ const LessonPage = () => {
           >
             <button
               onClick={() => setZoomImage(null)}
+              aria-label="Close image zoom"
               className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 text-white hover:bg-white/20 flex items-center justify-center transition-colors cursor-pointer"
             >
               <X className="w-6 h-6" />
