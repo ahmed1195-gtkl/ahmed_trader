@@ -345,6 +345,66 @@ function AuthenticatedRoutes({ user, userData, onboardingCompleted, isAdmin, has
   );
 }
 
+// ─── Public Routes (Accessible with or without login) ────────────────────────
+function PublicRoutes({ user, userData, isAdmin }) {
+  return (
+    <Routes>
+      <Route path="/" element={<MainLayout />} />
+      <Route path="/auth" element={<LazyAuth />} />
+      <Route path="/reset-password" element={<LazyResetPassword />} />
+      <Route path="/privacy" element={<LazyPrivacyPolicy />} />
+
+      <Route path="/brokers" element={
+        <PageGuard pageKey="brokers" userData={userData} isAdmin={isAdmin}>
+          <LazyBrokersPage />
+        </PageGuard>
+      } />
+      <Route path="/courses" element={
+        <PageGuard pageKey="courses" userData={userData} isAdmin={isAdmin}>
+          <LazyCourses />
+        </PageGuard>
+      } />
+      <Route path="/course/:courseId" element={
+        <PageGuard pageKey="courses" userData={userData} isAdmin={isAdmin}>
+          <LazyCourseEnrollment />
+        </PageGuard>
+      } />
+      <Route path="/news" element={
+        <PageGuard pageKey="news" userData={userData} isAdmin={isAdmin}>
+          <LazyNewsPage />
+        </PageGuard>
+      } />
+      <Route path="/global-news" element={
+        <PageGuard pageKey="news" userData={userData} isAdmin={isAdmin}>
+          <LazyGlobalNews />
+        </PageGuard>
+      } />
+      <Route path="/academy" element={
+        <PageGuard pageKey="academy" userData={userData} isAdmin={isAdmin}>
+          <LazyAcademy />
+        </PageGuard>
+      } />
+      <Route path="/books" element={
+        <PageGuard pageKey="books" userData={userData} isAdmin={isAdmin}>
+          <LazyBooksPage />
+        </PageGuard>
+      } />
+      <Route path="/pip-calculator" element={
+        <PageGuard pageKey="pipCalculator" userData={userData} isAdmin={isAdmin}>
+          <LazyPipCalculator />
+        </PageGuard>
+      } />
+      <Route path="/market-intelligence" element={
+        <PageGuard pageKey="marketIntelligence" userData={userData} isAdmin={isAdmin}>
+          <LazyMarketIntelligence />
+        </PageGuard>
+      } />
+
+      <Route path="*" element={<Navigate to="/auth" replace />} />
+    </Routes>
+  );
+}
+
 // ─── Root App ────────────────────────────────────────────────────────────────
 function App() {
   const { i18n } = useTranslation();
@@ -413,16 +473,7 @@ function App() {
             <div className="min-h-screen relative bg-background">
               <div className="relative z-10">
                 {!user ? (
-                  <Routes>
-                    <Route path="/auth" element={<LazyAuth />} />
-                    <Route path="/reset-password" element={<LazyResetPassword />} />
-                    {/* Public pages — accessible without login */}
-                    <Route path="/" element={<MainLayout />} />
-                    <Route path="/brokers" element={<LazyBrokersPage />} />
-                    <Route path="/courses" element={<LazyCourses />} />
-                    <Route path="/course/:courseId" element={<LazyCourseEnrollment />} />
-                    <Route path="*" element={<Navigate to="/auth" replace />} />
-                  </Routes>
+                  <PublicRoutes user={user} userData={userData} isAdmin={isAdmin} />
                 ) : !isEmailVerified ? (
                   <EmailVerificationGate onVerified={() => setIsEmailVerified(true)} />
                 ) : (
