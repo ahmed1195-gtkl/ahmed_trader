@@ -44,7 +44,12 @@ import {
   Menu,
   BarChart3,
   TrendingUp,
-  Eye
+  Eye,
+  Wrench,
+  Shield,
+  UserPlus,
+  UserMinus,
+  CheckCircle
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -54,6 +59,7 @@ import Header from './Header';
 import CreatePost from './CreatePost';
 import AdminSubscriptionPanel from './AdminSubscriptionPanel';
 import AdminAnalyticsPortal from './admin/AdminAnalyticsPortal';
+import UserBadge from './ui/UserBadge';
 import { toast } from 'sonner';
 
 // ─── Sidebar Navigation Structure ─────────────────────────────────────────────
@@ -79,6 +85,7 @@ const SIDEBAR_NAV = [
     sectionAr: 'المستخدمون والصلاحيات',
     items: [
       { id: 'users', icon: Users, label: 'Students', labelAr: 'الطلاب' },
+      { id: 'roles', icon: Shield, label: 'Account Management', labelAr: 'إدارة الأدوار' },
       { id: 'subscriptions', icon: Crown, label: 'Subscriptions', labelAr: 'الاشتراكات' },
     ]
   },
@@ -86,6 +93,7 @@ const SIDEBAR_NAV = [
     section: 'SYSTEM',
     sectionAr: 'النظام',
     items: [
+      { id: 'pageMaintenance', icon: Wrench, label: 'Page Maintenance', labelAr: 'صيانة الصفحات' },
       { id: 'logs', icon: History, label: 'Activity Logs', labelAr: 'السجلات' },
       { id: 'platform', icon: ShieldAlert, label: 'Platform Controls', labelAr: 'أدوات التحكم' },
       { id: 'settings', icon: Settings, label: 'Settings', labelAr: 'الإعدادات' },
@@ -356,6 +364,67 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error('Error updating book access:', error);
       toast.error(isAr ? 'فشل تحديث صلاحية الكتاب' : 'Failed to update book access');
+    }
+  };
+
+  const handlePromoteAccountManager = async (targetUser) => {
+    if (!targetUser) return;
+    try {
+      await updateDoc(doc(db, 'users', targetUser.id), {
+        role: 'account_manager',
+        isAccountManager: true
+      });
+      await logAdminAction('PROMOTE_ACCOUNT_MANAGER', `Admin promoted user ${targetUser.email} to Account Manager`);
+      toast.success(isAr ? 'تم ترفيع المستخدم إلى مدير حسابات' : 'User promoted to Account Manager');
+    } catch (err) {
+      console.error(err);
+      toast.error(isAr ? 'فشل الترفيع' : 'Failed to promote user');
+    }
+  };
+
+  const handleRevokeAccountManager = async (targetUser) => {
+    if (!targetUser) return;
+    try {
+      await updateDoc(doc(db, 'users', targetUser.id), {
+        role: 'user',
+        isAccountManager: false
+      });
+      await logAdminAction('REVOKE_ACCOUNT_MANAGER', `Admin revoked Account Manager role from ${targetUser.email}`);
+      toast.success(isAr ? 'تم إلغاء دور مدير الحسابات' : 'Account Manager role revoked');
+    } catch (err) {
+      console.error(err);
+      toast.error(isAr ? 'فشل إلغاء الدور' : 'Failed to revoke role');
+    }
+  };
+
+  const handleUpdateAccountTier = async (targetUser, newTier) => {
+    if (!targetUser) return;
+    try {
+      await updateDoc(doc(db, 'users', targetUser.id), {
+        accountTier: newTier,
+        isPro: newTier === 'pro',
+        isPremium: newTier === 'premium'
+      });
+      await logAdminAction('CHANGE_ACCOUNT_TIER', `Admin changed account tier for ${targetUser.email} to ${newTier}`);
+      toast.success(isAr ? 'تم تحديث مستوى الحساب' : 'Account tier updated');
+    } catch (err) {
+      console.error(err);
+      toast.error(isAr ? 'فشل تحديث مستوى الحساب' : 'Failed to update account tier');
+    }
+  };
+
+  const handleSavePageMaintenanceConfig = async (pageKey, pageConfig) => {
+    try {
+      const updatedPageMaintenance = {
+        ...(platformSettings.pageMaintenance || {}),
+        [pageKey]: pageConfig
+      };
+      await setDoc(doc(db, 'platformSettings', 'main'), { pageMaintenance: updatedPageMaintenance }, { merge: true });
+      await logAdminAction('UPDATE_PAGE_MAINTENANCE', `Admin updated maintenance config for page ${pageKey}`);
+      toast.success(isAr ? 'تم تحديث إعدادات صيانة الصفحة' : 'Page maintenance settings updated');
+    } catch (err) {
+      console.error(err);
+      toast.error(isAr ? 'فشل التحديث' : 'Error updating page maintenance settings');
     }
   };
 
@@ -819,6 +888,199 @@ const AdminDashboard = () => {
                       <p className="text-sm text-muted-foreground/50">{isAr ? 'لا توجد نتائج' : 'No students found'}</p>
                     </div>
                   )}
+                </div>
+              </motion.div>
+            )}
+
+            {/* ═══ ACCOUNT MANAGEMENT (ROLES & TIERS) ═══ */}
+            {activeTab === 'roles' && (
+              <motion.div key="roles" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="space-y-6">
+                <div className="bg-card border border-border rounded-xl p-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                    <div>
+                      <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                        <Shield className="w-5 h-5 text-primary" />
+                        {isAr ? 'إدارة الأدوار ومستويات الحسابات' : 'Account Roles & Tiers Management'}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {isAr ? 'التحكم في رتب المستخدمين (مدير حسابات) ومستويات الاشتراكات (PRO / PREMIUM)' : 'Manage user system roles (Account Manager) and account tiers (PRO / PREMIUM / NORMAL)'}
+                      </p>
+                    </div>
+
+                    <div className="relative w-full sm:w-64">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        placeholder={isAr ? 'بحث عن مستخدم...' : 'Search users...'}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-9 bg-secondary border-border h-10 text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-secondary/60 text-muted-foreground font-semibold uppercase text-[10px] tracking-wider">
+                        <tr>
+                          <th className="px-4 py-3">{isAr ? 'المستخدم' : 'User'}</th>
+                          <th className="px-4 py-3">{isAr ? 'الشارة والحالة' : 'Badge & Role'}</th>
+                          <th className="px-4 py-3">{isAr ? 'مستوى الحساب' : 'Account Tier'}</th>
+                          <th className="px-4 py-3 text-right">{isAr ? 'الإجراءات' : 'Actions'}</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border/40">
+                        {filteredUsers.map((u) => {
+                          const isAccountManager = u.role === 'account_manager' || u.isAccountManager === true;
+                          const isAdminUserDoc = u.role === 'admin' || u.isAdmin === true;
+                          const currentTier = u.accountTier || (u.isPremium ? 'premium' : u.isPro ? 'pro' : 'normal');
+
+                          return (
+                            <tr key={u.id} className="hover:bg-secondary/30 transition-colors">
+                              <td className="px-4 py-3">
+                                <div>
+                                  <p className="font-bold text-foreground">{u.fullName || u.email}</p>
+                                  <p className="text-[10px] text-muted-foreground/60">{u.email}</p>
+                                </div>
+                              </td>
+                              <td className="px-4 py-3">
+                                <UserBadge userData={u} />
+                              </td>
+                              <td className="px-4 py-3">
+                                <select
+                                  value={currentTier}
+                                  onChange={(e) => handleUpdateAccountTier(u, e.target.value)}
+                                  disabled={isAdminUserDoc}
+                                  className="bg-secondary border border-border rounded px-2 py-1 text-xs text-foreground outline-none font-semibold uppercase cursor-pointer"
+                                >
+                                  <option value="normal">NORMAL</option>
+                                  <option value="pro">PRO</option>
+                                  <option value="premium">PREMIUM</option>
+                                </select>
+                              </td>
+                              <td className="px-4 py-3 text-right">
+                                {!isAdminUserDoc && (
+                                  <div>
+                                    {isAccountManager ? (
+                                      <Button
+                                        onClick={() => handleRevokeAccountManager(u)}
+                                        className="bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500 hover:text-white text-[10px] h-7 px-3 rounded cursor-pointer"
+                                      >
+                                        <UserMinus className="w-3 h-3 mr-1" />
+                                        {isAr ? 'إلغاء مدير حسابات' : 'Revoke Manager'}
+                                      </Button>
+                                    ) : (
+                                      <Button
+                                        onClick={() => handlePromoteAccountManager(u)}
+                                        className="bg-primary/10 text-primary border border-primary/20 hover:bg-primary hover:text-primary-foreground text-[10px] h-7 px-3 rounded cursor-pointer"
+                                      >
+                                        <UserPlus className="w-3 h-3 mr-1" />
+                                        {isAr ? 'ترقية لمدير حسابات' : 'Make Manager'}
+                                      </Button>
+                                    )}
+                                  </div>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ═══ PAGE MAINTENANCE & ACCESS PANEL ═══ */}
+            {activeTab === 'pageMaintenance' && (
+              <motion.div key="pageMaintenance" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="space-y-6 max-w-4xl">
+                <div className="bg-card border border-border rounded-xl p-6">
+                  <div className="mb-6">
+                    <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                      <Wrench className="w-5 h-5 text-amber-500" />
+                      {isAr ? 'إدارة صيانة الصفحات الفردية' : 'Per-Page Maintenance Control'}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {isAr ? 'تخصيص حالة الصيانة لكل صفحة، مع تحديد رسالة التوضيح وموعد العودة المتوقع.' : 'Configure maintenance mode per module/page with custom banner text and start/return times.'}
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    {[
+                      { key: 'courses', label: 'Courses / Core Module', labelAr: 'الكورسات' },
+                      { key: 'news', label: 'News / Global News', labelAr: 'الأخبار العالمية' },
+                      { key: 'academy', label: 'Academy / Schools', labelAr: 'الأكاديمية' },
+                      { key: 'aiBot', label: 'AI Bot Assistant', labelAr: 'المساعد الذكي' },
+                      { key: 'challenges', label: 'Trading Challenges', labelAr: 'التحديات' },
+                      { key: 'messages', label: 'Messages / Support', labelAr: 'الرسائل' },
+                      { key: 'community', label: 'Community / Friends', labelAr: 'المجتمع' },
+                      { key: 'books', label: 'Books / Readers', labelAr: 'الكتب' },
+                      { key: 'brokers', label: 'Brokers List', labelAr: 'الوسطاء' },
+                      { key: 'marketIntelligence', label: 'Market Intelligence', labelAr: 'ذكاء السوق' },
+                      { key: 'globalLeaderboard', label: 'Global Leaderboard', labelAr: 'لوحة المتصدرين' },
+                      { key: 'pipCalculator', label: 'Pip Calculator', labelAr: 'حاسبة الـ Pip' },
+                      { key: 'sheetsGuide', label: 'Sheets Guide', labelAr: 'دليل الجداول' }
+                    ].map((pg) => {
+                      const mConfig = platformSettings.pageMaintenance?.[pg.key] || { enabled: false, message: '', startTime: '', returnTime: '' };
+                      const isUnderMaint = mConfig.enabled === true;
+
+                      return (
+                        <div key={pg.key} className="bg-secondary/40 border border-border/60 rounded-xl p-4 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <span className={`w-2.5 h-2.5 rounded-full ${isUnderMaint ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`} />
+                              <div>
+                                <h4 className="text-sm font-bold text-foreground">{isAr ? pg.labelAr : pg.label}</h4>
+                                <span className="text-[10px] text-muted-foreground/60 uppercase tracking-widest font-mono">
+                                  {isUnderMaint ? (isAr ? 'قيد الصيانة' : 'UNDER MAINTENANCE') : (isAr ? 'نشطة' : 'ONLINE')}
+                                </span>
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={() => handleSavePageMaintenanceConfig(pg.key, { ...mConfig, enabled: !isUnderMaint })}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer transition-all ${isUnderMaint ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20' : 'bg-secondary border border-border text-muted-foreground hover:text-foreground'}`}
+                            >
+                              {isUnderMaint ? (isAr ? 'إلغاء الصيانة' : 'End Maintenance') : (isAr ? 'تفعيل الصيانة' : 'Put in Maintenance')}
+                            </button>
+                          </div>
+
+                          {isUnderMaint && (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 border-t border-border/40">
+                              <div className="md:col-span-3 space-y-1">
+                                <label className="text-[10px] font-black uppercase text-muted-foreground">{isAr ? 'رسالة الصيانة للمستخدمين' : 'Maintenance Message'}</label>
+                                <Input
+                                  placeholder={isAr ? 'مثال: جاري تحديث الكورسات لعام 2026' : 'e.g. Updating course syllabus'}
+                                  defaultValue={mConfig.message || ''}
+                                  onBlur={(e) => handleSavePageMaintenanceConfig(pg.key, { ...mConfig, message: e.target.value })}
+                                  className="bg-background border-border h-9 text-xs"
+                                />
+                              </div>
+
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase text-muted-foreground">{isAr ? 'تاريخ البدء' : 'Start Time'}</label>
+                                <Input
+                                  type="datetime-local"
+                                  defaultValue={mConfig.startTime || ''}
+                                  onChange={(e) => handleSavePageMaintenanceConfig(pg.key, { ...mConfig, startTime: e.target.value })}
+                                  className="bg-background border-border h-9 text-xs"
+                                />
+                              </div>
+
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase text-muted-foreground">{isAr ? 'العودة المتوقعة' : 'Expected Return'}</label>
+                                <Input
+                                  type="datetime-local"
+                                  defaultValue={mConfig.returnTime || ''}
+                                  onChange={(e) => handleSavePageMaintenanceConfig(pg.key, { ...mConfig, returnTime: e.target.value })}
+                                  className="bg-background border-border h-9 text-xs"
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </motion.div>
             )}

@@ -23,6 +23,7 @@ import { Heart, MessageCircle, Plus, Image as ImageIcon, Send, X, Music, Video, 
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { isAdminUser } from '../lib/adminService';
+import UserBadge from './ui/UserBadge';
 
 const Feed = () => {
   const { t, i18n } = useTranslation();
@@ -395,10 +396,13 @@ const Feed = () => {
                           {post.authorPhoto ? <img src={post.authorPhoto} alt="" className="w-full h-full object-cover" decoding="async" loading="lazy" /> : <User className="w-5 h-5 text-primary" />}
                         </div>
                         <div>
-                          <p 
-                            className="text-foreground font-black text-sm uppercase tracking-tight cursor-pointer hover:text-primary transition-colors"
-                            onClick={() => navigate(`/profile/${post.authorId}`)}
-                          >{post.author}</p>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p 
+                              className="text-foreground font-black text-sm uppercase tracking-tight cursor-pointer hover:text-primary transition-colors"
+                              onClick={() => navigate(`/profile/${post.authorId}`)}
+                            >{post.author}</p>
+                            <UserBadge userData={post} />
+                          </div>
                           <p className="text-muted-foreground/50 text-[9px] font-black uppercase tracking-[0.2em]">{post.createdAt?.toDate ? post.createdAt.toDate().toLocaleDateString() : 'Just now'}</p>
                         </div>
                       </div>

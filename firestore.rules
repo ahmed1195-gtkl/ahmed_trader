@@ -25,6 +25,16 @@ service cloud.firestore {
       );
     }
 
+    // Check if the user is staff (Admin or Account Manager)
+    function isStaffRole() {
+      return isSignedIn() && (
+        isAdmin() ||
+        request.auth.token.role == 'account_manager' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'account_manager' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAccountManager == true
+      );
+    }
+
     // Check if the user has purchased the Sober Book
     function hasSoberBookAccess() {
       return isSignedIn() && (
@@ -40,7 +50,11 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isSignedIn();
       allow create: if isOwner(userId);
-      allow update: if isAdmin() || isOwner(userId);
+      allow update: if isAdmin() || (
+        isOwner(userId) &&
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'accountTier', 'isAccountManager', 'isAdmin', 'isPro', 'isPremium']) &&
+        (isStaffRole() || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['socialLinks']))
+      );
       allow delete: if isAdmin();
     }
 

@@ -17,6 +17,7 @@ import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { motion, AnimatePresence } from 'framer-motion';
 import { filterContent } from '../lib/bad_words';
+import UserBadge from './ui/UserBadge';
 
 const Comments = ({ postId }) => {
   const { t } = useTranslation();
@@ -87,6 +88,10 @@ const Comments = ({ postId }) => {
         userName: userData?.fullName || user.displayName || 'User',
         userPhoto: userData?.photoURL || user.photoURL || null,
         userNumericUID: userData?.numericUID || 'N/A',
+        role: userData?.role || (userData?.isAdmin ? 'admin' : userData?.isAccountManager ? 'account_manager' : 'user'),
+        accountTier: userData?.accountTier || (userData?.isPro ? 'pro' : 'normal'),
+        isAdmin: userData?.isAdmin || false,
+        isAccountManager: userData?.isAccountManager || false,
         text: filteredText,
         createdAt: serverTimestamp()
       });
@@ -175,8 +180,9 @@ const Comments = ({ postId }) => {
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-sm font-bold text-white">{comment.userName}</span>
+                    <UserBadge userData={comment} />
                     <span className="text-[9px] font-black text-amber-500/50 uppercase tracking-tighter">
                       ID: {comment.userNumericUID}
                     </span>

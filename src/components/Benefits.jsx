@@ -181,7 +181,7 @@ const Benefits = () => {
           <SectionHeader
             badge={isAr ? '✨ مميزات المنصة' : '✨ Platform Features'}
             title={isAr ? 'لماذا تختار' : 'Why Choose'}
-            titleHighlight={isAr ? 'Shukritrade؟' : 'Shukritrade?'}
+            titleHighlight={isAr ? 'SHUKRITRADE؟' : 'SHUKRITRADE?'}
             sub={isAr
               ? 'كل ما تحتاجه لتصبح متداولاً محترفاً في مكان واحد'
               : 'Everything you need to become a professional trader, all in one place'}
@@ -195,39 +195,36 @@ const Benefits = () => {
         </div>
       </section>
 
-      {/* ── Testimonials Section ── */}
+      {/* ── Community & Trust Section ── */}
       <section className="py-16 md:py-20 relative" dir={isAr ? 'rtl' : 'ltr'}>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-transparent pointer-events-none" />
         <div className="container mx-auto px-4 relative z-10 max-w-5xl">
           <SectionHeader
-            badge={isAr ? '💬 آراء المتداولين' : '💬 Trader Reviews'}
-            title={isAr ? 'يثق بنا' : 'Trusted by'}
-            titleHighlight={isAr ? 'آلاف المتداولين' : 'Thousands of Traders'}
+            badge={isAr ? '🎓 مجتمع التداول التعليمي' : '🎓 Educational Trading Community'}
+            title={isAr ? 'التعليم المستمر و' : 'Continuous Learning &'}
+            titleHighlight={isAr ? 'الانضباط المالي' : 'Financial Discipline'}
+            sub={isAr
+              ? 'منهجية رصينة تركز على إدارة المخاطر وسيكولوجية التداول الصحيحة.'
+              : 'A structured methodology focused on risk management and sound trading psychology.'}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {testimonials.map((t, i) => (
-              <TestimonialCard key={i} {...t} index={i} />
-            ))}
-          </div>
-
-          {/* Aggregate star rating */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10 p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06]"
+            transition={{ duration: 0.6 }}
+            className="p-8 rounded-2xl bg-card border border-border text-center max-w-3xl mx-auto shadow-xl"
           >
-            <div className="flex gap-1">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="w-5 h-5 text-amber-400 fill-amber-400" />
-              ))}
+            <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4 text-primary">
+              <Quote className="w-6 h-6" />
             </div>
-            <p className="text-foreground font-black text-lg">4.9 / 5.0</p>
-            <span className="text-muted-foreground/50 text-sm hidden sm:block">·</span>
-            <p className="text-muted-foreground/60 text-sm">
-              {isAr ? 'بناءً على آراء 2,400+ مستخدم' : 'Based on 2,400+ user reviews'}
+            <p className="text-foreground font-semibold text-base md:text-lg leading-relaxed mb-4">
+              {isAr
+                ? '“التداول الناجح ليس تخميناً أو حظاً، بل هو انضباط صارم، وخطة محكمة، وإدارة مخافة حقيقية لحماية رأس المال.”'
+                : '“Successful trading is not guessing or luck; it is strict discipline, a well-defined plan, and sound risk management to preserve capital.”'}
+            </p>
+            <p className="text-primary text-xs font-black uppercase tracking-widest">
+              SHUKRITRADE — {isAr ? 'فلسفة التداول الرصين' : 'Sober Trading Philosophy'}
             </p>
           </motion.div>
         </div>

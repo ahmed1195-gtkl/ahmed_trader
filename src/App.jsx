@@ -67,10 +67,25 @@ const LazyBooksPage = withSuspense(lazy(() => import('./components/BooksPage')),
 const LazyBookDetail = withSuspense(lazy(() => import('./components/BookDetail')), BooksSkeleton);
 const LazyImmersiveBookReader = withSuspense(lazy(() => import('./components/ImmersiveBookReader')), BooksSkeleton);
 const LazySubscriptionPage = withSuspense(lazy(() => import('./components/SubscriptionPage')), DashboardSkeleton);
+const LazyMaintenancePage = withSuspense(lazy(() => import('./components/ui/MaintenancePage')), FeedSkeleton);
 
-// ─── Helper: render page or ComingSoon ─────────────────────────────────────
-function PageGuard({ enabled, children }) {
-  if (enabled === false) return <ComingSoonPage />;
+// ─── Helper: render page, Maintenance, or ComingSoon ──────────────────────
+function PageGuard({ pageKey, enabled, userData, isAdmin, children }) {
+  const { pages, maintenance, pageMaintenance } = usePlatform();
+
+  const isEnabled = enabled !== undefined ? enabled : (pageKey ? pages?.[pageKey] !== false : true);
+  const isStaff = isAdmin || userData?.role === 'admin' || userData?.role === 'account_manager' || userData?.isAccountManager === true;
+  const maintenanceInfo = pageKey ? pageMaintenance?.[pageKey] : null;
+  const isPageUnderMaintenance = maintenance || (maintenanceInfo?.enabled === true);
+
+  if (isPageUnderMaintenance && !isStaff) {
+    return <LazyMaintenancePage pageName={pageKey} maintenanceInfo={maintenanceInfo} />;
+  }
+
+  if (isEnabled === false) {
+    return <ComingSoonPage pageName={pageKey} />;
+  }
+
   return children;
 }
 
@@ -182,58 +197,58 @@ function AuthenticatedRoutes({ user, userData, onboardingCompleted, isAdmin, has
 
       {/* News */}
       <Route path="/news" element={
-        <PageGuard enabled={pages.news}>
+        <PageGuard pageKey="news" userData={userData} isAdmin={isAdmin}>
           <LazyNewsPage />
         </PageGuard>
       } />
       <Route path="/global-news" element={
-        <PageGuard enabled={pages.news}>
+        <PageGuard pageKey="news" userData={userData} isAdmin={isAdmin}>
           <LazyGlobalNews />
         </PageGuard>
       } />
 
       {/* Academy */}
       <Route path="/academy" element={
-        <PageGuard enabled={pages.academy}>
+        <PageGuard pageKey="academy" userData={userData} isAdmin={isAdmin}>
           <LazyAcademy />
         </PageGuard>
       } />
       <Route path="/academy/:schoolId" element={
-        <PageGuard enabled={pages.academy}>
+        <PageGuard pageKey="academy" userData={userData} isAdmin={isAdmin}>
           <LazySchoolPage />
         </PageGuard>
       } />
       <Route path="/academy/:schoolId/lesson/:lessonId" element={
-        <PageGuard enabled={pages.academy}>
+        <PageGuard pageKey="academy" userData={userData} isAdmin={isAdmin}>
           <LazyLessonPage />
         </PageGuard>
       } />
 
       {/* Books */}
       <Route path="/books" element={
-        <PageGuard enabled={pages.books}>
+        <PageGuard pageKey="books" userData={userData} isAdmin={isAdmin}>
           <LazyBooksPage />
         </PageGuard>
       } />
       <Route path="/books/:bookId" element={
-        <PageGuard enabled={pages.books}>
+        <PageGuard pageKey="books" userData={userData} isAdmin={isAdmin}>
           <LazyBookDetail />
         </PageGuard>
       } />
       <Route path="/books/:bookId/read" element={
-        <PageGuard enabled={pages.books}>
+        <PageGuard pageKey="books" userData={userData} isAdmin={isAdmin}>
           <LazyImmersiveBookReader />
         </PageGuard>
       } />
 
       {/* Courses */}
       <Route path="/courses" element={
-        <PageGuard enabled={pages.courses}>
+        <PageGuard pageKey="courses" userData={userData} isAdmin={isAdmin}>
           <LazyCourses />
         </PageGuard>
       } />
       <Route path="/course/:courseId" element={
-        <PageGuard enabled={pages.courses}>
+        <PageGuard pageKey="courses" userData={userData} isAdmin={isAdmin}>
           <LazyCourseEnrollment />
         </PageGuard>
       } />
@@ -241,14 +256,14 @@ function AuthenticatedRoutes({ user, userData, onboardingCompleted, isAdmin, has
 
       {/* Challenges */}
       <Route path="/challenges" element={
-        <PageGuard enabled={pages.challenges}>
+        <PageGuard pageKey="challenges" userData={userData} isAdmin={isAdmin}>
           <ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}>
             <LazyTradingChallengeTest />
           </ProtectedRoute>
         </PageGuard>
       } />
       <Route path="/challenge/:participantId" element={
-        <PageGuard enabled={pages.challenges}>
+        <PageGuard pageKey="challenges" userData={userData} isAdmin={isAdmin}>
           <ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}>
             <LazyChallengeDashboard />
           </ProtectedRoute>
@@ -257,21 +272,21 @@ function AuthenticatedRoutes({ user, userData, onboardingCompleted, isAdmin, has
 
       {/* Messages */}
       <Route path="/messages" element={
-        <PageGuard enabled={pages.messages}>
+        <PageGuard pageKey="messages" userData={userData} isAdmin={isAdmin}>
           <LazyMessages />
         </PageGuard>
       } />
 
       {/* Community / Friends */}
       <Route path="/friends" element={
-        <PageGuard enabled={pages.friends}>
+        <PageGuard pageKey="friends" userData={userData} isAdmin={isAdmin}>
           <LazyFriends />
         </PageGuard>
       } />
 
       {/* AI Bot */}
       <Route path="/ai-bot" element={
-        <PageGuard enabled={pages.aiBot}>
+        <PageGuard pageKey="aiBot" userData={userData} isAdmin={isAdmin}>
           <ProtectedRoute hasDemoAccount={hasDemoAccount} isAdmin={isAdmin}>
             <LazyAITradingBot />
           </ProtectedRoute>
@@ -280,35 +295,35 @@ function AuthenticatedRoutes({ user, userData, onboardingCompleted, isAdmin, has
 
       {/* Pip Calculator */}
       <Route path="/pip-calculator" element={
-        <PageGuard enabled={pages.pipCalculator}>
+        <PageGuard pageKey="pipCalculator" userData={userData} isAdmin={isAdmin}>
           <LazyPipCalculator />
         </PageGuard>
       } />
 
       {/* Market Intelligence */}
       <Route path="/market-intelligence" element={
-        <PageGuard enabled={pages.marketIntelligence}>
+        <PageGuard pageKey="marketIntelligence" userData={userData} isAdmin={isAdmin}>
           <LazyMarketIntelligence />
         </PageGuard>
       } />
 
       {/* Global Leaderboard */}
       <Route path="/global-leaderboard" element={
-        <PageGuard enabled={pages.globalLeaderboard}>
+        <PageGuard pageKey="globalLeaderboard" userData={userData} isAdmin={isAdmin}>
           <LazyGlobalLeaderboard />
         </PageGuard>
       } />
 
       {/* Brokers */}
       <Route path="/brokers" element={
-        <PageGuard enabled={pages.brokers}>
+        <PageGuard pageKey="brokers" userData={userData} isAdmin={isAdmin}>
           <LazyBrokersPage />
         </PageGuard>
       } />
 
       {/* Sheets Guide */}
       <Route path="/sheets-guide" element={
-        <PageGuard enabled={pages.sheetsGuide}>
+        <PageGuard pageKey="sheetsGuide" userData={userData} isAdmin={isAdmin}>
           <LazySheetsGuide />
         </PageGuard>
       } />

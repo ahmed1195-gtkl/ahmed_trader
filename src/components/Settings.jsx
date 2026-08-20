@@ -26,24 +26,27 @@ const Settings = () => {
     photoURL: '',
     country: '',
     age: '',
-    twoFactorEnabled: false
+    twoFactorEnabled: false,
+    role: 'user',
+    isAccountManager: false,
+    isAdmin: false,
+    socialLinks: {
+      linkedin: '',
+      tiktok: '',
+      facebook: '',
+      telegram: '',
+      instagram: ''
+    }
   });
 
-  const countries = [
-    "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
-    "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi",
-    "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic",
-    "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia",
-    "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
-    "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", "Jordan",
-    "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg",
-    "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar",
-    "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman",
-    "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda",
-    "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria",
-    "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan",
-    "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
-  ];
+  const sanitizeUrl = (url) => {
+    if (!url) return '';
+    const trimmed = url.trim();
+    if (/^(javascript:|data:|vbscript:)/i.test(trimmed)) return '';
+    return trimmed;
+  };
+
+  const isStaff = profileData.role === 'admin' || profileData.role === 'account_manager' || profileData.isAdmin || profileData.isAccountManager;
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -61,7 +64,17 @@ const Settings = () => {
               photoURL: data.photoURL || currentUser.photoURL || '',
               country: data.country || '',
               age: data.age || '',
-              twoFactorEnabled: data.twoFactorEnabled || false
+              twoFactorEnabled: data.twoFactorEnabled || false,
+              role: data.role || (data.isAdmin ? 'admin' : data.isAccountManager ? 'account_manager' : 'user'),
+              isAccountManager: data.isAccountManager || false,
+              isAdmin: data.isAdmin || false,
+              socialLinks: {
+                linkedin: data.socialLinks?.linkedin || '',
+                tiktok: data.socialLinks?.tiktok || '',
+                facebook: data.socialLinks?.facebook || '',
+                telegram: data.socialLinks?.telegram || '',
+                instagram: data.socialLinks?.instagram || ''
+              }
             });
           } else {
             setProfileData(prev => ({
@@ -113,6 +126,16 @@ const Settings = () => {
         twoFactorEnabled: profileData.twoFactorEnabled,
         updatedAt: new Date().toISOString()
       };
+
+      if (isStaff) {
+        updatePayload.socialLinks = {
+          linkedin: sanitizeUrl(profileData.socialLinks?.linkedin),
+          tiktok: sanitizeUrl(profileData.socialLinks?.tiktok),
+          facebook: sanitizeUrl(profileData.socialLinks?.facebook),
+          telegram: sanitizeUrl(profileData.socialLinks?.telegram),
+          instagram: sanitizeUrl(profileData.socialLinks?.instagram)
+        };
+      }
 
       if (docSnap.exists()) {
         await updateDoc(docRef, updatePayload);
@@ -241,31 +264,85 @@ const Settings = () => {
               </CardContent>
             </Card>
         
-            <Card className="bg-card backdrop-blur-xl border-border text-foreground rounded-xl">
-              <CardHeader>
-                <div className="flex items-center gap-2 text-primary mb-2">
-                  <Shield className="w-5 h-5" />
-                  <span className="font-bold uppercase tracking-widest text-xs">Security</span>
-                </div>
-                <CardTitle>Two-Factor Authentication</CardTitle>
-                <CardDescription className="text-muted-foreground">Add an extra layer of security to your account.</CardDescription>
-              </CardHeader>
-              <CardContent className="p-6 sm:p-8 pt-0">
-                <div className="flex items-center justify-between p-6 bg-secondary rounded-md border border-border">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-md bg-primary/10 text-primary">
-                      <Lock className="w-5 h-5" />
+            {isStaff && (
+              <Card className="bg-card backdrop-blur-xl border-border text-foreground rounded-xl">
+                <CardHeader>
+                  <div className="flex items-center gap-2 text-primary mb-2">
+                    <Globe className="w-5 h-5" />
+                    <span className="font-bold uppercase tracking-widest text-xs">Staff Profile</span>
+                  </div>
+                  <CardTitle>Official Social Media Links</CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    As an authorized staff member ({profileData.role === 'admin' ? 'Admin' : 'Account Manager'}), you can configure your public social profile links.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-6 sm:p-8 pt-0 space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-primary/70">LinkedIn URL</label>
+                      <Input
+                        placeholder="https://linkedin.com/in/username"
+                        value={profileData.socialLinks.linkedin}
+                        onChange={(e) => setProfileData({
+                          ...profileData,
+                          socialLinks: { ...profileData.socialLinks, linkedin: e.target.value }
+                        })}
+                        className="bg-secondary border-border h-11 rounded-md text-sm"
+                      />
                     </div>
-                    <div>
-                      <p className="font-bold uppercase tracking-tight">Enable 2FA</p>
-                      <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">{profileData.twoFactorEnabled ? 'Active' : 'Inactive'}</p>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-primary/70">TikTok URL</label>
+                      <Input
+                        placeholder="https://tiktok.com/@username"
+                        value={profileData.socialLinks.tiktok}
+                        onChange={(e) => setProfileData({
+                          ...profileData,
+                          socialLinks: { ...profileData.socialLinks, tiktok: e.target.value }
+                        })}
+                        className="bg-secondary border-border h-11 rounded-md text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-primary/70">Facebook URL</label>
+                      <Input
+                        placeholder="https://facebook.com/username"
+                        value={profileData.socialLinks.facebook}
+                        onChange={(e) => setProfileData({
+                          ...profileData,
+                          socialLinks: { ...profileData.socialLinks, facebook: e.target.value }
+                        })}
+                        className="bg-secondary border-border h-11 rounded-md text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-primary/70">Telegram URL</label>
+                      <Input
+                        placeholder="https://t.me/username"
+                        value={profileData.socialLinks.telegram}
+                        onChange={(e) => setProfileData({
+                          ...profileData,
+                          socialLinks: { ...profileData.socialLinks, telegram: e.target.value }
+                        })}
+                        className="bg-secondary border-border h-11 rounded-md text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-primary/70">Instagram URL</label>
+                      <Input
+                        placeholder="https://instagram.com/username"
+                        value={profileData.socialLinks.instagram}
+                        onChange={(e) => setProfileData({
+                          ...profileData,
+                          socialLinks: { ...profileData.socialLinks, instagram: e.target.value }
+                        })}
+                        className="bg-secondary border-border h-11 rounded-md text-sm"
+                      />
                     </div>
                   </div>
-                  <Switch checked={profileData.twoFactorEnabled} onCheckedChange={(checked) => setProfileData({...profileData, twoFactorEnabled: checked})} className="data-[state=checked]:bg-primary" />
-                </div>
-              </CardContent>
-            </Card>
-        
+                </CardContent>
+              </Card>
+            )}
+
             <div className="flex justify-end">
               <Button type="submit" disabled={saving} className="w-full sm:w-auto bg-primary text-primary-foreground hover:brightness-110 font-black uppercase tracking-widest px-12 h-12 rounded-md shadow-lg shadow-primary/20 transition-all active:scale-95 cursor-pointer border-0">
                 {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-4 h-4 mr-2" /> Save Changes</>}

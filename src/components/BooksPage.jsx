@@ -104,24 +104,17 @@ const BooksPage = () => {
         
         let totalRating = 0;
         let reviewsCount = 0;
-        reviewsSnap.forEach((doc) => {
-          totalRating += doc.data().rating || 0;
+        reviewsSnap.forEach((docSnap) => {
+          totalRating += docSnap.data().rating || 0;
           reviewsCount++;
         });
 
-        // Blend dynamic reviews with historical baseline
-        const baseReviews = 342;
-        const baseRating = 4.8;
-        const basePurchases = 1540;
-
-        const finalReviewsCount = baseReviews + reviewsCount;
-        const finalRating = Number(((baseReviews * baseRating + totalRating) / finalReviewsCount).toFixed(1));
-        const finalPurchases = basePurchases + readers;
+        const finalRating = reviewsCount > 0 ? Number((totalRating / reviewsCount).toFixed(1)) : 0;
 
         setBookStats({
           rating: finalRating,
-          reviews: finalReviewsCount,
-          purchases: finalPurchases
+          reviews: reviewsCount,
+          purchases: readers
         });
       } catch (err) {
         console.warn('Could not fetch book stats dynamically:', err);

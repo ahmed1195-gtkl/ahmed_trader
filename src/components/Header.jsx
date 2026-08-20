@@ -235,16 +235,6 @@ const Header = () => {
 
           {/* Actions */}
           <div className="flex items-center gap-2 md:gap-4">
-            {/* Subscription Button */}
-            {user && (
-              <button
-                onClick={() => setIsSubscriptionModalOpen(true)}
-                className="hidden md:flex items-center gap-2 px-4 py-2 rounded-md bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-lg hover:shadow-xl"
-              >
-                <Crown size={16} />
-                {i18n.language === 'ar' ? 'الاشتراكات' : 'Subscriptions'}
-              </button>
-            )}
 
             {/* Theme Toggle Button */}
             <button

@@ -20,6 +20,8 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import Header from './Header';
 import Footer from './Footer';
+import { db } from '../lib/firebase';
+import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 
 export default function MarketIntelligence() {
   const { i18n } = useTranslation();
@@ -64,58 +66,33 @@ export default function MarketIntelligence() {
   const loadAssetData = async (assetId) => {
     setLoading(true);
     try {
-      const mockData = {
-        news: [
-          {
-            id: '1',
-            title: 'Bitcoin Surges Past $45,000 on Positive Fed Signals',
-            source: 'Bloomberg',
-            sentiment: 'Bullish',
-            sentimentScore: 0.85,
-            impact: 'High',
-            publishedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-            keyPhrases: ['Fed', 'positive', 'surge']
-          },
-          {
-            id: '2',
-            title: 'Ethereum Network Upgrade Scheduled for Q2',
-            source: 'CoinDesk',
-            sentiment: 'Positive',
-            sentimentScore: 0.72,
-            impact: 'Medium',
-            publishedAt: new Date(Date.now() - 5 * 60 * 60 * 1000),
-            keyPhrases: ['upgrade', 'network', 'Q2']
-          },
-          {
-            id: '3',
-            title: 'Regulatory Concerns Weigh on Crypto Markets',
-            source: 'Reuters',
-            sentiment: 'Bearish',
-            sentimentScore: -0.65,
-            impact: 'High',
-            publishedAt: new Date(Date.now() - 8 * 60 * 60 * 1000),
-            keyPhrases: ['regulation', 'concerns', 'crypto']
-          }
-        ],
-        analytics: {
+      const newsQuery = query(
+        collection(db, 'news_articles'),
+        where('assetId', '==', assetId),
+        orderBy('publishedAt', 'desc'),
+        limit(20)
+      );
+      const snap = await getDocs(newsQuery);
+      if (!snap.empty) {
+        const fetchedNews = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setNewsData(fetchedNews);
+        setAnalytics({
           assetId: assetId,
-          totalNews: 3,
-          bullishNews: 1,
-          bearishNews: 1,
-          neutralNews: 1,
-          averageSentimentScore: 0.31,
-          sentimentTrend: 'Bullish',
-          volatilityLevel: 'Medium',
-          predictedMove: 2.5,
-          timeframe: '4h',
-          confidence: 78
-        }
-      };
-
-      setNewsData(mockData.news);
-      setAnalytics(mockData.analytics);
+          totalNews: fetchedNews.length,
+          bullishNews: fetchedNews.filter(n => n.sentiment === 'Bullish' || n.sentiment === 'Positive').length,
+          bearishNews: fetchedNews.filter(n => n.sentiment === 'Bearish' || n.sentiment === 'Negative').length,
+          neutralNews: fetchedNews.filter(n => n.sentiment === 'Neutral').length,
+          sentimentTrend: fetchedNews.length > 0 ? (fetchedNews[0].sentiment || 'Neutral') : 'Neutral',
+          confidence: 85
+        });
+      } else {
+        setNewsData([]);
+        setAnalytics(null);
+      }
     } catch (error) {
       console.error('Error loading asset data:', error);
+      setNewsData([]);
+      setAnalytics(null);
     } finally {
       setLoading(false);
     }

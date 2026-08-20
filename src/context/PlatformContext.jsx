@@ -35,6 +35,21 @@ const DEFAULT_SETTINGS = {
     community: true,
   },
   maintenance: false,
+  pageMaintenance: {
+    courses: { enabled: false, message: '', startTime: null, returnTime: null },
+    news: { enabled: false, message: '', startTime: null, returnTime: null },
+    academy: { enabled: false, message: '', startTime: null, returnTime: null },
+    aiBot: { enabled: false, message: '', startTime: null, returnTime: null },
+    challenges: { enabled: false, message: '', startTime: null, returnTime: null },
+    messages: { enabled: false, message: '', startTime: null, returnTime: null },
+    community: { enabled: false, message: '', startTime: null, returnTime: null },
+    books: { enabled: false, message: '', startTime: null, returnTime: null },
+    brokers: { enabled: false, message: '', startTime: null, returnTime: null },
+    marketIntelligence: { enabled: false, message: '', startTime: null, returnTime: null },
+    globalLeaderboard: { enabled: false, message: '', startTime: null, returnTime: null },
+    pipCalculator: { enabled: false, message: '', startTime: null, returnTime: null },
+    sheetsGuide: { enabled: false, message: '', startTime: null, returnTime: null },
+  }
 };
 
 const PlatformContext = createContext({
@@ -58,6 +73,7 @@ export function PlatformProvider({ children }) {
           pages: { ...DEFAULT_SETTINGS.pages, ...(data.pages || {}) },
           features: { ...DEFAULT_SETTINGS.features, ...(data.features || {}) },
           maintenance: data.maintenance ?? false,
+          pageMaintenance: { ...DEFAULT_SETTINGS.pageMaintenance, ...(data.pageMaintenance || {}) },
         });
       } else {
         // First run: bootstrap the document with defaults

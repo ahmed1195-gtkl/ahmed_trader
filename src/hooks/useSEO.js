@@ -27,8 +27,8 @@ export function useSEO({
 
   useEffect(() => {
     // 1. Title
-    const baseTitle = 'Shukritrade | Smart Trading Platform';
-    document.title = title ? `${title} | Shukritrade` : baseTitle;
+    const baseTitle = 'SHUKRITRADE | Educational Trading Platform';
+    document.title = title ? `${title} | SHUKRITRADE` : baseTitle;
 
     // Helper to set meta tags
     const setMetaTag = (propertyOrName, content, isProperty = false) => {
@@ -50,7 +50,7 @@ export function useSEO({
     };
 
     // 2. Standard Meta tags
-    const defaultDesc = 'Master the Forex and Crypto markets with professional training, AI Trading Bot recommendations, and technical analysis indicators.';
+    const defaultDesc = 'SHUKRITRADE is an educational trading platform offering professional courses, classical technical analysis, interactive learning, market news, and AI-assisted trading analysis.';
     setMetaTag('description', description || defaultDesc);
     setMetaTag('robots', 'index, follow');
 
@@ -59,12 +59,12 @@ export function useSEO({
     const currentUrl = `${siteUrl}${canonicalPath || ''}`;
     const defaultImage = `${siteUrl}/shukritrade_logo.svg`;
 
-    setMetaTag('og:title', title ? `${title} | Shukritrade` : baseTitle, true);
+    setMetaTag('og:title', title ? `${title} | SHUKRITRADE` : baseTitle, true);
     setMetaTag('og:description', description || defaultDesc, true);
     setMetaTag('og:image', ogImage || defaultImage, true);
     setMetaTag('og:url', currentUrl, true);
     setMetaTag('og:type', ogType, true);
-    setMetaTag('og:site_name', 'Shukritrade', true);
+    setMetaTag('og:site_name', 'SHUKRITRADE', true);
 
     // 4. Twitter Cards
     setMetaTag('twitter:card', 'summary_large_image');
