@@ -41,6 +41,7 @@ import { toast } from 'sonner';
 import SubscriptionModal from './SubscriptionModal';
 import { useTheme } from '../context/ThemeContext';
 import { isAdminUser } from '../lib/adminService';
+import { usePlatform } from '../context/PlatformContext';
 
 const Header = () => {
   const { t, i18n } = useTranslation();
@@ -117,18 +118,20 @@ const Header = () => {
     { name: 'Instagram', icon: <Instagram className="w-4 h-4" />, url: 'https://www.instagram.com/mohamed_chokry' }
   ], []);
 
+  const { maintenance, pageMaintenance } = usePlatform();
+
   const navLinks = useMemo(() => [
-    { name: t('nav.home'), path: '/', icon: <Home className="w-4 h-4" />, show: true },
-    { name: i18n.language === 'ar' ? 'الوسطاء' : i18n.language === 'fr' ? 'Courtiers' : 'Brokers', path: '/brokers', icon: <TrendingUp className="w-4 h-4" />, show: true },
-    { name: i18n.language === 'ar' ? 'الأخبار' : 'Market News', path: '/news', icon: <Activity className="w-4 h-4" />, show: true },
-    { name: i18n.language === 'ar' ? 'أخبار عالمية' : 'Global News', path: '/global-news', icon: <Newspaper className="w-4 h-4" />, show: true },
-    { name: i18n.language === 'ar' ? 'الكورسات' : 'Courses', path: '/courses', icon: <GraduationCap className="w-4 h-4" />, show: true },
-    { name: i18n.language === 'ar' ? 'التحديات' : i18n.language === 'fr' ? 'Défis' : 'Challenges', path: '/challenges', icon: <Trophy className="w-4 h-4" />, show: true },
-    { name: i18n.language === 'ar' ? 'الرسائل' : 'Messages', path: '/messages', icon: <MessageCircle className="w-4 h-4" />, show: true },
-    { name: 'AI Bot', path: '/ai-bot', icon: <Zap className="w-4 h-4" />, show: siteSettings.showAIBot },
-    { name: 'Pips', path: '/pip-calculator', icon: <Calculator className="w-4 h-4" />, show: siteSettings.showPipCalculator },
-    { name: i18n.language === 'ar' ? 'الأكاديمية' : i18n.language === 'fr' ? 'Académie' : i18n.language === 'es' ? 'Academia' : 'Academy', path: '/academy', icon: <BookOpen className="w-4 h-4" />, show: true },
-    { name: i18n.language === 'ar' ? 'الكتب' : i18n.language === 'fr' ? 'Livres' : 'Books', path: '/books', icon: <BookOpen className="w-4 h-4" />, show: true },
+    { key: 'home', name: t('nav.home'), path: '/', icon: <Home className="w-4 h-4" />, show: true },
+    { key: 'brokers', name: i18n.language === 'ar' ? 'الوسطاء' : i18n.language === 'fr' ? 'Courtiers' : 'Brokers', path: '/brokers', icon: <TrendingUp className="w-4 h-4" />, show: true },
+    { key: 'news', name: i18n.language === 'ar' ? 'الأخبار' : 'Market News', path: '/news', icon: <Activity className="w-4 h-4" />, show: true },
+    { key: 'news', name: i18n.language === 'ar' ? 'أخبار عالمية' : 'Global News', path: '/global-news', icon: <Newspaper className="w-4 h-4" />, show: true },
+    { key: 'courses', name: i18n.language === 'ar' ? 'الكورسات' : 'Courses', path: '/courses', icon: <GraduationCap className="w-4 h-4" />, show: true },
+    { key: 'challenges', name: i18n.language === 'ar' ? 'التحديات' : i18n.language === 'fr' ? 'Défis' : 'Challenges', path: '/challenges', icon: <Trophy className="w-4 h-4" />, show: true },
+    { key: 'messages', name: i18n.language === 'ar' ? 'الرسائل' : 'Messages', path: '/messages', icon: <MessageCircle className="w-4 h-4" />, show: true },
+    { key: 'aiBot', name: 'AI Bot', path: '/ai-bot', icon: <Zap className="w-4 h-4" />, show: siteSettings.showAIBot },
+    { key: 'pipCalculator', name: 'Pips', path: '/pip-calculator', icon: <Calculator className="w-4 h-4" />, show: siteSettings.showPipCalculator },
+    { key: 'academy', name: i18n.language === 'ar' ? 'الأكاديمية' : i18n.language === 'fr' ? 'Académie' : i18n.language === 'es' ? 'Academia' : 'Academy', path: '/academy', icon: <BookOpen className="w-4 h-4" />, show: true },
+    { key: 'books', name: i18n.language === 'ar' ? 'الكتب' : i18n.language === 'fr' ? 'Livres' : 'Books', path: '/books', icon: <BookOpen className="w-4 h-4" />, show: true },
   ].filter(link => link.show), [i18n.language, t, siteSettings.showAIBot, siteSettings.showPipCalculator]);
 
   const changeLanguage = useCallback((code) => {
@@ -350,17 +353,27 @@ const Header = () => {
                   </button>
                 </div>
                 <div className="flex flex-col gap-2">
-                  {navLinks.map((link) => (
-                    <Link 
-                      key={link.path} 
-                      to={link.path} 
-                      onClick={() => setIsSidebarOpen(false)}
-                      onMouseEnter={() => prefetchRoute(link.path)}
-                      className={`flex items-center gap-4 px-4 py-4 rounded-md text-xs font-black uppercase tracking-widest transition-all ${location.pathname === link.path ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'}`}
-                    >
-                      {link.icon} {link.name}
-                    </Link>
-                  ))}
+                  {navLinks.map((link) => {
+                    const isLinkUnderMaintenance = maintenance || (link.key && pageMaintenance?.[link.key]?.enabled === true);
+                    return (
+                      <Link 
+                        key={link.path} 
+                        to={link.path} 
+                        onClick={() => setIsSidebarOpen(false)}
+                        onMouseEnter={() => prefetchRoute(link.path)}
+                        className={`flex items-center justify-between px-4 py-4 rounded-md text-xs font-black uppercase tracking-widest transition-all ${location.pathname === link.path ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'}`}
+                      >
+                        <span className="flex items-center gap-3">
+                          {link.icon} {link.name}
+                        </span>
+                        {isLinkUnderMaintenance && (
+                          <span className="px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-500 text-[9px] font-black tracking-wider">
+                            {i18n.language === 'ar' ? 'تحت الصيانة' : 'Maint'}
+                          </span>
+                        )}
+                      </Link>
+                    );
+                  })}
                   {user && isAdmin && (
                     <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-border">
                       <span className="text-[10px] text-primary font-bold uppercase tracking-widest px-4 mb-1">
