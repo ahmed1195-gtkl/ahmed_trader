@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   GraduationCap, X, CheckCircle2, XCircle, Award, RotateCcw,
-  ChevronLeft, ChevronRight, Check, Loader2, Trophy, BookOpen
+  ChevronLeft, ChevronRight, Check, Loader2, Trophy, BookOpen, AlertCircle, Sparkles
 } from 'lucide-react';
 import { saveAssessmentResult } from '../../../services/assessmentService';
 
@@ -17,7 +17,7 @@ export const AssessmentModal = ({ isOpen, onClose, schoolId, lesson, school, lan
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState(null);
 
-  // Reset on open
+  // Reset state on modal open
   useEffect(() => {
     if (isOpen) {
       setStep(0);
@@ -116,7 +116,7 @@ export const AssessmentModal = ({ isOpen, onClose, schoolId, lesson, school, lan
           aria-modal="true"
           aria-labelledby="assessment-title"
           dir={isRTL ? 'rtl' : 'ltr'}
-          className={`w-full max-w-xl bg-card border border-border rounded-2xl shadow-2xl overflow-hidden relative ${isRTL ? 'rtl' : 'ltr'}`}
+          className={`w-full max-w-2xl bg-card border border-border rounded-2xl shadow-2xl overflow-hidden relative my-6 ${isRTL ? 'rtl' : 'ltr'}`}
         >
           {/* ── Header ── */}
           <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-border bg-secondary/40">
@@ -128,7 +128,7 @@ export const AssessmentModal = ({ isOpen, onClose, schoolId, lesson, school, lan
                 <h2 id="assessment-title" className="text-base font-bold text-foreground">
                   {isRTL ? 'اختبار كفاءة الدرس' : 'Lesson Assessment'}
                 </h2>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground truncate max-w-xs sm:max-w-md">
                   {isRTL
                     ? `الدرس ${lesson.id}: ${lesson[lang]?.title || lesson.en?.title || ''}`
                     : `Lesson ${lesson.id}: ${lesson.en?.title || lesson.ar?.title || ''}`}
@@ -167,7 +167,7 @@ export const AssessmentModal = ({ isOpen, onClose, schoolId, lesson, school, lan
                 {/* Question */}
                 <div className="mb-6 space-y-4">
                   <h3 className="text-sm sm:text-base font-bold text-foreground leading-relaxed">
-                    {current.q}
+                    {step + 1}. {current.q}
                   </h3>
 
                   {/* Multiple choice */}
@@ -181,7 +181,7 @@ export const AssessmentModal = ({ isOpen, onClose, schoolId, lesson, school, lan
                             onClick={() => handleAnswer(step, oi)}
                             className={`w-full px-4 py-3.5 rounded-xl text-start border text-sm font-medium transition-all flex items-center justify-between gap-3 cursor-pointer ${
                               sel
-                                ? 'border-amber-500 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold'
+                                ? 'border-amber-500 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold shadow-sm'
                                 : 'border-border bg-secondary/30 text-foreground hover:bg-secondary/60 hover:border-amber-500/30'
                             }`}
                           >
@@ -254,66 +254,135 @@ export const AssessmentModal = ({ isOpen, onClose, schoolId, lesson, school, lan
                 </div>
               </>
             ) : (
-              /* ── Results Screen ── */
+              /* ── Educational Results & Feedback Screen ── */
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-2 space-y-5"
+                className="space-y-6 py-2"
               >
-                {/* Score icon */}
-                <div className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center ${
-                  result.passed ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-amber-500/10 border border-amber-500/20'
+                {/* Score Banner */}
+                <div className={`p-6 rounded-2xl border text-center relative overflow-hidden ${
+                  result.passed
+                    ? 'bg-emerald-500/10 border-emerald-500/30'
+                    : 'bg-amber-500/10 border-amber-500/30'
                 }`}>
-                  {result.passed
-                    ? <Trophy className="w-8 h-8 text-emerald-400" />
-                    : <Award className="w-8 h-8 text-amber-500" />}
+                  <div className={`w-16 h-16 rounded-2xl mx-auto mb-3 flex items-center justify-center shadow-lg ${
+                    result.passed ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-black'
+                  }`}>
+                    {result.passed ? <Trophy className="w-8 h-8" /> : <Award className="w-8 h-8" />}
+                  </div>
+
+                  <h3 className="text-xl sm:text-2xl font-black text-foreground">
+                    {result.passed
+                      ? (isRTL ? 'ممتاز! تم اجتياز التقييم بنجاح 🎉' : 'Assessment Passed Successfully 🎉')
+                      : (isRTL ? 'مراجعة موصى بها قبل الانتقال' : 'Review Recommended Before Continuing')}
+                  </h3>
+
+                  <p className="text-sm font-bold mt-1 text-muted-foreground">
+                    {isRTL
+                      ? `النتيجة النهائية: ${result.pct}% (${result.score} من أصل ${result.total} إجابات صحيحة)`
+                      : `Final Score: ${result.pct}% (${result.score} of ${result.total} correct)`}
+                  </p>
+
+                  <div className="inline-flex items-center gap-2 mt-3 px-3.5 py-1.5 rounded-full bg-background/80 border border-border text-xs font-mono font-bold">
+                    {result.passed
+                      ? <><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /><span className="text-emerald-400">{isRTL ? 'تم حفظ التقديم في Firebase' : 'Synced to Firebase'}</span></>
+                      : <><AlertCircle className="w-3.5 h-3.5 text-amber-500" /><span className="text-amber-500">{isRTL ? 'مطلوب درجة 70% للاجتياز' : '70% Required to Pass'}</span></>}
+                  </div>
                 </div>
 
-                {/* Title */}
-                <div>
-                  <h3 className="text-xl font-black text-foreground">
+                {/* Educational Feedback Summary Card */}
+                <div className="p-4 rounded-xl bg-secondary/50 border border-border space-y-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-amber-500 flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4" />
+                    {isRTL ? 'التوجيه والأداء الأكاديمي' : 'Educational Guidance'}
+                  </h4>
+                  <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed">
                     {result.passed
-                      ? (isRTL ? 'ممتاز! اجتزت الاختبار 🎉' : 'Excellent! Assessment Passed 🎉')
-                      : (isRTL ? 'مراجعة مطلوبة' : 'Review Recommended')}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {isRTL
-                      ? `النتيجة: ${result.pct}% — ${result.score} من ${result.total} إجابة صحيحة`
-                      : `Score: ${result.pct}% — ${result.score} of ${result.total} correct`}
+                      ? (isRTL
+                          ? 'أظهرت استيعاباً ممتازاً لمفاهيم آلية نشوء السعر، أنواع الأوامر، الفوارق السعرية (Spreads)، ودراسة حالة الفرنك السويسري. يمكنك الآن الانتقال للدرس التالي بثقة.'
+                          : 'You demonstrated an excellent grasp of Price Formation, Order Types, Spreads, and market execution mechanics. You are ready for the next lesson.')
+                      : (isRTL
+                          ? `حصلت على ${result.pct}%. نوصي بمراجعة ورقة عمل حساب السبريد والمثال التطبيقي لأمر المحدد مقابل أمر السوق في الدرس لترسيخ المفاهيم قبل إعادة المحاولة.`
+                          : `You scored ${result.pct}%. We recommend reviewing the Spread Worksheet and Order Types sections in this lesson before retaking.`)}
                   </p>
                 </div>
 
-                {/* Status badge */}
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary border border-border text-sm font-bold">
-                  {result.passed
-                    ? <><CheckCircle2 className="w-4 h-4 text-emerald-400" /><span className="text-emerald-400">{isRTL ? 'اكتمل — تم الحفظ في Firebase' : 'Passed — Saved to Firebase'}</span></>
-                    : <><XCircle className="w-4 h-4 text-amber-500" /><span className="text-amber-500">{isRTL ? 'مراجعة موصى بها' : 'Review Recommended'}</span></>}
-                </div>
+                {/* Question-by-Question Detailed Review */}
+                <div className="space-y-3">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">
+                    {isRTL ? 'مراجعة الأسئلة وتفسير الإجابات:' : 'Question Review & Explanations:'}
+                  </h4>
+                  
+                  <div className="space-y-3 max-h-64 overflow-y-auto pr-1 scrollbar-thin">
+                    {quiz.map((q, idx) => {
+                      const userSel = answers[idx];
+                      const isCorrect = q.correctIndex !== undefined ? userSel === q.correctIndex : (userSel !== undefined && userSel !== '');
 
-                {/* Q&A Review */}
-                <div className="text-start space-y-2.5 max-h-56 overflow-y-auto border border-border rounded-xl p-3">
-                  {quiz.map((q, idx) => (
-                    <div key={idx} className="p-3 rounded-lg bg-secondary/40 text-xs space-y-1">
-                      <p className="font-bold text-foreground">Q{idx + 1}: {q.q}</p>
-                      {q.a && <p className="text-muted-foreground"><span className="text-amber-500 font-bold">{isRTL ? 'الإجابة: ' : 'Answer: '}</span>{q.a}</p>}
-                    </div>
-                  ))}
+                      return (
+                        <div key={idx} className={`p-4 rounded-xl border text-xs space-y-2 ${
+                          isCorrect ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-red-500/5 border-red-500/20'
+                        }`}>
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="font-bold text-foreground leading-relaxed text-sm">
+                              {idx + 1}. {q.q}
+                            </p>
+                            {isCorrect ? (
+                              <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold flex items-center gap-1 shrink-0">
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                {isRTL ? 'صحيحة' : 'Correct'}
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold flex items-center gap-1 shrink-0">
+                                <XCircle className="w-3.5 h-3.5" />
+                                {isRTL ? 'خطأ' : 'Incorrect'}
+                              </span>
+                            )}
+                          </div>
+
+                          {q.options && (
+                            <div className="space-y-1 pt-1">
+                              <p className="text-muted-foreground">
+                                <span className="font-bold">{isRTL ? 'إجابتك: ' : 'Your answer: '}</span>
+                                <span className={isCorrect ? 'text-emerald-400 font-medium' : 'text-red-400 font-medium'}>
+                                  {userSel !== undefined ? q.options[userSel] : (isRTL ? 'لم تجب' : 'Not answered')}
+                                </span>
+                              </p>
+                              {!isCorrect && (
+                                <p className="text-emerald-400 font-medium">
+                                  <span className="font-bold">{isRTL ? 'الإجابة الصحيحة: ' : 'Correct answer: '}</span>
+                                  {q.options[q.correctIndex]}
+                                </p>
+                              )}
+                            </div>
+                          )}
+
+                          {q.a && (
+                            <div className="pt-1.5 border-t border-border/40 text-muted-foreground leading-relaxed">
+                              <span className="font-bold text-amber-500">{isRTL ? 'التفسير الأكاديمي: ' : 'Explanation: '}</span>
+                              {q.a}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center justify-center gap-3 pt-2">
+                <div className="flex items-center justify-between gap-3 pt-4 border-t border-border">
                   <button
                     onClick={handleRetake}
                     className="px-4 py-2.5 rounded-xl border border-border bg-secondary hover:bg-secondary/70 text-foreground text-sm font-semibold flex items-center gap-2 cursor-pointer transition-colors"
                   >
                     <RotateCcw className="w-4 h-4" />
-                    {isRTL ? 'إعادة الاختبار' : 'Retake'}
+                    {isRTL ? 'إعادة المحاولة' : 'Retake Assessment'}
                   </button>
                   <button
                     onClick={onClose}
-                    className="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black text-sm font-bold cursor-pointer transition-colors"
+                    className="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black text-sm font-bold cursor-pointer transition-colors shadow-md"
                   >
-                    {isRTL ? 'متابعة التعلم' : 'Continue Learning'}
+                    {isRTL ? 'متابعة الدرس' : 'Continue'}
                   </button>
                 </div>
               </motion.div>
